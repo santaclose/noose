@@ -1,0 +1,101 @@
+Checker
+[
+	in:
+		Vector2i: image size
+		Integer: square size
+		Color: color a
+		Color: color b
+	out:
+		Image: result
+]
+Construct Color
+[
+	in:
+		Integer: r
+		Integer: g
+		Integer: b
+		Integer: a
+	out:
+		Color: color
+]
+Construct Vector2i
+[
+	in:
+		Integer: x
+		Integer: y
+	out:
+		Vector2i: vector
+]
+Flip
+[
+	in:
+		Image: in
+		Integer: vertical?
+	out:
+		Image: out
+]
+Float
+[
+	in:
+		Float: in
+	out:
+		Float: out
+]
+Image
+[
+	in:
+		Image: in
+	out:
+		Image: out
+		Vector2i: size
+]
+Integer
+[
+	in:
+		Integer: in
+	out:
+		Integer: out
+]
+Invert
+[
+	in:
+		Image: in
+	out:
+		Image: out
+]
+Linear Gradient
+[
+	in:
+		Vector2i: image size
+	out:
+		Image: result
+]
+Multiply
+[
+	in:
+		Image: a
+		Image: b
+	out:
+		Image: result
+]
+Output
+[
+	in:
+		Image: image
+]
+Repeat
+[
+	in:
+		Image: image
+		Vector2i: image size
+	out:
+		Image: result
+]
+Rotate 90
+[
+	in:
+		Image: image
+		Integer: times
+	out:
+		Image: image
+]

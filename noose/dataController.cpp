@@ -1,0 +1,168 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <stdio.h>
+
+#include "dataController.h"
+ 
+namespace dataController
+{
+	std::vector<std::string*> searchResults;
+}
+
+struct nodeData
+{
+	std::string nodeName;
+	std::vector<uiNodeSystem::Types> pinTypes;
+	std::vector<std::string> pinNames;
+	int inputPinCount;
+	int outputPinCount;
+};
+
+std::vector<nodeData> nodeDataList;
+
+inline void parsePinLine(const std::string& line, std::string& a, std::string& b)
+{
+	int i = 2;
+	for (; line[i] != ':'; i++);
+	a = line.substr(2, i - 2);
+	i += 2;
+	b = line.substr(i, line.length() - i);
+}
+
+inline uiNodeSystem::Types typeFromString(const std::string& s)
+{
+	if (s == "Image")
+		return uiNodeSystem::Types::Image;
+	else if (s == "Vector2i")
+		return uiNodeSystem::Types::Vector2i;
+	else if (s == "Float")
+		return uiNodeSystem::Types::Float;
+	else if (s == "Integer")
+		return uiNodeSystem::Types::Integer;
+	else if (s == "Color")
+		return uiNodeSystem::Types::Color;
+}
+
+// loads the dat file in memory
+void dataController::prepare()
+{
+	using namespace std;
+	bool insideDataSection = false;
+	bool inSection = true;
+
+	int currentNode = -1;
+
+	ifstream inputStream("res/nodes.dat");
+	string line;
+
+	string type, name;
+
+	while (getline(inputStream, line))
+	{
+		if (line[0] == '[')
+		{
+			insideDataSection = true;
+			continue;
+		}
+		else if (line[0] == ']')
+		{
+			insideDataSection = false;
+			continue;
+		}
+		if (!insideDataSection)
+		{
+			nodeDataList.emplace_back();
+			nodeDataList.back().nodeName = line;
+			nodeDataList.back().outputPinCount = nodeDataList.back().inputPinCount = 0;
+		}
+		else
+		{
+			if (line.find("\tin") != string::npos)
+				inSection = true;
+			else if (line.find("\tout:") != string::npos)
+				inSection = false;
+			else
+			{
+				parsePinLine(line, type, name);
+				nodeDataList.back().pinNames.push_back(name);
+				nodeDataList.back().pinTypes.push_back(typeFromString(type));
+				if (inSection)
+					nodeDataList.back().inputPinCount++;
+				else
+					nodeDataList.back().outputPinCount++;
+			}
+		}
+	}
+
+
+	inputStream.close();
+	/*
+	// log
+	for (nodeData& n : nodeDataList)
+	{
+		cout << n.nodeName << ":\n";
+		cout << "\tinput pins: " << n.inputPinCount << '\n';
+		cout << "\toutput pins: " << n.outputPinCount << "\n\tin:\n";
+		for (int i = 0; i < n.inputPinCount + n.outputPinCount; i++)
+		{
+			if (i == n.inputPinCount)
+				cout << "\tout:\n";
+			cout << "\t\t" << n.pinNames[i] << ": " << n.pinTypes[i] << endl;
+		}
+	}*/
+}
+
+void dataController::getDataFor(int searchResultIndex, int& inputPins, int& outputPins, uiNodeSystem::Types*& typePointer, std::string*& namePointer, std::string*& nodeName)
+{
+	for (nodeData& n : nodeDataList)
+	{
+		if (&n.nodeName == searchResults[searchResultIndex])
+		{
+			inputPins = n.inputPinCount;
+			outputPins = n.outputPinCount;
+			nodeName = &n.nodeName;
+			typePointer = &(n.pinTypes[0]);
+			namePointer = &(n.pinNames[0]);
+			return;
+		}
+	}
+}
+
+inline char tolower(char in) {
+	if (in <= 'Z' && in >= 'A')
+		return in - ('Z' - 'z');
+	return in;
+}
+
+inline bool searchFunction(const char* searchBuffer, int bufferSize, std::string& nodeName)
+{
+	//std::cout << "Comparing with " << nodeName << std::endl;
+	for (int i = 0; searchBuffer[i] != '\0'; i++)
+	{
+		if (i == nodeName.length())
+			break;
+		if (tolower(nodeName[i]) != tolower(searchBuffer[i])) {
+			//std::cout << tolower(nodeName[i]) << " | " << tolower(searchBuffer[i]) << std::endl;
+			return false;
+		}
+	}
+	return true;
+}
+
+int dataController::search(const char* searchBuffer, int bufferSize, int maxResults)
+{
+	//std::cout << "searching\n";
+	searchResults.clear();
+	for (nodeData& n : nodeDataList)
+	{
+		if (searchFunction(searchBuffer, bufferSize, n.nodeName))
+		{
+			//std::cout << "pushing to search results\n";
+			searchResults.push_back(&n.nodeName);
+			if (searchResults.size() == maxResults)
+				return maxResults;
+		}
+	}
+	return searchResults.size();
+}
