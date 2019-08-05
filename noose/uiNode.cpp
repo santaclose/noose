@@ -37,6 +37,28 @@
 
 #define VERTICES_PER_PROPERTY 8
 
+inline void reserveDataForPin(uiNodeSystem::Types type, void*& pointer)
+{
+	switch (type)
+	{
+	case uiNodeSystem::Types::Integer:
+		pointer = new int(0);
+		break;
+	case uiNodeSystem::Types::Float:
+		pointer = new float(0.0f);
+		break;
+	case uiNodeSystem::Types::Vector2i:
+		pointer = new sf::Vector2i(0, 0);
+		break;
+	case uiNodeSystem::Types::Color:
+		pointer = new sf::Color(255, 0, 255, 255);
+		break;
+	case uiNodeSystem::Types::Image:
+		pointer = new sf::RenderTexture();
+		break;
+	}
+}
+
 inline void setPinColor(sf::Vertex* firstVertex, uiNodeSystem::Types type)
 {
 	sf::Color theColor;
@@ -51,23 +73,18 @@ inline void setPinColor(sf::Vertex* firstVertex, uiNodeSystem::Types type)
 	case uiNodeSystem::Types::Vector2i:
 		theColor = sf::Color(0x56957aff);
 		break;
+	case uiNodeSystem::Types::Color:
+		theColor = sf::Color(0xaa7700ff);
+		break;
 	/*case uiNodeSystem::Types::Recti:
 		rect.setFillColor(sf::Color(0x324afbff));
 		break;*/
 	case uiNodeSystem::Types::Image:
 		theColor = sf::Color(0x00bc44ff);
 		break;
-	case uiNodeSystem::Types::Color:
-		theColor = sf::Color(0xaa7700ff);
-		break;
 	}
 	firstVertex[0].color = firstVertex[1].color = firstVertex[2].color = firstVertex[3].color = theColor;
 }
-
-/*inline void setInteractiveBoxColor(sf::Vertex* firstVertex)
-{
-	firstVertex[4].color = firstVertex[5].color = firstVertex[6].color = firstVertex[7].color = sf::Color(INTERACTIVE_BOX_COLOR);
-}*/
 
 uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition)
 {
@@ -111,10 +128,16 @@ uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition)
 	pinTypes = new uiNodeSystem::Types[inputPinCount + outputPinCount];
 	memcpy(pinTypes, &(data->pinTypes[0]), sizeof(uiNodeSystem::Types) * (inputPinCount + outputPinCount));
 
+	pinDataPointers = (void**) malloc(sizeof(void*) * (inputPinCount + outputPinCount));
+	for (int i = 0; i < (inputPinCount + outputPinCount); i++)
+	{
+		reserveDataForPin(pinTypes[i], pinDataPointers[i]);
+	}
+
 	inputFields = new uiInputField[inputPinCount];
 	for (int i = 0; i < inputPinCount; i++)
 	{
-		inputFields[i].setType(data->pinTypes[i]);
+		inputFields[i].initialize(data->pinTypes[i], pinDataPointers[i]);
 	}
 
 	setPosition(initialPosition);
@@ -345,17 +368,3 @@ bool uiNode::onClickOverInputField(const sf::Vector2f& mousePosInWorld) // we re
 	}
 	return false;
 }
-
-/*
-bool uiNode::mouseOverInputField(const sf::Vector2f& mousePosInWorld, uiNodeSystem::Types& returnType, void*& returnPointer, sf::Text*& returnText)
-{
-	for (int i = 0; i < inputPinCount; i++)
-	{
-		if (inputFields[i].isMouseOver(mousePosInWorld, returnType, returnPointer, returnText))
-		{
-			std::cout << "input field number " << i << std::endl;
-			return true;
-		}
-	}
-	return false;
-}*/

@@ -10,15 +10,15 @@ private:
 	sf::Text* texts;
 
 	void updateTextPositions();
-public:
 	void* dataPointer;
+public:
 
 	static void onMouseMoved(sf::Vector2f& displacement);
 	static void onLeftClickReleased();
 	static void onMouseScrolled(float delta);
 
 	~uiInputField();
-	void setType(uiNodeSystem::Types theType);
+	void initialize(uiNodeSystem::Types theType, void* pinDataPointer);
 	void setPosition(const sf::Vector2f& newPosition, float nodeWidth, float height); // top left corner position
 	void draw(sf::RenderWindow& window);
 	void setValue(const void* value);

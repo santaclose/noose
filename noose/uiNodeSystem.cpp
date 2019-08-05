@@ -137,17 +137,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 					{
 						break;
 					}
-					/*if (nodeList[i]->mouseOverInputField(mouseWorldPos, edittingInputFieldType, edittingInputFieldDataPointer, edittingInputFieldText))
-					{
-						std::cout << "editing input field \n";
-						edittingInputField = true;
-						if (edittingInputFieldType == Types::Integer)
-							edittingInputFieldHelper = (float) *((int*)edittingInputFieldDataPointer);
-						else if (edittingInputFieldType == Types::Image)
-						{
-						}
-						break;
-					}*/
 				}
 			}
 			else if (e.mouseButton.button == sf::Mouse::Right)
@@ -323,6 +312,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 		}
 	}
 }
+
 void uiNodeSystem::draw(sf::RenderWindow& window)
 {
 	window.setView(theView);

@@ -97,8 +97,6 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 		}
 		break;
 	case uiNodeSystem::Types::Color:
-		/*((sf::Color*)(editingInputField->dataPointer))->r += (sf::Uint8)displacement.x;
-		((sf::Color*)(editingInputField->dataPointer))->g += (sf::Uint8)displacement.y;*/
 		editingColorHue += displacement.x * COLOR_EDITING_SENSITIVITY;
 		if (editingColorHue >= 360) editingColorHue -= 360; else if (editingColorHue <= 0) editingColorHue += 360;
 		editingColorSaturation += displacement.y * COLOR_EDITING_SENSITIVITY;
@@ -139,13 +137,13 @@ uiInputField::~uiInputField()
 	delete[] shapes;
 }
 
-void uiInputField::setType(uiNodeSystem::Types theType)
+void uiInputField::initialize(uiNodeSystem::Types theType, void* pinDataPointer)
 {
 	type = theType;
 	switch (type)
 	{
 	case uiNodeSystem::Types::Integer:
-		dataPointer = new int(0);
+		dataPointer = pinDataPointer;
 
 		shapes = new sf::Vertex[4];
 		texts = new sf::Text[1];
@@ -155,7 +153,7 @@ void uiInputField::setType(uiNodeSystem::Types theType)
 		texts[0].setString("0");
 		break;
 	case uiNodeSystem::Types::Float:
-		dataPointer = new float(0.0);
+		dataPointer = pinDataPointer;
 
 		shapes = new sf::Vertex[4];
 		texts = new sf::Text[1];
@@ -165,7 +163,7 @@ void uiInputField::setType(uiNodeSystem::Types theType)
 		texts[0].setString("0.0");
 		break;
 	case uiNodeSystem::Types::Vector2i:
-		dataPointer = new sf::Vector2i(0, 0);
+		dataPointer = pinDataPointer;
 
 		shapes = new sf::Vertex[8];
 		texts = new sf::Text[2];
@@ -178,14 +176,14 @@ void uiInputField::setType(uiNodeSystem::Types theType)
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = shapes[4].color = shapes[5].color = shapes[6].color = shapes[7].color = INPUT_FIELD_COLOR;
 		break;
 	case uiNodeSystem::Types::Color:
-		dataPointer = new sf::Color(255, 0, 255, 255);
+		dataPointer = pinDataPointer;
 
 		shapes = new sf::Vertex[4];
 		texts = nullptr;
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = sf::Color::Magenta;
 		break;
 	case uiNodeSystem::Types::Image:
-		dataPointer = new sf::RenderTexture();
+		dataPointer = pinDataPointer;
 
 		shapes = new sf::Vertex[4];
 		texts = new sf::Text[1];
@@ -321,17 +319,15 @@ bool uiInputField::onClick(const sf::Vector2f& mousePosInWorld)
 
 				free(outPath);
 			}
-			else if (result == NFD_CANCEL) {
+			else if (result == NFD_CANCEL)
+			{
 				puts("User pressed cancel.");
 			}
-			else {
+			else
+			{
 				printf("Error: %s\n", NFD_GetError());
 			}
 
-			//editingInputFieldText = &(texts[0]);
-			//editingInputFieldDataPointer = dataPointer;
-			//editingInputFieldType = uiNodeSystem::Types::Image;
-			//editingInputField = true;
 			return true;
 		}
 		return false;

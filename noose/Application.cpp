@@ -1,21 +1,18 @@
+#include <iostream>
 #include <SFML/Graphics.hpp>
 #include "uiNodeSystem.h"
 #include "uiPushNodes.h"
 
 #include "dataController.h"
 
-#include <iostream>
-
-
 static const sf::Color BACKGROUND_COLOR(0x595959ff);
 
 int main()
 {
-	// Create the main window
-	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "noose");
-
 	// Create the output window
 	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport");
+	// Create the main window
+	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "noose");
 
 	uiNodeSystem::initialize(windowA);
 	uiPushNodes::initialize(windowA);

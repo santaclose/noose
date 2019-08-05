@@ -21,6 +21,7 @@ private:
 
 	uiNodeSystem::Types* pinTypes;
 
+	void** pinDataPointers;
 	uiInputField* inputFields;
 public:
 	uiNode(const void* nodeData, sf::Vector2f& initialPosition);
