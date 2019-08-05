@@ -68,17 +68,15 @@ void uiNodeSystem::terminate()
 	nodeList.clear();
 }
 
-void uiNodeSystem::pushNewNode(const std::string& name, int numberOfInputPins, int numberOfOutputPins, const uiNodeSystem::Types* pinTypes, const std::string* pinNames, sf::Vector2i* initialScreenPosition)
+void uiNodeSystem::pushNewNode(const void* nodeData, sf::Vector2i& initialScreenPosition)
 {
 	renderWindow->setView(theView);
-	sf::Vector2f worldPos = renderWindow->mapPixelToCoords(*initialScreenPosition);
-	nodeList.push_back(new uiNode(name, numberOfInputPins, numberOfOutputPins, pinTypes, pinNames, &worldPos));
+	sf::Vector2f worldPos = renderWindow->mapPixelToCoords(initialScreenPosition);
+	nodeList.push_back(new uiNode(nodeData, worldPos));
 }
 
 void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 {
-	/*sf::Vector2i mousePos = sf::Mouse::getPosition(*renderWindow);
-	sf::Vector2f worldPos = renderWindow->mapPixelToCoords(mousePos);*/
 	renderWindow->setView(theView);
 	sf::Vector2f mouseWorldPos = renderWindow->mapPixelToCoords(mousePos);
 
@@ -132,6 +130,24 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 						}
 						break;
 					}
+
+					// mouse is not over any pin
+
+					if (nodeList[i]->onClickOverInputField(mouseWorldPos)) // if clicked over an input field
+					{
+						break;
+					}
+					/*if (nodeList[i]->mouseOverInputField(mouseWorldPos, edittingInputFieldType, edittingInputFieldDataPointer, edittingInputFieldText))
+					{
+						std::cout << "editing input field \n";
+						edittingInputField = true;
+						if (edittingInputFieldType == Types::Integer)
+							edittingInputFieldHelper = (float) *((int*)edittingInputFieldDataPointer);
+						else if (edittingInputFieldType == Types::Image)
+						{
+						}
+						break;
+					}*/
 				}
 			}
 			else if (e.mouseButton.button == sf::Mouse::Right)
@@ -227,6 +243,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 
 				draggingNodeIndex = -1;
 				creatingConnection = false;
+				uiInputField::onLeftClickReleased();
 			}
 			else if (e.mouseButton.button == sf::Mouse::Right)
 			{
@@ -242,8 +259,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 			{
 				viewPosition -= displacement * currentZoom;
 				updateView();
-				//theView.move(-displacement * currentZoom);
-				//renderWindow->setView(onPanningZoomingView);
 			}
 			else if (draggingNodeIndex > -1) // dragging a node
 			{
@@ -264,37 +279,21 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 					((uiNode*)nodeB)->setLineIndexAsDisconnected(lineToRemove);
 				}
 			}
+		
+			uiInputField::onMouseMoved(displacement);
 			lastMouseScreenPos = currentMouseScreenPos;
 			break;
 		}
 		case sf::Event::MouseWheelScrolled:
 		{
-			//onPanningZoomingView = renderWindow->getView();
-			//float zoomFactor = e.mouseWheelScroll.delta * -ZOOM_SENSITIVITY + 1.0f;
-
 			zoomInt -= e.mouseWheelScroll.delta;
-			//clamp from 1 to 20
+			//clamp from min to max zoom
 			if (zoomInt < MAX_ZOOM) zoomInt = MAX_ZOOM; else if (zoomInt > MIN_ZOOM) zoomInt = MIN_ZOOM;
 			currentZoom = zoomInt / 10.0f;
 			updateView();
 
-			//std::cout << "zoomInt: " << zoomInt << std::endl;
-			//std::cout << "currentZoom: " << currentZoom << std::endl;
-
-			//onPanningZoomingView.zoom(zoomFactor);
-			//currentZoom *= zoomFactor;
-			//renderWindow->setView(onPanningZoomingView);
-
 			uiNodeConnections::updateShaderUniform(currentZoom);
-
-			//const float* matrix = onPanningZoomingView.getTransform().getMatrix();
-
-			/*std::cout << "----------------------------------\n";
-			std::cout << matrix[0] << ", " << matrix[1] << ", " << matrix[2] << ", " << matrix[3] << std::endl;
-			std::cout << matrix[4] << ", " << matrix[5] << ", " << matrix[6] << ", " << matrix[7] << std::endl;
-			std::cout << matrix[8] << ", " << matrix[9] << ", " << matrix[10] << ", " << matrix[11] << std::endl;
-			std::cout << matrix[12] << ", " << matrix[13] << ", " << matrix[14] << ", " << matrix[15] << std::endl;*/
-			//std::cout << "current zoom: " << currentZoom << std::endl;
+			uiInputField::onMouseScrolled(e.mouseWheelScroll.delta);
 
 			break;
 		}

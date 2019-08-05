@@ -4,20 +4,12 @@
 #include <stdio.h>
 
 #include "dataController.h"
+#include "nodeData.h"
  
 namespace dataController
 {
 	std::vector<std::string*> searchResults;
 }
-
-struct nodeData
-{
-	std::string nodeName;
-	std::vector<uiNodeSystem::Types> pinTypes;
-	std::vector<std::string> pinNames;
-	int inputPinCount;
-	int outputPinCount;
-};
 
 std::vector<nodeData> nodeDataList;
 
@@ -113,20 +105,16 @@ void dataController::prepare()
 	}*/
 }
 
-void dataController::getDataFor(int searchResultIndex, int& inputPins, int& outputPins, uiNodeSystem::Types*& typePointer, std::string*& namePointer, std::string*& nodeName)
+void* dataController::getDataFor(int searchResultIndex)
 {
 	for (nodeData& n : nodeDataList)
 	{
-		if (&n.nodeName == searchResults[searchResultIndex])
+		if (&(n.nodeName) == searchResults[searchResultIndex])
 		{
-			inputPins = n.inputPinCount;
-			outputPins = n.outputPinCount;
-			nodeName = &n.nodeName;
-			typePointer = &(n.pinTypes[0]);
-			namePointer = &(n.pinNames[0]);
-			return;
+			return &n;
 		}
 	}
+	return nullptr;
 }
 
 inline char tolower(char in) {

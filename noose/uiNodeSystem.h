@@ -20,7 +20,7 @@ namespace uiNodeSystem
 	void initialize(sf::RenderWindow& theRenderWindow);
 	void terminate();
 
-	void pushNewNode(const std::string& name, int numberOfInputPins, int numberOfOutputPins, const uiNodeSystem::Types* pinTypes, const std::string* pinNames, sf::Vector2i* initialScreenPosition = nullptr);
+	void pushNewNode(const void* nodeData, sf::Vector2i& initialScreenPosition);
 	void onPollEvent(const sf::Event& e, sf::Vector2i& mousePos);
 	void draw(sf::RenderWindow& window);
 }

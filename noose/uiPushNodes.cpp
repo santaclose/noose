@@ -89,14 +89,13 @@ void uiPushNodes::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 			{
 				if (dataController::searchResults.size() > 0)
 				{
-					int numberOfInputPins;
-					int numberOfOutputPins;
-					uiNodeSystem::Types* pinTypes;
-					std::string* pinNames;
-					std::string* nodeName;
-
-					dataController::getDataFor(0, numberOfInputPins, numberOfOutputPins, pinTypes, pinNames, nodeName);
-					uiNodeSystem::pushNewNode(*nodeName, numberOfInputPins, numberOfOutputPins, pinTypes, pinNames, &mousePos);
+					void* nodeData = dataController::getDataFor(0);
+					if (nodeData == nullptr)
+					{
+						std::cout << "could not get data\n";
+						return;
+					}
+					uiNodeSystem::pushNewNode(nodeData, mousePos);
 
 					clearSearch();
 				}

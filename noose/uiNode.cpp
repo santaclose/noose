@@ -5,13 +5,14 @@
 #include <iostream>
 #include <math.h>
 
+#include "nodeData.h"
+
 #define TEXT_COLOR 0xf0f0f0ff
 #define BAR_COLOR 0x161616bb
 #define SELECTED_BAR_COLOR 0x6b6b6bbb
 #define CONTENT_RECT_COLOR 0x323232bb
 
-#define INTERACTIVE_BOX_COLOR 0x00000030
-#define INTERACTIVE_BOX_HEIGHT 20
+#define INPUT_FIELD_HEIGHT 20
 
 #define NODE_TITLE_FONT_SIZE 14
 #define PIN_TEXT_FONT_SIZE 11
@@ -35,7 +36,6 @@
 #define PIN_COLLISION_DISTANCE 8
 
 #define VERTICES_PER_PROPERTY 8
-
 
 inline void setPinColor(sf::Vertex* firstVertex, uiNodeSystem::Types type)
 {
@@ -64,22 +64,22 @@ inline void setPinColor(sf::Vertex* firstVertex, uiNodeSystem::Types type)
 	firstVertex[0].color = firstVertex[1].color = firstVertex[2].color = firstVertex[3].color = theColor;
 }
 
-inline void setInteractiveBoxColor(sf::Vertex* firstVertex)
+/*inline void setInteractiveBoxColor(sf::Vertex* firstVertex)
 {
 	firstVertex[4].color = firstVertex[5].color = firstVertex[6].color = firstVertex[7].color = sf::Color(INTERACTIVE_BOX_COLOR);
-}
+}*/
 
-
-uiNode::uiNode(const std::string& name, int numberOfInputPins, int numberOfOutputPins, const uiNodeSystem::Types* pinTypes, const std::string* pinNames, sf::Vector2f* initialPosition)
+uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition)
 {
-	inputPinCount = numberOfInputPins;
-	outputPinCount = numberOfOutputPins;
-	contentHeight = (PROPERTY_HEIGHT + INTERACTIVE_BOX_HEIGHT) * numberOfInputPins
-				   +(PROPERTY_HEIGHT) * numberOfOutputPins;
+	nodeData* data = (nodeData*)theNodeData;
+	inputPinCount = data->inputPinCount;
+	outputPinCount = data->outputPinCount;
+	contentHeight = (PROPERTY_HEIGHT + INPUT_FIELD_HEIGHT) * inputPinCount
+				   +(PROPERTY_HEIGHT) * outputPinCount;
 
 	int vertexCount = 8 // top bar and content rect
-		+ 8 * numberOfInputPins // pins and interactive boxes
-		+ 4 * numberOfOutputPins; // just pins
+		+ 4 * inputPinCount // pins and interactive boxes
+		+ 4 * outputPinCount; // just pins
 
 	shapes.resize(vertexCount); // push vertices
 
@@ -87,35 +87,50 @@ uiNode::uiNode(const std::string& name, int numberOfInputPins, int numberOfOutpu
 	shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = sf::Color(BAR_COLOR);
 	shapes[4].color = shapes[5].color = shapes[6].color = shapes[7].color = sf::Color(CONTENT_RECT_COLOR);
 
-	if (pinTypes != nullptr)
+	for (int i = 0; i < inputPinCount; i++)
 	{
-		for (int i = 0; i < numberOfInputPins; i++)
-		{
-			// assign color to pin vertices
-			setPinColor(&shapes[8 + i * 8], pinTypes[i]);
-
-			// assign color to interactive box
-			setInteractiveBoxColor(&shapes[8 + i * 8]);
-		}
-		for (int i = 0; i < numberOfOutputPins; i++) // for output pins there is no box
-		{
-			setPinColor(&shapes[8 + numberOfInputPins * 8 + i * 4], pinTypes[inputPinCount + i]);
-		}
+		// assign color to pin vertices
+		setPinColor(&shapes[8 + i * 4], data->pinTypes[i]);
+	}
+	for (int i = 0; i < outputPinCount; i++) // there is no box for output pins
+	{
+		setPinColor(&shapes[8 + inputPinCount * 4 + i * 4], data->pinTypes[inputPinCount + i]);
 	}
 
-	//std::cout << "node created: " << this << std::endl;
-
-	title = sf::Text(name, uiNodeSystem::font , NODE_TITLE_FONT_SIZE);
+	title = sf::Text(data->nodeName, uiNodeSystem::font , NODE_TITLE_FONT_SIZE);
 	title.setFillColor(sf::Color(TEXT_COLOR));
 
 	pinNameTexts = new sf::Text[inputPinCount + outputPinCount];
+
 	for (int i = 0; i < inputPinCount + outputPinCount; i++)
 	{
-		pinNameTexts[i] = sf::Text(pinNames[i], uiNodeSystem::font, PIN_TEXT_FONT_SIZE);
+		pinNameTexts[i] = sf::Text(data->pinNames[i], uiNodeSystem::font, PIN_TEXT_FONT_SIZE);
 	}
 
-	sf::Vector2f pos = initialPosition == nullptr ? sf::Vector2f(0.0, 0.0) : *initialPosition;
-	setPosition(pos);
+	// get a copy of the types
+	pinTypes = new uiNodeSystem::Types[inputPinCount + outputPinCount];
+	memcpy(pinTypes, &(data->pinTypes[0]), sizeof(uiNodeSystem::Types) * (inputPinCount + outputPinCount));
+
+	inputFields = new uiInputField[inputPinCount];
+	for (int i = 0; i < inputPinCount; i++)
+	{
+		inputFields[i].setType(data->pinTypes[i]);
+	}
+
+	setPosition(initialPosition);
+
+	/*for (int i = 0; i < inputPinCount + outputPinCount; i++)
+	{
+		switch (pinTypes[i])
+		{
+		case uiNodeSystem::Types::Integer:
+			std::cout << *((int*)pinData[i]) << std::endl;
+			break;
+		case uiNodeSystem::Types::Color:
+			std::cout << "color\n";
+			std::cout << ((sf::Color*)pinData[i]) << std::endl;
+		}
+	}*/
 }
 
 uiNode::~uiNode()
@@ -137,7 +152,9 @@ uiNode::~uiNode()
 		uiNodeConnections::remove(i);
 	}
 	delete[] pinNameTexts;
-
+	//delete[] interactiveBoxTexts;
+	delete[] inputFields;
+	delete[] pinTypes;
 	lineIndices.clear();
 	shapes.clear();
 	std::cout << "node deleted\n";
@@ -161,32 +178,27 @@ void uiNode::setPosition(sf::Vector2f& newPosition)
 	pinCenter.x = newPosition.x + PIN_RECT_MARGIN;
 	for (int i = 0; i < inputPinCount; i++)
 	{
-		pinCenter.y = newPosition.y + BAR_HEIGHT + PROPERTY_HEIGHT * (i + 0.5f) + INTERACTIVE_BOX_HEIGHT * i;
+		pinCenter.y = newPosition.y + BAR_HEIGHT + PROPERTY_HEIGHT * (i + 0.5f) + INPUT_FIELD_HEIGHT * i;
 
 		// set pin positions
-		shapes[8 + i * 8].position = pinCenter + sf::Vector2f(-PIN_RECT_SIZE / 2.0f, 0.0f);
-		shapes[8 + i * 8 + 1].position = pinCenter + sf::Vector2f(0.0f, PIN_RECT_SIZE / 2.0f);
-		shapes[8 + i * 8 + 2].position = pinCenter + sf::Vector2f(PIN_RECT_SIZE / 2.0f, 0.0f);
-		shapes[8 + i * 8 + 3].position = pinCenter + sf::Vector2f(0.0f, -PIN_RECT_SIZE / 2.0f);
+		shapes[8 + i * 4].position = pinCenter + sf::Vector2f(-PIN_RECT_SIZE / 2.0f, 0.0f);
+		shapes[8 + i * 4 + 1].position = pinCenter + sf::Vector2f(0.0f, PIN_RECT_SIZE / 2.0f);
+		shapes[8 + i * 4 + 2].position = pinCenter + sf::Vector2f(PIN_RECT_SIZE / 2.0f, 0.0f);
+		shapes[8 + i * 4 + 3].position = pinCenter + sf::Vector2f(0.0f, -PIN_RECT_SIZE / 2.0f);
 
 		pinNameTexts[i].setPosition(pinCenter + sf::Vector2f(PIN_TEXT_MARGIN_X, PIN_TEXT_MARGIN_Y));
 
-		// interactive box
-		shapes[8 + i * 8 + 4].position = newPosition + sf::Vector2f(NODE_WIDTH/15.0, BAR_HEIGHT + (PROPERTY_HEIGHT + INTERACTIVE_BOX_HEIGHT) * (i + 1) - (INTERACTIVE_BOX_HEIGHT / 6.0));// /8.0 for margin
-		shapes[8 + i * 8 + 5].position = newPosition + sf::Vector2f(NODE_WIDTH-NODE_WIDTH/15.0, BAR_HEIGHT + (PROPERTY_HEIGHT + INTERACTIVE_BOX_HEIGHT) * (i + 1) - (INTERACTIVE_BOX_HEIGHT / 6.0));// /8.0 for margin
-		shapes[8 + i * 8 + 6].position = newPosition + sf::Vector2f(NODE_WIDTH-NODE_WIDTH/15.0, BAR_HEIGHT + (PROPERTY_HEIGHT + INTERACTIVE_BOX_HEIGHT) * i + PROPERTY_HEIGHT);
-		shapes[8 + i * 8 + 7].position = newPosition + sf::Vector2f(NODE_WIDTH/15.0, BAR_HEIGHT + (PROPERTY_HEIGHT + INTERACTIVE_BOX_HEIGHT) * i + PROPERTY_HEIGHT);
-
+		inputFields[i].setPosition(newPosition + sf::Vector2f(0, BAR_HEIGHT + PROPERTY_HEIGHT * (i+1) + INPUT_FIELD_HEIGHT * i), NODE_WIDTH, INPUT_FIELD_HEIGHT);
 	}
 	pinCenter.x = newPosition.x + NODE_WIDTH - PIN_RECT_MARGIN;
 	for (int i = 0; i < outputPinCount; i++)
 	{
-		pinCenter.y = newPosition.y + BAR_HEIGHT + (PROPERTY_HEIGHT + INTERACTIVE_BOX_HEIGHT) * inputPinCount + PROPERTY_HEIGHT * (i + 0.5f);
+		pinCenter.y = newPosition.y + BAR_HEIGHT + (PROPERTY_HEIGHT + INPUT_FIELD_HEIGHT) * inputPinCount + PROPERTY_HEIGHT * (i + 0.5f);
 
-		shapes[8 + inputPinCount * 8 + i * 4].position = pinCenter + sf::Vector2f(-PIN_RECT_SIZE / 2.0f, 0.0f);
-		shapes[8 + inputPinCount * 8 + i * 4 + 1].position = pinCenter + sf::Vector2f(0.0f, PIN_RECT_SIZE / 2.0f);
-		shapes[8 + inputPinCount * 8 + i * 4 + 2].position = pinCenter + sf::Vector2f(PIN_RECT_SIZE / 2.0f, 0.0f);
-		shapes[8 + inputPinCount * 8 + i * 4 + 3].position = pinCenter + sf::Vector2f(0.0f, -PIN_RECT_SIZE / 2.0f);
+		shapes[8 + inputPinCount * 4 + i * 4].position = pinCenter + sf::Vector2f(-PIN_RECT_SIZE / 2.0f, 0.0f);
+		shapes[8 + inputPinCount * 4 + i * 4 + 1].position = pinCenter + sf::Vector2f(0.0f, PIN_RECT_SIZE / 2.0f);
+		shapes[8 + inputPinCount * 4 + i * 4 + 2].position = pinCenter + sf::Vector2f(PIN_RECT_SIZE / 2.0f, 0.0f);
+		shapes[8 + inputPinCount * 4 + i * 4 + 3].position = pinCenter + sf::Vector2f(0.0f, -PIN_RECT_SIZE / 2.0f);
 
 		pinNameTexts[inputPinCount + i].setPosition(pinCenter - sf::Vector2f(PIN_TEXT_MARGIN_X + pinNameTexts[inputPinCount + i].getLocalBounds().width, -PIN_TEXT_MARGIN_Y));
 	}
@@ -200,6 +212,11 @@ void uiNode::draw(sf::RenderWindow& window)
 	window.draw(title);
 	for (int i = 0; i < inputPinCount + outputPinCount; i++)
 	{
+		if (i < inputPinCount)
+		{
+			inputFields[i].draw(window);
+			//	window.draw(interactiveBoxTexts[i]);
+		}
 		window.draw(pinNameTexts[i]);
 	}
 }
@@ -229,11 +246,11 @@ int uiNode::mouseOverPin(const sf::Vector2f& mousePosInWorld, sf::Color*& return
 	direction = 1;
 	for (int i = 0; i < inputPinCount; i++)
 	{
-		pinCenter.y = p.y + PROPERTY_HEIGHT * (i + 0.5f) + INTERACTIVE_BOX_HEIGHT * i;
+		pinCenter.y = p.y + PROPERTY_HEIGHT * (i + 0.5f) + INPUT_FIELD_HEIGHT * i;
 		if (uiMath::distance(pinCenter, mousePosInWorld) < PIN_COLLISION_DISTANCE)
 		{
 			pinPosition = pinCenter;
-			returnPinColor = &(shapes[8 + i * 8].color);
+			returnPinColor = &(shapes[8 + i * 4].color);
 			return i;
 		}
 	}
@@ -242,11 +259,11 @@ int uiNode::mouseOverPin(const sf::Vector2f& mousePosInWorld, sf::Color*& return
 	direction = 0;
 	for (int i = 0; i < outputPinCount; i++)
 	{
-		pinCenter.y = p.y + (PROPERTY_HEIGHT + INTERACTIVE_BOX_HEIGHT) * inputPinCount + PROPERTY_HEIGHT * (i + 0.5f);
+		pinCenter.y = p.y + (PROPERTY_HEIGHT + INPUT_FIELD_HEIGHT) * inputPinCount + PROPERTY_HEIGHT * (i + 0.5f);
 		if (uiMath::distance(pinCenter, mousePosInWorld) < PIN_COLLISION_DISTANCE)
 		{
 			pinPosition = pinCenter;
-			returnPinColor = &(shapes[8 + inputPinCount * 8 + i * 4].color);
+			returnPinColor = &(shapes[8 + inputPinCount * 4 + i * 4].color);
 			return inputPinCount + i;
 		}
 	}
@@ -315,3 +332,30 @@ void uiNode::print()
 {
 	std::cout << '\t' << this << ' ' << inputPinCount << ' ' << outputPinCount << '\n';
 }
+
+bool uiNode::onClickOverInputField(const sf::Vector2f& mousePosInWorld) // we return whether the mouse was or not over an input field
+{
+	for (int i = 0; i < inputPinCount; i++)
+	{
+		if (inputFields[i].onClick(mousePosInWorld)) // mouse was over input field
+		{
+			std::cout << "input field number " << i << std::endl;
+			return true;
+		}
+	}
+	return false;
+}
+
+/*
+bool uiNode::mouseOverInputField(const sf::Vector2f& mousePosInWorld, uiNodeSystem::Types& returnType, void*& returnPointer, sf::Text*& returnText)
+{
+	for (int i = 0; i < inputPinCount; i++)
+	{
+		if (inputFields[i].isMouseOver(mousePosInWorld, returnType, returnPointer, returnText))
+		{
+			std::cout << "input field number " << i << std::endl;
+			return true;
+		}
+	}
+	return false;
+}*/

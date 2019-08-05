@@ -5,23 +5,25 @@
 
 #include "uiNodeSystem.h"
 #include "uiNodeConnections.h"
+#include "uiInputField.h"
 
 class uiNode
 {
 private:
-	std::vector<sf::Vertex> shapes; // top bar, content rect, interactive boxes and pins
-	//sf::VertexArray shapes; 
+	std::vector<sf::Vertex> shapes; // top bar, content rect, and pins
 	sf::Text title;
 	int inputPinCount;
 	int outputPinCount;
 	float contentHeight;
-	//int* lineIndices; // one index for each pin. for moving lines on drag
 	std::vector<int> lineIndices;
 
 	sf::Text* pinNameTexts;
 
+	uiNodeSystem::Types* pinTypes;
+
+	uiInputField* inputFields;
 public:
-	uiNode(const std::string& name, int numberOfInputPins, int numberOfOutputPins, const uiNodeSystem::Types* pinTypes, const std::string* pinNames, sf::Vector2f* initialPosition = nullptr);
+	uiNode(const void* nodeData, sf::Vector2f& initialPosition);
 	//uiNode(const uiNode &other);
 	~uiNode();
 	void setPosition(sf::Vector2f& newPosition);
@@ -37,5 +39,9 @@ public:
 	bool isInputAndAlreadyConnected(int pin);
 
 	void print();
+
+
+	bool onClickOverInputField(const sf::Vector2f& mousePosInWorld); // we return whether the mouse was or not over an input field
+	//bool mouseOverInputField(const sf::Vector2f& mousePosInWorld, uiNodeSystem::Types& returnType, void*& returnPointer, sf::Text*& returnText);
 };
 
