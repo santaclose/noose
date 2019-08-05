@@ -33,6 +33,8 @@ namespace uiNodeSystem {
 	sf::View theView; // view with pan and zoom transformations
 	sf::Vector2f viewPosition;
 	int zoomInt = 10;
+
+	void (*onNodeSelectedCallback)(uiNode&) = nullptr;
 }
 
 void printAllSystem()
@@ -163,6 +165,8 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 						nodeList[i]->paintAsSelected();
 						selectedNodeIndex = i;
 						mouseWasOverTopBar = true;
+						if (onNodeSelectedCallback != nullptr)
+							onNodeSelectedCallback(*(nodeList[i]));
 						break;
 					}
 				}
@@ -321,4 +325,9 @@ void uiNodeSystem::draw(sf::RenderWindow& window)
 		n->draw(window);
 
 	uiNodeConnections::draw(window);
+}
+
+void uiNodeSystem::setOnNodeSelectedCallback(void* functionPointer)
+{
+	onNodeSelectedCallback = (void (*)(uiNode&))functionPointer;
 }

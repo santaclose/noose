@@ -256,10 +256,10 @@ void uiInputField::draw(sf::RenderWindow& window)
 		window.draw(shapes, 4, sf::Quads);
 		window.draw(texts[0]);
 
-		sf::RenderTexture* pointer = (sf::RenderTexture*)dataPointer;
+		/*sf::RenderTexture* pointer = (sf::RenderTexture*)dataPointer;
 		sf::Sprite spr(pointer->getTexture());
 		spr.setPosition(shapes[1].position);
-		window.draw(spr);
+		window.draw(spr);*/
 		break;
 	}
 }

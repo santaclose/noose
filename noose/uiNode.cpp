@@ -368,3 +368,14 @@ bool uiNode::onClickOverInputField(const sf::Vector2f& mousePosInWorld) // we re
 	}
 	return false;
 }
+
+
+sf::RenderTexture* uiNode::getFirstInputImage()
+{
+	for (int i = 0; i < inputPinCount; i++)
+	{
+		if (pinTypes[i] == uiNodeSystem::Types::Image)
+			return (sf::RenderTexture*)pinDataPointers[i];
+	}
+	return nullptr;
+}

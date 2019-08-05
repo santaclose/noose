@@ -2,10 +2,18 @@
 #include <SFML/Graphics.hpp>
 #include "uiNodeSystem.h"
 #include "uiPushNodes.h"
+#include "uiNode.h"
 
 #include "dataController.h"
 
 static const sf::Color BACKGROUND_COLOR(0x595959ff);
+
+sf::RenderTexture* outputImage = nullptr;
+
+void onNodeSelected(uiNode& theNode)
+{
+	outputImage = theNode.getFirstInputImage();
+}
 
 int main()
 {
@@ -16,6 +24,8 @@ int main()
 
 	uiNodeSystem::initialize(windowA);
 	uiPushNodes::initialize(windowA);
+
+	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
 
 	// load nodes.dat in memory
 	dataController::prepare();
@@ -51,6 +61,13 @@ int main()
 					windowB.close();
 					break;
 				}
+				case sf::Event::Resized:
+				{
+					// update the view to the new size of the window
+					sf::FloatRect visibleArea(0, 0, eventWindowB.size.width, eventWindowB.size.height);
+					windowB.setView(sf::View(visibleArea));
+					break;
+				}
 			}
 		}
 		// Clear screen
@@ -59,6 +76,12 @@ int main()
 
 		uiNodeSystem::draw(windowA);
 		uiPushNodes::draw(windowA);
+
+		if (outputImage != nullptr)
+		{
+			sf::Sprite spr(outputImage->getTexture());
+			windowB.draw(spr);
+		}
 
 		// Update the window
 		windowA.display();

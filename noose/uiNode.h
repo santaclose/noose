@@ -44,5 +44,7 @@ public:
 
 	bool onClickOverInputField(const sf::Vector2f& mousePosInWorld); // we return whether the mouse was or not over an input field
 	//bool mouseOverInputField(const sf::Vector2f& mousePosInWorld, uiNodeSystem::Types& returnType, void*& returnPointer, sf::Text*& returnText);
+	
+	sf::RenderTexture* getFirstInputImage();
 };
 
