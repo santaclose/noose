@@ -1,6 +1,7 @@
 #include "uiNodeSystem.h"
 #include "uiNode.h"
 #include "uiNodeConnections.h"
+#include "dataController.h"
 
 #include <iostream>
 #include <vector>
@@ -68,6 +69,11 @@ void uiNodeSystem::terminate()
 	for (uiNode* n : nodeList)
 		delete n;
 	nodeList.clear();
+}
+
+void testFunction(uiNode* theNode)
+{
+	std::cout << "COMPUTING\n";
 }
 
 void uiNodeSystem::pushNewNode(const void* nodeData, sf::Vector2i& initialScreenPosition)
@@ -207,7 +213,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 						std::cout << "pin " << pin << std::endl;
 						if (pin > -1)
 						{
-							// pin cannot be connected and be an input pin
+							// can't connect two lines to an input pin
 							std::cout << "is input and already connected: " << nodeList[i]->isInputAndAlreadyConnected(pin) << std::endl;
 							if (nodeList[i]->isInputAndAlreadyConnected(pin))
 							{
@@ -310,6 +316,23 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 				case sf::Keyboard::Q:
 				{
 					printAllSystem();
+					break;
+				}
+				case sf::Keyboard::A:
+				{
+					if (selectedNodeIndex > -1)
+					{
+						nodeList[selectedNodeIndex]->activate();
+					}
+					break;
+				}
+				case sf::Keyboard::Space:
+				{
+					if (selectedNodeIndex > -1)
+					{
+						nodeList[selectedNodeIndex]->paintAsUnselected();
+						selectedNodeIndex = -1;
+					}
 					break;
 				}
 			}

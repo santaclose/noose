@@ -48,6 +48,9 @@
     <ClCompile Include="uiInputField.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="nodeFunctionality.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="uiNode.h">
@@ -74,9 +77,6 @@
     <ClInclude Include="dataController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="colorwheel.shader">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="vendor\nfd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -89,10 +89,8 @@
     <ClInclude Include="nodeData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\shaders\connection.shader" />
-    <None Include="_loadImage.shader" />
-    <None Include="_checkerShader.shader" />
+    <ClInclude Include="nodeFunctionality.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

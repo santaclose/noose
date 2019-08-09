@@ -21,8 +21,10 @@ private:
 
 	uiNodeSystem::Types* pinTypes;
 
-	void** pinDataPointers;
 	uiInputField* inputFields;
+	//void** pinDataPointers;
+	std::vector<void*> pinDataPointers;
+	void (*nodeFunctionalityPointer)(uiNode* theNode);
 public:
 	uiNode(const void* nodeData, sf::Vector2f& initialPosition);
 	//uiNode(const uiNode &other);
@@ -41,10 +43,12 @@ public:
 
 	void print();
 
-
 	bool onClickOverInputField(const sf::Vector2f& mousePosInWorld); // we return whether the mouse was or not over an input field
 	//bool mouseOverInputField(const sf::Vector2f& mousePosInWorld, uiNodeSystem::Types& returnType, void*& returnPointer, sf::Text*& returnText);
 	
 	sf::RenderTexture* getFirstInputImage();
+
+	void* getDataPointerForPin(int pinIndex);
+	void activate(); // executes node functionality and propagates to right hand side nodes
 };
 

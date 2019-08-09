@@ -1,6 +1,7 @@
 #pragma once
-
-#include "uiNodeSystem.h"
+#include <string>
+#include <vector>
+#include <SFML/Graphics.hpp>
 
 namespace dataController
 {
@@ -8,4 +9,6 @@ namespace dataController
 	void prepare();
 	int search(const char* searchBuffer, int bufferSize, int maxResults);
 	void* getDataFor(int searchResultIndex);
+
+	extern sf::Shader loadImageShader;
 };

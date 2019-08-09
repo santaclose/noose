@@ -10,4 +10,5 @@ struct nodeData
 	std::vector<std::string> pinNames;
 	int inputPinCount;
 	int outputPinCount;
+	void* nodeFunctionality;
 };

@@ -234,10 +234,16 @@ int uiNodeConnections::onTryingToRemove(sf::Vector2f& mouseWorldPos, void*& node
 
 void uiNodeConnections::printAllConnections()
 {
+	std::cout << "lastPushedLineIndex: " << lastPushedLineIndex << std::endl;
+	std::cout << "lines (" << lines.size() << "):\n";
 	for (uiLine& l : lines)
 	{
-		if (l.available)
-			continue;
-		std::cout << '\t' << l.nodeA << '.' << l.pinA << " -> " << l.nodeB << '.' << l.pinB << std::endl;
+		std::cout << '\t' << "available: " << (l.available ? "yes, " : "no, ") << l.nodeA << '.' << l.pinA << " -> " << l.nodeB << '.' << l.pinB << std::endl;
+	}
+
+	std::cout << "lineQuads (" << lineQuads.size() << "):\n";
+	for (sf::Vertex& v : lineQuads)
+	{
+		std::cout << '\t' << v.color.r << ", " << v.color.g << ", " << v.color.b << std::endl;
 	}
 }

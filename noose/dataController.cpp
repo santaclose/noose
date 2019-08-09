@@ -5,13 +5,45 @@
 
 #include "dataController.h"
 #include "nodeData.h"
+#include "nodeFunctionality.h"
  
 namespace dataController
 {
 	std::vector<std::string*> searchResults;
+	sf::Shader loadImageShader;
 }
 
 std::vector<nodeData> nodeDataList;
+
+inline void* getFunctionalityFromIndex(int index)
+{
+	if (index == 0)
+		return nodeFunctionality::Checker;
+	if (index == 1)
+		return nodeFunctionality::ConstructColor;
+	if (index == 2)
+		return nodeFunctionality::ConstructVector2i;
+	if (index == 3)
+		return nodeFunctionality::Flip;
+	if (index == 4)
+		return nodeFunctionality::Float;
+	if (index == 5)
+		return nodeFunctionality::Image;
+	if (index == 6)
+		return nodeFunctionality::Integer;
+	if (index == 7)
+		return nodeFunctionality::Invert;
+	if (index == 8)
+		return nodeFunctionality::LinearGradient;
+	if (index == 9)
+		return nodeFunctionality::Multiply;
+	if (index == 10)
+		return nodeFunctionality::Output;
+	if (index == 11)
+		return nodeFunctionality::Repeat;
+	if (index == 12)
+		return nodeFunctionality::Rotate90;
+}
 
 inline void parsePinLine(const std::string& line, std::string& a, std::string& b)
 {
@@ -67,6 +99,7 @@ void dataController::prepare()
 			nodeDataList.emplace_back();
 			nodeDataList.back().nodeName = line;
 			nodeDataList.back().outputPinCount = nodeDataList.back().inputPinCount = 0;
+			nodeDataList.back().nodeFunctionality = getFunctionalityFromIndex(nodeDataList.size() - 1);
 		}
 		else
 		{
@@ -103,6 +136,18 @@ void dataController::prepare()
 			cout << "\t\t" << n.pinNames[i] << ": " << n.pinTypes[i] << endl;
 		}
 	}*/
+
+
+	// load essential shaders
+
+	if (!loadImageShader.loadFromFile("res/shaders/loadImage.shader", sf::Shader::Fragment))
+	{
+		std::cout << "could not load shader for loading image.\n";
+		return;
+	}
+
+	// load node shaders
+	nodeFunctionality::initialize();
 }
 
 void* dataController::getDataFor(int searchResultIndex)

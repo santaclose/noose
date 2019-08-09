@@ -1,6 +1,8 @@
 #include "uiInputField.h"
 #include "uiMath.h"
 
+#include "dataController.h"
+
 #include "vendor/nfd.h"
 #include <iostream>
 
@@ -9,8 +11,6 @@
 #define FONT_SIZE 12
 
 const sf::Color INPUT_FIELD_COLOR = sf::Color(0x282828bb);
-bool imageLoadingShaderLoaded = false;
-sf::Shader loadImageShader;
 
 // static //
 static bool bEditingInputField;
@@ -31,17 +31,6 @@ char* getFileNameFromPath(char* string)
 	for (; string[i - 1] != '\\' && string[i - 1] != '/'; i--);
 	return &(string[i]);
 }
-
-void loadImageLoadingShader()
-{
-	if (!loadImageShader.loadFromFile("_loadImage.shader", sf::Shader::Fragment))
-	{
-		std::cout << "could not load shader for loading image.\n";
-		return;
-	}
-	imageLoadingShaderLoaded = true;
-}
-
 
 void uiInputField::updateTextPositions()
 {
@@ -132,7 +121,6 @@ void uiInputField::onMouseScrolled(float delta)
 
 uiInputField::~uiInputField()
 {
-	delete dataPointer;
 	delete[] texts;
 	delete[] shapes;
 }
@@ -299,23 +287,20 @@ bool uiInputField::onClick(const sf::Vector2f& mousePosInWorld)
 				puts(outPath);
 				texts[0].setString(getFileNameFromPath(outPath));
 
-				if (!imageLoadingShaderLoaded) // load shader if not loaded
-					loadImageLoadingShader();
-
 				sf::Texture tx;
 				if (!tx.loadFromFile(outPath))
 				{
 					std::cout << "Could not open the image" << std::endl;
 					return true;
 				}
-				loadImageShader.setUniform("tx", tx);
+				dataController::loadImageShader.setUniform("tx", tx);
 
 				sf::Sprite spr(tx);
 				sf::Vector2u txSize = tx.getSize();
 				sf::RenderTexture* pointer = (sf::RenderTexture*) dataPointer;
 
 				pointer->create(txSize.x, txSize.y);
-				pointer->draw(spr, &loadImageShader);
+				pointer->draw(spr, &dataController::loadImageShader);
 
 				free(outPath);
 			}
@@ -375,4 +360,9 @@ bool uiInputField::onClick(const sf::Vector2f& mousePosInWorld)
 		}
 		return false;
 	}
+}
+
+void* uiInputField::getDataPointer()
+{
+	return dataPointer;
 }

@@ -127,6 +127,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="dataController.cpp" />
+    <ClCompile Include="nodeFunctionality.cpp" />
     <ClCompile Include="uiInputField.cpp" />
     <ClCompile Include="uiLine.cpp" />
     <ClCompile Include="uiMath.cpp" />
@@ -139,8 +140,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dataController.h" />
-    <ClInclude Include="colorwheel.shader" />
     <ClInclude Include="nodeData.h" />
+    <ClInclude Include="nodeFunctionality.h" />
     <ClInclude Include="res\nodes.dat" />
     <ClInclude Include="uiInputField.h" />
     <ClInclude Include="uiLine.h" />
@@ -151,11 +152,6 @@
     <ClInclude Include="uiPushNodes.h" />
     <ClInclude Include="vendor\nfd.h" />
     <ClInclude Include="vendor\nfd_common.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\shaders\connection.shader" />
-    <None Include="_checkerShader.shader" />
-    <None Include="_loadImage.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

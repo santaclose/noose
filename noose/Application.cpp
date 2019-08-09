@@ -13,6 +13,7 @@ sf::RenderTexture* outputImage = nullptr;
 void onNodeSelected(uiNode& theNode)
 {
 	outputImage = theNode.getFirstInputImage();
+	std::cout << "viewing image " << outputImage << std::endl;
 }
 
 int main()
@@ -22,13 +23,15 @@ int main()
 	// Create the main window
 	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "noose");
 
+	// load nodes.dat in memory and create essential shaders
+	dataController::prepare();
+
+	// initialize interface components
 	uiNodeSystem::initialize(windowA);
 	uiPushNodes::initialize(windowA);
 
+	// on node selected callback
 	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
-
-	// load nodes.dat in memory
-	dataController::prepare();
 
 	// Start the game loop
 	while (windowA.isOpen() || windowB.isOpen())
@@ -88,6 +91,6 @@ int main()
 		windowB.display();
 	}
 
-	uiNodeSystem::terminate(); 
+	uiNodeSystem::terminate();
 	return EXIT_SUCCESS;
 }

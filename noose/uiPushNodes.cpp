@@ -1,9 +1,5 @@
 #include "uiPushNodes.h"
-
-namespace uiNodeSystem // don't wanna include uiNodeSystem just for the font
-{
-	extern sf::Font font;
-}
+#include "uiNodeSystem.h"
 
 #include "dataController.h"
 
@@ -144,9 +140,9 @@ void uiPushNodes::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 		//sf::FloatRect visibleArea(0, 0, e.size.width, e.size.height);
 		//sf::View previousView = theWindow->getView();
 		//theWindow->setView(sf::View(visibleArea));
-		searchBar.setPosition(e.size.width / 2 - SEARCH_BAR_WIDTH / 2, 0);
-		searchText.setPosition(e.size.width / 2 - SEARCH_BAR_WIDTH / 2 + SEARCH_BAR_TEXT_MARGIN, SEARCH_BAR_TEXT_MARGIN);
-		resultsBar.setPosition(e.size.width / 2 - SEARCH_BAR_WIDTH / 2, SEARCH_BAR_HEIGHT);
+		searchBar.setPosition(e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0, 0);
+		searchText.setPosition(e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN, SEARCH_BAR_TEXT_MARGIN);
+		resultsBar.setPosition(e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0, SEARCH_BAR_HEIGHT);
 		for (int i = 0; i < MAX_RESULTS_NUMBER; i++)
 		{
 			resultsTexts[i].setPosition(e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN, SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i);
