@@ -50,7 +50,7 @@ public:
 	
 	sf::RenderTexture* getFirstInputImage();
 
-	void* getDataPointerForPin(int pinIndex);
+	void* getDataPointerForPin(int pinIndex, bool acceptReceivedPointers);
 	void activate(); // executes node functionality and propagates to right hand side nodes
 };
 

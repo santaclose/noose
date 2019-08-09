@@ -128,37 +128,14 @@ uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition)
 
 	//pinDataPointers = (void**) malloc(sizeof(void*) * (inputPinCount + outputPinCount));
 	pinDataPointers.reserve(inputPinCount + outputPinCount); // so it doesn't have to reallocate at each iteration
-	receivedDataPointers.reserve(inputPinCount + outputPinCount);
+	receivedDataPointers.reserve(inputPinCount);
 
 	for (int i = 0; i < (inputPinCount + outputPinCount); i++)
 	{
 		pinDataPointers.push_back(reserveDataForPin(pinTypes[i]));
-		receivedDataPointers.push_back(nullptr);
-		// log
-		std::cout << "memory allocated for an ";
-		switch (pinTypes[i])
-		{
-		case uiNodeSystem::Types::Integer:
-			std::cout << "int ";
-			break;
-		case uiNodeSystem::Types::Float:
-			std::cout << "float ";
-			break;
-		case uiNodeSystem::Types::Vector2i:
-			std::cout << "vec ";
-			break;
-		case uiNodeSystem::Types::Color:
-			std::cout << "color ";
-			break;
-		case uiNodeSystem::Types::Image:
-			std::cout << "image ";
-			break;
-		}
-		std::cout << "at " << pinDataPointers.back() << std::endl;
-		//reserveDataForPin(pinTypes[i], pinDataPointers[i]);
+		if (i < inputPinCount)
+			receivedDataPointers.push_back(nullptr);
 	}
-	// log
-	std::cout << "pinDataPointers has a size of " << pinDataPointers.size() << " after allocating\n";
 
 	inputFields = new uiInputField[inputPinCount];
 	for (int i = 0; i < inputPinCount; i++)
@@ -358,12 +335,13 @@ void uiNode::attachConnectionPoint(int lineIndex)
 	// attach line
 	lineIndices.push_back(lineIndex);
 
+	// check if is input to receive the other node's pointer
 	if (uiNodeConnections::lines[lineIndex].nodeA == (void*)this) // we are node a
 	{
 		if (uiNodeConnections::lines[lineIndex].pinA < inputPinCount) // ours is an input pin
 		{
 			receivedDataPointers[uiNodeConnections::lines[lineIndex].pinA] =
-				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeB))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinB);
+				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeB))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinB, false);
 		}
 	}
 	else // we are node b
@@ -371,51 +349,9 @@ void uiNode::attachConnectionPoint(int lineIndex)
 		if (uiNodeConnections::lines[lineIndex].pinB < inputPinCount) // ours is an input pin
 		{
 			receivedDataPointers[uiNodeConnections::lines[lineIndex].pinB] =
-				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeA))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinA);
+				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeA))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinA, false);
 		}
 	}
-
-	// overwrite pointer if is input pin
-	/*std::cout << "line index: " << lineIndex << std::endl;
-	std::cout << "line nodeA: " << uiNodeConnections::lines[lineIndex].nodeA <<
-		"\nline nodeB: " << uiNodeConnections::lines[lineIndex].nodeB <<
-		"\nline pinA: " << uiNodeConnections::lines[lineIndex].pinA <<
-		"\nline pinB: " << uiNodeConnections::lines[lineIndex].pinB <<
-		"\nthis: " << (void*)this << std::endl;
-	if (uiNodeConnections::lines[lineIndex].nodeA == (void*)this) // we are node a
-	{
-		std::cout << "we are node a\n";
-		if (uiNodeConnections::lines[lineIndex].pinA < inputPinCount) // ours is an input pin
-		{
-			std::cout << "changing pointer from " << pinDataPointers[uiNodeConnections::lines[lineIndex].pinA] <<
-				"\n to " << ((uiNode*)uiNodeConnections::lines[lineIndex].nodeB)->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinB) << std::endl;
-			std::cout << "pinDataPointers.size(): " << pinDataPointers.size() << std::endl;
-			std::cout << "accessing element: " << uiNodeConnections::lines[lineIndex].pinA << std::endl;
-			pinDataPointers[uiNodeConnections::lines[lineIndex].pinA] =
-				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeB))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinB);
-		}
-		else
-		{
-			std::cout << "this line is not connected to an input pin of this node\n";
-		}
-	}
-	else // we are node b
-	{
-		std::cout << "we are node b\n";
-		if (uiNodeConnections::lines[lineIndex].pinB < inputPinCount) // ours is an input pin
-		{
-			std::cout << "changing pointer from " << pinDataPointers[uiNodeConnections::lines[lineIndex].pinB] <<
-				"\n to " << ((uiNode*)uiNodeConnections::lines[lineIndex].nodeA)->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinA) << std::endl;
-			std::cout << "pinDataPointers.size(): " << pinDataPointers.size() << std::endl;
-			std::cout << "accessing element: " << uiNodeConnections::lines[lineIndex].pinB << std::endl;
-			pinDataPointers[uiNodeConnections::lines[lineIndex].pinB] =
-				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeA))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinA);
-		}
-		else
-		{
-			std::cout << "this line is not connected to an input pin of this node\n";
-		}
-	}*/
 }
 
 // remove all connections to this line ( it must be only one connection? ) *
@@ -425,35 +361,6 @@ void uiNode::setLineIndexAsDisconnected(int lineIndex)
 	{
 		if (lineIndices[i] == lineIndex)
 		{
-			/////+
-			// get input field pointer back if is input field
-
-			/*if (((uiNode*)(uiNodeConnections::lines[lineIndex].nodeA)) == this) // we are node a
-			{
-				if (uiNodeConnections::lines[lineIndex].pinA < inputPinCount) // ours is an input pin
-				{
-					std::cout << "changing pointer from " << pinDataPointers[uiNodeConnections::lines[lineIndex].pinA] <<
-						"\n to " << inputFields[uiNodeConnections::lines[lineIndex].pinA].getDataPointer() << std::endl;
-
-					pinDataPointers[uiNodeConnections::lines[lineIndex].pinA] =
-						inputFields[uiNodeConnections::lines[lineIndex].pinA].getDataPointer();
-				}
-			}
-			else // we are node b
-			{
-				if (uiNodeConnections::lines[lineIndex].pinB < inputPinCount) // ours is an input pin
-				{
-					std::cout << "changing pointer from " << pinDataPointers[uiNodeConnections::lines[lineIndex].pinB] <<
-						"\n to " << inputFields[uiNodeConnections::lines[lineIndex].pinB].getDataPointer() << std::endl;
-
-					pinDataPointers[uiNodeConnections::lines[lineIndex].pinB] =
-						inputFields[uiNodeConnections::lines[lineIndex].pinB].getDataPointer();
-				}
-			}
-			// detach line
-			lineIndices.erase(lineIndices.begin() + i);
-			break;*/
-			/////+
 			std::cout << "line " << lineIndices[i] << " being removed from node " << this << std::endl;
 			lineIndices.erase(lineIndices.begin() + i);
 
@@ -471,7 +378,7 @@ void uiNode::setLineIndexAsDisconnected(int lineIndex)
 					receivedDataPointers[uiNodeConnections::lines[lineIndex].pinB] = nullptr;
 				}
 			}
-			break;// i--; ---------
+			break;
 		}
 	}
 
@@ -516,42 +423,24 @@ sf::RenderTexture* uiNode::getFirstInputImage()
 	for (int i = 0; i < inputPinCount; i++)
 	{
 		if (pinTypes[i] == uiNodeSystem::Types::Image)
-			return (sf::RenderTexture*)getDataPointerForPin(i);
+			return (sf::RenderTexture*)getDataPointerForPin(i, true);
 	}
 	return nullptr;
 }
 
-void* uiNode::getDataPointerForPin(int pinIndex)
+void* uiNode::getDataPointerForPin(int pinIndex, bool acceptReceivedPointers)
 {
-	std::cout << "getDataPointers called for pin " << pinIndex << " in node " << title.getString().toAnsiString() << std::endl;
+	//std::cout << "getDataPointers called for pin " << pinIndex << " in node " << title.getString().toAnsiString() << std::endl;
+	if (!acceptReceivedPointers)
+		return pinDataPointers[pinIndex];
 	//return pinDataPointers[pinIndex];
+	if (pinIndex > inputPinCount) // can't receive pointers from other nodes (is an output)
+		return pinDataPointers[pinIndex];
 
 	if (receivedDataPointers[pinIndex] != nullptr)
 		return receivedDataPointers[pinIndex];
 
 	return pinDataPointers[pinIndex];
-	// output pointers are always the same
-	/*if (pinIndex >= inputPinCount)
-	{
-		return pinDataPointers[pinIndex];
-	}
-	else
-	{
-		// check if its connected and get the proper pointer
-		for (int i : lineIndices)
-		{
-			if (uiNodeConnections::lines[i].pinA == pinIndex)
-			{
-				return ((uiNode*)(uiNodeConnections::lines[i].nodeB))->getDataPointerForPin(uiNodeConnections::lines[i].pinB);
-			}
-			else if (uiNodeConnections::lines[i].pinB == pinIndex)
-			{
-				return ((uiNode*)(uiNodeConnections::lines[i].nodeA))->getDataPointerForPin(uiNodeConnections::lines[i].pinA);
-			}
-		}
-		return pinDataPointers[pinIndex];
-	}*/
-	// if there was no line connected to this pin we take the default pointer
 }
 
 void uiNode::activate()
