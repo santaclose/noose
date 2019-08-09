@@ -3,8 +3,6 @@ Checker
 	in:
 		Vector2i: image size
 		Integer: square size
-		Color: color a
-		Color: color b
 	out:
 		Image: result
 ]

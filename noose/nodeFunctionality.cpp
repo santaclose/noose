@@ -30,17 +30,15 @@ void nodeFunctionality::initialize()
 void nodeFunctionality::Checker(uiNode* theNode)
 {
 	std::cout << "executing checker" << std::endl;
-	/*sf::RenderTexture* outputPointer = ((sf::RenderTexture*) outputPins[0]->data);
-	sf::Vector2i* imageSize = ((sf::Vector2i*) inputPins[0]->getData());
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
+	sf::Vector2i* imageSize = ((sf::Vector2i*) theNode->getDataPointerForPin(0, true));
 
 	outputPointer->create(imageSize->x, imageSize->y);
 
-	shaders[0].setParameter("colorA", *((sf::Color*) inputPins[2]->getData()));
-	shaders[0].setParameter("colorB", *((sf::Color*) inputPins[3]->getData()));
-	shaders[0].setParameter("squareSize", *((int*)inputPins[1]->getData()));
+	checkerShader.setUniform("squareSize", (float)(*((int*)theNode->getDataPointerForPin(1, true))));
 
 	sf::Sprite spr(outputPointer->getTexture());
-	outputPointer->draw(spr, &shaders[0]);*/
+	outputPointer->draw(spr, &checkerShader);
 }
 
 void nodeFunctionality::ConstructColor(uiNode* theNode)
@@ -141,7 +139,7 @@ void nodeFunctionality::LinearGradient(uiNode* theNode)
 	std::cout << "creating image of size " << imageSize->x << ", " << imageSize->y << std::endl;
 	outputPointer->create(imageSize->x, imageSize->y);
 
-	linearGradientShader.setUniform("xResolution", imageSize->x);
+	linearGradientShader.setUniform("xResolution", (float)imageSize->x);
 	//linearGradientShader.setParameter("xResolution", imageSize->x);
 
 	sf::Sprite spr(outputPointer->getTexture());
