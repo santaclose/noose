@@ -128,10 +128,12 @@ uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition)
 
 	//pinDataPointers = (void**) malloc(sizeof(void*) * (inputPinCount + outputPinCount));
 	pinDataPointers.reserve(inputPinCount + outputPinCount); // so it doesn't have to reallocate at each iteration
+	receivedDataPointers.reserve(inputPinCount + outputPinCount);
 
 	for (int i = 0; i < (inputPinCount + outputPinCount); i++)
 	{
 		pinDataPointers.push_back(reserveDataForPin(pinTypes[i]));
+		receivedDataPointers.push_back(nullptr);
 		// log
 		std::cout << "memory allocated for an ";
 		switch (pinTypes[i])
@@ -204,6 +206,7 @@ uiNode::~uiNode()
 	}
 	//free(pinDataPointers);
 	pinDataPointers.clear();
+	receivedDataPointers.clear();
 
 	delete[] pinNameTexts;
 	//delete[] interactiveBoxTexts;
@@ -355,7 +358,25 @@ void uiNode::attachConnectionPoint(int lineIndex)
 	// attach line
 	lineIndices.push_back(lineIndex);
 
+	if (uiNodeConnections::lines[lineIndex].nodeA == (void*)this) // we are node a
+	{
+		if (uiNodeConnections::lines[lineIndex].pinA < inputPinCount) // ours is an input pin
+		{
+			receivedDataPointers[uiNodeConnections::lines[lineIndex].pinA] =
+				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeB))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinB);
+		}
+	}
+	else // we are node b
+	{
+		if (uiNodeConnections::lines[lineIndex].pinB < inputPinCount) // ours is an input pin
+		{
+			receivedDataPointers[uiNodeConnections::lines[lineIndex].pinB] =
+				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeA))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinA);
+		}
+	}
+
 	// overwrite pointer if is input pin
+	/*std::cout << "line index: " << lineIndex << std::endl;
 	std::cout << "line nodeA: " << uiNodeConnections::lines[lineIndex].nodeA <<
 		"\nline nodeB: " << uiNodeConnections::lines[lineIndex].nodeB <<
 		"\nline pinA: " << uiNodeConnections::lines[lineIndex].pinA <<
@@ -371,7 +392,7 @@ void uiNode::attachConnectionPoint(int lineIndex)
 			std::cout << "pinDataPointers.size(): " << pinDataPointers.size() << std::endl;
 			std::cout << "accessing element: " << uiNodeConnections::lines[lineIndex].pinA << std::endl;
 			pinDataPointers[uiNodeConnections::lines[lineIndex].pinA] =
-				((uiNode*)uiNodeConnections::lines[lineIndex].nodeB)->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinB);
+				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeB))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinB);
 		}
 		else
 		{
@@ -388,13 +409,13 @@ void uiNode::attachConnectionPoint(int lineIndex)
 			std::cout << "pinDataPointers.size(): " << pinDataPointers.size() << std::endl;
 			std::cout << "accessing element: " << uiNodeConnections::lines[lineIndex].pinB << std::endl;
 			pinDataPointers[uiNodeConnections::lines[lineIndex].pinB] =
-				((uiNode*)uiNodeConnections::lines[lineIndex].nodeA)->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinA);
+				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeA))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinA);
 		}
 		else
 		{
 			std::cout << "this line is not connected to an input pin of this node\n";
 		}
-	}
+	}*/
 }
 
 // remove all connections to this line ( it must be only one connection? ) *
@@ -406,7 +427,8 @@ void uiNode::setLineIndexAsDisconnected(int lineIndex)
 		{
 			/////+
 			// get input field pointer back if is input field
-			if (((uiNode*)(uiNodeConnections::lines[lineIndex].nodeA)) == this) // we are node a
+
+			/*if (((uiNode*)(uiNodeConnections::lines[lineIndex].nodeA)) == this) // we are node a
 			{
 				if (uiNodeConnections::lines[lineIndex].pinA < inputPinCount) // ours is an input pin
 				{
@@ -430,11 +452,26 @@ void uiNode::setLineIndexAsDisconnected(int lineIndex)
 			}
 			// detach line
 			lineIndices.erase(lineIndices.begin() + i);
-			break;
+			break;*/
 			/////+
-			//std::cout << "line " << lineIndices[i] << " being removed from node " << this << std::endl;
-			//lineIndices.erase(lineIndices.begin() + i); *
-			//i--; *
+			std::cout << "line " << lineIndices[i] << " being removed from node " << this << std::endl;
+			lineIndices.erase(lineIndices.begin() + i);
+
+			if (uiNodeConnections::lines[lineIndex].nodeA == (void*)this) // we are node a
+			{
+				if (uiNodeConnections::lines[lineIndex].pinA < inputPinCount) // ours is an input pin
+				{
+					receivedDataPointers[uiNodeConnections::lines[lineIndex].pinA] = nullptr;
+				}
+			}
+			else // we are node b
+			{
+				if (uiNodeConnections::lines[lineIndex].pinB < inputPinCount) // ours is an input pin
+				{
+					receivedDataPointers[uiNodeConnections::lines[lineIndex].pinB] = nullptr;
+				}
+			}
+			break;// i--; ---------
 		}
 	}
 
@@ -479,7 +516,7 @@ sf::RenderTexture* uiNode::getFirstInputImage()
 	for (int i = 0; i < inputPinCount; i++)
 	{
 		if (pinTypes[i] == uiNodeSystem::Types::Image)
-			return (sf::RenderTexture*)pinDataPointers[i];
+			return (sf::RenderTexture*)getDataPointerForPin(i);
 	}
 	return nullptr;
 }
@@ -487,10 +524,38 @@ sf::RenderTexture* uiNode::getFirstInputImage()
 void* uiNode::getDataPointerForPin(int pinIndex)
 {
 	std::cout << "getDataPointers called for pin " << pinIndex << " in node " << title.getString().toAnsiString() << std::endl;
+	//return pinDataPointers[pinIndex];
+
+	if (receivedDataPointers[pinIndex] != nullptr)
+		return receivedDataPointers[pinIndex];
+
 	return pinDataPointers[pinIndex];
+	// output pointers are always the same
+	/*if (pinIndex >= inputPinCount)
+	{
+		return pinDataPointers[pinIndex];
+	}
+	else
+	{
+		// check if its connected and get the proper pointer
+		for (int i : lineIndices)
+		{
+			if (uiNodeConnections::lines[i].pinA == pinIndex)
+			{
+				return ((uiNode*)(uiNodeConnections::lines[i].nodeB))->getDataPointerForPin(uiNodeConnections::lines[i].pinB);
+			}
+			else if (uiNodeConnections::lines[i].pinB == pinIndex)
+			{
+				return ((uiNode*)(uiNodeConnections::lines[i].nodeA))->getDataPointerForPin(uiNodeConnections::lines[i].pinA);
+			}
+		}
+		return pinDataPointers[pinIndex];
+	}*/
+	// if there was no line connected to this pin we take the default pointer
 }
 
 void uiNode::activate()
 {
+	// execute node function
 	nodeFunctionalityPointer(this);
 }

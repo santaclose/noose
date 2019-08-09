@@ -24,6 +24,8 @@ private:
 	uiInputField* inputFields;
 	//void** pinDataPointers;
 	std::vector<void*> pinDataPointers;
+	std::vector<void*> receivedDataPointers;
+
 	void (*nodeFunctionalityPointer)(uiNode* theNode);
 public:
 	uiNode(const void* nodeData, sf::Vector2f& initialPosition);
