@@ -279,7 +279,10 @@ void uiNode::draw(sf::RenderWindow& window)
 	{
 		if (i < inputPinCount)
 		{
-			inputFields[i].draw(window);
+			if (receivedDataPointers[i] == nullptr) // nothing received from other node
+			{
+				inputFields[i].draw(window);
+			}
 			//	window.draw(interactiveBoxTexts[i]);
 		}
 		window.draw(pinNameTexts[i]);
@@ -459,6 +462,8 @@ bool uiNode::onClickOverInputField(const sf::Vector2f& mousePosInWorld) // we re
 {
 	for (int i = 0; i < inputPinCount; i++)
 	{
+		if (receivedDataPointers[i] != nullptr) // something received from other node
+			continue; // no need to edit data here
 		currentEditingInputFieldNode = this;
 		if (inputFields[i].onClick(mousePosInWorld)) // mouse was over input field
 		{
