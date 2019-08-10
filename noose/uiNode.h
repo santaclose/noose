@@ -26,7 +26,14 @@ private:
 	std::vector<void*> pinDataPointers;
 	std::vector<void*> receivedDataPointers;
 
+	std::vector<uiNode*> propagationList;
+
+	// function pointer with node functionality
 	void (*nodeFunctionalityPointer)(uiNode* theNode);
+
+	void addNodeToPropagationList(uiNode* theNode);
+	void removeNodeFromPropagationList(uiNode* theNode);
+
 public:
 	uiNode(const void* nodeData, sf::Vector2f& initialPosition);
 	//uiNode(const uiNode &other);

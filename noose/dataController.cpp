@@ -28,21 +28,25 @@ inline void* getFunctionalityFromIndex(int index)
 	if (index == 4)
 		return nodeFunctionality::Float;
 	if (index == 5)
-		return nodeFunctionality::Image;
+		return nodeFunctionality::Grayscale;
 	if (index == 6)
-		return nodeFunctionality::Integer;
+		return nodeFunctionality::Image;
 	if (index == 7)
-		return nodeFunctionality::Invert;
+		return nodeFunctionality::Integer;
 	if (index == 8)
-		return nodeFunctionality::LinearGradient;
+		return nodeFunctionality::Invert;
 	if (index == 9)
-		return nodeFunctionality::Multiply;
+		return nodeFunctionality::LinearGradient;
 	if (index == 10)
-		return nodeFunctionality::Output;
+		return nodeFunctionality::Mix;
 	if (index == 11)
-		return nodeFunctionality::Repeat;
+		return nodeFunctionality::Multiply;
 	if (index == 12)
+		return nodeFunctionality::Repeat;
+	if (index == 13)
 		return nodeFunctionality::Rotate90;
+	if (index == 14)
+		return nodeFunctionality::Solid;
 }
 
 inline void parsePinLine(const std::string& line, std::string& a, std::string& b)

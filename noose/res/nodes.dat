@@ -1,8 +1,8 @@
 Checker
 [
 	in:
-		Vector2i: image size
 		Integer: square size
+		Vector2i: image size
 	out:
 		Image: result
 ]
@@ -39,6 +39,13 @@ Float
 	out:
 		Float: out
 ]
+Grayscale
+[
+	in:
+		Image: in
+	out:
+		Image: out
+]
 Image
 [
 	in:
@@ -68,6 +75,15 @@ Linear Gradient
 	out:
 		Image: result
 ]
+Mix
+[
+	in:
+		Image: a
+		Image: b
+		Image: fac
+	out:
+		Image: result
+]
 Multiply
 [
 	in:
@@ -75,11 +91,6 @@ Multiply
 		Image: b
 	out:
 		Image: result
-]
-Output
-[
-	in:
-		Image: image
 ]
 Repeat
 [
@@ -94,6 +105,14 @@ Rotate 90
 	in:
 		Image: image
 		Integer: times
+	out:
+		Image: image
+]
+Solid
+[
+	in:
+		Color: color
+		Vector2i: image size
 	out:
 		Image: image
 ]

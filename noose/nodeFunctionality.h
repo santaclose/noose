@@ -9,13 +9,16 @@ namespace nodeFunctionality
 	void ConstructVector2i(uiNode* theNode);
 	void Flip(uiNode* theNode);
 	void Float(uiNode* theNode);
+	void Grayscale(uiNode* theNode);
 	void Image(uiNode* theNode);
 	void Integer(uiNode* theNode);
 	void Invert(uiNode* theNode);
 	void LinearGradient(uiNode* theNode);
+	void Mix(uiNode* theNode);
 	void Multiply(uiNode* theNode);
-	void Output(uiNode* theNode);
+	//void Output(uiNode* theNode);
 	void Repeat(uiNode* theNode);
 	void Rotate90(uiNode* theNode);
+	void Solid(uiNode* theNode);
 };
 

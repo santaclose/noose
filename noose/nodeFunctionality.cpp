@@ -8,6 +8,9 @@ sf::Shader linearGradientShader;
 sf::Shader multiplyShader;
 sf::Shader repeatShader;
 sf::Shader rotate90Shader;
+sf::Shader solidShader;
+sf::Shader mixShader;
+sf::Shader grayscaleShader;
 
 void nodeFunctionality::initialize()
 {
@@ -25,17 +28,23 @@ void nodeFunctionality::initialize()
 		std::cout << "could not load repeat shader\n";
 	if (!rotate90Shader.loadFromFile("res/nodeShaders/rotate90.shader", sf::Shader::Fragment))
 		std::cout << "could not load rotate90 shader\n";
+	if (!solidShader.loadFromFile("res/nodeShaders/solid.shader", sf::Shader::Fragment))
+		std::cout << "could not load solidShader shader\n";
+	if (!mixShader.loadFromFile("res/nodeShaders/mix.shader", sf::Shader::Fragment))
+		std::cout << "could not load mix shader\n";
+	if (!grayscaleShader.loadFromFile("res/nodeShaders/grayscale.shader", sf::Shader::Fragment))
+		std::cout << "could not load grayscale shader\n";
 }
 
 void nodeFunctionality::Checker(uiNode* theNode)
 {
 	std::cout << "executing checker" << std::endl;
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
-	sf::Vector2i* imageSize = ((sf::Vector2i*) theNode->getDataPointerForPin(0, true));
+	sf::Vector2i* imageSize = ((sf::Vector2i*) theNode->getDataPointerForPin(1, true));
 
 	outputPointer->create(imageSize->x, imageSize->y);
 
-	checkerShader.setUniform("squareSize", (float)(*((int*)theNode->getDataPointerForPin(1, true))));
+	checkerShader.setUniform("squareSize", (float)(*((int*)theNode->getDataPointerForPin(0, true))));
 
 	sf::Sprite spr(outputPointer->getTexture());
 	outputPointer->draw(spr, &checkerShader);
@@ -86,6 +95,23 @@ void nodeFunctionality::Float(uiNode* theNode)
 {
 	std::cout << "executing float" << std::endl;
 	*((float*)theNode->getDataPointerForPin(1, false)) = *((float*)theNode->getDataPointerForPin(0, true));
+}
+
+void nodeFunctionality::Grayscale(uiNode* theNode)
+{
+	std::cout << "executing grayscale" << std::endl;
+
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, false));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
+
+	sf::Vector2u size = a->getSize();
+
+	outputPointer->create(size.x, size.y);
+
+	grayscaleShader.setUniform("tex", a->getTexture());
+
+	sf::Sprite spr(outputPointer->getTexture());
+	outputPointer->draw(spr, &grayscaleShader);
 }
 
 void nodeFunctionality::Image(uiNode* theNode)
@@ -146,6 +172,27 @@ void nodeFunctionality::LinearGradient(uiNode* theNode)
 	outputPointer->draw(spr, &linearGradientShader);
 }
 
+void nodeFunctionality::Mix(uiNode* theNode)
+{
+	std::cout << "executing mix" << std::endl;
+
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(3, false));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
+	sf::RenderTexture* b = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, true));
+	sf::RenderTexture* fac = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, true));
+
+	sf::Vector2u size = a->getSize();
+
+	outputPointer->create(size.x, size.y);
+
+	mixShader.setUniform("tex0", a->getTexture());
+	mixShader.setUniform("tex1", b->getTexture());
+	mixShader.setUniform("fac", fac->getTexture());
+
+	sf::Sprite spr(outputPointer->getTexture());
+	outputPointer->draw(spr, &mixShader);
+}
+
 void nodeFunctionality::Multiply(uiNode* theNode)
 {
 	std::cout << "executing multiply" << std::endl;
@@ -163,11 +210,6 @@ void nodeFunctionality::Multiply(uiNode* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	outputPointer->draw(spr, &multiplyShader);
-}
-
-void nodeFunctionality::Output(uiNode* theNode)
-{
-	std::cout << "executing output node (doing nothing)\n";
 }
 
 void nodeFunctionality::Repeat(uiNode* theNode)
@@ -212,4 +254,19 @@ void nodeFunctionality::Rotate90(uiNode* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	outputPointer->draw(spr, &rotate90Shader);
+}
+
+void nodeFunctionality::Solid(uiNode* theNode)
+{
+	std::cout << "executing solid" << std::endl;
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
+	sf::Vector2i* imageSize = ((sf::Vector2i*) theNode->getDataPointerForPin(1, true));
+
+	outputPointer->create(imageSize->x, imageSize->y);
+
+	sf::Glsl::Vec4 inColor(*((sf::Color*)(theNode->getDataPointerForPin(0, true))));
+	solidShader.setUniform("color", inColor);
+
+	sf::Sprite spr(outputPointer->getTexture());
+	outputPointer->draw(spr, &solidShader);
 }

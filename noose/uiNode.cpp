@@ -37,6 +37,37 @@
 
 #define VERTICES_PER_PROPERTY 8
 
+static uiNode* currentEditingInputFieldNode;
+static void onNodeValueChanged()
+{
+	std::cout << "value changed in node\n";
+	currentEditingInputFieldNode->activate();
+}
+
+// these two functions are private
+void uiNode::addNodeToPropagationList(uiNode* theNode)
+{
+	for (uiNode* n : propagationList)
+	{
+		if (n == theNode)
+			return;
+	}
+	propagationList.push_back(theNode);
+}
+
+void uiNode::removeNodeFromPropagationList(uiNode* theNode)
+{
+	for (int i = 0; i < propagationList.size(); i++)
+	{
+		if (propagationList[i] == theNode)
+		{
+			std::cout << "node removed from propagation list at node " << title.getString().toAnsiString() << std::endl;
+			propagationList.erase(propagationList.begin() + i);
+			break;
+		}
+	}
+}
+
 inline void* reserveDataForPin(uiNodeSystem::Types type)
 {
 	switch (type)
@@ -140,7 +171,7 @@ uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition)
 	inputFields = new uiInputField[inputPinCount];
 	for (int i = 0; i < inputPinCount; i++)
 	{
-		inputFields[i].initialize(data->pinTypes[i], pinDataPointers[i]);
+		inputFields[i].initialize(data->pinTypes[i], pinDataPointers[i], onNodeValueChanged);
 	}
 
 	setPosition(initialPosition);
@@ -342,6 +373,12 @@ void uiNode::attachConnectionPoint(int lineIndex)
 		{
 			receivedDataPointers[uiNodeConnections::lines[lineIndex].pinA] =
 				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeB))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinB, false);
+			activate();
+		}
+		else // ours is an output pin
+		{
+			addNodeToPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeB);
+			//activate();
 		}
 	}
 	else // we are node b
@@ -350,6 +387,12 @@ void uiNode::attachConnectionPoint(int lineIndex)
 		{
 			receivedDataPointers[uiNodeConnections::lines[lineIndex].pinB] =
 				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeA))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinA, false);
+			activate();
+		}
+		else // ours is an output pin
+		{
+			addNodeToPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeA);
+			//activate();
 		}
 	}
 }
@@ -370,12 +413,20 @@ void uiNode::setLineIndexAsDisconnected(int lineIndex)
 				{
 					receivedDataPointers[uiNodeConnections::lines[lineIndex].pinA] = nullptr;
 				}
+				else
+				{
+					removeNodeFromPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeB);
+				}
 			}
 			else // we are node b
 			{
 				if (uiNodeConnections::lines[lineIndex].pinB < inputPinCount) // ours is an input pin
 				{
 					receivedDataPointers[uiNodeConnections::lines[lineIndex].pinB] = nullptr;
+				}
+				else
+				{
+					removeNodeFromPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeA);
 				}
 			}
 			break;
@@ -408,9 +459,11 @@ bool uiNode::onClickOverInputField(const sf::Vector2f& mousePosInWorld) // we re
 {
 	for (int i = 0; i < inputPinCount; i++)
 	{
+		currentEditingInputFieldNode = this;
 		if (inputFields[i].onClick(mousePosInWorld)) // mouse was over input field
 		{
 			std::cout << "input field number " << i << std::endl;
+			//currentEditingInputFieldNode = this;
 			return true;
 		}
 	}
@@ -420,10 +473,10 @@ bool uiNode::onClickOverInputField(const sf::Vector2f& mousePosInWorld) // we re
 
 sf::RenderTexture* uiNode::getFirstInputImage()
 {
-	for (int i = 0; i < inputPinCount; i++)
+	for (int i = inputPinCount; i < inputPinCount + outputPinCount; i++)
 	{
 		if (pinTypes[i] == uiNodeSystem::Types::Image)
-			return (sf::RenderTexture*)getDataPointerForPin(i, true);
+			return (sf::RenderTexture*)getDataPointerForPin(i, false);
 	}
 	return nullptr;
 }
@@ -434,7 +487,7 @@ void* uiNode::getDataPointerForPin(int pinIndex, bool acceptReceivedPointers)
 	if (!acceptReceivedPointers)
 		return pinDataPointers[pinIndex];
 	//return pinDataPointers[pinIndex];
-	if (pinIndex > inputPinCount) // can't receive pointers from other nodes (is an output)
+	if (pinIndex >= inputPinCount) // can't receive pointers from other nodes (is an output)
 		return pinDataPointers[pinIndex];
 
 	if (receivedDataPointers[pinIndex] != nullptr)
@@ -445,6 +498,11 @@ void* uiNode::getDataPointerForPin(int pinIndex, bool acceptReceivedPointers)
 
 void uiNode::activate()
 {
+	//std::cout << "activating node " << title.getString().toAnsiString() << std::endl;
 	// execute node function
 	nodeFunctionalityPointer(this);
+	for (uiNode*& n : propagationList) {
+		std::cout << "propagated from " << title.getString().toAnsiString() << " to " << n->title.getString().toAnsiString() << std::endl;
+		n->activate();
+	}
 }

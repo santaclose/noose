@@ -61,28 +61,45 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 {
 	if (!bEditingInputField)
 		return;
+	int newValueAux;
 	switch (editingInputField->type)
 	{
 	case uiNodeSystem::Types::Float:
 		*((float*)(editingInputField->dataPointer)) += displacement.x * VALUE_EDITING_SENSITIVITY;
 		editingInputField->texts[0].setString(std::to_string(*((float*)(editingInputField->dataPointer))));
+		editingInputField->onValueChanged();
 		break;
 	case uiNodeSystem::Types::Integer:
 		editingInputFieldHelper += displacement.x * VALUE_EDITING_SENSITIVITY;
-		*((int*)(editingInputField->dataPointer)) = (int)editingInputFieldHelper;
-		editingInputField->texts[0].setString(std::to_string((int)editingInputFieldHelper));
+		newValueAux = (int)editingInputFieldHelper;
+		if (newValueAux != *((int*)(editingInputField->dataPointer)))
+		{
+			*((int*)(editingInputField->dataPointer)) = newValueAux;
+			editingInputField->texts[0].setString(std::to_string((int)editingInputFieldHelper));
+			editingInputField->onValueChanged();
+		}
 		break;
 	case uiNodeSystem::Types::Vector2i:
 		editingInputFieldHelper += displacement.x * VALUE_EDITING_SENSITIVITY;
 		if (editingVectorComponent == 'x')
 		{
-			((sf::Vector2i*)(editingInputField->dataPointer))->x = (int)editingInputFieldHelper;
-			editingInputField->texts[0].setString(std::to_string((int)editingInputFieldHelper));
+			newValueAux = (int)editingInputFieldHelper;
+			if (newValueAux != ((sf::Vector2i*)(editingInputField->dataPointer))->x)
+			{
+				((sf::Vector2i*)(editingInputField->dataPointer))->x = (int)editingInputFieldHelper;
+				editingInputField->texts[0].setString(std::to_string((int)editingInputFieldHelper));
+				editingInputField->onValueChanged();
+			}
 		}
 		else
 		{
-			((sf::Vector2i*)(editingInputField->dataPointer))->y = (int)editingInputFieldHelper;
-			editingInputField->texts[1].setString(std::to_string((int)editingInputFieldHelper));
+			newValueAux = (int)editingInputFieldHelper;
+			if (newValueAux != ((sf::Vector2i*)(editingInputField->dataPointer))->y)
+			{
+				((sf::Vector2i*)(editingInputField->dataPointer))->y = (int)editingInputFieldHelper;
+				editingInputField->texts[1].setString(std::to_string((int)editingInputFieldHelper));
+				editingInputField->onValueChanged();
+			}
 		}
 		break;
 	case uiNodeSystem::Types::Color:
@@ -95,6 +112,8 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 		editingInputField->shapes[0].color = editingInputField->shapes[1].color =
 			editingInputField->shapes[2].color = editingInputField->shapes[3].color =
 			*((sf::Color*)(editingInputField->dataPointer));
+
+		editingInputField->onValueChanged();
 		break;
 	}
 	editingInputField->updateTextPositions();
@@ -125,8 +144,9 @@ uiInputField::~uiInputField()
 	delete[] shapes;
 }
 
-void uiInputField::initialize(uiNodeSystem::Types theType, void* pinDataPointer)
+void uiInputField::initialize(uiNodeSystem::Types theType, void* pinDataPointer, void (onValueChangedFunc)())
 {
+	onValueChanged = onValueChangedFunc;
 	type = theType;
 	switch (type)
 	{
@@ -278,6 +298,7 @@ bool uiInputField::onClick(const sf::Vector2f& mousePosInWorld)
 	case uiNodeSystem::Types::Image:
 		if (uiMath::isPointInsideRect(mousePosInWorld, shapes[3].position.y, shapes[0].position.y, shapes[0].position.x, shapes[1].position.x))
 		{
+			editingInputField = this;
 			nfdchar_t* outPath = nullptr;
 			nfdchar_t filter[] = "png;jpg;psd";
 			nfdresult_t result = NFD_OpenDialog(filter, NULL, &outPath);
@@ -301,6 +322,7 @@ bool uiInputField::onClick(const sf::Vector2f& mousePosInWorld)
 
 				pointer->create(txSize.x, txSize.y);
 				pointer->draw(spr, &dataController::loadImageShader);
+				editingInputField->onValueChanged();
 
 				free(outPath);
 			}
@@ -313,6 +335,7 @@ bool uiInputField::onClick(const sf::Vector2f& mousePosInWorld)
 				printf("Error: %s\n", NFD_GetError());
 			}
 
+			editingInputField = nullptr;
 			return true;
 		}
 		return false;
