@@ -1,19 +1,31 @@
 #include "nodeFunctionality.h"
 #include "dataController.h"
 
+sf::Shader blendShader;
 sf::Shader checkerShader;
 sf::Shader flipShader;
 sf::Shader invertShader;
 sf::Shader linearGradientShader;
-sf::Shader multiplyShader;
 sf::Shader repeatShader;
 sf::Shader rotate90Shader;
 sf::Shader solidShader;
 sf::Shader mixShader;
 sf::Shader grayscaleShader;
+sf::Shader decomposeShader;
+sf::Shader cropShader;
+
+sf::BlendMode blendMode;
+sf::RenderStates rs;
 
 void nodeFunctionality::initialize()
 {
+	blendMode.alphaEquation = sf::BlendMode::Add;
+	blendMode.alphaSrcFactor = sf::BlendMode::One;
+	blendMode.alphaDstFactor = sf::BlendMode::Zero;
+	rs.blendMode = blendMode;
+
+	if (!blendShader.loadFromFile("res/nodeShaders/blend.shader", sf::Shader::Fragment))
+		std::cout << "could not load blend shader\n";
 	if (!checkerShader.loadFromFile("res/nodeShaders/checker.shader", sf::Shader::Fragment))
 		std::cout << "could not load checker shader\n";
 	if (!flipShader.loadFromFile("res/nodeShaders/flip.shader", sf::Shader::Fragment))
@@ -22,8 +34,6 @@ void nodeFunctionality::initialize()
 		std::cout << "could not load invert shader\n";
 	if (!linearGradientShader.loadFromFile("res/nodeShaders/linearGradient.shader", sf::Shader::Fragment))
 		std::cout << "could not load linearGradient shader\n";
-	if (!multiplyShader.loadFromFile("res/nodeShaders/multiply.shader", sf::Shader::Fragment))
-		std::cout << "could not load multiply shader\n";
 	if (!repeatShader.loadFromFile("res/nodeShaders/repeat.shader", sf::Shader::Fragment))
 		std::cout << "could not load repeat shader\n";
 	if (!rotate90Shader.loadFromFile("res/nodeShaders/rotate90.shader", sf::Shader::Fragment))
@@ -34,6 +44,32 @@ void nodeFunctionality::initialize()
 		std::cout << "could not load mix shader\n";
 	if (!grayscaleShader.loadFromFile("res/nodeShaders/grayscale.shader", sf::Shader::Fragment))
 		std::cout << "could not load grayscale shader\n";
+	if (!decomposeShader.loadFromFile("res/nodeShaders/decompose.shader", sf::Shader::Fragment))
+		std::cout << "could not load decompose shader\n";
+	if (!cropShader.loadFromFile("res/nodeShaders/crop.shader", sf::Shader::Fragment))
+		std::cout << "could not load crop shader\n";
+}
+
+void nodeFunctionality::Blend(uiNode* theNode)
+{
+	std::cout << "executing blend" << std::endl;
+
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(3, false));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
+	sf::RenderTexture* b = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, true));
+	int mode = *((int*)theNode->getDataPointerForPin(2, true));
+
+	sf::Vector2u size = a->getSize();
+
+	outputPointer->create(size.x, size.y);
+
+	blendShader.setUniform("tex0", a->getTexture());
+	blendShader.setUniform("tex1", b->getTexture());
+	blendShader.setUniform("mode", (float)mode);
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &blendShader;
+	outputPointer->draw(spr, rs);
 }
 
 void nodeFunctionality::Checker(uiNode* theNode)
@@ -47,7 +83,8 @@ void nodeFunctionality::Checker(uiNode* theNode)
 	checkerShader.setUniform("squareSize", (float)(*((int*)theNode->getDataPointerForPin(0, true))));
 
 	sf::Sprite spr(outputPointer->getTexture());
-	outputPointer->draw(spr, &checkerShader);
+	rs.shader = &checkerShader;
+	outputPointer->draw(spr, rs);
 }
 
 void nodeFunctionality::ConstructColor(uiNode* theNode)
@@ -68,6 +105,61 @@ void nodeFunctionality::ConstructVector2i(uiNode* theNode)
 	outputPointer->y = *((int*)(theNode->getDataPointerForPin(1, true)));
 }
 
+void nodeFunctionality::Crop(uiNode* theNode)
+{
+	std::cout << "executing crop" << std::endl;
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(3, false));
+	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointerForPin(2, true));
+	sf::Vector2i* topleft = ((sf::Vector2i*) theNode->getDataPointerForPin(1, true));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
+
+	sf::Vector2u size = a->getSize();
+
+	outputPointer->create(outputSize->x, outputSize->y);
+	float top = topleft->y / ((float) size.y);
+	float left = topleft->x / ((float) size.x);
+
+	cropShader.setUniform("tex", a->getTexture());
+	cropShader.setUniform("topLeft", sf::Glsl::Vec2(left, top));
+
+	sf::Sprite spr(a->getTexture());
+	rs.shader = &cropShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::Decompose(uiNode* theNode)
+{
+	std::cout << "executing decompose" << std::endl;
+	
+	sf::RenderTexture* outputPointerR = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, false));
+	sf::RenderTexture* outputPointerG = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
+	sf::RenderTexture* outputPointerB = ((sf::RenderTexture*) theNode->getDataPointerForPin(3, false));
+	sf::RenderTexture* outputPointerA = ((sf::RenderTexture*) theNode->getDataPointerForPin(4, false));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true)); //inputPins[0]->getData());
+	//int* rgOrB = ((int*)theNode->getDataPointerForPin(1, true));
+
+	sf::Vector2u size = a->getSize();
+
+	outputPointerR->create(size.x, size.y);
+	outputPointerG->create(size.x, size.y);
+	outputPointerB->create(size.x, size.y);
+	outputPointerA->create(size.x, size.y);
+
+	rs.shader = &decomposeShader;
+	decomposeShader.setUniform("tx", a->getTexture());
+
+	sf::Sprite spr(a->getTexture());
+
+	decomposeShader.setUniform("mode", 0);
+	outputPointerR->draw(spr, rs);
+	decomposeShader.setUniform("mode", 1);
+	outputPointerG->draw(spr, rs);
+	decomposeShader.setUniform("mode", 2);
+	outputPointerB->draw(spr, rs);
+	decomposeShader.setUniform("mode", 3);
+	outputPointerA->draw(spr, rs);
+}
+
 void nodeFunctionality::Flip(uiNode* theNode)
 {
 	std::cout << "executing flip" << std::endl;
@@ -80,15 +172,13 @@ void nodeFunctionality::Flip(uiNode* theNode)
 
 	outputPointer->create(size.x, size.y);
 
-	//shaders[6].setParameter("tx", a->getTexture());
-	//shaders[6].setParameter("xAxis", *xAxis % 2);
 	flipShader.setUniform("tx", a->getTexture());
 	flipShader.setUniform("xAxis", *xAxis % 2);
 	std::cout << "xAxis % 2 = " << *xAxis % 2 << std::endl;
 
 	sf::Sprite spr(a->getTexture());
-	//outputPointer->draw(spr, &shaders[6]);
-	outputPointer->draw(spr, &flipShader);
+	rs.shader = &flipShader;
+	outputPointer->draw(spr, rs);
 }
 
 void nodeFunctionality::Float(uiNode* theNode)
@@ -111,14 +201,15 @@ void nodeFunctionality::Grayscale(uiNode* theNode)
 	grayscaleShader.setUniform("tex", a->getTexture());
 
 	sf::Sprite spr(outputPointer->getTexture());
-	outputPointer->draw(spr, &grayscaleShader);
+	rs.shader = &grayscaleShader;
+	outputPointer->draw(spr, rs);
 }
 
 void nodeFunctionality::Image(uiNode* theNode)
 {
 	std::cout << "executing image" << std::endl;
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, false));
-	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointerForPin(2, true));
+	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointerForPin(2, false));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
 
 	sf::Vector2u size = a->getSize();
@@ -126,10 +217,10 @@ void nodeFunctionality::Image(uiNode* theNode)
 	outputPointer->create(size.x, size.y);
 
 	dataController::loadImageShader.setUniform("tx", a->getTexture());
-//	dataController::loadImageShader.setParameter("tx", a->getTexture());
 
 	sf::Sprite spr(a->getTexture());
-	outputPointer->draw(spr, &dataController::loadImageShader);
+	rs.shader = &dataController::loadImageShader;
+	outputPointer->draw(spr, rs);
 	*outputSize = sf::Vector2i(size.x, size.y);
 }
 
@@ -152,7 +243,8 @@ void nodeFunctionality::Invert(uiNode* theNode)
 	invertShader.setUniform("tex", a->getTexture());
 
 	sf::Sprite spr(outputPointer->getTexture());
-	outputPointer->draw(spr, &invertShader);
+	rs.shader = &invertShader;
+	outputPointer->draw(spr, rs);
 }
 
 void nodeFunctionality::LinearGradient(uiNode* theNode)
@@ -169,7 +261,8 @@ void nodeFunctionality::LinearGradient(uiNode* theNode)
 	//linearGradientShader.setParameter("xResolution", imageSize->x);
 
 	sf::Sprite spr(outputPointer->getTexture());
-	outputPointer->draw(spr, &linearGradientShader);
+	rs.shader = &linearGradientShader;
+	outputPointer->draw(spr, rs);
 }
 
 void nodeFunctionality::Mix(uiNode* theNode)
@@ -190,10 +283,11 @@ void nodeFunctionality::Mix(uiNode* theNode)
 	mixShader.setUniform("fac", fac->getTexture());
 
 	sf::Sprite spr(outputPointer->getTexture());
-	outputPointer->draw(spr, &mixShader);
+	rs.shader = &mixShader;
+	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::Multiply(uiNode* theNode)
+/*void nodeFunctionality::Multiply(uiNode* theNode)
 {
 	std::cout << "executing multiply" << std::endl;
 
@@ -210,7 +304,7 @@ void nodeFunctionality::Multiply(uiNode* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	outputPointer->draw(spr, &multiplyShader);
-}
+}*/
 
 void nodeFunctionality::Repeat(uiNode* theNode)
 {
@@ -229,7 +323,8 @@ void nodeFunctionality::Repeat(uiNode* theNode)
 	repeatShader.setUniform("newSize", sf::Glsl::Vec2(newSize->x, newSize->y));
 
 	sf::Sprite spr(outputPointer->getTexture());
-	outputPointer->draw(spr, &repeatShader);
+	rs.shader = &repeatShader;
+	outputPointer->draw(spr, rs);
 }
 
 void nodeFunctionality::Rotate90(uiNode* theNode)
@@ -253,7 +348,8 @@ void nodeFunctionality::Rotate90(uiNode* theNode)
 	rotate90Shader.setUniform("times", (float)fixed);
 
 	sf::Sprite spr(outputPointer->getTexture());
-	outputPointer->draw(spr, &rotate90Shader);
+	rs.shader = &rotate90Shader;
+	outputPointer->draw(spr, rs);
 }
 
 void nodeFunctionality::Solid(uiNode* theNode)
@@ -268,5 +364,6 @@ void nodeFunctionality::Solid(uiNode* theNode)
 	solidShader.setUniform("color", inColor);
 
 	sf::Sprite spr(outputPointer->getTexture());
-	outputPointer->draw(spr, &solidShader);
+	rs.shader = &solidShader;
+	outputPointer->draw(spr, rs);
 }

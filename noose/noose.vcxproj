@@ -135,6 +135,7 @@
     <ClCompile Include="uiNodeConnections.cpp" />
     <ClCompile Include="uiNodeSystem.cpp" />
     <ClCompile Include="uiPushNodes.cpp" />
+    <ClCompile Include="uiViewport.cpp" />
     <ClCompile Include="vendor\nfd_win.cpp" />
     <ClCompile Include="vendor\nfd_common.c" />
   </ItemGroup>
@@ -150,6 +151,7 @@
     <ClInclude Include="uiNodeConnections.h" />
     <ClInclude Include="uiNodeSystem.h" />
     <ClInclude Include="uiPushNodes.h" />
+    <ClInclude Include="uiViewport.h" />
     <ClInclude Include="vendor\nfd.h" />
     <ClInclude Include="vendor\nfd_common.h" />
   </ItemGroup>

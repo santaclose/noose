@@ -476,7 +476,7 @@ bool uiNode::onClickOverInputField(const sf::Vector2f& mousePosInWorld) // we re
 }
 
 
-sf::RenderTexture* uiNode::getFirstInputImage()
+sf::RenderTexture* uiNode::getFirstOutputImage()
 {
 	for (int i = inputPinCount; i < inputPinCount + outputPinCount; i++)
 	{

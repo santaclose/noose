@@ -6,22 +6,24 @@
 
 #include "dataController.h"
 
+#include "uiViewport.h"
+
 static const sf::Color BACKGROUND_COLOR(0x595959ff);
 
-sf::RenderTexture* outputImage = nullptr;
+//sf::RenderTexture* outputImage = nullptr;
 
 void onNodeSelected(uiNode& theNode)
 {
-	outputImage = theNode.getFirstInputImage();
-	std::cout << "viewing image " << outputImage << std::endl;
+	uiViewport::outputImage = theNode.getFirstOutputImage();
+	std::cout << "viewing image " << uiViewport::outputImage << std::endl;
 }
 
 int main()
 {
-	// Create the output window
-	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport");
 	// Create the main window
 	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "noose");
+	// Create the output window
+	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport");
 
 	// load nodes.dat in memory and create essential shaders
 	dataController::prepare();
@@ -32,6 +34,8 @@ int main()
 
 	// on node selected callback
 	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
+
+	uiViewport::initialize(windowB);
 
 	// Start the game loop
 	while (windowA.isOpen() || windowB.isOpen())
@@ -49,6 +53,19 @@ int main()
 					windowB.close();
 					break;
 				}
+				case sf::Event::KeyPressed:
+				{
+					if (eventWindowA.key.code == sf::Keyboard::S)
+					{
+						if (uiViewport::outputImage == nullptr)
+							std::cout << "no image to save\n";
+						else
+						{
+							uiViewport::outputImage->getTexture().copyToImage().saveToFile("output.png");
+							std::cout << "image saved as output.png\n";
+						}
+					}
+				}
 			}
 			uiNodeSystem::onPollEvent(eventWindowA, mousePos);
 			uiPushNodes::onPollEvent(eventWindowA, mousePos);
@@ -64,14 +81,16 @@ int main()
 					windowB.close();
 					break;
 				}
-				case sf::Event::Resized:
+				/*case sf::Event::Resized:
 				{
 					// update the view to the new size of the window
 					sf::FloatRect visibleArea(0, 0, eventWindowB.size.width, eventWindowB.size.height);
 					windowB.setView(sf::View(visibleArea));
 					break;
 				}
+				*/
 			}
+			uiViewport::onPollEvent(eventWindowB, mousePos);
 		}
 		// Clear screen
 		windowA.clear(BACKGROUND_COLOR);
@@ -80,11 +99,12 @@ int main()
 		uiNodeSystem::draw(windowA);
 		uiPushNodes::draw(windowA);
 
-		if (outputImage != nullptr)
+		uiViewport::draw();
+		/*if (outputImage != nullptr)
 		{
 			sf::Sprite spr(outputImage->getTexture());
 			windowB.draw(spr);
-		}
+		}*/
 
 		// Update the window
 		windowA.display();

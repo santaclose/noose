@@ -1,3 +1,12 @@
+Blend
+[
+	in:
+		Image: a
+		Image: b
+		Integer: mode
+	out:
+		Image: result
+]
 Checker
 [
 	in:
@@ -23,6 +32,25 @@ Construct Vector2i
 		Integer: y
 	out:
 		Vector2i: vector
+]
+Crop
+[
+	in:
+		Image: in
+		Vector2i: top left position
+		Vector2i: size
+	out:
+		Image: out
+]
+Decompose
+[
+	in:
+		Image: in
+	out:
+		Image: r
+		Image: g
+		Image: b
+		Image: a
 ]
 Flip
 [
@@ -81,14 +109,6 @@ Mix
 		Image: a
 		Image: b
 		Image: fac
-	out:
-		Image: result
-]
-Multiply
-[
-	in:
-		Image: a
-		Image: b
 	out:
 		Image: result
 ]

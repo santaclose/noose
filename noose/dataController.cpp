@@ -18,34 +18,38 @@ std::vector<nodeData> nodeDataList;
 inline void* getFunctionalityFromIndex(int index)
 {
 	if (index == 0)
-		return nodeFunctionality::Checker;
+		return nodeFunctionality::Blend;
 	if (index == 1)
-		return nodeFunctionality::ConstructColor;
+		return nodeFunctionality::Checker;
 	if (index == 2)
-		return nodeFunctionality::ConstructVector2i;
+		return nodeFunctionality::ConstructColor;
 	if (index == 3)
-		return nodeFunctionality::Flip;
+		return nodeFunctionality::ConstructVector2i;
 	if (index == 4)
-		return nodeFunctionality::Float;
+		return nodeFunctionality::Crop;
 	if (index == 5)
-		return nodeFunctionality::Grayscale;
+		return nodeFunctionality::Decompose;
 	if (index == 6)
-		return nodeFunctionality::Image;
+		return nodeFunctionality::Flip;
 	if (index == 7)
-		return nodeFunctionality::Integer;
+		return nodeFunctionality::Float;
 	if (index == 8)
-		return nodeFunctionality::Invert;
+		return nodeFunctionality::Grayscale;
 	if (index == 9)
-		return nodeFunctionality::LinearGradient;
+		return nodeFunctionality::Image;
 	if (index == 10)
-		return nodeFunctionality::Mix;
+		return nodeFunctionality::Integer;
 	if (index == 11)
-		return nodeFunctionality::Multiply;
+		return nodeFunctionality::Invert;
 	if (index == 12)
-		return nodeFunctionality::Repeat;
+		return nodeFunctionality::LinearGradient;
 	if (index == 13)
-		return nodeFunctionality::Rotate90;
+		return nodeFunctionality::Mix;
 	if (index == 14)
+		return nodeFunctionality::Repeat;
+	if (index == 15)
+		return nodeFunctionality::Rotate90;
+	if (index == 16)
 		return nodeFunctionality::Solid;
 }
 

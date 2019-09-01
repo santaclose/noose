@@ -55,7 +55,7 @@ public:
 	bool onClickOverInputField(const sf::Vector2f& mousePosInWorld); // we return whether the mouse was or not over an input field
 	//bool mouseOverInputField(const sf::Vector2f& mousePosInWorld, uiNodeSystem::Types& returnType, void*& returnPointer, sf::Text*& returnText);
 	
-	sf::RenderTexture* getFirstInputImage();
+	sf::RenderTexture* getFirstOutputImage();
 
 	void* getDataPointerForPin(int pinIndex, bool acceptReceivedPointers);
 	void activate(); // executes node functionality and propagates to right hand side nodes
