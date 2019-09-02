@@ -1,8 +1,8 @@
 #include "uiViewport.h"
 
 
-namespace uiViewport {
-
+namespace uiViewport
+{
 	// public
 	sf::RenderTexture* outputImage = nullptr;
 	//float currentZoom = 1.0f;
@@ -17,6 +17,11 @@ namespace uiViewport {
 
 	sf::View theView; // view with pan and zoom transformations
 	sf::Vector2f viewPosition = sf::Vector2f(0.0, 0.0);
+
+	sf::Texture imageLimitTexture;
+	sf::Sprite imageLimitSprite;
+
+	// TODO: ZOOM
 	//int zoomInt = 10;
 }
 
@@ -33,6 +38,9 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
 {
 	renderWindow = &theRenderWindow;
 	updateView(renderWindow->getSize().x, renderWindow->getSize().y);
+
+	imageLimitTexture.loadFromFile("res/images/imageLimit.png");
+	imageLimitSprite = sf::Sprite(imageLimitTexture);
 }
 
 
@@ -83,5 +91,16 @@ void uiViewport::draw()
 	{
 		sf::Sprite spr(outputImage->getTexture());
 		renderWindow->draw(spr);
+
+		int x1 = -9, y1 = -9;
+		int x2 = outputImage->getSize().x - 8, y2 = outputImage->getSize().y - 8;
+		imageLimitSprite.setPosition(x1, y1);
+		renderWindow->draw(imageLimitSprite);
+		imageLimitSprite.setPosition(x1, y2);
+		renderWindow->draw(imageLimitSprite);
+		imageLimitSprite.setPosition(x2, y1);
+		renderWindow->draw(imageLimitSprite);
+		imageLimitSprite.setPosition(x2, y2);
+		renderWindow->draw(imageLimitSprite);
 	}
 }
