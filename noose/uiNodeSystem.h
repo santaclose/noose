@@ -25,4 +25,5 @@ namespace uiNodeSystem
 	void draw();
 
 	void setOnNodeSelectedCallback(void* functionPointer);
+	void setOnNodeDeletedCallback(void* functionPointer); // called just before deleting the node
 }

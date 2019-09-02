@@ -18,6 +18,12 @@ void onNodeSelected(uiNode& theNode)
 	std::cout << "viewing image " << uiViewport::outputImage << std::endl;
 }
 
+void onNodeDeleted(uiNode& theNode)
+{
+	if (theNode.getFirstOutputImage() == uiViewport::outputImage)
+		uiViewport::outputImage = nullptr;
+}
+
 int main()
 {
 	// Create the main window
@@ -32,8 +38,9 @@ int main()
 	uiNodeSystem::initialize(windowA);
 	uiPushNodes::initialize(windowA);
 
-	// on node selected callback
+	// node system callbacks
 	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
+	uiNodeSystem::setOnNodeDeletedCallback(onNodeDeleted);
 
 	uiViewport::initialize(windowB);
 
@@ -92,11 +99,6 @@ int main()
 		uiPushNodes::draw();
 
 		uiViewport::draw();
-		/*if (outputImage != nullptr)
-		{
-			sf::Sprite spr(outputImage->getTexture());
-			windowB.draw(spr);
-		}*/
 
 		// Update the window
 		windowA.display();

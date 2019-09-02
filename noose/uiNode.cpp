@@ -435,7 +435,6 @@ void uiNode::setLineIndexAsDisconnected(int lineIndex)
 			break;
 		}
 	}
-
 }
 
 bool uiNode::isInputAndAlreadyConnected(int pin)

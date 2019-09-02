@@ -36,6 +36,7 @@ namespace uiNodeSystem
 	int zoomInt = 10;
 
 	void (*onNodeSelectedCallback)(uiNode&) = nullptr;
+	void (*onNodeDeletedCallback)(uiNode&) = nullptr;
 }
 
 void printAllSystem()
@@ -308,6 +309,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 
 					//std::cout << "deleting node " << selectedNodeIndex << " " << nodeList[selectedNodeIndex] << std::endl;
 
+					onNodeDeletedCallback(*(nodeList[selectedNodeIndex]));
 					delete nodeList[selectedNodeIndex];
 					nodeList.erase(nodeList.begin() + selectedNodeIndex);
 					selectedNodeIndex = -1;
@@ -353,4 +355,8 @@ void uiNodeSystem::draw()
 void uiNodeSystem::setOnNodeSelectedCallback(void* functionPointer)
 {
 	onNodeSelectedCallback = (void (*)(uiNode&))functionPointer;
+}
+void uiNodeSystem::setOnNodeDeletedCallback(void* functionPointer)
+{
+	onNodeDeletedCallback = (void (*)(uiNode&))functionPointer;
 }
