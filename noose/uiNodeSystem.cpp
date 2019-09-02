@@ -10,8 +10,8 @@
 #define MAX_ZOOM 5
 #define MIN_ZOOM 30
 
-namespace uiNodeSystem {
-
+namespace uiNodeSystem
+{
 	// public
 	float currentZoom = 1.0f;
 	sf::Font font;
@@ -340,14 +340,14 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 	}
 }
 
-void uiNodeSystem::draw(sf::RenderWindow& window)
+void uiNodeSystem::draw()
 {
-	window.setView(theView);
+	renderWindow->setView(theView);
 
 	for (uiNode* n : nodeList)
-		n->draw(window);
+		n->draw(*renderWindow);
 
-	uiNodeConnections::draw(window);
+	uiNodeConnections::draw(*renderWindow);
 }
 
 void uiNodeSystem::setOnNodeSelectedCallback(void* functionPointer)

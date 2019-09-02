@@ -26,6 +26,8 @@ sf::RectangleShape resultsBar;
 sf::Text resultsTexts[MAX_RESULTS_NUMBER];
 int currentResultCount = 0;
 
+sf::RenderWindow* renderWindow;
+
 void uiPushNodes::initialize(sf::RenderWindow& window)
 {
 	searchBar = sf::RectangleShape(sf::Vector2f(SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT));
@@ -50,6 +52,7 @@ void uiPushNodes::initialize(sf::RenderWindow& window)
 		resultsTexts[i].setPosition(window.getSize().x / 2 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN, SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i);
 		resultsTexts[i].setCharacterSize(RESULT_FONT_SIZE);
 	}
+	renderWindow = &window;
 }
 
 inline void performSearch()
@@ -150,19 +153,19 @@ void uiPushNodes::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 	}
 }
 
-void uiPushNodes::draw(sf::RenderWindow& window)
+void uiPushNodes::draw()
 {
 	if (searching)
 	{
 		//sf::View previousView = window.getView();
-		sf::FloatRect visibleArea(0, 0, window.getSize().x, window.getSize().y);
-		window.setView(sf::View(visibleArea));
-		window.draw(searchBar);
-		window.draw(searchText);
-		window.draw(resultsBar);
+		sf::FloatRect visibleArea(0, 0, renderWindow->getSize().x, renderWindow->getSize().y);
+		renderWindow->setView(sf::View(visibleArea));
+		renderWindow->draw(searchBar);
+		renderWindow->draw(searchText);
+		renderWindow->draw(resultsBar);
 		for (int i = 0; i < currentResultCount; i++)
 		{
-			window.draw(resultsTexts[i]);
+			renderWindow->draw(resultsTexts[i]);
 		}
 
 		//window.setView(previousView);

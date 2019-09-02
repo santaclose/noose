@@ -81,14 +81,6 @@ int main()
 					windowB.close();
 					break;
 				}
-				/*case sf::Event::Resized:
-				{
-					// update the view to the new size of the window
-					sf::FloatRect visibleArea(0, 0, eventWindowB.size.width, eventWindowB.size.height);
-					windowB.setView(sf::View(visibleArea));
-					break;
-				}
-				*/
 			}
 			uiViewport::onPollEvent(eventWindowB, mousePos);
 		}
@@ -96,8 +88,8 @@ int main()
 		windowA.clear(BACKGROUND_COLOR);
 		windowB.clear(BACKGROUND_COLOR);
 
-		uiNodeSystem::draw(windowA);
-		uiPushNodes::draw(windowA);
+		uiNodeSystem::draw();
+		uiPushNodes::draw();
 
 		uiViewport::draw();
 		/*if (outputImage != nullptr)
