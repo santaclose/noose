@@ -1,5 +1,6 @@
 #include "uiColorPicker.h"
 #include <iostream>
+#include <cstdint>
 
 sf::Color operator*(const sf::Color& c, const float f)
 {
@@ -25,7 +26,7 @@ namespace uiColorPicker
 	sf::Image gradientImage;
 
 	sf::Vector2u lastColorPos;
-	float lastIntensity;
+	float lastIntensity = 1.0;
 	sf::Color* outputPointer = nullptr;
 
 	enum MouseState {
@@ -42,13 +43,12 @@ namespace uiColorPicker
 
 		if (mouseState == MouseState::ColorSide)
 		{
-			lastColorPos = sf::Vector2u(mousePos.x, 220u - mousePos.y);
+			lastColorPos = sf::Vector2u(mousePos.x, /*220u - */mousePos.y);
 		}
 		else if (mouseState == MouseState::IntensitySide)
 		{
-			std::cout << "getting pixel " << mousePos.x - 220u << ", " << mousePos.y << std::endl;
-			lastIntensity = gradientImage.getPixel(mousePos.x - 220u, mousePos.y).r;
-			std::cout << lastIntensity << std::endl;
+			lastIntensity = gradientImage.getPixel(20, /*220u - */mousePos.y).r / 255.0;
+			std::cout << "selected intensity: " << lastIntensity << std::endl;
 		}
 
 		*outputPointer = colorWheelImage.getPixel(lastColorPos.x, lastColorPos.y) * lastIntensity;
@@ -65,20 +65,22 @@ void uiColorPicker::initialize()
 	colorWheelVertices[0].texCoords.x = colorWheelVertices[0].texCoords.y = colorWheelVertices[1].texCoords.x = colorWheelVertices[3].texCoords.y = 0.0;
 	colorWheelVertices[2].texCoords.x = colorWheelVertices[1].texCoords.y = colorWheelVertices[3].texCoords.x = colorWheelVertices[2].texCoords.y = 1.0;
 
+
+	sf::RenderTexture temp;
+	temp.create(220, 220);
 	colorWheel.create(220, 220);
 	colorWheelVerticesShader.setUniform("limit", 0);
-	colorWheel.draw(colorWheelVertices, &colorWheelVerticesShader);
-	colorWheelImage = colorWheel.getTexture().copyToImage();
+	temp.draw(colorWheelVertices, &colorWheelVerticesShader);
+	colorWheelImage = temp.getTexture().copyToImage();
 	colorWheelVerticesShader.setUniform("limit", 1);
 	colorWheel.draw(colorWheelVertices, &colorWheelVerticesShader);
 
 	gradientVerticesShader.loadFromFile("res/shaders/gradient.shader", sf::Shader::Fragment);
-	gradientVertices[0].position.x = gradientVertices[1].position.x = 220.0;
-	gradientVertices[2].position.x = gradientVertices[3].position.x = 260.0;
-	gradientVertices[0].position.y = gradientVertices[3].position.y = 0.0;
+	gradientVertices[0].position.x = gradientVertices[1].position.x = gradientVertices[0].position.y = gradientVertices[3].position.y = 0.0;
+	gradientVertices[2].position.x = gradientVertices[3].position.x = 40.0;
 	gradientVertices[1].position.y = gradientVertices[2].position.y = 220.0;
-	gradientVertices[0].texCoords.y = gradientVertices[3].texCoords.y = 1.0;
-	gradientVertices[1].texCoords.y = gradientVertices[2].texCoords.y = 0.0;
+	gradientVertices[0].texCoords.y = gradientVertices[3].texCoords.y = 0.0;
+	gradientVertices[1].texCoords.y = gradientVertices[2].texCoords.y = 1.0;
 
 	gradient.create(40, 220);
 	gradient.draw(gradientVertices, &gradientVerticesShader);
@@ -152,8 +154,14 @@ void uiColorPicker::tick()
 	}
 	else
 	{
-		theWindow->draw(colorWheelVertices, &colorWheelVerticesShader);
-		theWindow->draw(gradientVertices, &gradientVerticesShader);
+		sf::Sprite cw(colorWheel.getTexture());
+		sf::Sprite in(gradient.getTexture());
+		cw.setPosition(0.0, 0.0);
+		in.setPosition(220.0, 0.0);
+		theWindow->draw(cw);
+		theWindow->draw(in);
+		//theWindow->draw(colorWheelVertices, &colorWheelVerticesShader);
+		//theWindow->draw(gradientVertices, &gradientVerticesShader);
 		theWindow->display();
 	}
 }
