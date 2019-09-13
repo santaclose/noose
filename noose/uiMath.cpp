@@ -2,6 +2,11 @@
 #include <cmath>
 //#include <algorithm>
 
+namespace uiMath
+{
+	const float DEG2RAD = 0.0174532925;
+}
+
 bool uiMath::isPointInsideRect(const sf::Vector2f& point, const sf::Rect<float>& rect)
 {
 	return point.x > rect.left && point.y > rect.top && point.x < rect.left + rect.width && point.y < rect.top + rect.height;

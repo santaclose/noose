@@ -4,6 +4,8 @@
 
 namespace uiMath
 {
+	extern const float DEG2RAD;
+
 	bool isPointInsideRect(const sf::Vector2f& point, const sf::Rect<float>& rect);
 	bool isPointInsideRect(const sf::Vector2f& point, float top, float bottom, float left, float right);
 	float distance(const sf::Vector2f& a, const sf::Vector2f b);

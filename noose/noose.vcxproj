@@ -128,6 +128,7 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="dataController.cpp" />
     <ClCompile Include="nodeFunctionality.cpp" />
+    <ClCompile Include="uiColorPicker.cpp" />
     <ClCompile Include="uiInputField.cpp" />
     <ClCompile Include="uiLine.cpp" />
     <ClCompile Include="uiMath.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="nodeData.h" />
     <ClInclude Include="nodeFunctionality.h" />
     <ClInclude Include="res\nodes.dat" />
+    <ClInclude Include="uiColorPicker.h" />
     <ClInclude Include="uiInputField.h" />
     <ClInclude Include="uiLine.h" />
     <ClInclude Include="uiMath.h" />

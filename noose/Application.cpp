@@ -3,6 +3,8 @@
 #include "uiNodeSystem.h"
 #include "uiPushNodes.h"
 #include "uiNode.h"
+#include "uiMath.h"
+#include "uiColorPicker.h"
 
 #include "dataController.h"
 
@@ -26,10 +28,10 @@ void onNodeDeleted(uiNode& theNode)
 
 int main()
 {
-	// Create the main window
-	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "noose");
 	// Create the output window
 	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport");
+	// Create the main window
+	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "noose");
 
 	// load nodes.dat in memory and create essential shaders
 	dataController::prepare();
@@ -37,13 +39,14 @@ int main()
 	// initialize interface components
 	uiNodeSystem::initialize(windowA);
 	uiPushNodes::initialize(windowA);
+	uiColorPicker::initialize();
 
 	// node system callbacks
 	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
 	uiNodeSystem::setOnNodeDeletedCallback(onNodeDeleted);
 
 	uiViewport::initialize(windowB);
-
+	
 	// Start the game loop
 	while (windowA.isOpen() || windowB.isOpen())
 	{
@@ -99,6 +102,7 @@ int main()
 		uiPushNodes::draw();
 
 		uiViewport::draw();
+		uiColorPicker::tick();
 
 		// Update the window
 		windowA.display();
@@ -106,5 +110,6 @@ int main()
 	}
 
 	uiNodeSystem::terminate();
+	uiColorPicker::terminate();
 	return EXIT_SUCCESS;
 }

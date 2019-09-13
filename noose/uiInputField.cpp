@@ -1,5 +1,6 @@
 #include "uiInputField.h"
 #include "uiMath.h"
+#include "uiColorPicker.h"
 
 #include "dataController.h"
 
@@ -47,6 +48,18 @@ void uiInputField::updateTextPositions()
 		break;
 	case uiNodeSystem::Types::Color:
 		break;
+	}
+}
+
+void onColorPickerSetColor(sf::Color* newColor)
+{
+	if (editingInputField->type == uiNodeSystem::Types::Color)
+	{
+		editingInputField->shapes[0].color = editingInputField->shapes[1].color =
+			editingInputField->shapes[2].color = editingInputField->shapes[3].color =
+			*((sf::Color*)(editingInputField->dataPointer));
+
+		editingInputField->onValueChanged();
 	}
 }
 
@@ -102,7 +115,7 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 			}
 		}
 		break;
-	case uiNodeSystem::Types::Color:
+	/*case uiNodeSystem::Types::Color:
 		editingColorHue += displacement.x * COLOR_EDITING_SENSITIVITY;
 		if (editingColorHue >= 360) editingColorHue -= 360; else if (editingColorHue <= 0) editingColorHue += 360;
 		editingColorSaturation += displacement.y * COLOR_EDITING_SENSITIVITY;
@@ -114,7 +127,7 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 			*((sf::Color*)(editingInputField->dataPointer));
 
 		editingInputField->onValueChanged();
-		break;
+		break;*/
 	}
 	editingInputField->updateTextPositions();
 }
@@ -344,6 +357,11 @@ bool uiInputField::onClick(const sf::Vector2f& mousePosInWorld)
 		{
 			editingInputField = this;
 			bEditingInputField = true;
+
+			///
+			uiColorPicker::onSetColor = onColorPickerSetColor;
+			uiColorPicker::show((sf::Color*) editingInputField->dataPointer);
+			///
 			return true;
 		}
 		return false;

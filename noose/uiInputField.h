@@ -4,6 +4,8 @@
 
 class uiInputField
 {
+	friend void onColorPickerSetColor(sf::Color* newColor);
+
 private:
 	uiNodeSystem::Types type;
 	sf::Vertex* shapes;
@@ -12,6 +14,7 @@ private:
 	void updateTextPositions();
 	void* dataPointer;
 	void (*onValueChanged)() = nullptr;
+
 public:
 
 	static void onMouseMoved(sf::Vector2f& displacement);
