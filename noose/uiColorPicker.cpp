@@ -13,6 +13,8 @@ namespace uiColorPicker
 
 	// private
 
+	sf::RenderStates rs;
+
 	sf::RenderWindow* theWindow = nullptr;
 
 	sf::Shader colorWheelVerticesShader;
@@ -59,21 +61,21 @@ namespace uiColorPicker
 
 void uiColorPicker::initialize()
 {
+	rs.blendMode = sf::BlendNone;
+
 	colorWheelVerticesShader.loadFromFile("res/shaders/colorwheel.shader", sf::Shader::Fragment);
 	colorWheelVertices[0].position.x = colorWheelVertices[0].position.y = colorWheelVertices[1].position.x = colorWheelVertices[3].position.y = 0.0;
 	colorWheelVertices[2].position.x = colorWheelVertices[1].position.y = colorWheelVertices[3].position.x = colorWheelVertices[2].position.y = 220.0;
 	colorWheelVertices[0].texCoords.x = colorWheelVertices[0].texCoords.y = colorWheelVertices[1].texCoords.x = colorWheelVertices[3].texCoords.y = 0.0;
 	colorWheelVertices[2].texCoords.x = colorWheelVertices[1].texCoords.y = colorWheelVertices[3].texCoords.x = colorWheelVertices[2].texCoords.y = 1.0;
 
-
-	sf::RenderTexture temp;
-	temp.create(220, 220);
 	colorWheel.create(220, 220);
 	colorWheelVerticesShader.setUniform("limit", 0);
-	temp.draw(colorWheelVertices, &colorWheelVerticesShader);
-	colorWheelImage = temp.getTexture().copyToImage();
+	rs.shader = &colorWheelVerticesShader;
+	colorWheel.draw(colorWheelVertices, rs);
+	colorWheelImage = colorWheel.getTexture().copyToImage();
 	colorWheelVerticesShader.setUniform("limit", 1);
-	colorWheel.draw(colorWheelVertices, &colorWheelVerticesShader);
+	colorWheel.draw(colorWheelVertices, rs);
 
 	gradientVerticesShader.loadFromFile("res/shaders/gradient.shader", sf::Shader::Fragment);
 	gradientVertices[0].position.x = gradientVertices[1].position.x = gradientVertices[0].position.y = gradientVertices[3].position.y = 0.0;

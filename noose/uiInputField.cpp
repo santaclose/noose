@@ -131,7 +131,7 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 	}
 	editingInputField->updateTextPositions();
 }
-
+/*
 void uiInputField::onMouseScrolled(float delta)
 {
 	if (!bEditingInputField)
@@ -147,7 +147,7 @@ void uiInputField::onMouseScrolled(float delta)
 			editingInputField->shapes[2].color = editingInputField->shapes[3].color =
 			*((sf::Color*)(editingInputField->dataPointer));
 	}
-}
+}*/
 
 // non static //
 

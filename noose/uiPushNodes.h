@@ -7,4 +7,6 @@ namespace uiPushNodes
 	void initialize(sf::RenderWindow& window);
 	void onPollEvent(const sf::Event& e, sf::Vector2i& mousePos);
 	void draw();
+
+	bool userIsSearching();
 }

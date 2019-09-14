@@ -14,15 +14,16 @@ sf::Shader grayscaleShader;
 sf::Shader decomposeShader;
 sf::Shader cropShader;
 
-sf::BlendMode blendMode;
+//sf::BlendMode blendMode;
 sf::RenderStates rs;
 
 void nodeFunctionality::initialize()
 {
-	blendMode.alphaEquation = sf::BlendMode::Add;
+	/*blendMode.alphaEquation = sf::BlendMode::Add;
 	blendMode.alphaSrcFactor = sf::BlendMode::One;
 	blendMode.alphaDstFactor = sf::BlendMode::Zero;
-	rs.blendMode = blendMode;
+	rs.blendMode = blendMode;*/
+	rs.blendMode = sf::BlendNone;
 
 	if (!blendShader.loadFromFile("res/nodeShaders/blend.shader", sf::Shader::Fragment))
 		std::cout << "could not load blend shader\n";

@@ -293,7 +293,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 			updateView();
 
 			uiNodeConnections::updateShaderUniform(currentZoom);
-			uiInputField::onMouseScrolled(e.mouseWheelScroll.delta);
+			//uiInputField::onMouseScrolled(e.mouseWheelScroll.delta);
 
 			break;
 		}

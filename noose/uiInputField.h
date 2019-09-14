@@ -19,7 +19,7 @@ public:
 
 	static void onMouseMoved(sf::Vector2f& displacement);
 	static void onLeftClickReleased();
-	static void onMouseScrolled(float delta);
+	//static void onMouseScrolled(float delta);
 
 	~uiInputField();
 	void initialize(uiNodeSystem::Types theType, void* pinDataPointer, void (onValueChangedFunc)());

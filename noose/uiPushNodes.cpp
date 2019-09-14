@@ -171,3 +171,8 @@ void uiPushNodes::draw()
 		//window.setView(previousView);
 	}
 }
+
+bool uiPushNodes::userIsSearching()
+{
+	return searching;
+}

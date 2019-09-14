@@ -65,14 +65,14 @@ int main()
 				}
 				case sf::Event::KeyPressed:
 				{
-					if (eventWindowA.key.code == sf::Keyboard::S)
+					if (eventWindowA.key.code == sf::Keyboard::S && !uiPushNodes::userIsSearching())
 					{
 						if (uiViewport::outputImage == nullptr)
 							std::cout << "no image to save\n";
 						else
 						{
-							uiViewport::outputImage->getTexture().copyToImage().saveToFile("output.png");
-							std::cout << "image saved as output.png\n";
+							if (uiViewport::outputImage->getTexture().copyToImage().saveToFile("output.png"))
+								std::cout << "image saved as output.png\n";
 						}
 					}
 				}
