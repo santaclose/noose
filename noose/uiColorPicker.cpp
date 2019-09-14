@@ -50,7 +50,7 @@ namespace uiColorPicker
 		else if (mouseState == MouseState::IntensitySide)
 		{
 			lastIntensity = gradientImage.getPixel(20, /*220u - */mousePos.y).r / 255.0;
-			std::cout << "selected intensity: " << lastIntensity << std::endl;
+			//std::cout << "selected intensity: " << lastIntensity << std::endl;
 		}
 
 		*outputPointer = colorWheelImage.getPixel(lastColorPos.x, lastColorPos.y) * lastIntensity;

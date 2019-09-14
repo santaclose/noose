@@ -40,7 +40,7 @@
 static uiNode* currentEditingInputFieldNode;
 static void onNodeValueChanged()
 {
-	std::cout << "value changed in node\n";
+	//std::cout << "value changed in node\n";
 	currentEditingInputFieldNode->activate();
 }
 
@@ -61,7 +61,7 @@ void uiNode::removeNodeFromPropagationList(uiNode* theNode)
 	{
 		if (propagationList[i] == theNode)
 		{
-			std::cout << "node removed from propagation list at node " << title.getString().toAnsiString() << std::endl;
+			//std::cout << "node removed from propagation list at node " << title.getString().toAnsiString() << std::endl;
 			propagationList.erase(propagationList.begin() + i);
 			break;
 		}
@@ -194,7 +194,7 @@ uiNode::~uiNode()
 {
 	for (int i : lineIndices)
 	{
-		std::cout << "removing line " << i << std::endl;
+		//std::cout << "removing line " << i << std::endl;
 		void* nodeAConnected;
 		void* nodeBConnected;
 		uiNodeConnections::getConnectedNodes(i, nodeAConnected, nodeBConnected);
@@ -204,7 +204,7 @@ uiNode::~uiNode()
 		else
 			((uiNode*)nodeAConnected)->setLineIndexAsDisconnected(i);
 
-		std::cout << "uiNodeConnections removing line " << i << std::endl;
+		//std::cout << "uiNodeConnections removing line " << i << std::endl;
 		uiNodeConnections::remove(i);
 	}
 
@@ -364,7 +364,7 @@ void uiNode::move(const sf::Vector2f& displacement)
 
 void uiNode::attachConnectionPoint(int lineIndex)
 {
-	std::cout << "attaching line to node " << title.getString().toAnsiString() << std::endl;
+	//std::cout << "attaching line to node " << title.getString().toAnsiString() << std::endl;
 	
 	// attach line
 	lineIndices.push_back(lineIndex);
@@ -407,7 +407,7 @@ void uiNode::setLineIndexAsDisconnected(int lineIndex)
 	{
 		if (lineIndices[i] == lineIndex)
 		{
-			std::cout << "line " << lineIndices[i] << " being removed from node " << this << std::endl;
+			//std::cout << "line " << lineIndices[i] << " being removed from node " << this << std::endl;
 			lineIndices.erase(lineIndices.begin() + i);
 
 			if (uiNodeConnections::lines[lineIndex].nodeA == (void*)this) // we are node a
@@ -466,7 +466,7 @@ bool uiNode::onClickOverInputField(const sf::Vector2f& mousePosInWorld) // we re
 		currentEditingInputFieldNode = this;
 		if (inputFields[i].onClick(mousePosInWorld)) // mouse was over input field
 		{
-			std::cout << "input field number " << i << std::endl;
+			//std::cout << "input field number " << i << std::endl;
 			//currentEditingInputFieldNode = this;
 			return true;
 		}
@@ -505,8 +505,9 @@ void uiNode::activate()
 	//std::cout << "activating node " << title.getString().toAnsiString() << std::endl;
 	// execute node function
 	nodeFunctionalityPointer(this);
-	for (uiNode*& n : propagationList) {
-		std::cout << "propagated from " << title.getString().toAnsiString() << " to " << n->title.getString().toAnsiString() << std::endl;
+	for (uiNode*& n : propagationList)
+	{
+		//std::cout << "propagated from " << title.getString().toAnsiString() << " to " << n->title.getString().toAnsiString() << std::endl;
 		n->activate();
 	}
 }

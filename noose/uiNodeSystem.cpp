@@ -211,11 +211,11 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 						sf::Vector2f pinPosition;
 						int direction; // ignored, we dont need it
 						int pin = nodeList[i]->mouseOverPin(mouseWorldPos, pinColor, pinPosition, direction);
-						std::cout << "pin " << pin << std::endl;
+						//std::cout << "pin " << pin << std::endl;
 						if (pin > -1)
 						{
 							// can't connect two lines to an input pin
-							std::cout << "is input and already connected: " << nodeList[i]->isInputAndAlreadyConnected(pin) << std::endl;
+							//std::cout << "is input and already connected: " << nodeList[i]->isInputAndAlreadyConnected(pin) << std::endl;
 							if (nodeList[i]->isInputAndAlreadyConnected(pin))
 							{
 								uiNodeConnections::removeLast();

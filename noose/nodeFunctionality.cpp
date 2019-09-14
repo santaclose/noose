@@ -25,6 +25,7 @@ void nodeFunctionality::initialize()
 	rs.blendMode = blendMode;*/
 	rs.blendMode = sf::BlendNone;
 
+	std::cout << "loading shaders\n";
 	if (!blendShader.loadFromFile("res/nodeShaders/blend.shader", sf::Shader::Fragment))
 		std::cout << "could not load blend shader\n";
 	if (!checkerShader.loadFromFile("res/nodeShaders/checker.shader", sf::Shader::Fragment))
@@ -53,7 +54,7 @@ void nodeFunctionality::initialize()
 
 void nodeFunctionality::Blend(uiNode* theNode)
 {
-	std::cout << "executing blend" << std::endl;
+	//std::cout << "executing blend" << std::endl;
 
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(3, false));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
@@ -75,9 +76,13 @@ void nodeFunctionality::Blend(uiNode* theNode)
 
 void nodeFunctionality::Checker(uiNode* theNode)
 {
-	std::cout << "executing checker" << std::endl;
+	//std::cout << "executing checker" << std::endl;
+
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
 	sf::Vector2i* imageSize = ((sf::Vector2i*) theNode->getDataPointerForPin(1, true));
+
+	if (imageSize->x < 1 || imageSize->y < 1)
+		return;
 
 	outputPointer->create(imageSize->x, imageSize->y);
 
@@ -90,7 +95,8 @@ void nodeFunctionality::Checker(uiNode* theNode)
 
 void nodeFunctionality::ConstructColor(uiNode* theNode)
 {
-	std::cout << "executing construct color" << std::endl;
+	//std::cout << "executing construct color" << std::endl;
+
 	sf::Color* outputPointer = ((sf::Color*)theNode->getDataPointerForPin(4, false));
 	outputPointer->r = *((int*)theNode->getDataPointerForPin(0, true));
 	outputPointer->g = *((int*)theNode->getDataPointerForPin(1, true));
@@ -100,7 +106,8 @@ void nodeFunctionality::ConstructColor(uiNode* theNode)
 
 void nodeFunctionality::ConstructVector2i(uiNode* theNode)
 {
-	std::cout << "executing construct vector" << std::endl;
+	//std::cout << "executing construct vector" << std::endl;
+
 	sf::Vector2i* outputPointer = ((sf::Vector2i*) theNode->getDataPointerForPin(2, false));
 	outputPointer->x = *((int*)(theNode->getDataPointerForPin(0, true)));
 	outputPointer->y = *((int*)(theNode->getDataPointerForPin(1, true)));
@@ -108,7 +115,8 @@ void nodeFunctionality::ConstructVector2i(uiNode* theNode)
 
 void nodeFunctionality::Crop(uiNode* theNode)
 {
-	std::cout << "executing crop" << std::endl;
+	//std::cout << "executing crop" << std::endl;
+	
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(3, false));
 	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointerForPin(2, true));
 	sf::Vector2i* topleft = ((sf::Vector2i*) theNode->getDataPointerForPin(1, true));
@@ -130,7 +138,7 @@ void nodeFunctionality::Crop(uiNode* theNode)
 
 void nodeFunctionality::Decompose(uiNode* theNode)
 {
-	std::cout << "executing decompose" << std::endl;
+	//std::cout << "executing decompose" << std::endl;
 	
 	sf::RenderTexture* outputPointerR = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, false));
 	sf::RenderTexture* outputPointerG = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
@@ -163,7 +171,7 @@ void nodeFunctionality::Decompose(uiNode* theNode)
 
 void nodeFunctionality::Flip(uiNode* theNode)
 {
-	std::cout << "executing flip" << std::endl;
+	//std::cout << "executing flip" << std::endl;
 	
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true)); //inputPins[0]->getData());
@@ -184,13 +192,14 @@ void nodeFunctionality::Flip(uiNode* theNode)
 
 void nodeFunctionality::Float(uiNode* theNode)
 {
-	std::cout << "executing float" << std::endl;
+	//std::cout << "executing float" << std::endl;
+
 	*((float*)theNode->getDataPointerForPin(1, false)) = *((float*)theNode->getDataPointerForPin(0, true));
 }
 
 void nodeFunctionality::Grayscale(uiNode* theNode)
 {
-	std::cout << "executing grayscale" << std::endl;
+	//std::cout << "executing grayscale" << std::endl;
 
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, false));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
@@ -208,7 +217,8 @@ void nodeFunctionality::Grayscale(uiNode* theNode)
 
 void nodeFunctionality::Image(uiNode* theNode)
 {
-	std::cout << "executing image" << std::endl;
+	//std::cout << "executing image" << std::endl;
+
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, false));
 	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointerForPin(2, false));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
@@ -227,13 +237,14 @@ void nodeFunctionality::Image(uiNode* theNode)
 
 void nodeFunctionality::Integer(uiNode* theNode)
 {
-	std::cout << "executing integer" << std::endl;
+	//std::cout << "executing integer" << std::endl;
+
 	*((int*)theNode->getDataPointerForPin(1, false)) = *((int*)theNode->getDataPointerForPin(0, true));
 }
 
 void nodeFunctionality::Invert(uiNode* theNode)
 {
-	std::cout << "executing invert" << std::endl;
+	//std::cout << "executing invert" << std::endl;
 
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, false));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
@@ -250,12 +261,15 @@ void nodeFunctionality::Invert(uiNode* theNode)
 
 void nodeFunctionality::LinearGradient(uiNode* theNode)
 {
-	std::cout << "executing linear gradient" << std::endl;
+	//std::cout << "executing linear gradient" << std::endl;
 
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, false));
 	sf::Vector2i* imageSize = ((sf::Vector2i*) theNode->getDataPointerForPin(0, true));
 
-	std::cout << "creating image of size " << imageSize->x << ", " << imageSize->y << std::endl;
+	if (imageSize->x < 1 || imageSize->y < 1)
+		return;
+
+	//std::cout << "creating image of size " << imageSize->x << ", " << imageSize->y << std::endl;
 	outputPointer->create(imageSize->x, imageSize->y);
 
 	linearGradientShader.setUniform("xResolution", (float)imageSize->x);
@@ -268,7 +282,7 @@ void nodeFunctionality::LinearGradient(uiNode* theNode)
 
 void nodeFunctionality::Mix(uiNode* theNode)
 {
-	std::cout << "executing mix" << std::endl;
+	//std::cout << "executing mix" << std::endl;
 
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(3, false));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
@@ -288,28 +302,9 @@ void nodeFunctionality::Mix(uiNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-/*void nodeFunctionality::Multiply(uiNode* theNode)
-{
-	std::cout << "executing multiply" << std::endl;
-
-	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
-	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
-	sf::RenderTexture* b = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, true));
-
-	sf::Vector2u size = a->getSize();
-
-	outputPointer->create(size.x, size.y);
-
-	multiplyShader.setUniform("tex0", a->getTexture());
-	multiplyShader.setUniform("tex1", b->getTexture());
-
-	sf::Sprite spr(outputPointer->getTexture());
-	outputPointer->draw(spr, &multiplyShader);
-}*/
-
 void nodeFunctionality::Repeat(uiNode* theNode)
 {
-	std::cout << "executing repeat" << std::endl;
+	//std::cout << "executing repeat" << std::endl;
 
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
@@ -330,7 +325,8 @@ void nodeFunctionality::Repeat(uiNode* theNode)
 
 void nodeFunctionality::Rotate90(uiNode* theNode)
 {
-	std::cout << "executing rotate 90" << std::endl;
+	//std::cout << "executing rotate 90" << std::endl;
+
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
 	int* times = ((int*)theNode->getDataPointerForPin(1, true));
@@ -355,9 +351,13 @@ void nodeFunctionality::Rotate90(uiNode* theNode)
 
 void nodeFunctionality::Solid(uiNode* theNode)
 {
-	std::cout << "executing solid" << std::endl;
+	//std::cout << "executing solid" << std::endl;
+	
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
 	sf::Vector2i* imageSize = ((sf::Vector2i*) theNode->getDataPointerForPin(1, true));
+
+	if (imageSize->x < 1 || imageSize->y < 1)
+		return;
 
 	outputPointer->create(imageSize->x, imageSize->y);
 
