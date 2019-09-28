@@ -22,13 +22,13 @@ inline void* getFunctionalityFromIndex(int index)
 	if (index == 1)
 		return nodeFunctionality::Checker;
 	if (index == 2)
-		return nodeFunctionality::ConstructColor;
+		return nodeFunctionality::Combine;
 	if (index == 3)
-		return nodeFunctionality::ConstructVector2i;
+		return nodeFunctionality::ConstructColor;
 	if (index == 4)
-		return nodeFunctionality::Crop;
+		return nodeFunctionality::ConstructVector2i;
 	if (index == 5)
-		return nodeFunctionality::Decompose;
+		return nodeFunctionality::Crop;
 	if (index == 6)
 		return nodeFunctionality::Flip;
 	if (index == 7)
@@ -44,12 +44,14 @@ inline void* getFunctionalityFromIndex(int index)
 	if (index == 12)
 		return nodeFunctionality::LinearGradient;
 	if (index == 13)
-		return nodeFunctionality::Mix;
+		return nodeFunctionality::Mask;
 	if (index == 14)
 		return nodeFunctionality::Repeat;
 	if (index == 15)
 		return nodeFunctionality::Rotate90;
 	if (index == 16)
+		return nodeFunctionality::Separate;
+	if (index == 17)
 		return nodeFunctionality::Solid;
 }
 

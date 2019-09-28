@@ -15,6 +15,16 @@ Checker
 	out:
 		Image: result
 ]
+Combine
+[
+	in:
+		Image: r
+		Image: g
+		Image: b
+		Image: a
+	out:
+		Image: out
+]
 Construct Color
 [
 	in:
@@ -41,16 +51,6 @@ Crop
 		Vector2i: size
 	out:
 		Image: out
-]
-Decompose
-[
-	in:
-		Image: in
-	out:
-		Image: r
-		Image: g
-		Image: b
-		Image: a
 ]
 Flip
 [
@@ -103,7 +103,7 @@ Linear Gradient
 	out:
 		Image: result
 ]
-Mix
+Mask
 [
 	in:
 		Image: a
@@ -127,6 +127,16 @@ Rotate 90
 		Integer: times
 	out:
 		Image: image
+]
+Separate
+[
+	in:
+		Image: in
+	out:
+		Image: r
+		Image: g
+		Image: b
+		Image: a
 ]
 Solid
 [
