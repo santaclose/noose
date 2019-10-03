@@ -7,6 +7,15 @@ Blend
 	out:
 		Image: result
 ]
+Brightness Contrast
+[
+	in:
+		Image: in
+		Float: brightness[0.0]
+		Float: contrast[1.0]
+	out:
+		Image: out
+]
 Checker
 [
 	in:
@@ -108,7 +117,7 @@ Mask
 	in:
 		Image: a
 		Image: b
-		Image: fac
+		Image: mask
 	out:
 		Image: result
 ]

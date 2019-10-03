@@ -8,7 +8,8 @@
 #include <iostream>
 
 #define COLOR_EDITING_SENSITIVITY 0.01
-#define VALUE_EDITING_SENSITIVITY 0.1
+#define INT_EDITING_SENSITIVITY 0.1
+#define FLOAT_EDITING_SENSITIVITY 0.001
 #define FONT_SIZE 12
 
 const sf::Color INPUT_FIELD_COLOR = sf::Color(0x282828bb);
@@ -78,12 +79,12 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 	switch (editingInputField->type)
 	{
 	case uiNodeSystem::Types::Float:
-		*((float*)(editingInputField->dataPointer)) += displacement.x * VALUE_EDITING_SENSITIVITY;
+		*((float*)(editingInputField->dataPointer)) += displacement.x * FLOAT_EDITING_SENSITIVITY;
 		editingInputField->texts[0].setString(std::to_string(*((float*)(editingInputField->dataPointer))));
 		editingInputField->onValueChanged();
 		break;
 	case uiNodeSystem::Types::Integer:
-		editingInputFieldHelper += displacement.x * VALUE_EDITING_SENSITIVITY;
+		editingInputFieldHelper += displacement.x * INT_EDITING_SENSITIVITY;
 		newValueAux = (int)editingInputFieldHelper;
 		if (newValueAux != *((int*)(editingInputField->dataPointer)))
 		{
@@ -93,7 +94,7 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 		}
 		break;
 	case uiNodeSystem::Types::Vector2i:
-		editingInputFieldHelper += displacement.x * VALUE_EDITING_SENSITIVITY;
+		editingInputFieldHelper += displacement.x * INT_EDITING_SENSITIVITY;
 		if (editingVectorComponent == 'x')
 		{
 			newValueAux = (int)editingInputFieldHelper;
@@ -139,7 +140,7 @@ void uiInputField::onMouseScrolled(float delta)
 
 	if (editingInputField->type == uiNodeSystem::Types::Color)
 	{
-		editingColorValue += delta * VALUE_EDITING_SENSITIVITY;
+		editingColorValue += delta * INT_EDITING_SENSITIVITY;
 		if (editingColorValue > 1.0) editingColorValue = 1.0; else if (editingColorValue < 0.0) editingColorValue = 0.0;
 		uiMath::HSVtoRGB(editingColorHue, editingColorSaturation, editingColorValue, *((sf::Color*)(editingInputField->dataPointer)));
 
@@ -171,7 +172,7 @@ void uiInputField::initialize(uiNodeSystem::Types theType, void* pinDataPointer,
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = INPUT_FIELD_COLOR;
 		texts[0].setFont(uiNodeSystem::font);
 		texts[0].setCharacterSize(FONT_SIZE);
-		texts[0].setString("0");
+		texts[0].setString(std::to_string(*((int*)pinDataPointer)));
 		break;
 	case uiNodeSystem::Types::Float:
 		dataPointer = pinDataPointer;
@@ -181,7 +182,7 @@ void uiInputField::initialize(uiNodeSystem::Types theType, void* pinDataPointer,
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = INPUT_FIELD_COLOR;
 		texts[0].setFont(uiNodeSystem::font);
 		texts[0].setCharacterSize(FONT_SIZE);
-		texts[0].setString("0.0");
+		texts[0].setString(std::to_string(*((float*)pinDataPointer)));
 		break;
 	case uiNodeSystem::Types::Vector2i:
 		dataPointer = pinDataPointer;
@@ -192,8 +193,8 @@ void uiInputField::initialize(uiNodeSystem::Types theType, void* pinDataPointer,
 		texts[1].setFont(uiNodeSystem::font);
 		texts[0].setCharacterSize(FONT_SIZE);
 		texts[1].setCharacterSize(FONT_SIZE);
-		texts[0].setString("0");
-		texts[1].setString("0");
+		texts[0].setString(std::to_string(((sf::Vector2i*)pinDataPointer)->x));
+		texts[1].setString(std::to_string(((sf::Vector2i*)pinDataPointer)->y));
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = shapes[4].color = shapes[5].color = shapes[6].color = shapes[7].color = INPUT_FIELD_COLOR;
 		break;
 	case uiNodeSystem::Types::Color:

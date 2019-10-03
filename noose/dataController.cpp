@@ -20,48 +20,63 @@ inline void* getFunctionalityFromIndex(int index)
 	if (index == 0)
 		return nodeFunctionality::Blend;
 	if (index == 1)
-		return nodeFunctionality::Checker;
+		return nodeFunctionality::BrightnessContrast;
 	if (index == 2)
-		return nodeFunctionality::Combine;
+		return nodeFunctionality::Checker;
 	if (index == 3)
-		return nodeFunctionality::ConstructColor;
+		return nodeFunctionality::Combine;
 	if (index == 4)
-		return nodeFunctionality::ConstructVector2i;
+		return nodeFunctionality::ConstructColor;
 	if (index == 5)
-		return nodeFunctionality::Crop;
+		return nodeFunctionality::ConstructVector2i;
 	if (index == 6)
-		return nodeFunctionality::Flip;
+		return nodeFunctionality::Crop;
 	if (index == 7)
-		return nodeFunctionality::Float;
+		return nodeFunctionality::Flip;
 	if (index == 8)
-		return nodeFunctionality::Grayscale;
+		return nodeFunctionality::Float;
 	if (index == 9)
-		return nodeFunctionality::Image;
+		return nodeFunctionality::Grayscale;
 	if (index == 10)
-		return nodeFunctionality::Integer;
+		return nodeFunctionality::Image;
 	if (index == 11)
-		return nodeFunctionality::Invert;
+		return nodeFunctionality::Integer;
 	if (index == 12)
-		return nodeFunctionality::LinearGradient;
+		return nodeFunctionality::Invert;
 	if (index == 13)
-		return nodeFunctionality::Mask;
+		return nodeFunctionality::LinearGradient;
 	if (index == 14)
-		return nodeFunctionality::Repeat;
+		return nodeFunctionality::Mask;
 	if (index == 15)
-		return nodeFunctionality::Rotate90;
+		return nodeFunctionality::Repeat;
 	if (index == 16)
-		return nodeFunctionality::Separate;
+		return nodeFunctionality::Rotate90;
 	if (index == 17)
+		return nodeFunctionality::Separate;
+	if (index == 18)
 		return nodeFunctionality::Solid;
 }
 
-inline void parsePinLine(const std::string& line, std::string& a, std::string& b)
+inline void parsePinLine(const std::string& line, std::string& a, std::string& b, std::string& d)
 {
 	int i = 2;
 	for (; line[i] != ':'; i++);
 	a = line.substr(2, i - 2);
 	i += 2;
-	b = line.substr(i, line.length() - i);
+	int j = i;
+	for (; j < line.length() && line[j] != '['; j++);
+	b = line.substr(i, j - i);
+	if (j < line.length()) // there is a default value
+	{
+		j++;
+		for (i = j; line[i] != ']'; i++);
+		d = line.substr(j, i - j);
+		//std::cout << "found default" << std::endl;
+	}
+	else
+	{
+		d = "";
+	}
 }
 
 inline uiNodeSystem::Types typeFromString(const std::string& s)
@@ -90,7 +105,7 @@ void dataController::prepare()
 	ifstream inputStream("res/nodes.dat");
 	string line;
 
-	string type, name;
+	string type, name, defaultData;
 
 	while (getline(inputStream, line))
 	{
@@ -119,9 +134,25 @@ void dataController::prepare()
 				inSection = false;
 			else
 			{
-				parsePinLine(line, type, name);
+				parsePinLine(line, type, name, defaultData);
 				nodeDataList.back().pinNames.push_back(name);
 				nodeDataList.back().pinTypes.push_back(typeFromString(type));
+				if (defaultData.length() == 0)
+					nodeDataList.back().pinDefaultData.push_back(nullptr);
+				else
+				{
+					switch (nodeDataList.back().pinTypes.back())
+					{
+					case uiNodeSystem::Types::Float:
+						nodeDataList.back().pinDefaultData.push_back(new float(std::stof(defaultData)));
+						break;
+					case uiNodeSystem::Types::Integer:
+						nodeDataList.back().pinDefaultData.push_back(new int(std::stoi(defaultData)));
+						break;
+					}
+				}
+				//nodeDataList.back().pinDefaultData.push_back(defaultDataFromString(defaultData));
+				//std::cout << "default pin data: " << defaultData << std::endl;
 				if (inSection)
 					nodeDataList.back().inputPinCount++;
 				else

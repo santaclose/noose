@@ -2,6 +2,7 @@
 #include "dataController.h"
 
 sf::Shader blendShader;
+sf::Shader brightnessContrastShader;
 sf::Shader checkerShader;
 sf::Shader flipShader;
 sf::Shader invertShader;
@@ -29,6 +30,8 @@ void nodeFunctionality::initialize()
 	std::cout << "loading shaders\n";
 	if (!blendShader.loadFromFile("res/nodeShaders/blend.shader", sf::Shader::Fragment))
 		std::cout << "could not load blend shader\n";
+	if (!brightnessContrastShader.loadFromFile("res/nodeShaders/brightness-contrast.shader", sf::Shader::Fragment))
+		std::cout << "could not load brightnessContrastShader shader\n";
 	if (!checkerShader.loadFromFile("res/nodeShaders/checker.shader", sf::Shader::Fragment))
 		std::cout << "could not load checker shader\n";
 	if (!flipShader.loadFromFile("res/nodeShaders/flip.shader", sf::Shader::Fragment))
@@ -74,6 +77,29 @@ void nodeFunctionality::Blend(uiNode* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &blendShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::BrightnessContrast(uiNode* theNode)
+{
+	//std::cout << "executing brightnesscontrast" << std::endl;
+
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(3, false));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
+	float* brightness = ((float*)theNode->getDataPointerForPin(1, true));
+	float* contrast = ((float*)theNode->getDataPointerForPin(2, true));
+
+	sf::Vector2u size = a->getSize();
+
+	outputPointer->create(size.x, size.y);
+
+	rs.shader = &brightnessContrastShader;
+	brightnessContrastShader.setUniform("tx", a->getTexture());
+	brightnessContrastShader.setUniform("b", *brightness);
+	brightnessContrastShader.setUniform("c", *contrast);
+
+	sf::Sprite spr(a->getTexture());
+
 	outputPointer->draw(spr, rs);
 }
 

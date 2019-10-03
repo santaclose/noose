@@ -5,6 +5,7 @@ namespace nodeFunctionality
 {
 	void initialize();
 	void Blend(uiNode* theNode);
+	void BrightnessContrast(uiNode* theNode);
 	void Checker(uiNode* theNode);
 	void Combine(uiNode* theNode);
 	void ConstructColor(uiNode* theNode);

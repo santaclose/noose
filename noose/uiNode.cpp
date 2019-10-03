@@ -68,20 +68,33 @@ void uiNode::removeNodeFromPropagationList(uiNode* theNode)
 	}
 }
 
-inline void* reserveDataForPin(uiNodeSystem::Types type)
+inline void* reserveDataForPin(uiNodeSystem::Types type, void* defaultValue)
 {
 	switch (type)
 	{
 	case uiNodeSystem::Types::Integer:
-		return new int(0);
+		if (defaultValue == nullptr)
+			return new int(0);
+		else
+			return new int(*((int*)defaultValue));
 	case uiNodeSystem::Types::Float:
-		return new float(0.0f);
+		if (defaultValue == nullptr)
+			return new float(0.0f);
+		else
+			return new float (*((float*)defaultValue));
 	case uiNodeSystem::Types::Vector2i:
-		return new sf::Vector2i(0, 0);
+		if (defaultValue == nullptr)
+			return new sf::Vector2i(0, 0);
+		else
+			return new sf::Vector2i(*((sf::Vector2i*)defaultValue));
 	case uiNodeSystem::Types::Color:
-		return new sf::Color(255, 0, 255, 255);
+		if (defaultValue == nullptr)
+			return new sf::Color(255, 0, 255, 255);
+		else
+			return new sf::Color(*((sf::Color*)defaultValue));
 	case uiNodeSystem::Types::Image:
-		return new sf::RenderTexture();
+		if (defaultValue == nullptr)
+			return new sf::RenderTexture();
 	}
 }
 
@@ -157,13 +170,14 @@ uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition)
 	pinTypes = new uiNodeSystem::Types[inputPinCount + outputPinCount];
 	memcpy(pinTypes, &(data->pinTypes[0]), sizeof(uiNodeSystem::Types) * (inputPinCount + outputPinCount));
 
-	//pinDataPointers = (void**) malloc(sizeof(void*) * (inputPinCount + outputPinCount));
 	pinDataPointers.reserve(inputPinCount + outputPinCount); // so it doesn't have to reallocate at each iteration
+
+	// data pointers from other nodes
 	receivedDataPointers.reserve(inputPinCount);
 
 	for (int i = 0; i < (inputPinCount + outputPinCount); i++)
 	{
-		pinDataPointers.push_back(reserveDataForPin(pinTypes[i]));
+		pinDataPointers.push_back(reserveDataForPin(pinTypes[i], data->pinDefaultData[i]));
 		if (i < inputPinCount)
 			receivedDataPointers.push_back(nullptr);
 	}
