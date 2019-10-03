@@ -94,7 +94,7 @@ void nodeFunctionality::BrightnessContrast(uiNode* theNode)
 	outputPointer->create(size.x, size.y);
 
 	rs.shader = &brightnessContrastShader;
-	brightnessContrastShader.setUniform("tx", a->getTexture());
+	brightnessContrastShader.setUniform("tex", a->getTexture());
 	brightnessContrastShader.setUniform("b", *brightness);
 	brightnessContrastShader.setUniform("c", *contrast);
 

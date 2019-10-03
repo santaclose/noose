@@ -94,7 +94,7 @@ inline uiNodeSystem::Types typeFromString(const std::string& s)
 }
 
 // loads the dat file in memory
-void dataController::prepare()
+void dataController::initialize()
 {
 	using namespace std;
 	bool insideDataSection = false;
@@ -189,6 +189,12 @@ void dataController::prepare()
 
 	// load node shaders
 	nodeFunctionality::initialize();
+}
+
+// loads the dat file in memory
+void dataController::terminate()
+{
+	searchResults.clear();
 }
 
 void* dataController::getDataFor(int searchResultIndex)
