@@ -21,6 +21,7 @@ namespace nodeFunctionality
 	void Mask(uiNode* theNode);
 	void Repeat(uiNode* theNode);
 	void Rotate90(uiNode* theNode);
+	void SelectByColor(uiNode* theNode);
 	void Separate(uiNode* theNode);
 	void Solid(uiNode* theNode);
 };

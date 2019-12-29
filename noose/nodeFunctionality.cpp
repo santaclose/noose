@@ -15,6 +15,7 @@ sf::Shader grayscaleShader;
 sf::Shader separateShader;
 sf::Shader combineShader;
 sf::Shader cropShader;
+sf::Shader selectByColorShader;
 
 //sf::BlendMode blendMode;
 sf::RenderStates rs;
@@ -56,6 +57,8 @@ void nodeFunctionality::initialize()
 		std::cout << "could not load combine shader\n";
 	if (!cropShader.loadFromFile("res/nodeShaders/crop.shader", sf::Shader::Fragment))
 		std::cout << "could not load crop shader\n";
+	if (!selectByColorShader.loadFromFile("res/nodeShaders/selectByColor.shader", sf::Shader::Fragment))
+		std::cout << "could not load selectByColor shader\n";
 }
 
 void nodeFunctionality::Blend(uiNode* theNode)
@@ -366,6 +369,25 @@ void nodeFunctionality::Rotate90(uiNode* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &rotate90Shader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::SelectByColor(uiNode* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(3, false));
+	sf::RenderTexture* inImage = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
+	sf::Glsl::Vec4 inColor(*((sf::Color*)(theNode->getDataPointerForPin(1, true))));
+	float* inTolerance = ((float*) theNode->getDataPointerForPin(2, true));
+
+	sf::Vector2u size = inImage->getSize();
+	outputPointer->create(size.x, size.y);
+
+	selectByColorShader.setUniform("tx", inImage->getTexture());
+	selectByColorShader.setUniform("color", inColor);
+	selectByColorShader.setUniform("tolerance", *inTolerance);
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &selectByColorShader;
 	outputPointer->draw(spr, rs);
 }
 

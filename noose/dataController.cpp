@@ -52,8 +52,10 @@ inline void* getFunctionalityFromIndex(int index)
 	if (index == 16)
 		return nodeFunctionality::Rotate90;
 	if (index == 17)
-		return nodeFunctionality::Separate;
+		return nodeFunctionality::SelectByColor;
 	if (index == 18)
+		return nodeFunctionality::Separate;
+	if (index == 19)
 		return nodeFunctionality::Solid;
 }
 

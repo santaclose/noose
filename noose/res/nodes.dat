@@ -7,7 +7,7 @@ Blend
 	out:
 		Image: result
 ]
-Brightness Contrast
+Brightness and contrast
 [
 	in:
 		Image: in
@@ -136,6 +136,15 @@ Rotate 90
 		Integer: times[1]
 	out:
 		Image: image
+]
+Select by color
+[
+	in:
+		Image: in
+		Color: color
+		Float: tolerance[0.5]
+	out:
+		Image: out
 ]
 Separate
 [
