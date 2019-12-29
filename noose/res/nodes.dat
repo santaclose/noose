@@ -19,7 +19,7 @@ Brightness Contrast
 Checker
 [
 	in:
-		Integer: square size
+		Integer: square size[20]
 		Vector2i: image size
 	out:
 		Image: result
@@ -133,7 +133,7 @@ Rotate 90
 [
 	in:
 		Image: image
-		Integer: times
+		Integer: times[1]
 	out:
 		Image: image
 ]

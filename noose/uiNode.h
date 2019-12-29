@@ -26,13 +26,15 @@ private:
 	std::vector<void*> pinDataPointers;
 	std::vector<void*> receivedDataPointers;
 
-	std::vector<uiNode*> propagationList;
+	//std::vector<uiNode*> propagationList;
+	std::vector<std::vector<uiNode*>> propagationMatrix;
+	std::vector<uiNode*> leftSideNodes;
 
 	// function pointer with node functionality
 	void (*nodeFunctionalityPointer)(uiNode* theNode);
 
-	void addNodeToPropagationList(uiNode* theNode);
-	void removeNodeFromPropagationList(uiNode* theNode);
+	//void addNodeToPropagationList(uiNode* theNode);
+	//void removeNodeFromPropagationList(uiNode* theNode);
 
 public:
 	uiNode(const void* nodeData, sf::Vector2f& initialPosition);
@@ -59,5 +61,11 @@ public:
 
 	void* getDataPointerForPin(int pinIndex, bool acceptReceivedPointers);
 	void activate(); // executes node functionality and propagates to right hand side nodes
-};
+	void run(); // executes node functionality
 
+	const std::vector<std::vector<uiNode*>>& getPropagationMatrix();
+	void propagateMatrix(std::vector<std::vector<uiNode*>>& m);
+	void clearPropagationMatrix();
+
+	void rebuildMatrices(int lineIndex);
+};

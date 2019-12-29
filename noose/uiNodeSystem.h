@@ -26,4 +26,8 @@ namespace uiNodeSystem
 
 	void setOnNodeSelectedCallback(void* functionPointer);
 	void setOnNodeDeletedCallback(void* functionPointer); // called just before deleting the node
+
+	void deselectNode();
+
+	void recalculatePropagationMatrices();
 }

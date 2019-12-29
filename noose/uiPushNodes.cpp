@@ -104,6 +104,7 @@ void uiPushNodes::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 		{
 			if (e.key.code == sf::Keyboard::Space)
 			{
+				uiNodeSystem::deselectNode();
 				searching = true;
 				performSearch();
 			}

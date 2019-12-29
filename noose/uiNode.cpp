@@ -1,6 +1,7 @@
 #include "uiNode.h"
 #include "uiNodeSystem.h"
 #include "uiMath.h"
+#include "math/graphOperations.h"
 
 #include <iostream>
 #include <math.h>
@@ -42,30 +43,6 @@ static void onNodeValueChanged()
 {
 	//std::cout << "value changed in node\n";
 	currentEditingInputFieldNode->activate();
-}
-
-// these two functions are private
-void uiNode::addNodeToPropagationList(uiNode* theNode)
-{
-	for (uiNode* n : propagationList)
-	{
-		if (n == theNode)
-			return;
-	}
-	propagationList.push_back(theNode);
-}
-
-void uiNode::removeNodeFromPropagationList(uiNode* theNode)
-{
-	for (int i = 0; i < propagationList.size(); i++)
-	{
-		if (propagationList[i] == theNode)
-		{
-			//std::cout << "node removed from propagation list at node " << title.getString().toAnsiString() << std::endl;
-			propagationList.erase(propagationList.begin() + i);
-			break;
-		}
-	}
 }
 
 inline void* reserveDataForPin(uiNodeSystem::Types type, void* defaultValue)
@@ -376,6 +353,7 @@ void uiNode::move(const sf::Vector2f& displacement)
 	}
 }
 
+// this function is called at the same time for the two nodes being connected
 void uiNode::attachConnectionPoint(int lineIndex)
 {
 	//std::cout << "attaching line to node " << title.getString().toAnsiString() << std::endl;
@@ -390,11 +368,15 @@ void uiNode::attachConnectionPoint(int lineIndex)
 		{
 			receivedDataPointers[uiNodeConnections::lines[lineIndex].pinA] =
 				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeB))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinB, false);
+			leftSideNodes.push_back((uiNode*)(uiNodeConnections::lines[lineIndex].nodeB));
 			activate();
 		}
-		else // ours is an output pin
+		else // ours is an output pin, we are on the left side
 		{
-			addNodeToPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeB);
+			go::updatePropagationMatrix(propagationMatrix, (uiNode*)uiNodeConnections::lines[lineIndex].nodeB);
+			for (uiNode* n : leftSideNodes)
+				n->propagateMatrix(propagationMatrix);
+			//addNodeToPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeB);
 			//activate();
 		}
 	}
@@ -404,11 +386,15 @@ void uiNode::attachConnectionPoint(int lineIndex)
 		{
 			receivedDataPointers[uiNodeConnections::lines[lineIndex].pinB] =
 				((uiNode*)(uiNodeConnections::lines[lineIndex].nodeA))->getDataPointerForPin(uiNodeConnections::lines[lineIndex].pinA, false);
+			leftSideNodes.push_back((uiNode*)(uiNodeConnections::lines[lineIndex].nodeA));
 			activate();
 		}
 		else // ours is an output pin
 		{
-			addNodeToPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeA);
+			go::updatePropagationMatrix(propagationMatrix, (uiNode*)uiNodeConnections::lines[lineIndex].nodeA);
+			for (uiNode* n : leftSideNodes)
+				n->propagateMatrix(propagationMatrix);
+			//addNodeToPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeA);
 			//activate();
 		}
 	}
@@ -429,10 +415,11 @@ void uiNode::setLineIndexAsDisconnected(int lineIndex)
 				if (uiNodeConnections::lines[lineIndex].pinA < inputPinCount) // ours is an input pin
 				{
 					receivedDataPointers[uiNodeConnections::lines[lineIndex].pinA] = nullptr;
+					go::removeNodeFromList((uiNode*)uiNodeConnections::lines[lineIndex].nodeB, leftSideNodes);
 				}
 				else
 				{
-					removeNodeFromPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeB);
+					//removeNodeFromPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeB);
 				}
 			}
 			else // we are node b
@@ -440,10 +427,11 @@ void uiNode::setLineIndexAsDisconnected(int lineIndex)
 				if (uiNodeConnections::lines[lineIndex].pinB < inputPinCount) // ours is an input pin
 				{
 					receivedDataPointers[uiNodeConnections::lines[lineIndex].pinB] = nullptr;
+					go::removeNodeFromList((uiNode*)uiNodeConnections::lines[lineIndex].nodeA, leftSideNodes);
 				}
 				else
 				{
-					removeNodeFromPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeA);
+					//removeNodeFromPropagationList((uiNode*)uiNodeConnections::lines[lineIndex].nodeA);
 				}
 			}
 			break;
@@ -468,7 +456,16 @@ bool uiNode::isInputAndAlreadyConnected(int pin)
 
 void uiNode::print()
 {
-	std::cout << '\t' << this << ' ' << inputPinCount << ' ' << outputPinCount << '\n';
+	//std::cout << '\t' << this << ' ' << inputPinCount << ' ' << outputPinCount << '\n';
+	std::cout << "printing node " << title.getString().toAnsiString() << " matrix\n";
+	for (int i = 0; i < propagationMatrix.size(); i++)
+	{
+		for (int j = 0; j < propagationMatrix[i].size(); j++)
+		{
+			std::cout << '\t' << propagationMatrix[i][j]->title.getString().toAnsiString() << ", ";
+		}
+		std::cout << std::endl;
+	}
 }
 
 bool uiNode::onClickOverInputField(const sf::Vector2f& mousePosInWorld) // we return whether the mouse was or not over an input field
@@ -516,12 +513,64 @@ void* uiNode::getDataPointerForPin(int pinIndex, bool acceptReceivedPointers)
 
 void uiNode::activate()
 {
-	//std::cout << "activating node " << title.getString().toAnsiString() << std::endl;
-	// execute node function
-	nodeFunctionalityPointer(this);
-	for (uiNode*& n : propagationList)
+	// execute node functionality
+	run();
+
+	// run every subsequent node
+	for (std::vector<uiNode*>& list : propagationMatrix)
 	{
-		//std::cout << "propagated from " << title.getString().toAnsiString() << " to " << n->title.getString().toAnsiString() << std::endl;
-		n->activate();
+		for (uiNode* n : list)
+			n->run();
+	}
+}
+
+void uiNode::run()
+{
+	nodeFunctionalityPointer(this);
+}
+
+const std::vector<std::vector<uiNode*>>& uiNode::getPropagationMatrix()
+{
+	return propagationMatrix;
+}
+
+void uiNode::propagateMatrix(std::vector<std::vector<uiNode*>>& m)
+{
+	std::cout << "propagating to node " << this->title.getString().toAnsiString() << std::endl;
+
+	// update propagation matrix
+	go::matrixPropagation(propagationMatrix, m);
+
+	// propagate back to connected nodes no the left side
+	for (uiNode* n : leftSideNodes)
+		n->propagateMatrix(propagationMatrix);
+}
+
+void uiNode::clearPropagationMatrix()
+{
+	for (std::vector<uiNode*>& l : propagationMatrix)
+		l.clear();
+	propagationMatrix.clear();
+}
+
+void uiNode::rebuildMatrices(int lineIndex)
+{
+	if (uiNodeConnections::lines[lineIndex].nodeA == (void*)this) // we are node a
+	{
+		if (uiNodeConnections::lines[lineIndex].pinA >= inputPinCount) // ours is an output pin
+		{
+			go::updatePropagationMatrix(propagationMatrix, (uiNode*)uiNodeConnections::lines[lineIndex].nodeB);
+			for (uiNode* n : leftSideNodes)
+				n->propagateMatrix(propagationMatrix);
+		}
+	}
+	else
+	{
+		if (uiNodeConnections::lines[lineIndex].pinB >= inputPinCount) // ours is an output pin
+		{
+			go::updatePropagationMatrix(propagationMatrix, (uiNode*)uiNodeConnections::lines[lineIndex].nodeA);
+			for (uiNode* n : leftSideNodes)
+				n->propagateMatrix(propagationMatrix);
+		}
 	}
 }

@@ -46,8 +46,8 @@ void printAllSystem()
 	{
 		node->print();
 	}
-	std::cout << "connections:\n";
-	uiNodeConnections::printAllConnections();
+	/*std::cout << "connections:\n";
+	uiNodeConnections::printAllConnections();*/
 }
 
 inline void updateView()
@@ -277,6 +277,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 				{
 					((uiNode*)nodeA)->setLineIndexAsDisconnected(lineToRemove);
 					((uiNode*)nodeB)->setLineIndexAsDisconnected(lineToRemove);
+					recalculatePropagationMatrices();
 				}
 			}
 		
@@ -304,6 +305,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 				case sf::Keyboard::BackSpace:
 				case sf::Keyboard::Delete:
 				{
+					// can't delete if node is selected or being moved
 					if (selectedNodeIndex < 0 || draggingNodeIndex > 0)
 						return;
 
@@ -312,6 +314,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 					onNodeDeletedCallback(*(nodeList[selectedNodeIndex]));
 					delete nodeList[selectedNodeIndex];
 					nodeList.erase(nodeList.begin() + selectedNodeIndex);
+					recalculatePropagationMatrices();
 					selectedNodeIndex = -1;
 					break;
 				}
@@ -325,15 +328,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 					if (selectedNodeIndex > -1)
 					{
 						nodeList[selectedNodeIndex]->activate();
-					}
-					break;
-				}
-				case sf::Keyboard::Space:
-				{
-					if (selectedNodeIndex > -1)
-					{
-						nodeList[selectedNodeIndex]->paintAsUnselected();
-						selectedNodeIndex = -1;
 					}
 					break;
 				}
@@ -359,4 +353,30 @@ void uiNodeSystem::setOnNodeSelectedCallback(void* functionPointer)
 void uiNodeSystem::setOnNodeDeletedCallback(void* functionPointer)
 {
 	onNodeDeletedCallback = (void (*)(uiNode&))functionPointer;
+}
+
+void uiNodeSystem::deselectNode()
+{
+	if (selectedNodeIndex > -1)
+	{
+		nodeList[selectedNodeIndex]->paintAsUnselected();
+		selectedNodeIndex = -1;
+	}
+}
+
+void uiNodeSystem::recalculatePropagationMatrices()
+{
+	for (uiNode* n : nodeList)
+		n->clearPropagationMatrix();
+
+	int i = 0;
+	for (uiLine& l : uiNodeConnections::lines)
+	{
+		if (!l.available) // not deleted
+		{
+			((uiNode*)l.nodeA)->rebuildMatrices(i);
+			((uiNode*)l.nodeB)->rebuildMatrices(i);
+		}
+		i++;
+	}
 }

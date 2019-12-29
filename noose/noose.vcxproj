@@ -127,6 +127,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="dataController.cpp" />
+    <ClCompile Include="math\graphOperations.cpp" />
     <ClCompile Include="nodeFunctionality.cpp" />
     <ClCompile Include="uiColorPicker.cpp" />
     <ClCompile Include="uiInputField.cpp" />
@@ -142,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dataController.h" />
+    <ClInclude Include="math\graphOperations.h" />
     <ClInclude Include="nodeData.h" />
     <ClInclude Include="nodeFunctionality.h" />
     <ClInclude Include="res\nodes.dat" />
