@@ -1,6 +1,6 @@
 # noose
 
-Node-Graph based image editor. 
+node based image editor. 
 
 ![alt text](https://raw.githubusercontent.com/santaclose/noose/master/demo/Capture.PNG)
 
