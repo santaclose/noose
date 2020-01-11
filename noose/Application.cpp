@@ -10,7 +10,7 @@
 
 #include "uiViewport.h"
 
-static const sf::Color BACKGROUND_COLOR(0x595959ff);
+static const sf::Color BACKGROUND_COLOR(0x181818ff);
 
 //sf::RenderTexture* outputImage = nullptr;
 

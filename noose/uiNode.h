@@ -22,19 +22,15 @@ private:
 	uiNodeSystem::Types* pinTypes;
 
 	uiInputField* inputFields;
-	//void** pinDataPointers;
+
 	std::vector<void*> pinDataPointers;
 	std::vector<void*> receivedDataPointers;
 
-	//std::vector<uiNode*> propagationList;
 	std::vector<std::vector<uiNode*>> propagationMatrix;
 	std::vector<uiNode*> leftSideNodes;
 
 	// function pointer with node functionality
 	void (*nodeFunctionalityPointer)(uiNode* theNode);
-
-	//void addNodeToPropagationList(uiNode* theNode);
-	//void removeNodeFromPropagationList(uiNode* theNode);
 
 public:
 	uiNode(const void* nodeData, sf::Vector2f& initialPosition);
@@ -55,7 +51,6 @@ public:
 	void print();
 
 	bool onClickOverInputField(const sf::Vector2f& mousePosInWorld); // we return whether the mouse was or not over an input field
-	//bool mouseOverInputField(const sf::Vector2f& mousePosInWorld, uiNodeSystem::Types& returnType, void*& returnPointer, sf::Text*& returnText);
 	
 	sf::RenderTexture* getFirstOutputImage();
 

@@ -9,9 +9,9 @@
 #include "nodeData.h"
 
 #define TEXT_COLOR 0xf0f0f0ff
-#define BAR_COLOR 0x161616bb
-#define SELECTED_BAR_COLOR 0x6b6b6bbb
-#define CONTENT_RECT_COLOR 0x323232bb
+#define BAR_COLOR 0x363636bb
+#define SELECTED_BAR_COLOR 0x464646bb
+#define CONTENT_RECT_COLOR 0x2c2c2cbb
 
 #define INPUT_FIELD_HEIGHT 20
 
@@ -36,9 +36,8 @@
 
 #define PIN_COLLISION_DISTANCE 8
 
-#define VERTICES_PER_PROPERTY 8
-
 static uiNode* currentEditingInputFieldNode;
+
 static void onNodeValueChanged()
 {
 	//std::cout << "value changed in node\n";
@@ -107,7 +106,7 @@ uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition)
 	nodeData* data = (nodeData*)theNodeData;
 	std::cout << "creating node " << data->nodeName << std::endl;
 	nodeFunctionalityPointer = (void (*)(uiNode* theNode))(data->nodeFunctionality);
-//	nodeFunctionalityPointer = nodeFunctionality;
+
 	inputPinCount = data->inputPinCount;
 	outputPinCount = data->outputPinCount;
 	contentHeight = (PROPERTY_HEIGHT + INPUT_FIELD_HEIGHT) * inputPinCount
@@ -166,19 +165,6 @@ uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition)
 	}
 
 	setPosition(initialPosition);
-
-	/*for (int i = 0; i < inputPinCount + outputPinCount; i++)
-	{
-		switch (pinTypes[i])
-		{
-		case uiNodeSystem::Types::Integer:
-			std::cout << *((int*)pinData[i]) << std::endl;
-			break;
-		case uiNodeSystem::Types::Color:
-			std::cout << "color\n";
-			std::cout << ((sf::Color*)pinData[i]) << std::endl;
-		}
-	}*/
 }
 
 uiNode::~uiNode()

@@ -21,6 +21,12 @@ namespace uiViewport
 	sf::Texture imageLimitTexture;
 	sf::Sprite imageLimitSprite;
 
+	// checker background
+	sf::Shader checkerShader;
+
+	// dark mode
+	sf::Shader invertShader;
+
 	// TODO: ZOOM
 	//int zoomInt = 10;
 }
@@ -41,6 +47,12 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
 
 	imageLimitTexture.loadFromFile("res/images/imageLimit.png");
 	imageLimitSprite = sf::Sprite(imageLimitTexture);
+
+	// checker background
+	checkerShader.loadFromFile("res/shaders/checker.shader", sf::Shader::Fragment);
+
+	// dark mode
+	invertShader.loadFromFile("res/shaders/invert.shader", sf::Shader::Fragment);
 }
 
 
@@ -86,6 +98,16 @@ void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 
 void uiViewport::draw()
 {
+	const sf::Vector2u& windowSize = renderWindow->getSize();
+	sf::View staticView(sf::Vector2f(windowSize.x / 2.0, windowSize.y / 2.0),
+		sf::Vector2f(windowSize.x, windowSize.y));
+	renderWindow->setView(staticView);
+
+	sf::Texture background;
+	background.create(renderWindow->getSize().x, renderWindow->getSize().y);
+	sf::Sprite backgroundSprite(background);
+	renderWindow->draw(backgroundSprite, &checkerShader);
+	
 	renderWindow->setView(theView);
 	if (outputImage != nullptr)
 	{
@@ -95,12 +117,12 @@ void uiViewport::draw()
 		int x1 = -9, y1 = -9;
 		int x2 = outputImage->getSize().x - 8, y2 = outputImage->getSize().y - 8;
 		imageLimitSprite.setPosition(x1, y1);
-		renderWindow->draw(imageLimitSprite);
+		renderWindow->draw(imageLimitSprite, &invertShader);
 		imageLimitSprite.setPosition(x1, y2);
-		renderWindow->draw(imageLimitSprite);
+		renderWindow->draw(imageLimitSprite, &invertShader);
 		imageLimitSprite.setPosition(x2, y1);
-		renderWindow->draw(imageLimitSprite);
+		renderWindow->draw(imageLimitSprite, &invertShader);
 		imageLimitSprite.setPosition(x2, y2);
-		renderWindow->draw(imageLimitSprite);
+		renderWindow->draw(imageLimitSprite, &invertShader);
 	}
 }

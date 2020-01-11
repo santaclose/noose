@@ -12,7 +12,7 @@
 #define FLOAT_EDITING_SENSITIVITY 0.001
 #define FONT_SIZE 12
 
-const sf::Color INPUT_FIELD_COLOR = sf::Color(0x282828bb);
+const sf::Color INPUT_FIELD_COLOR = sf::Color(0x343434bb);
 
 // static //
 static bool bEditingInputField;
@@ -116,39 +116,9 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 			}
 		}
 		break;
-	/*case uiNodeSystem::Types::Color:
-		editingColorHue += displacement.x * COLOR_EDITING_SENSITIVITY;
-		if (editingColorHue >= 360) editingColorHue -= 360; else if (editingColorHue <= 0) editingColorHue += 360;
-		editingColorSaturation += displacement.y * COLOR_EDITING_SENSITIVITY;
-		if (editingColorSaturation > 1.0f) editingColorSaturation = 1.0f; else if (editingColorSaturation < 0.0f) editingColorSaturation = 0.0f;
-		uiMath::HSVtoRGB(editingColorHue, editingColorSaturation, editingColorValue, *((sf::Color*)(editingInputField->dataPointer)));
-
-		editingInputField->shapes[0].color = editingInputField->shapes[1].color =
-			editingInputField->shapes[2].color = editingInputField->shapes[3].color =
-			*((sf::Color*)(editingInputField->dataPointer));
-
-		editingInputField->onValueChanged();
-		break;*/
 	}
 	editingInputField->updateTextPositions();
 }
-/*
-void uiInputField::onMouseScrolled(float delta)
-{
-	if (!bEditingInputField)
-		return;
-
-	if (editingInputField->type == uiNodeSystem::Types::Color)
-	{
-		editingColorValue += delta * INT_EDITING_SENSITIVITY;
-		if (editingColorValue > 1.0) editingColorValue = 1.0; else if (editingColorValue < 0.0) editingColorValue = 0.0;
-		uiMath::HSVtoRGB(editingColorHue, editingColorSaturation, editingColorValue, *((sf::Color*)(editingInputField->dataPointer)));
-
-		editingInputField->shapes[0].color = editingInputField->shapes[1].color =
-			editingInputField->shapes[2].color = editingInputField->shapes[3].color =
-			*((sf::Color*)(editingInputField->dataPointer));
-	}
-}*/
 
 // non static //
 
@@ -231,7 +201,6 @@ void uiInputField::setPosition(const sf::Vector2f& newPosition, float nodeWidth,
 		shapes[1].position.x = shapes[2].position.x = newPosition.x + nodeWidth - margin;
 		shapes[0].position.y = shapes[1].position.y = newPosition.y + height;
 		shapes[2].position.y = shapes[3].position.y = newPosition.y;
-		texts[0].setPosition((shapes[0].position + shapes[2].position) / 2.0f - sf::Vector2f(texts[0].getLocalBounds().width, texts[0].getLocalBounds().height) / 2.0f);
 		break;
 	case uiNodeSystem::Types::Vector2i:
 		shapes[0].position.x = shapes[3].position.x = newPosition.x + margin;
@@ -242,8 +211,6 @@ void uiInputField::setPosition(const sf::Vector2f& newPosition, float nodeWidth,
 		shapes[5].position.x = shapes[6].position.x = newPosition.x + nodeWidth - margin;
 		shapes[4].position.y = shapes[5].position.y = newPosition.y + height;
 		shapes[6].position.y = shapes[7].position.y = newPosition.y;
-		texts[0].setPosition((shapes[0].position + shapes[2].position) / 2.0f - sf::Vector2f(texts[0].getLocalBounds().width, texts[0].getLocalBounds().height) / 2.0f);
-		texts[1].setPosition((shapes[4].position + shapes[6].position) / 2.0f - sf::Vector2f(texts[1].getLocalBounds().width, texts[1].getLocalBounds().height) / 2.0f);
 		break;
 	case uiNodeSystem::Types::Color:
 		shapes[0].position.x = shapes[3].position.x = newPosition.x + margin;
@@ -252,6 +219,7 @@ void uiInputField::setPosition(const sf::Vector2f& newPosition, float nodeWidth,
 		shapes[2].position.y = shapes[3].position.y = newPosition.y;
 		break;
 	}
+	updateTextPositions();
 }
 
 void uiInputField::draw(sf::RenderWindow& window)
@@ -314,7 +282,7 @@ bool uiInputField::onClick(const sf::Vector2f& mousePosInWorld)
 		{
 			editingInputField = this;
 			nfdchar_t* outPath = nullptr;
-			nfdchar_t filter[] = "png;jpg;psd";
+			nfdchar_t filter[] = "bmp,png,tga,jpg,gif,psd,hdr,pic";
 			nfdresult_t result = NFD_OpenDialog(filter, NULL, &outPath);
 
 			if (result == NFD_OKAY) {
@@ -337,6 +305,7 @@ bool uiInputField::onClick(const sf::Vector2f& mousePosInWorld)
 				pointer->create(txSize.x, txSize.y);
 				pointer->draw(spr, &dataController::loadImageShader);
 				editingInputField->onValueChanged();
+				updateTextPositions();
 
 				free(outPath);
 			}

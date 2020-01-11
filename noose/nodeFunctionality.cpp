@@ -10,7 +10,7 @@ sf::Shader linearGradientShader;
 sf::Shader repeatShader;
 sf::Shader rotate90Shader;
 sf::Shader solidShader;
-sf::Shader mixShader;
+sf::Shader maskShader;
 sf::Shader grayscaleShader;
 sf::Shader separateShader;
 sf::Shader combineShader;
@@ -47,7 +47,7 @@ void nodeFunctionality::initialize()
 		std::cout << "could not load rotate90 shader\n";
 	if (!solidShader.loadFromFile("res/nodeShaders/solid.shader", sf::Shader::Fragment))
 		std::cout << "could not load solidShader shader\n";
-	if (!mixShader.loadFromFile("res/nodeShaders/mix.shader", sf::Shader::Fragment))
+	if (!maskShader.loadFromFile("res/nodeShaders/mask.shader", sf::Shader::Fragment))
 		std::cout << "could not load mix shader\n";
 	if (!grayscaleShader.loadFromFile("res/nodeShaders/grayscale.shader", sf::Shader::Fragment))
 		std::cout << "could not load grayscale shader\n";
@@ -175,6 +175,8 @@ void nodeFunctionality::Crop(uiNode* theNode)
 	
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(3, false));
 	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointerForPin(2, true));
+	if (outputSize->x < 1 || outputSize->y < 1)
+		return;
 	sf::Vector2i* topleft = ((sf::Vector2i*) theNode->getDataPointerForPin(1, true));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
 
@@ -183,11 +185,14 @@ void nodeFunctionality::Crop(uiNode* theNode)
 	outputPointer->create(outputSize->x, outputSize->y);
 	float top = topleft->y / ((float) size.y);
 	float left = topleft->x / ((float) size.x);
+	
 
 	cropShader.setUniform("tex", a->getTexture());
 	cropShader.setUniform("topLeft", sf::Glsl::Vec2(left, top));
+	cropShader.setUniform("ratio", sf::Glsl::Vec2(size.x / ((float)outputSize->x),
+												  size.y / ((float)outputSize->y)));
 
-	sf::Sprite spr(a->getTexture());
+	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &cropShader;
 	outputPointer->draw(spr, rs);
 }
@@ -305,23 +310,21 @@ void nodeFunctionality::LinearGradient(uiNode* theNode)
 
 void nodeFunctionality::Mask(uiNode* theNode)
 {
-	//std::cout << "executing mix" << std::endl;
+	//std::cout << "executing mask" << std::endl;
 
-	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(3, false));
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, false));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointerForPin(0, true));
-	sf::RenderTexture* b = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, true));
-	sf::RenderTexture* fac = ((sf::RenderTexture*) theNode->getDataPointerForPin(2, true));
+	sf::RenderTexture* fac = ((sf::RenderTexture*) theNode->getDataPointerForPin(1, true));
 
 	sf::Vector2u size = a->getSize();
 
 	outputPointer->create(size.x, size.y);
 
-	mixShader.setUniform("tex0", a->getTexture());
-	mixShader.setUniform("tex1", b->getTexture());
-	mixShader.setUniform("fac", fac->getTexture());
+	maskShader.setUniform("tex0", a->getTexture());
+	maskShader.setUniform("fac", fac->getTexture());
 
 	sf::Sprite spr(outputPointer->getTexture());
-	rs.shader = &mixShader;
+	rs.shader = &maskShader;
 	outputPointer->draw(spr, rs);
 }
 

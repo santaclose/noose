@@ -1,8 +1,8 @@
 Blend
 [
 	in:
-		Image: a
-		Image: b
+		Image: source
+		Image: destination
 		Integer: mode
 	out:
 		Image: result
@@ -56,8 +56,8 @@ Crop
 [
 	in:
 		Image: in
-		Vector2i: top left position
-		Vector2i: size
+		Vector2i: frame position
+		Vector2i: frame size
 	out:
 		Image: out
 ]
@@ -115,8 +115,7 @@ Linear Gradient
 Mask
 [
 	in:
-		Image: a
-		Image: b
+		Image: image
 		Image: mask
 	out:
 		Image: result
