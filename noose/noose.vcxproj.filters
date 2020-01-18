@@ -15,27 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uiNodeSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uiNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uiNodeConnections.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uiLine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uiMath.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uiPushNodes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dataController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,42 +24,57 @@
     <ClCompile Include="vendor\nfd_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="uiInputField.cpp">
+    <ClCompile Include="math\graphOperations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="math\vectorOperators.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="math\uiMath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="node_system\logicalConnection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="node_system\logicalConnections.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="node_system\logicalNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="node_system\uiConnections.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="node_system\uiNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interface\uiColorPicker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interface\uiInputField.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="nodeFunctionality.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="uiViewport.cpp">
+    <ClCompile Include="nodeSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="uiColorPicker.cpp">
+    <ClCompile Include="interface\uiData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="math\graphOperations.cpp">
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="viewport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="searchBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="uiNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="uiNodeSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="uiNodeConnections.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="uiLine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="uiMath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="res\nodes.dat">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="uiPushNodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dataController.h">
@@ -92,22 +86,55 @@
     <ClInclude Include="vendor\nfd_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="uiInputField.h">
+    <ClInclude Include="nodeData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="nodeData.h">
+    <ClInclude Include="math\graphOperations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\vectorOperators.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\uiMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="node_system\logicalConnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="node_system\logicalConnections.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="node_system\logicalNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="node_system\uiConnections.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="node_system\uiNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\uiColorPicker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\uiInputField.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="nodeFunctionality.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="uiViewport.h">
+    <ClInclude Include="nodeSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="uiColorPicker.h">
+    <ClInclude Include="interface\uiData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="math\graphOperations.h">
+    <ClInclude Include="types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="viewport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="searchBar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

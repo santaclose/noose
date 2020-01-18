@@ -125,37 +125,46 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="dataController.cpp" />
+    <ClCompile Include="node_system\logicalConnection.cpp" />
+    <ClCompile Include="node_system\logicalConnections.cpp" />
+    <ClCompile Include="node_system\logicalNode.cpp" />
     <ClCompile Include="math\graphOperations.cpp" />
+    <ClCompile Include="math\vectorOperators.cpp" />
     <ClCompile Include="nodeFunctionality.cpp" />
-    <ClCompile Include="uiColorPicker.cpp" />
-    <ClCompile Include="uiInputField.cpp" />
-    <ClCompile Include="uiLine.cpp" />
-    <ClCompile Include="uiMath.cpp" />
-    <ClCompile Include="uiNode.cpp" />
-    <ClCompile Include="uiNodeConnections.cpp" />
-    <ClCompile Include="uiNodeSystem.cpp" />
-    <ClCompile Include="uiPushNodes.cpp" />
-    <ClCompile Include="uiViewport.cpp" />
+    <ClCompile Include="interface\uiColorPicker.cpp" />
+    <ClCompile Include="node_system\uiConnections.cpp" />
+    <ClCompile Include="interface\uiInputField.cpp" />
+    <ClCompile Include="math\uiMath.cpp" />
+    <ClCompile Include="node_system\uiNode.cpp" />
+    <ClCompile Include="nodeSystem.cpp" />
+    <ClCompile Include="interface\uiData.cpp" />
+    <ClCompile Include="searchBar.cpp" />
+    <ClCompile Include="viewport.cpp" />
     <ClCompile Include="vendor\nfd_win.cpp" />
     <ClCompile Include="vendor\nfd_common.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dataController.h" />
+    <ClInclude Include="types.h" />
+    <ClInclude Include="node_system\logicalConnection.h" />
+    <ClInclude Include="node_system\logicalConnections.h" />
+    <ClInclude Include="node_system\logicalNode.h" />
     <ClInclude Include="math\graphOperations.h" />
+    <ClInclude Include="math\vectorOperators.h" />
     <ClInclude Include="nodeData.h" />
     <ClInclude Include="nodeFunctionality.h" />
     <ClInclude Include="res\nodes.dat" />
-    <ClInclude Include="uiColorPicker.h" />
-    <ClInclude Include="uiInputField.h" />
-    <ClInclude Include="uiLine.h" />
-    <ClInclude Include="uiMath.h" />
-    <ClInclude Include="uiNode.h" />
-    <ClInclude Include="uiNodeConnections.h" />
-    <ClInclude Include="uiNodeSystem.h" />
-    <ClInclude Include="uiPushNodes.h" />
-    <ClInclude Include="uiViewport.h" />
+    <ClInclude Include="interface\uiColorPicker.h" />
+    <ClInclude Include="node_system\uiConnections.h" />
+    <ClInclude Include="interface\uiInputField.h" />
+    <ClInclude Include="math\uiMath.h" />
+    <ClInclude Include="node_system\uiNode.h" />
+    <ClInclude Include="nodeSystem.h" />
+    <ClInclude Include="interface\uiData.h" />
+    <ClInclude Include="searchBar.h" />
+    <ClInclude Include="viewport.h" />
     <ClInclude Include="vendor\nfd.h" />
     <ClInclude Include="vendor\nfd_common.h" />
   </ItemGroup>

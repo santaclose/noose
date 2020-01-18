@@ -2,19 +2,9 @@
 
 #include <SFML/Graphics.hpp>
 
-namespace uiNodeSystem
+namespace nodeSystem
 {
-	enum Types
-	{	
-		Integer,
-		Float,
-		Vector2i,
-		Image,
-		Color
-	};
-
 	extern float currentZoom;
-	extern sf::Font font;
 	extern sf::RenderWindow* renderWindow;
 
 	void initialize(sf::RenderWindow& theRenderWindow);

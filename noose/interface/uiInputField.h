@@ -1,13 +1,15 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "uiNodeSystem.h"
+//#include "nodeSystem.h"
+//#include "logicalNode.h"
 
 class uiInputField
 {
 	friend void onColorPickerSetColor(sf::Color* newColor);
 
 private:
-	uiNodeSystem::Types type;
+	bool enabled = true;
+	int type;
 	sf::Vertex* shapes;
 	sf::Text* texts;
 
@@ -18,13 +20,23 @@ private:
 public:
 
 	static void onMouseMoved(sf::Vector2f& displacement);
-	static void onLeftClickReleased();
+	static void unbind();
+	//static void initialize(void (onValueChangedFunc)());
 
 	~uiInputField();
-	void initialize(uiNodeSystem::Types theType, void* pinDataPointer, void (onValueChangedFunc)());
+	bool mouseOver(const sf::Vector2f& mousePosInWorld, int& index);
+
+	void create(int theType, void* pinDataPointer, void(onValueChangedFunc)());
 	void setPosition(const sf::Vector2f& newPosition, float nodeWidth, float height); // top left corner position
 	void draw(sf::RenderWindow& window);
 	void setValue(const void* value);
-	bool onClick(const sf::Vector2f& mousePosInWorld);
+
+	// the index tells which of the two components of a vector is gonna change
+	void bind(int index);
+
 	void* getDataPointer(); // so the data pointer of the node can be changed when a connection is created
+
+	void disable();
+	void enable();
+	const bool& isEnabled();
 };

@@ -1,29 +1,28 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include "uiNodeSystem.h"
-#include "uiPushNodes.h"
-#include "uiNode.h"
-#include "uiMath.h"
-#include "uiColorPicker.h"
 
+#include "nodeSystem.h"
+#include "searchBar.h"
+#include "viewport.h"
 #include "dataController.h"
 
-#include "uiViewport.h"
+#include "node_system/logicalNode.h"
+
+#include "interface/uiColorPicker.h"
+#include "interface/uiData.h"
 
 static const sf::Color BACKGROUND_COLOR(0x181818ff);
 
-//sf::RenderTexture* outputImage = nullptr;
-
-void onNodeSelected(uiNode& theNode)
+void onNodeSelected(logicalNode& theNode)
 {
-	uiViewport::outputImage = theNode.getFirstOutputImage();
-	std::cout << "viewing image " << uiViewport::outputImage << std::endl;
+	viewport::outputImage = theNode.getFirstOutputImage();
+	std::cout << "viewing image " << viewport::outputImage << std::endl;
 }
 
-void onNodeDeleted(uiNode& theNode)
+void onNodeDeleted(logicalNode& theNode)
 {
-	if (theNode.getFirstOutputImage() == uiViewport::outputImage)
-		uiViewport::outputImage = nullptr;
+	if (theNode.getFirstOutputImage() == viewport::outputImage)
+		viewport::outputImage = nullptr;
 }
 
 int main()
@@ -37,15 +36,16 @@ int main()
 	dataController::initialize();
 
 	// initialize interface components
-	uiNodeSystem::initialize(windowA);
-	uiPushNodes::initialize(windowA);
+	uiData::load();
 	uiColorPicker::initialize();
 
-	// node system callbacks
-	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
-	uiNodeSystem::setOnNodeDeletedCallback(onNodeDeleted);
+	nodeSystem::initialize(windowA);
+	searchBar::initialize(windowA);
+	viewport::initialize(windowB);
 
-	uiViewport::initialize(windowB);
+	// node system callbacks
+	nodeSystem::setOnNodeSelectedCallback(onNodeSelected);
+	nodeSystem::setOnNodeDeletedCallback(onNodeDeleted);
 	
 	// Start the game loop
 	while (windowA.isOpen() || windowB.isOpen())
@@ -65,20 +65,20 @@ int main()
 				}
 				case sf::Event::KeyPressed:
 				{
-					if (eventWindowA.key.code == sf::Keyboard::S && !uiPushNodes::userIsSearching())
+					if (eventWindowA.key.code == sf::Keyboard::S && !searchBar::userIsSearching())
 					{
-						if (uiViewport::outputImage == nullptr)
+						if (viewport::outputImage == nullptr)
 							std::cout << "no image to save\n";
 						else
 						{
-							if (uiViewport::outputImage->getTexture().copyToImage().saveToFile("output.png"))
+							if (viewport::outputImage->getTexture().copyToImage().saveToFile("output.png"))
 								std::cout << "image saved as output.png\n";
 						}
 					}
 				}
 			}
-			uiNodeSystem::onPollEvent(eventWindowA, mousePos);
-			uiPushNodes::onPollEvent(eventWindowA, mousePos);
+			nodeSystem::onPollEvent(eventWindowA, mousePos);
+			searchBar::onPollEvent(eventWindowA, mousePos);
 		}
 		while (windowB.pollEvent(eventWindowB))
 		{
@@ -92,26 +92,26 @@ int main()
 					break;
 				}
 			}
-			uiViewport::onPollEvent(eventWindowB, mousePos);
+			viewport::onPollEvent(eventWindowB, mousePos);
 		}
 		// Clear screen
 		windowA.clear(BACKGROUND_COLOR);
 		windowB.clear(BACKGROUND_COLOR);
 
-		uiNodeSystem::draw();
-		uiPushNodes::draw();
+		nodeSystem::draw();
+		searchBar::draw();
 
-		uiViewport::draw();
-		uiColorPicker::tick();
+		viewport::draw();
 
 		// Update the window
 		windowA.display();
 		windowB.display();
+
+		uiColorPicker::tick();
 	}
 
-	uiNodeSystem::terminate();
+	nodeSystem::terminate();
 	uiColorPicker::terminate();
 
-	dataController::terminate();
 	return EXIT_SUCCESS;
 }

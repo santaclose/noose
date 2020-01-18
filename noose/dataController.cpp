@@ -4,96 +4,11 @@
 #include <stdio.h>
 
 #include "dataController.h"
-#include "nodeData.h"
-#include "nodeFunctionality.h"
- 
-namespace dataController
-{
-	std::vector<std::string*> searchResults;
-	sf::Shader loadImageShader;
-}
 
-std::vector<nodeData> nodeDataList;
+std::vector<std::string*> dataController::searchResults;
 
-inline void* getFunctionalityFromIndex(int index)
-{
-	if (index == 0)
-		return nodeFunctionality::Blend;
-	if (index == 1)
-		return nodeFunctionality::BrightnessContrast;
-	if (index == 2)
-		return nodeFunctionality::Checker;
-	if (index == 3)
-		return nodeFunctionality::Combine;
-	if (index == 4)
-		return nodeFunctionality::ConstructColor;
-	if (index == 5)
-		return nodeFunctionality::ConstructVector2i;
-	if (index == 6)
-		return nodeFunctionality::Crop;
-	if (index == 7)
-		return nodeFunctionality::Flip;
-	if (index == 8)
-		return nodeFunctionality::Float;
-	if (index == 9)
-		return nodeFunctionality::Grayscale;
-	if (index == 10)
-		return nodeFunctionality::Image;
-	if (index == 11)
-		return nodeFunctionality::Integer;
-	if (index == 12)
-		return nodeFunctionality::Invert;
-	if (index == 13)
-		return nodeFunctionality::LinearGradient;
-	if (index == 14)
-		return nodeFunctionality::Mask;
-	if (index == 15)
-		return nodeFunctionality::Repeat;
-	if (index == 16)
-		return nodeFunctionality::Rotate90;
-	if (index == 17)
-		return nodeFunctionality::SelectByColor;
-	if (index == 18)
-		return nodeFunctionality::Separate;
-	if (index == 19)
-		return nodeFunctionality::Solid;
-}
-
-inline void parsePinLine(const std::string& line, std::string& a, std::string& b, std::string& d)
-{
-	int i = 2;
-	for (; line[i] != ':'; i++);
-	a = line.substr(2, i - 2);
-	i += 2;
-	int j = i;
-	for (; j < line.length() && line[j] != '['; j++);
-	b = line.substr(i, j - i);
-	if (j < line.length()) // there is a default value
-	{
-		j++;
-		for (i = j; line[i] != ']'; i++);
-		d = line.substr(j, i - j);
-		//std::cout << "found default" << std::endl;
-	}
-	else
-	{
-		d = "";
-	}
-}
-
-inline uiNodeSystem::Types typeFromString(const std::string& s)
-{
-	if (s == "Image")
-		return uiNodeSystem::Types::Image;
-	else if (s == "Vector2i")
-		return uiNodeSystem::Types::Vector2i;
-	else if (s == "Float")
-		return uiNodeSystem::Types::Float;
-	else if (s == "Integer")
-		return uiNodeSystem::Types::Integer;
-	else if (s == "Color")
-		return uiNodeSystem::Types::Color;
-}
+std::vector<nodeData> dataController::nodeDataList;
+sf::Shader dataController::loadImageShader;
 
 // loads the dat file in memory
 void dataController::initialize()
@@ -145,10 +60,10 @@ void dataController::initialize()
 				{
 					switch (nodeDataList.back().pinTypes.back())
 					{
-					case uiNodeSystem::Types::Float:
+					case NS_TYPE_FLOAT:
 						nodeDataList.back().pinDefaultData.push_back(new float(std::stof(defaultData)));
 						break;
-					case uiNodeSystem::Types::Integer:
+					case NS_TYPE_INT:
 						nodeDataList.back().pinDefaultData.push_back(new int(std::stoi(defaultData)));
 						break;
 					}
@@ -193,45 +108,6 @@ void dataController::initialize()
 	nodeFunctionality::initialize();
 }
 
-// loads the dat file in memory
-void dataController::terminate()
-{
-	searchResults.clear();
-}
-
-void* dataController::getDataFor(int searchResultIndex)
-{
-	for (nodeData& n : nodeDataList)
-	{
-		if (&(n.nodeName) == searchResults[searchResultIndex])
-		{
-			return &n;
-		}
-	}
-	return nullptr;
-}
-
-inline char tolower(char in) {
-	if (in <= 'Z' && in >= 'A')
-		return in - ('Z' - 'z');
-	return in;
-}
-
-inline bool searchFunction(const char* searchBuffer, int bufferSize, std::string& nodeName)
-{
-	//std::cout << "Comparing with " << nodeName << std::endl;
-	for (int i = 0; searchBuffer[i] != '\0'; i++)
-	{
-		if (i == nodeName.length())
-			break;
-		if (tolower(nodeName[i]) != tolower(searchBuffer[i])) {
-			//std::cout << tolower(nodeName[i]) << " | " << tolower(searchBuffer[i]) << std::endl;
-			return false;
-		}
-	}
-	return true;
-}
-
 int dataController::search(const char* searchBuffer, int bufferSize, int maxResults)
 {
 	//std::cout << "searching\n";
@@ -247,4 +123,67 @@ int dataController::search(const char* searchBuffer, int bufferSize, int maxResu
 		}
 	}
 	return searchResults.size();
+}
+
+char* dataController::getFileNameFromPath(char* string)
+{
+	int i = 0;
+	for (; string[i] != '\0'; i++);
+	for (; string[i - 1] != '\\' && string[i - 1] != '/'; i--);
+	return &(string[i]);
+}
+
+void* dataController::getDataFor(int searchResultIndex)
+{
+	for (nodeData& n : nodeDataList)
+	{
+		if (&(n.nodeName) == searchResults[searchResultIndex])
+		{
+			return &n;
+		}
+	}
+	return nullptr;
+}
+
+char dataController::tolower(char in) {
+	if (in <= 'Z' && in >= 'A')
+		return in - ('Z' - 'z');
+	return in;
+}
+
+bool dataController::searchFunction(const char* searchBuffer, int bufferSize, std::string& nodeName)
+{
+	//std::cout << "Comparing with " << nodeName << std::endl;
+	for (int i = 0; searchBuffer[i] != '\0'; i++)
+	{
+		if (i == nodeName.length())
+			break;
+		if (tolower(nodeName[i]) != tolower(searchBuffer[i])) {
+			//std::cout << tolower(nodeName[i]) << " | " << tolower(searchBuffer[i]) << std::endl;
+			return false;
+		}
+	}
+	return true;
+}
+
+void dataController::parsePinLine(const std::string& line, std::string& a, std::string& b, std::string& d)
+{
+	int i = 2;
+	for (; line[i] != ':'; i++);
+	a = line.substr(2, i - 2);
+	i += 2;
+	int j = i;
+	for (; j < line.length() && line[j] != '['; j++);
+	b = line.substr(i, j - i);
+	if (j < line.length()) // there is a default value
+	{
+		j++;
+		for (i = j; line[i] != ']'; i++);
+		d = line.substr(j, i - j);
+		//std::cout << "found default" << std::endl;
+	}
+	else
+	{
+		d = "";
+	}
 }

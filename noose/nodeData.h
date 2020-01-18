@@ -1,12 +1,13 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "uiNodeSystem.h"
+//#include "logicalNode.h"
 
 struct nodeData
 {
 	std::string nodeName;
-	std::vector<uiNodeSystem::Types> pinTypes;
+	//std::vector<logicalNode::PinType> pinTypes;
+	std::vector<int> pinTypes;
 	std::vector<std::string> pinNames;
 	std::vector<void*> pinDefaultData;
 
