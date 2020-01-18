@@ -1,11 +1,12 @@
 #pragma once
-#include "../uiNode.h"
+#include "../node_system/logicalNode.h"
 
-namespace go
+class go
 {
-	void updatePropagationMatrix(std::vector<std::vector<uiNode*>>& matrix, uiNode* node);
-	void appendNodeToMatrix(std::vector<std::vector<uiNode*>>& matrix, uiNode* node, int index);
-	void nodePositionInMatrix(const uiNode* n, std::vector<std::vector<uiNode*>>& m, int& index, int& subIndex);
-	void removeNodeFromList(const uiNode* n, std::vector<uiNode*>& list);
-	void matrixPropagation(std::vector<std::vector<uiNode*>>& leftSideMatrix, std::vector<std::vector<uiNode*>>& rightSideMatrix);
+public:
+	static void updatePropagationMatrix(std::vector<std::vector<logicalNode*>>& matrix, logicalNode* node);
+	static void appendNodeToMatrix(std::vector<std::vector<logicalNode*>>& matrix, logicalNode* node, int index);
+	static void nodePositionInMatrix(const logicalNode* n, std::vector<std::vector<logicalNode*>>& m, int& index, int& subIndex);
+	static void removeNodeFromList(const logicalNode* n, std::vector<logicalNode*>& list);
+	static void matrixPropagation(std::vector<std::vector<logicalNode*>>& leftSideMatrix, std::vector<std::vector<logicalNode*>>& rightSideMatrix);
 };

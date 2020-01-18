@@ -1,46 +1,31 @@
-#include "uiViewport.h"
+#include "viewport.h"
+#include <iostream>
+
+sf::RenderTexture* viewport::outputImage;
+float viewport::currentZoom;
+sf::RenderWindow* viewport::renderWindow;
+
+bool viewport::panning = false;
+sf::Vector2f viewport::lastMouseScreenPos;
+sf::Vector2f viewport::currentMouseScreenPos;
+sf::View viewport::theView;
+sf::Vector2f viewport::viewPosition = sf::Vector2f(0.0, 0.0);
+sf::Texture viewport::imageLimitTexture;
+sf::Sprite viewport::imageLimitSprite;
+sf::Shader viewport::checkerShader;
+sf::Shader viewport::invertShader;
 
 
-namespace uiViewport
+void viewport::updateView(float width, float height)
 {
-	// public
-	sf::RenderTexture* outputImage = nullptr;
-	//float currentZoom = 1.0f;
-	sf::RenderWindow* renderWindow;
+	//viewport::theView = sf::View(viewport::viewPosition, (sf::Vector2f)viewport::renderWindow->getSize());
+	//viewport::theView.zoom(viewport::currentZoom);
 
-	// private
-
-	bool panning = false;
-
-	sf::Vector2f lastMouseScreenPos;
-	sf::Vector2f currentMouseScreenPos;
-
-	sf::View theView; // view with pan and zoom transformations
-	sf::Vector2f viewPosition = sf::Vector2f(0.0, 0.0);
-
-	sf::Texture imageLimitTexture;
-	sf::Sprite imageLimitSprite;
-
-	// checker background
-	sf::Shader checkerShader;
-
-	// dark mode
-	sf::Shader invertShader;
-
-	// TODO: ZOOM
-	//int zoomInt = 10;
+	sf::FloatRect visibleArea(viewport::viewPosition.x, viewport::viewPosition.y, width, height);
+	viewport::theView = sf::View(visibleArea);
 }
 
-inline void updateView(float width, float height)
-{
-	//uiViewport::theView = sf::View(uiViewport::viewPosition, (sf::Vector2f)uiViewport::renderWindow->getSize());
-	//uiViewport::theView.zoom(uiViewport::currentZoom);
-
-	sf::FloatRect visibleArea(uiViewport::viewPosition.x, uiViewport::viewPosition.y, width, height);
-	uiViewport::theView = sf::View(visibleArea);
-}
-
-void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
+void viewport::initialize(sf::RenderWindow& theRenderWindow)
 {
 	renderWindow = &theRenderWindow;
 	updateView(renderWindow->getSize().x, renderWindow->getSize().y);
@@ -49,14 +34,16 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
 	imageLimitSprite = sf::Sprite(imageLimitTexture);
 
 	// checker background
+	std::cout << "loading alpha background shader\n";
 	checkerShader.loadFromFile("res/shaders/checker.shader", sf::Shader::Fragment);
 
 	// dark mode
+	std::cout << "loading dark mode shader\n";
 	invertShader.loadFromFile("res/shaders/invert.shader", sf::Shader::Fragment);
 }
 
 
-void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
+void viewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 {
 	switch (e.type)
 	{
@@ -96,7 +83,7 @@ void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 	}
 }
 
-void uiViewport::draw()
+void viewport::draw()
 {
 	const sf::Vector2u& windowSize = renderWindow->getSize();
 	sf::View staticView(sf::Vector2f(windowSize.x / 2.0, windowSize.y / 2.0),

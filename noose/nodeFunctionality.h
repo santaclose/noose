@@ -1,28 +1,28 @@
 #pragma once
-#include "uiNode.h"
+#include "node_system/logicalNode.h"
 
 namespace nodeFunctionality
 {
 	void initialize();
-	void Blend(uiNode* theNode);
-	void BrightnessContrast(uiNode* theNode);
-	void Checker(uiNode* theNode);
-	void Combine(uiNode* theNode);
-	void ConstructColor(uiNode* theNode);
-	void ConstructVector2i(uiNode* theNode);
-	void Crop(uiNode* theNode);
-	void Flip(uiNode* theNode);
-	void Float(uiNode* theNode);
-	void Grayscale(uiNode* theNode);
-	void Image(uiNode* theNode);
-	void Integer(uiNode* theNode);
-	void Invert(uiNode* theNode);
-	void LinearGradient(uiNode* theNode);
-	void Mask(uiNode* theNode);
-	void Repeat(uiNode* theNode);
-	void Rotate90(uiNode* theNode);
-	void SelectByColor(uiNode* theNode);
-	void Separate(uiNode* theNode);
-	void Solid(uiNode* theNode);
+	void Blend(logicalNode* theNode);
+	void BrightnessContrast(logicalNode* theNode);
+	void Checker(logicalNode* theNode);
+	void Combine(logicalNode* theNode);
+	void ConstructColor(logicalNode* theNode);
+	void ConstructVector2i(logicalNode* theNode);
+	void Crop(logicalNode* theNode);
+	void Flip(logicalNode* theNode);
+	void Float(logicalNode* theNode);
+	void Grayscale(logicalNode* theNode);
+	void Image(logicalNode* theNode);
+	void Integer(logicalNode* theNode);
+	void Invert(logicalNode* theNode);
+	void LinearGradient(logicalNode* theNode);
+	void Mask(logicalNode* theNode);
+	void Repeat(logicalNode* theNode);
+	void Rotate90(logicalNode* theNode);
+	void SelectByColor(logicalNode* theNode);
+	void Separate(logicalNode* theNode);
+	void Solid(logicalNode* theNode);
 };
 
