@@ -2,7 +2,8 @@
 
 node based image editor. 
 
-![alt text](https://raw.githubusercontent.com/santaclose/noose/master/demo/Capture.PNG)
+![alt 
+text](https://raw.githubusercontent.com/santaclose/noose/master/demo/demo.png)
 
 ### Dependencies:
 
