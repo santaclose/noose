@@ -77,11 +77,11 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\vendor\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SFML_STATIC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SFML_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\vendor\SFML-2.5.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;freetype.lib;winmm.lib;gdi32.lib;sfml-window-s.lib;sfml-system-s.lib;sfml-graphics-s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;freetype.lib;winmm.lib;gdi32.lib;sfml-window-s-d.lib;sfml-system-s-d.lib;sfml-graphics-s-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -101,7 +101,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\vendor\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SFML_STATIC;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SFML_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -127,6 +127,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="dataController.cpp" />
+    <ClCompile Include="nodeSystem.cpp" />
     <ClCompile Include="node_system\logicalConnection.cpp" />
     <ClCompile Include="node_system\logicalConnections.cpp" />
     <ClCompile Include="node_system\logicalNode.cpp" />
@@ -138,7 +139,7 @@
     <ClCompile Include="interface\uiInputField.cpp" />
     <ClCompile Include="math\uiMath.cpp" />
     <ClCompile Include="node_system\uiNode.cpp" />
-    <ClCompile Include="nodeSystem.cpp" />
+    <ClCompile Include="uiNodeSystem.cpp" />
     <ClCompile Include="interface\uiData.cpp" />
     <ClCompile Include="searchBar.cpp" />
     <ClCompile Include="viewport.cpp" />
@@ -147,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dataController.h" />
+    <ClInclude Include="nodeSystem.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="node_system\logicalConnection.h" />
     <ClInclude Include="node_system\logicalConnections.h" />
@@ -161,7 +163,7 @@
     <ClInclude Include="interface\uiInputField.h" />
     <ClInclude Include="math\uiMath.h" />
     <ClInclude Include="node_system\uiNode.h" />
-    <ClInclude Include="nodeSystem.h" />
+    <ClInclude Include="uiNodeSystem.h" />
     <ClInclude Include="interface\uiData.h" />
     <ClInclude Include="searchBar.h" />
     <ClInclude Include="viewport.h" />

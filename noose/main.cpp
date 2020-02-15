@@ -1,28 +1,28 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
-#include "nodeSystem.h"
+#include "uiNodeSystem.h"
 #include "searchBar.h"
 #include "viewport.h"
 #include "dataController.h"
-
-#include "node_system/logicalNode.h"
 
 #include "interface/uiColorPicker.h"
 #include "interface/uiData.h"
 
 static const sf::Color BACKGROUND_COLOR(0x181818ff);
 
-void onNodeSelected(logicalNode& theNode)
+void onNodeSelected(int theNode)
 {
-	viewport::outputImage = theNode.getFirstOutputImage();
-	std::cout << "viewing image " << viewport::outputImage << std::endl;
+	std::cout << "node " << theNode << " selected\n";
+	/*viewport::outputImage = theNode.getFirstOutputImage();
+	std::cout << "viewing image " << viewport::outputImage << std::endl;*/
 }
 
-void onNodeDeleted(logicalNode& theNode)
+void onNodeDeleted(int theNode)
 {
-	if (theNode.getFirstOutputImage() == viewport::outputImage)
-		viewport::outputImage = nullptr;
+	std::cout << "node " << theNode << " deleted\n";
+	/*if (theNode.getFirstOutputImage() == viewport::outputImage)
+		viewport::outputImage = nullptr;*/
 }
 
 int main()
@@ -39,13 +39,13 @@ int main()
 	uiData::load();
 	uiColorPicker::initialize();
 
-	nodeSystem::initialize(windowA);
+	uiNodeSystem::initialize(windowA);
 	searchBar::initialize(windowA);
 	viewport::initialize(windowB);
 
 	// node system callbacks
-	nodeSystem::setOnNodeSelectedCallback(onNodeSelected);
-	nodeSystem::setOnNodeDeletedCallback(onNodeDeleted);
+	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
+	uiNodeSystem::setOnNodeDeletedCallback(onNodeDeleted);
 	
 	// Start the game loop
 	while (windowA.isOpen() || windowB.isOpen())
@@ -77,7 +77,7 @@ int main()
 					}
 				}
 			}
-			nodeSystem::onPollEvent(eventWindowA, mousePos);
+			uiNodeSystem::onPollEvent(eventWindowA, mousePos);
 			searchBar::onPollEvent(eventWindowA, mousePos);
 		}
 		while (windowB.pollEvent(eventWindowB))
@@ -98,7 +98,7 @@ int main()
 		windowA.clear(BACKGROUND_COLOR);
 		windowB.clear(BACKGROUND_COLOR);
 
-		nodeSystem::draw();
+		uiNodeSystem::draw();
 		searchBar::draw();
 
 		viewport::draw();
@@ -110,7 +110,7 @@ int main()
 		uiColorPicker::tick();
 	}
 
-	nodeSystem::terminate();
+	uiNodeSystem::terminate();
 	uiColorPicker::terminate();
 
 	return EXIT_SUCCESS;

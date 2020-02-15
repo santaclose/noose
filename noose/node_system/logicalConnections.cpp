@@ -1,7 +1,7 @@
 #include "logicalConnections.h"
 
 std::vector<logicalConnection> logicalConnections::connections;
-
+/*
 int logicalConnections::tryToConnect(logicalNode* nodeA, int& pinA, logicalNode* nodeB, int& pinB, int& nodeIndexA, int& nodeIndexB)
 {
 	// some checks
@@ -55,16 +55,51 @@ int logicalConnections::tryToConnect(logicalNode* nodeA, int& pinA, logicalNode*
 	}
 
 	return newLineIndex;
-}
+}*/
 
-int logicalConnections::getNodeA(int lineIndex)
+int logicalConnections::connect(logicalNode* nA, int& pinA, logicalNode* nB, int& pinB, int& nIndexA, int& nIndexB)
 {
-	return connections[lineIndex].nodeIndexA;
-}
+	int newLineIndex = 0;
+	for (const logicalConnection& c : connections)
+	{
+		if (c.deleted)
+			break;
+		newLineIndex++;
+	}
+	//    insert in list
+	bool flipped = pinA < nA->getInputPinCount(); // pin a is an input pin, need to flip
+	if (newLineIndex < connections.size())
+	{
+		connections[newLineIndex].deleted = false;
+		connections[newLineIndex].nodeA = flipped ? nB : nA;
+		connections[newLineIndex].pinA = flipped ? pinB : pinA;
+		connections[newLineIndex].nodeB = flipped ? nA : nB;
+		connections[newLineIndex].pinB = flipped ? pinA : pinB;
+		connections[newLineIndex].nodeIndexA = flipped ? nIndexB : nIndexA;
+		connections[newLineIndex].nodeIndexB = flipped ? nIndexA : nIndexB;
+	}
+	else
+	{
+		connections.emplace_back(
+			flipped ? nB : nA,
+			flipped ? pinB : pinA,
+			flipped ? nA : nB,
+			flipped ? pinA : pinB,
+			flipped ? nIndexB : nIndexA,
+			flipped ? nIndexA : nIndexB);
+	}
+	if (flipped)
+	{
+		// return arguments flipped
+		int temp = nIndexB;
+		nIndexB = nIndexA;
+		nIndexA = temp;
+		temp = pinB;
+		pinB = pinA;
+		pinA = temp;
+	}
 
-int logicalConnections::getNodeB(int lineIndex)
-{
-	return connections[lineIndex].nodeIndexB;
+	return newLineIndex;
 }
 
 void logicalConnections::deleteConnection(int lineIndex)

@@ -1,23 +1,17 @@
 #pragma once
-
-#include <SFML/Graphics.hpp>
-
 namespace nodeSystem
 {
-	extern float currentZoom;
-	extern sf::RenderWindow* renderWindow;
+	void initialize();
 
-	void initialize(sf::RenderWindow& theRenderWindow);
-	void terminate();
+	void onNodeCreated(int n, const void* data);
+	void onNodeDeleted(int n);
+	void onNodeChanged(int n);
 
-	void pushNewNode(const void* nodeData, sf::Vector2i& initialScreenPosition);
-	void onPollEvent(const sf::Event& e, sf::Vector2i& mousePos);
-	void draw();
+	// nA is always the node that has the output pin
+	void onNodesConnected(int nA, int nB, int pA, int pB, int c);
+	void onNodesDisconnected(int nA, int nB, int pA, int pB, int c);
 
-	void setOnNodeSelectedCallback(void* functionPointer);
-	void setOnNodeDeletedCallback(void* functionPointer); // called just before deleting the node
+	bool isConnectionValid(int nA, int nB, int pinA, int pinB);
 
-	void deselectNode();
-
-	void recalculatePropagationMatrices();
-}
+	void** getDataPointersForNode(int n);
+};

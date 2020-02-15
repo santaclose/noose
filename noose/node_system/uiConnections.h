@@ -1,35 +1,54 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-class uiConnections
+struct uiLineInfo
 {
-private:
+	sf::Vector2f posA;
+	sf::Vector2f posB;
+	int nodeA;
+	int nodeB;
+	int pinA;
+	int pinB;
+	bool hidden = false;
+};
+
+namespace uiConnections
+{
+/*private:
 	static std::vector<sf::Vertex> lineQuads;
-	static std::vector<sf::Vector2f> linePoints;
+	static std::vector<uiLineInfo> linesInfo;
 	static sf::Shader shader;
 
 	static bool startedOnInputPinb;
 
+	static sf::CircleShape debugCircleB;
+	static sf::CircleShape debugCircleG;
+
 private:
+	static void printArray();
 	static void updateLineQuads(int lineIndex);
-	static void set(sf::Vector2f& pinPosA, const sf::Vector2f& pinPosB, const sf::Color& color, int index);
-	static void set(sf::Vector2f&& pinPosA, const sf::Vector2f& pinPosB, const sf::Color& color, int index);
+	static void set(const sf::Vector2f& pinPosA, const sf::Vector2f& pinPosB, const sf::Color& color, int index, int nodeA, int nodeB, int pinA, int pinB);
+	//static void set(sf::Vector2f pinPosA, sf::Vector2f pinPosB, const sf::Color& color, int index, int nodeA, int nodeB, int pinA, int pinB);
+	static int findSlot();
 
-public:
-	static void initialize();
+public:*/
+	void initialize();
 
-	static void createTemporary(sf::Vector2f&& pinPos, const sf::Vector2f& mousePos, const sf::Color& color, bool startedOnInputPin);
+	void createTemporary(const sf::Vector2f& pinPos, const sf::Vector2f& mousePos, const sf::Color& color, bool startedOnInputPin, int node, int pin);
 
-	static void displacePoint(const sf::Vector2f& displacement, int connectionIndex, bool isOutputPin);
-	static void displaceTemporary(sf::Vector2f&& displacement);
+	void displacePoint(const sf::Vector2f& displacement, int connectionIndex, bool isOutputPin);
+	void displaceTemporary(const sf::Vector2f& displacement);
 
-	static void connect(sf::Vector2f&& pinPosB, int index);
+	int connect(const sf::Vector2f& pinPos, int node, int pin);
 
-	static void hide(int index);
-	static void hideTemporary();
+	void hide(int index);
+	void hideTemporary();
 
-	static void updateShaderUniform(float zoom);
-	static void draw(sf::RenderWindow& window);
+	void updateShaderUniform(float zoom);
+	void draw(sf::RenderWindow& window);
 
-	static int onTryingToRemove(const sf::Vector2f& mousePos);
+	void getNodesForLine(int line, int& nodeA, int& nodeB);
+	void getPinsForLine(int line, int& pinA, int& pinB);
+
+	int onTryingToRemove(const sf::Vector2f& mousePos);
 };

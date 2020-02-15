@@ -1,36 +1,37 @@
 #include "../math/graphOperations.h"
 #include "../nodeData.h"
+#include "../types.h"
 
 #include "logicalNode.h"
 #include "logicalConnections.h"
 
 #include <iostream>
 
-void* reserveDataForPin(logicalNode::PinType type, void* defaultValue)
+void* reserveDataForPin(int type, void* defaultValue)
 {
 	switch (type)
 	{
-	case logicalNode::PinType::Integer:
+	case NS_TYPE_INT:
 		if (defaultValue == nullptr)
 			return new int(0);
 		else
 			return new int(*((int*)defaultValue));
-	case logicalNode::PinType::Float:
+	case NS_TYPE_FLOAT:
 		if (defaultValue == nullptr)
 			return new float(0.0f);
 		else
 			return new float(*((float*)defaultValue));
-	case logicalNode::PinType::Vector2i:
+	case NS_TYPE_VECTOR2I:
 		if (defaultValue == nullptr)
 			return new sf::Vector2i(0, 0);
 		else
 			return new sf::Vector2i(*((sf::Vector2i*)defaultValue));
-	case logicalNode::PinType::Color:
+	case NS_TYPE_COLOR:
 		if (defaultValue == nullptr)
 			return new sf::Color(255, 0, 255, 255);
 		else
 			return new sf::Color(*((sf::Color*)defaultValue));
-	case logicalNode::PinType::Image:
+	case NS_TYPE_IMAGE:
 		if (defaultValue == nullptr)
 			return new sf::RenderTexture();
 	}
@@ -47,8 +48,8 @@ logicalNode::logicalNode(const void* theNodeData)
 	m_outputPinCount = data->outputPinCount;
 
 	// get a copy of the types
-	m_pinTypes = new PinType[m_inputPinCount + m_outputPinCount];
-	memcpy(m_pinTypes, &(data->pinTypes[0]), sizeof(PinType) * (m_inputPinCount + m_outputPinCount));
+	m_pinTypes = new int[m_inputPinCount + m_outputPinCount];
+	memcpy(m_pinTypes, &(data->pinTypes[0]), sizeof(int) * (m_inputPinCount + m_outputPinCount));
 
 	m_pinDataPointers.reserve(m_inputPinCount + m_outputPinCount); // so it doesn't have to reallocate at each iteration
 
@@ -76,12 +77,12 @@ logicalNode::~logicalNode()
 	
 	delete[] m_pinTypes;
 }
-
+/*
 bool logicalNode::canConnectToPin(int pin)
 {
 	// cannot connect if its an input pin and is already connected
 	return (pin >= m_inputPinCount || m_receivedDataPointers[pin] == nullptr);
-}
+}*/
 
 void logicalNode::connect(int lineIndex)
 {
@@ -166,7 +167,7 @@ void logicalNode::rebuildMatrices(int lineIndex)
 	}
 }
 
-logicalNode::PinType logicalNode::getPinType(int pinIndex)
+int logicalNode::getPinType(int pinIndex)
 {
 	return m_pinTypes[pinIndex];
 }
@@ -209,7 +210,7 @@ sf::RenderTexture* logicalNode::getFirstOutputImage()
 {
 	for (int i = m_inputPinCount; i < m_inputPinCount + m_outputPinCount; i++)
 	{
-		if (m_pinTypes[i] == PinType::Image)
+		if (m_pinTypes[i] == NS_TYPE_IMAGE)
 			return (sf::RenderTexture*)getDataPointer(i, false);
 	}
 	return nullptr;

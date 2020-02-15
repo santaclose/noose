@@ -1,6 +1,6 @@
 #include "searchBar.h"
 
-#include "nodeSystem.h"
+#include "uiNodeSystem.h"
 #include "dataController.h"
 
 #include "interface/uiData.h"
@@ -96,7 +96,7 @@ void searchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mouse
 						std::cout << "could not get data\n";
 						return;
 					}
-					nodeSystem::pushNewNode(nodeData, mousePos);
+					uiNodeSystem::pushNewNode(nodeData, mousePos);
 
 					clearSearch();
 				}
@@ -106,7 +106,7 @@ void searchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mouse
 		{
 			if (e.key.code == sf::Keyboard::Space)
 			{
-				nodeSystem::deselectNode();
+				uiNodeSystem::deselectNode();
 				searching = true;
 				performSearch();
 			}

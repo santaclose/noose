@@ -46,10 +46,13 @@ public:
 	void attachConnectionPoint(int lineIndex, int pin);
 	void setLineIndexAsDisconnected(int lineIndex);
 
+	bool canConnectToPin(int pin);
+
 	void bindInputField(int index, int subIndex);
 
 	sf::Vector2f getPinPosition(int index);
 	const sf::Color& getPinColor(int index);
+	int getInputPinCount();
 
 	// needed to disconnect before deleting the node 
 	int* getConnectedLinesInfo(int& count);

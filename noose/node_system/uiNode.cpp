@@ -1,5 +1,5 @@
 #include "uiNode.h"
-//#include "uiNodeSystem.h"
+
 #include "../math/uiMath.h"
 #include "../interface/uiData.h"
 #include "uiConnections.h"
@@ -68,14 +68,14 @@ uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition, void** in
  	m_inputPinCount = data->inputPinCount;
 	m_outputPinCount = data->outputPinCount;
 
-	std::cout << "creating node " << data->nodeName << std::endl;
+	//std::cout << "creating node " << data->nodeName << std::endl;
 
 	m_contentHeight = (PROPERTY_HEIGHT + INPUT_FIELD_HEIGHT) * m_inputPinCount
 				     +(PROPERTY_HEIGHT) * m_outputPinCount;
 
 	int vertexCount = 8         // top bar and content rect
 		+ 4 * m_inputPinCount   // pins
-		+ 4 * m_outputPinCount; // just pins
+		+ 4 * m_outputPinCount;
 
 	m_shapes.resize(vertexCount); // push vertices
 
@@ -93,8 +93,10 @@ uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition, void** in
 	{
 		// assign color to pin vertices
 		setPinColor(&m_shapes[8 + i * 4], data->pinTypes[i]);
+
 		// create pin texts
 		m_pinNameTexts[i] = sf::Text(data->pinNames[i], uiData::font, PIN_TEXT_FONT_SIZE);
+
 		// create input fields
 		if (i < m_inputPinCount)
 			m_inputFields[i].create(data->pinTypes[i], inputFieldPointers[i], onValueChangedFunc);
@@ -110,7 +112,7 @@ uiNode::~uiNode()
 	
 	m_connectedLines.clear();
 	m_shapes.clear();
-	std::cout << "node deleted\n";
+	//std::cout << "node deleted\n";
 }
 
 void uiNode::setPosition(sf::Vector2f& newPosition)
@@ -176,6 +178,7 @@ void uiNode::draw(sf::RenderWindow& window)
 	}
 }
 
+// check if mouse is over some part of the node
 uiNode::MousePos uiNode::mouseOver(const sf::Vector2f& mousePos, int& index, int& subIndex)
 {
 	sf::Vector2f p = m_shapes[3].position; // top left corner position
@@ -266,6 +269,7 @@ void uiNode::attachConnectionPoint(int lineIndex, int pin)
 {
 	// attach line
 	m_connectedLines.emplace_back();
+	std::cout << "attaching line index " << lineIndex << std::endl;
 	m_connectedLines.back().lineIndex = lineIndex;
 	m_connectedLines.back().pin = pin;
 
@@ -290,6 +294,22 @@ void uiNode::setLineIndexAsDisconnected(int lineIndex)
 	}
 }
 
+bool uiNode::canConnectToPin(int pin)
+{
+	bool isConnected = false;
+	for (lineInfo& li : m_connectedLines)
+	{
+		if (li.pin == pin)
+		{
+			isConnected = true;
+			break;
+		}
+	}
+
+	// cannot connect if its an input pin and is already connected
+	return (pin >= m_inputPinCount || !isConnected);
+}
+
 void uiNode::bindInputField(int index, int subIndex)
 {
 	m_inputFields[index].bind(subIndex);
@@ -297,6 +317,8 @@ void uiNode::bindInputField(int index, int subIndex)
 
 sf::Vector2f uiNode::getPinPosition(int index)
 {
+	//std::cout << "getting position of pin " << index << std::endl;
+
 	sf::Vector2f p = m_shapes[0].position; // bottom left corner position of topbar
 
 	if (index < m_inputPinCount)
@@ -317,6 +339,11 @@ const sf::Color& uiNode::getPinColor(int index)
 	return m_shapes[8 + index * 4].color;
 }
 
+int uiNode::getInputPinCount()
+{
+	return m_inputPinCount;
+}
+
 int* uiNode::getConnectedLinesInfo(int& count)
 {
 	count = m_connectedLines.size();
@@ -324,9 +351,4 @@ int* uiNode::getConnectedLinesInfo(int& count)
 	for (int i = 0; i < m_connectedLines.size(); i++)
 		res[i] = m_connectedLines[i].lineIndex;
 	return res;
-
-	/*std::cout << "sizeeeee: " << m_connectedLines.size();
-	std::cout << std::endl;
-	count = m_connectedLines.size();
-	return &(m_connectedLines[0].lineIndex);*/
 }
