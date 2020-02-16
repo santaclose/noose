@@ -29,7 +29,7 @@ void updateLineQuads(int lineIndex)
 
 // weird bug when passing const reference
 //void set(const sf::Vector2f& pinPosA, const sf::Vector2f& pinPosB, const sf::Color& color, int index, int nodeA, int nodeB, int pinA, int pinB)
-void set(sf::Vector2f pinPosA, sf::Vector2f pinPosB, const sf::Color& color, int index, int nodeA, int nodeB, int pinA, int pinB)
+void set(sf::Vector2f pinPosA, sf::Vector2f pinPosB, sf::Color color, int index, int nodeA, int nodeB, int pinA, int pinB)
 {
 	/*if (index > linesInfo.size())
 		std::cout << "NOT POSSIBLE\n";*/

@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "uiNodeSystem.h"
+#include "nodeSystem.h"
 #include "searchBar.h"
 #include "viewport.h"
 #include "dataController.h"
@@ -14,15 +15,15 @@ static const sf::Color BACKGROUND_COLOR(0x181818ff);
 void onNodeSelected(int theNode)
 {
 	std::cout << "node " << theNode << " selected\n";
-	/*viewport::outputImage = theNode.getFirstOutputImage();
-	std::cout << "viewing image " << viewport::outputImage << std::endl;*/
+	viewport::outputImage = nodeSystem::getFirstOutputImageForNode(theNode); //theNode.getFirstOutputImage();
+	std::cout << "viewing image " << viewport::outputImage << std::endl;
 }
 
 void onNodeDeleted(int theNode)
 {
 	std::cout << "node " << theNode << " deleted\n";
-	/*if (theNode.getFirstOutputImage() == viewport::outputImage)
-		viewport::outputImage = nullptr;*/
+	if (nodeSystem::getFirstOutputImageForNode(theNode) == viewport::outputImage)
+		viewport::outputImage = nullptr;
 }
 
 int main()

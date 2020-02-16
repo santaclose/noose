@@ -30,45 +30,45 @@ private:
 	static inline void* getFunctionalityFromIndex(int index)
 	{
 		if (index == 0)
-			return nodeFunctionality::Blend;
+			return (void*) nodeFunctionality::Blend;
 		if (index == 1)
-			return nodeFunctionality::BrightnessContrast;
+			return (void*) nodeFunctionality::BrightnessContrast;
 		if (index == 2)
-			return nodeFunctionality::Checker;
+			return (void*) nodeFunctionality::Checker;
 		if (index == 3)
-			return nodeFunctionality::Combine;
+			return (void*) nodeFunctionality::Combine;
 		if (index == 4)
-			return nodeFunctionality::ConstructColor;
+			return (void*) nodeFunctionality::ConstructColor;
 		if (index == 5)
-			return nodeFunctionality::ConstructVector2i;
+			return (void*) nodeFunctionality::ConstructVector2i;
 		if (index == 6)
-			return nodeFunctionality::Crop;
+			return (void*) nodeFunctionality::Crop;
 		if (index == 7)
-			return nodeFunctionality::Flip;
+			return (void*) nodeFunctionality::Flip;
 		if (index == 8)
-			return nodeFunctionality::Float;
+			return (void*) nodeFunctionality::Float;
 		if (index == 9)
-			return nodeFunctionality::Grayscale;
+			return (void*) nodeFunctionality::Grayscale;
 		if (index == 10)
-			return nodeFunctionality::Image;
+			return (void*) nodeFunctionality::Image;
 		if (index == 11)
-			return nodeFunctionality::Integer;
+			return (void*) nodeFunctionality::Integer;
 		if (index == 12)
-			return nodeFunctionality::Invert;
+			return (void*) nodeFunctionality::Invert;
 		if (index == 13)
-			return nodeFunctionality::LinearGradient;
+			return (void*) nodeFunctionality::LinearGradient;
 		if (index == 14)
-			return nodeFunctionality::Mask;
+			return (void*) nodeFunctionality::Mask;
 		if (index == 15)
-			return nodeFunctionality::Repeat;
+			return (void*) nodeFunctionality::Repeat;
 		if (index == 16)
-			return nodeFunctionality::Rotate90;
+			return (void*) nodeFunctionality::Rotate90;
 		if (index == 17)
-			return nodeFunctionality::SelectByColor;
+			return (void*) nodeFunctionality::SelectByColor;
 		if (index == 18)
-			return nodeFunctionality::Separate;
+			return (void*) nodeFunctionality::Separate;
 		if (index == 19)
-			return nodeFunctionality::Solid;
+			return (void*) nodeFunctionality::Solid;
 	}
 
 	static inline int typeFromString(const std::string& s)

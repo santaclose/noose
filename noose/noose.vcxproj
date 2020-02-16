@@ -125,10 +125,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="interface\uiFileSelectorNFD.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="dataController.cpp" />
     <ClCompile Include="nodeSystem.cpp" />
-    <ClCompile Include="node_system\logicalConnection.cpp" />
     <ClCompile Include="node_system\logicalConnections.cpp" />
     <ClCompile Include="node_system\logicalNode.cpp" />
     <ClCompile Include="math\graphOperations.cpp" />
@@ -148,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dataController.h" />
+    <ClInclude Include="interface\uiFileSelector.h" />
     <ClInclude Include="nodeSystem.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="node_system\logicalConnection.h" />

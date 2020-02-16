@@ -6,6 +6,7 @@
 #include "logicalConnections.h"
 
 #include <iostream>
+#include <cstring>
 
 void* reserveDataForPin(int type, void* defaultValue)
 {
@@ -49,7 +50,7 @@ logicalNode::logicalNode(const void* theNodeData)
 
 	// get a copy of the types
 	m_pinTypes = new int[m_inputPinCount + m_outputPinCount];
-	memcpy(m_pinTypes, &(data->pinTypes[0]), sizeof(int) * (m_inputPinCount + m_outputPinCount));
+	std::memcpy(m_pinTypes, &(data->pinTypes[0]), sizeof(int) * (m_inputPinCount + m_outputPinCount));
 
 	m_pinDataPointers.reserve(m_inputPinCount + m_outputPinCount); // so it doesn't have to reallocate at each iteration
 

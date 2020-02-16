@@ -1,5 +1,6 @@
 #include "uiMath.h"
 #include <cmath>
+#include "vectorOperators.h"
 
 const float uiMath::DEG2RAD = 0.0174532925;
 

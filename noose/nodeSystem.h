@@ -1,4 +1,6 @@
 #pragma once
+#include <SFML/Graphics.hpp>
+
 namespace nodeSystem
 {
 	void initialize();
@@ -14,4 +16,5 @@ namespace nodeSystem
 	bool isConnectionValid(int nA, int nB, int pinA, int pinB);
 
 	void** getDataPointersForNode(int n);
+	sf::RenderTexture* getFirstOutputImageForNode(int n);
 };

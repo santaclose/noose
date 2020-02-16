@@ -1,6 +1,7 @@
 #include "logicalConnections.h"
 
 std::vector<logicalConnection> logicalConnections::connections;
+
 /*
 int logicalConnections::tryToConnect(logicalNode* nodeA, int& pinA, logicalNode* nodeB, int& pinB, int& nodeIndexA, int& nodeIndexB)
 {
@@ -57,7 +58,7 @@ int logicalConnections::tryToConnect(logicalNode* nodeA, int& pinA, logicalNode*
 	return newLineIndex;
 }*/
 
-int logicalConnections::connect(logicalNode* nA, int& pinA, logicalNode* nB, int& pinB, int& nIndexA, int& nIndexB)
+/*int logicalConnections::connect(logicalNode* nA, int& pinA, logicalNode* nB, int& pinB, int& nIndexA, int& nIndexB)
 {
 	int newLineIndex = 0;
 	for (const logicalConnection& c : connections)
@@ -100,6 +101,19 @@ int logicalConnections::connect(logicalNode* nA, int& pinA, logicalNode* nB, int
 	}
 
 	return newLineIndex;
+}*/
+
+void logicalConnections::connect(int connectionIndex, const std::vector<logicalNode*>& nodeList, int nodeA, int nodeB, int pinA, int pinB)
+{
+	if (connectionIndex >= connections.size())
+		connections.resize(connectionIndex + 1);
+	connections[connectionIndex].nodeA = nodeList[nodeA];
+	connections[connectionIndex].nodeB = nodeList[nodeB];
+	connections[connectionIndex].nodeIndexA = nodeA;
+	connections[connectionIndex].nodeIndexB = nodeB;
+	connections[connectionIndex].pinA = pinA;
+	connections[connectionIndex].pinB = pinB;
+	connections[connectionIndex].deleted = false;
 }
 
 void logicalConnections::deleteConnection(int lineIndex)
