@@ -3,9 +3,10 @@
 #include "../types.h"
 
 #include "logicalNode.h"
-#include "logicalConnections.h"
+#include "../connectionSystem.h"
 
 #include <iostream>
+#include <cstring>
 
 void* reserveDataForPin(int type, void* defaultValue)
 {
@@ -49,7 +50,7 @@ logicalNode::logicalNode(const void* theNodeData)
 
 	// get a copy of the types
 	m_pinTypes = new int[m_inputPinCount + m_outputPinCount];
-	memcpy(m_pinTypes, &(data->pinTypes[0]), sizeof(int) * (m_inputPinCount + m_outputPinCount));
+	std::memcpy(m_pinTypes, &(data->pinTypes[0]), sizeof(int) * (m_inputPinCount + m_outputPinCount));
 
 	m_pinDataPointers.reserve(m_inputPinCount + m_outputPinCount); // so it doesn't have to reallocate at each iteration
 
@@ -86,9 +87,9 @@ bool logicalNode::canConnectToPin(int pin)
 
 void logicalNode::connect(int lineIndex)
 {
-	if (logicalConnections::connections[lineIndex].nodeA == (void*)this) // we are the left side node, ours is an output pin
+	if (connectionSystem::connections[lineIndex].nodeA == (void*)this) // we are the left side node, ours is an output pin
 	{
-		go::updatePropagationMatrix(m_propagationMatrix, (logicalNode*)logicalConnections::connections[lineIndex].nodeB);
+		go::updatePropagationMatrix(m_propagationMatrix, (logicalNode*)connectionSystem::connections[lineIndex].nodeB);
 		for (logicalNode* n : m_leftSideNodes)
 			n->propagateMatrix(m_propagationMatrix);
 
@@ -96,9 +97,9 @@ void logicalNode::connect(int lineIndex)
 	}
 	else // we are the right side node
 	{
-		m_receivedDataPointers[logicalConnections::connections[lineIndex].pinB] =
-			((logicalNode*)(logicalConnections::connections[lineIndex].nodeA))->getDataPointer(logicalConnections::connections[lineIndex].pinA, false);
-		m_leftSideNodes.push_back((logicalNode*)(logicalConnections::connections[lineIndex].nodeA));
+		m_receivedDataPointers[connectionSystem::connections[lineIndex].pinB] =
+			((logicalNode*)(connectionSystem::connections[lineIndex].nodeA))->getDataPointer(connectionSystem::connections[lineIndex].pinA, false);
+		m_leftSideNodes.push_back((logicalNode*)(connectionSystem::connections[lineIndex].nodeA));
 
 		std::cout << "asdf\n";
 	}
@@ -106,10 +107,10 @@ void logicalNode::connect(int lineIndex)
 
 void logicalNode::disconnect(int lineIndex)
 {
-	if (logicalConnections::connections[lineIndex].nodeA != (void*)this) // we are the right side node, ours is an input pin
+	if (connectionSystem::connections[lineIndex].nodeA != (void*)this) // we are the right side node, ours is an input pin
 	{
-		m_receivedDataPointers[logicalConnections::connections[lineIndex].pinB] = nullptr;
-		go::removeNodeFromList((logicalNode*)logicalConnections::connections[lineIndex].nodeA, m_leftSideNodes);
+		m_receivedDataPointers[connectionSystem::connections[lineIndex].pinB] = nullptr;
+		go::removeNodeFromList((logicalNode*)connectionSystem::connections[lineIndex].nodeA, m_leftSideNodes);
 	}
 }
 
@@ -159,9 +160,9 @@ void logicalNode::clearPropagationMatrix()
 
 void logicalNode::rebuildMatrices(int lineIndex)
 {
-	if (logicalConnections::connections[lineIndex].nodeA == (void*)this) // we are the left side node, ours is an output pin
+	if (connectionSystem::connections[lineIndex].nodeA == (void*)this) // we are the left side node, ours is an output pin
 	{
-		go::updatePropagationMatrix(m_propagationMatrix, (logicalNode*)logicalConnections::connections[lineIndex].nodeB);
+		go::updatePropagationMatrix(m_propagationMatrix, (logicalNode*)connectionSystem::connections[lineIndex].nodeB);
 		for (logicalNode* n : m_leftSideNodes)
 			n->propagateMatrix(m_propagationMatrix);
 	}

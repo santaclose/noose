@@ -125,11 +125,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="connectionSystem.cpp" />
+    <ClCompile Include="interface\uiFileSelectorNFD.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="dataController.cpp" />
     <ClCompile Include="nodeSystem.cpp" />
-    <ClCompile Include="node_system\logicalConnection.cpp" />
-    <ClCompile Include="node_system\logicalConnections.cpp" />
     <ClCompile Include="node_system\logicalNode.cpp" />
     <ClCompile Include="math\graphOperations.cpp" />
     <ClCompile Include="math\vectorOperators.cpp" />
@@ -147,11 +147,12 @@
     <ClCompile Include="vendor\nfd_common.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="connectionSystem.h" />
     <ClInclude Include="dataController.h" />
+    <ClInclude Include="interface\uiFileSelector.h" />
     <ClInclude Include="nodeSystem.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="node_system\logicalConnection.h" />
-    <ClInclude Include="node_system\logicalConnections.h" />
     <ClInclude Include="node_system\logicalNode.h" />
     <ClInclude Include="math\graphOperations.h" />
     <ClInclude Include="math\vectorOperators.h" />

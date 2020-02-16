@@ -6,7 +6,7 @@
 #include "../dataController.h"
 #include "../types.h"
 
-#include "../vendor/nfd.h"
+#include "uiFileSelector.h"
 #include <iostream>
 
 
@@ -274,21 +274,16 @@ void uiInputField::bind(int index)
 	case NS_TYPE_IMAGE:
 	{
 		editingInputField = this;
-		nfdchar_t* outPath = nullptr;
-		nfdchar_t filter[] = "bmp,png,tga,jpg,gif,psd,hdr,pic";
-		nfdresult_t result = NFD_OpenDialog(filter, NULL, &outPath);
-
-		if (result == NFD_OKAY) {
-			puts("Success!");
-			puts(outPath);
-			texts[0].setString(dataController::getFileNameFromPath(outPath));
-
+		char* outPath = uiFileSelector::SelectFile();
+		if (outPath != nullptr)
+		{
 			sf::Texture tx;
 			if (!tx.loadFromFile(outPath))
 			{
 				std::cout << "Could not open the image" << std::endl;
 				return;
 			}
+			texts[0].setString(dataController::getFileNameFromPath(outPath));
 			dataController::loadImageShader.setUniform("tx", tx);
 
 			sf::Sprite spr(tx);
@@ -298,18 +293,11 @@ void uiInputField::bind(int index)
 			pointer->create(txSize.x, txSize.y);
 			pointer->draw(spr, &dataController::loadImageShader);
 			editingInputField->onValueChanged();
-			updateTextPositions();
+			editingInputField->updateTextPositions();
 
 			free(outPath);
 		}
-		else if (result == NFD_CANCEL)
-		{
-			puts("User pressed cancel.");
-		}
-		else
-		{
-			printf("Error: %s\n", NFD_GetError());
-		}
+
 		editingInputField = nullptr;
 		return;
 	}

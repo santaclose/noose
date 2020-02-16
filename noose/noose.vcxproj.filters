@@ -33,12 +33,6 @@
     <ClCompile Include="math\uiMath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="node_system\logicalConnection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="node_system\logicalConnections.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="node_system\logicalNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,6 +69,12 @@
     <ClCompile Include="nodeSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="interface\uiFileSelectorNFD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="connectionSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\nodes.dat">
@@ -102,9 +102,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="node_system\logicalConnection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="node_system\logicalConnections.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="node_system\logicalNode.h">
@@ -141,6 +138,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="nodeSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\uiFileSelector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="connectionSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

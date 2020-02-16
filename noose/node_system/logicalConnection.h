@@ -15,7 +15,5 @@ struct logicalConnection
 
 	int nodeIndexA;
 	int nodeIndexB;
-
-	logicalConnection(logicalNode* nodeA, int pinA, logicalNode* nodeB, int pinB, int nodeIndexA, int nodeIndexB);
 };
 
