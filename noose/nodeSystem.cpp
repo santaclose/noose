@@ -71,6 +71,7 @@ void nodeSystem::onNodesDisconnected(int nA, int nB, int pA, int pB, int c)
 
 	nodeList[nA]->disconnect(c);
 	nodeList[nB]->disconnect(c);
+
 	connectionSystem::deleteConnection(c);
 
 	recalculatePropagationMatrices();
