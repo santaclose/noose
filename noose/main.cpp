@@ -1,29 +1,28 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
-#include "uiNodeSystem.h"
-#include "nodeSystem.h"
-#include "searchBar.h"
-#include "viewport.h"
-#include "dataController.h"
-
+#include "interface/uiNodeSystem.h"
+#include "interface/uiSearchBar.h"
+#include "interface/uiViewport.h"
 #include "interface/uiColorPicker.h"
 #include "interface/uiData.h"
+#include "logic/nodeSystem.h"
+#include "dataController.h"
 
 static const sf::Color BACKGROUND_COLOR(0x181818ff);
 
 void onNodeSelected(int theNode)
 {
 	std::cout << "node " << theNode << " selected\n";
-	viewport::outputImage = nodeSystem::getFirstOutputImageForNode(theNode); //theNode.getFirstOutputImage();
-	std::cout << "viewing image " << viewport::outputImage << std::endl;
+	uiViewport::outputImage = nodeSystem::getFirstOutputImageForNode(theNode); //theNode.getFirstOutputImage();
+	std::cout << "viewing image " << uiViewport::outputImage << std::endl;
 }
 
 void onNodeDeleted(int theNode)
 {
 	std::cout << "node " << theNode << " deleted\n";
-	if (nodeSystem::getFirstOutputImageForNode(theNode) == viewport::outputImage)
-		viewport::outputImage = nullptr;
+	if (nodeSystem::getFirstOutputImageForNode(theNode) == uiViewport::outputImage)
+		uiViewport::outputImage = nullptr;
 }
 
 int main()
@@ -41,8 +40,8 @@ int main()
 	uiColorPicker::initialize();
 
 	uiNodeSystem::initialize(windowA);
-	searchBar::initialize(windowA);
-	viewport::initialize(windowB);
+	uiSearchBar::initialize(windowA);
+	uiViewport::initialize(windowB);
 
 	// node system callbacks
 	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
@@ -66,20 +65,20 @@ int main()
 				}
 				case sf::Event::KeyPressed:
 				{
-					if (eventWindowA.key.code == sf::Keyboard::S && !searchBar::userIsSearching())
+					if (eventWindowA.key.code == sf::Keyboard::S && !uiSearchBar::userIsSearching())
 					{
-						if (viewport::outputImage == nullptr)
+						if (uiViewport::outputImage == nullptr)
 							std::cout << "no image to save\n";
 						else
 						{
-							if (viewport::outputImage->getTexture().copyToImage().saveToFile("output.png"))
+							if (uiViewport::outputImage->getTexture().copyToImage().saveToFile("output.png"))
 								std::cout << "image saved as output.png\n";
 						}
 					}
 				}
 			}
 			uiNodeSystem::onPollEvent(eventWindowA, mousePos);
-			searchBar::onPollEvent(eventWindowA, mousePos);
+			uiSearchBar::onPollEvent(eventWindowA, mousePos);
 		}
 		while (windowB.pollEvent(eventWindowB))
 		{
@@ -93,16 +92,16 @@ int main()
 					break;
 				}
 			}
-			viewport::onPollEvent(eventWindowB, mousePos);
+			uiViewport::onPollEvent(eventWindowB, mousePos);
 		}
 		// Clear screen
 		windowA.clear(BACKGROUND_COLOR);
 		windowB.clear(BACKGROUND_COLOR);
 
 		uiNodeSystem::draw();
-		searchBar::draw();
+		uiSearchBar::draw();
 
-		viewport::draw();
+		uiViewport::draw();
 
 		// Update the window
 		windowA.display();

@@ -1,9 +1,7 @@
-#include "searchBar.h"
-
+#include "uiSearchBar.h"
 #include "uiNodeSystem.h"
-#include "dataController.h"
-
-#include "interface/uiData.h"
+#include "uiData.h"
+#include "../dataController.h"
 
 #include <iostream>
 
@@ -18,19 +16,19 @@
 #define RESULT_HEIGHT 40
 #define RESULT_FONT_SIZE 14
 
-bool searchBar::searching = false;
-sf::RectangleShape searchBar::searchRectangle;
-sf::Text searchBar::searchText;
-char searchBar::searchBuffer[SEARCH_BAR_BUFFER_SIZE];
-int searchBar::searchBufferCurrentChar = 0;
+bool uiSearchBar::searching = false;
+sf::RectangleShape uiSearchBar::searchRectangle;
+sf::Text uiSearchBar::searchText;
+char uiSearchBar::searchBuffer[SEARCH_BAR_BUFFER_SIZE];
+int uiSearchBar::searchBufferCurrentChar = 0;
 
-sf::RectangleShape searchBar::resultsBar;
-sf::Text searchBar::resultsTexts[MAX_RESULTS_NUMBER];
-int searchBar::currentResultCount = 0;
+sf::RectangleShape uiSearchBar::resultsBar;
+sf::Text uiSearchBar::resultsTexts[MAX_RESULTS_NUMBER];
+int uiSearchBar::currentResultCount = 0;
 
-sf::RenderWindow* searchBar::renderWindow;
+sf::RenderWindow* uiSearchBar::renderWindow;
 
-void searchBar::initialize(sf::RenderWindow& window)
+void uiSearchBar::initialize(sf::RenderWindow& window)
 {
 	searchRectangle = sf::RectangleShape(sf::Vector2f(SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT));
 	searchRectangle.setPosition(window.getSize().x / 2.0 - SEARCH_BAR_WIDTH / 2.0, 0);
@@ -57,7 +55,7 @@ void searchBar::initialize(sf::RenderWindow& window)
 	renderWindow = &window;
 }
 
-void searchBar::performSearch()
+void uiSearchBar::performSearch()
 {
 	currentResultCount = dataController::search(searchBuffer, SEARCH_BAR_BUFFER_SIZE, MAX_RESULTS_NUMBER);
 	resultsBar.setSize(sf::Vector2f(SEARCH_BAR_WIDTH, currentResultCount * RESULT_HEIGHT));
@@ -68,7 +66,7 @@ void searchBar::performSearch()
 	}
 }
 
-void searchBar::clearSearch()
+void uiSearchBar::clearSearch()
 {
 	searching = false;
 	searchBuffer[0] = '\0';
@@ -76,7 +74,7 @@ void searchBar::clearSearch()
 	searchText.setString(searchBuffer);
 }
 
-void searchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mousePos in window coordinates
+void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mousePos in window coordinates
 {
 	if (e.type == sf::Event::KeyPressed)
 	{
@@ -156,7 +154,7 @@ void searchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mouse
 	}
 }
 
-void searchBar::draw()
+void uiSearchBar::draw()
 {
 	if (searching)
 	{
@@ -175,7 +173,7 @@ void searchBar::draw()
 	}
 }
 
-bool searchBar::userIsSearching()
+bool uiSearchBar::userIsSearching()
 {
 	return searching;
 }

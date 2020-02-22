@@ -2,7 +2,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 
-class logicalNode
+class node
 {
 private:
 	// pins
@@ -14,15 +14,15 @@ private:
 	std::vector<void*> m_receivedDataPointers;
 
 	// graph stuff
-	std::vector<std::vector<logicalNode*>> m_propagationMatrix;
-	std::vector<logicalNode*> m_leftSideNodes;
+	std::vector<std::vector<node*>> m_propagationMatrix;
+	std::vector<node*> m_leftSideNodes;
 
 	// function pointer with node functionality
-	void (*m_nodeFunctionalityPointer)(logicalNode* theNode);
+	void (*m_nodeFunctionalityPointer)(node* theNode);
 
 public:
-	logicalNode(const void* nodeData);
-	~logicalNode();
+	node(const void* nodeData);
+	~node();
 
 	//bool canConnectToPin(int pin);
 	
@@ -31,8 +31,8 @@ public:
 
 	void activate(); // executes node functionality and propagates to right hand side nodes
 	void run(); // executes node functionality
-	const std::vector<std::vector<logicalNode*>>& getPropagationMatrix();
-	void propagateMatrix(std::vector<std::vector<logicalNode*>>& m);
+	const std::vector<std::vector<node*>>& getPropagationMatrix();
+	void propagateMatrix(std::vector<std::vector<node*>>& m);
 	void clearPropagationMatrix();
 	void rebuildMatrices(int lineIndex);
 

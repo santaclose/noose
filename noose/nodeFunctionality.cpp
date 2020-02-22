@@ -18,65 +18,44 @@ sf::Shader combineShader;
 sf::Shader cropShader;
 sf::Shader selectByColorShader;
 
-//sf::BlendMode blendMode;
 sf::RenderStates rs;
 
 void nodeFunctionality::initialize()
 {
-	/*blendMode.alphaEquation = sf::BlendMode::Add;
-	blendMode.alphaSrcFactor = sf::BlendMode::One;
-	blendMode.alphaDstFactor = sf::BlendMode::Zero;
-	rs.blendMode = blendMode;*/
 	rs.blendMode = sf::BlendNone;
-
-	std::cout << "loading blend shader\n";
+	
 	if (!blendShader.loadFromFile("res/nodeShaders/blend.shader", sf::Shader::Fragment))
 		std::cout << "could not load blend shader\n";
-	std::cout << "loading brightness and contrast shader\n";
 	if (!brightnessContrastShader.loadFromFile("res/nodeShaders/brightness-contrast.shader", sf::Shader::Fragment))
-		std::cout << "could not load brightness-contrast shader\n";
-	std::cout << "loading checker shader\n";
+		std::cout << "could not load brightness-contrast shader\n";	
 	if (!checkerShader.loadFromFile("res/nodeShaders/checker.shader", sf::Shader::Fragment))
-		std::cout << "could not load checker shader\n";
-	std::cout << "loading flip shader\n";
+		std::cout << "could not load checker shader\n";	
 	if (!flipShader.loadFromFile("res/nodeShaders/flip.shader", sf::Shader::Fragment))
-		std::cout << "could not load flip shader\n";
-	std::cout << "loading invert shader\n";
+		std::cout << "could not load flip shader\n";	
 	if (!invertShader.loadFromFile("res/nodeShaders/invert.shader", sf::Shader::Fragment))
-		std::cout << "could not load invert shader\n";
-	std::cout << "loading linearGradient shader\n";
+		std::cout << "could not load invert shader\n";	
 	if (!linearGradientShader.loadFromFile("res/nodeShaders/linearGradient.shader", sf::Shader::Fragment))
-		std::cout << "could not load linearGradient shader\n";
-	std::cout << "loading repeat shader\n";
+		std::cout << "could not load linearGradient shader\n";	
 	if (!repeatShader.loadFromFile("res/nodeShaders/repeat.shader", sf::Shader::Fragment))
-		std::cout << "could not load repeat shader\n";
-	std::cout << "loading rotate90 shader\n";
+		std::cout << "could not load repeat shader\n";	
 	if (!rotate90Shader.loadFromFile("res/nodeShaders/rotate90.shader", sf::Shader::Fragment))
-		std::cout << "could not load rotate90 shader\n";
-	std::cout << "loading solidShader shader\n";
+		std::cout << "could not load rotate90 shader\n";	
 	if (!solidShader.loadFromFile("res/nodeShaders/solid.shader", sf::Shader::Fragment))
-		std::cout << "could not load solidShader shader\n";
-	std::cout << "loading mix shader\n";
+		std::cout << "could not load solidShader shader\n";	
 	if (!maskShader.loadFromFile("res/nodeShaders/mask.shader", sf::Shader::Fragment))
-		std::cout << "could not load mix shader\n";
-	std::cout << "loading grayscale shader\n";
+		std::cout << "could not load mix shader\n";	
 	if (!grayscaleShader.loadFromFile("res/nodeShaders/grayscale.shader", sf::Shader::Fragment))
-		std::cout << "could not load grayscale shader\n";
-	std::cout << "loading separate shader\n";
+		std::cout << "could not load grayscale shader\n";	
 	if (!separateShader.loadFromFile("res/nodeShaders/separate.shader", sf::Shader::Fragment))
-		std::cout << "could not load separate shader\n";
-	std::cout << "loading combine shader\n";
+		std::cout << "could not load separate shader\n";	
 	if (!combineShader.loadFromFile("res/nodeShaders/combine.shader", sf::Shader::Fragment))
-		std::cout << "could not load combine shader\n";
-	std::cout << "loading crop shader\n";
+		std::cout << "could not load combine shader\n";	
 	if (!cropShader.loadFromFile("res/nodeShaders/crop.shader", sf::Shader::Fragment))
-		std::cout << "could not load crop shader\n";
-	std::cout << "loading selectByColor shader\n";
+		std::cout << "could not load crop shader\n";	
 	if (!selectByColorShader.loadFromFile("res/nodeShaders/selectByColor.shader", sf::Shader::Fragment))
-		std::cout << "could not load selectByColor shader\n";
-}
+		std::cout << "could not load selectByColor shader\n";}
 
-void nodeFunctionality::Blend(logicalNode* theNode)
+void nodeFunctionality::Blend(node* theNode)
 {
 	//std::cout << "executing blend" << std::endl;
 
@@ -98,7 +77,7 @@ void nodeFunctionality::Blend(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::BrightnessContrast(logicalNode* theNode)
+void nodeFunctionality::BrightnessContrast(node* theNode)
 {
 	//std::cout << "executing brightnesscontrast" << std::endl;
 
@@ -121,7 +100,7 @@ void nodeFunctionality::BrightnessContrast(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::Checker(logicalNode* theNode)
+void nodeFunctionality::Checker(node* theNode)
 {
 	//std::cout << "executing checker" << std::endl;
 
@@ -140,7 +119,7 @@ void nodeFunctionality::Checker(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::Combine(logicalNode* theNode)
+void nodeFunctionality::Combine(node* theNode)
 {
 	//std::cout << "executing combine" << std::endl;
 
@@ -164,7 +143,7 @@ void nodeFunctionality::Combine(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::ConstructColor(logicalNode* theNode)
+void nodeFunctionality::ConstructColor(node* theNode)
 {
 	//std::cout << "executing construct color" << std::endl;
 
@@ -175,7 +154,7 @@ void nodeFunctionality::ConstructColor(logicalNode* theNode)
 	outputPointer->a = *((int*)theNode->getDataPointer(3));
 }
 
-void nodeFunctionality::ConstructVector2i(logicalNode* theNode)
+void nodeFunctionality::ConstructVector2i(node* theNode)
 {
 	//std::cout << "executing construct vector" << std::endl;
 
@@ -184,7 +163,7 @@ void nodeFunctionality::ConstructVector2i(logicalNode* theNode)
 	outputPointer->y = *((int*)(theNode->getDataPointer(1)));
 }
 
-void nodeFunctionality::Crop(logicalNode* theNode)
+void nodeFunctionality::Crop(node* theNode)
 {
 	//std::cout << "executing crop" << std::endl;
 	
@@ -212,7 +191,7 @@ void nodeFunctionality::Crop(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::Flip(logicalNode* theNode)
+void nodeFunctionality::Flip(node* theNode)
 {
 	//std::cout << "executing flip" << std::endl;
 	
@@ -233,14 +212,14 @@ void nodeFunctionality::Flip(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::Float(logicalNode* theNode)
+void nodeFunctionality::Float(node* theNode)
 {
 	//std::cout << "executing float" << std::endl;
 
 	*((float*)theNode->getDataPointer(1)) = *((float*)theNode->getDataPointer(0));
 }
 
-void nodeFunctionality::Grayscale(logicalNode* theNode)
+void nodeFunctionality::Grayscale(node* theNode)
 {
 	//std::cout << "executing grayscale" << std::endl;
 
@@ -258,7 +237,7 @@ void nodeFunctionality::Grayscale(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::Image(logicalNode* theNode)
+void nodeFunctionality::Image(node* theNode)
 {
 	//std::cout << "executing image" << std::endl;
 
@@ -278,14 +257,14 @@ void nodeFunctionality::Image(logicalNode* theNode)
 	*outputSize = sf::Vector2i(size.x, size.y);
 }
 
-void nodeFunctionality::Integer(logicalNode* theNode)
+void nodeFunctionality::Integer(node* theNode)
 {
 	//std::cout << "executing integer" << std::endl;
 
 	*((int*)theNode->getDataPointer(1)) = *((int*)theNode->getDataPointer(0));
 }
 
-void nodeFunctionality::Invert(logicalNode* theNode)
+void nodeFunctionality::Invert(node* theNode)
 {
 	//std::cout << "executing invert" << std::endl;
 
@@ -302,7 +281,7 @@ void nodeFunctionality::Invert(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::LinearGradient(logicalNode* theNode)
+void nodeFunctionality::LinearGradient(node* theNode)
 {
 	//std::cout << "executing linear gradient" << std::endl;
 
@@ -323,7 +302,7 @@ void nodeFunctionality::LinearGradient(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::Mask(logicalNode* theNode)
+void nodeFunctionality::Mask(node* theNode)
 {
 	//std::cout << "executing mask" << std::endl;
 
@@ -343,7 +322,7 @@ void nodeFunctionality::Mask(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::Repeat(logicalNode* theNode)
+void nodeFunctionality::Repeat(node* theNode)
 {
 	//std::cout << "executing repeat" << std::endl;
 
@@ -364,7 +343,7 @@ void nodeFunctionality::Repeat(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::Rotate90(logicalNode* theNode)
+void nodeFunctionality::Rotate90(node* theNode)
 {
 	//std::cout << "executing rotate 90" << std::endl;
 
@@ -390,7 +369,7 @@ void nodeFunctionality::Rotate90(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::SelectByColor(logicalNode* theNode)
+void nodeFunctionality::SelectByColor(node* theNode)
 {
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(3));
 	sf::RenderTexture* inImage = ((sf::RenderTexture*) theNode->getDataPointer(0));
@@ -409,7 +388,7 @@ void nodeFunctionality::SelectByColor(logicalNode* theNode)
 	outputPointer->draw(spr, rs);
 }
 
-void nodeFunctionality::Separate(logicalNode* theNode)
+void nodeFunctionality::Separate(node* theNode)
 {
 	//std::cout << "executing separate" << std::endl;
 
@@ -442,7 +421,7 @@ void nodeFunctionality::Separate(logicalNode* theNode)
 	outputPointerA->draw(spr, rs);
 }
 
-void nodeFunctionality::Solid(logicalNode* theNode)
+void nodeFunctionality::Solid(node* theNode)
 {
 	//std::cout << "executing solid" << std::endl;
 	

@@ -1,31 +1,31 @@
-#include "viewport.h"
+#include "uiViewport.h"
 #include <iostream>
 
-sf::RenderTexture* viewport::outputImage;
-float viewport::currentZoom;
-sf::RenderWindow* viewport::renderWindow;
+sf::RenderTexture* uiViewport::outputImage;
+float uiViewport::currentZoom;
+sf::RenderWindow* uiViewport::renderWindow;
 
-bool viewport::panning = false;
-sf::Vector2f viewport::lastMouseScreenPos;
-sf::Vector2f viewport::currentMouseScreenPos;
-sf::View viewport::theView;
-sf::Vector2f viewport::viewPosition = sf::Vector2f(0.0, 0.0);
-sf::Texture viewport::imageLimitTexture;
-sf::Sprite viewport::imageLimitSprite;
-sf::Shader viewport::checkerShader;
-sf::Shader viewport::invertShader;
+bool uiViewport::panning = false;
+sf::Vector2f uiViewport::lastMouseScreenPos;
+sf::Vector2f uiViewport::currentMouseScreenPos;
+sf::View uiViewport::theView;
+sf::Vector2f uiViewport::viewPosition = sf::Vector2f(0.0, 0.0);
+sf::Texture uiViewport::imageLimitTexture;
+sf::Sprite uiViewport::imageLimitSprite;
+sf::Shader uiViewport::checkerShader;
+sf::Shader uiViewport::invertShader;
 
 
-void viewport::updateView(float width, float height)
+void uiViewport::updateView(float width, float height)
 {
-	//viewport::theView = sf::View(viewport::viewPosition, (sf::Vector2f)viewport::renderWindow->getSize());
-	//viewport::theView.zoom(viewport::currentZoom);
+	//uiViewport::theView = sf::View(uiViewport::viewPosition, (sf::Vector2f)uiViewport::renderWindow->getSize());
+	//uiViewport::theView.zoom(uiViewport::currentZoom);
 
-	sf::FloatRect visibleArea(viewport::viewPosition.x, viewport::viewPosition.y, width, height);
-	viewport::theView = sf::View(visibleArea);
+	sf::FloatRect visibleArea(uiViewport::viewPosition.x, uiViewport::viewPosition.y, width, height);
+	uiViewport::theView = sf::View(visibleArea);
 }
 
-void viewport::initialize(sf::RenderWindow& theRenderWindow)
+void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
 {
 	renderWindow = &theRenderWindow;
 	updateView(renderWindow->getSize().x, renderWindow->getSize().y);
@@ -43,7 +43,7 @@ void viewport::initialize(sf::RenderWindow& theRenderWindow)
 }
 
 
-void viewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
+void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 {
 	switch (e.type)
 	{
@@ -83,7 +83,7 @@ void viewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 	}
 }
 
-void viewport::draw()
+void uiViewport::draw()
 {
 	const sf::Vector2u& windowSize = renderWindow->getSize();
 	sf::View staticView(sf::Vector2f(windowSize.x / 2.0, windowSize.y / 2.0),

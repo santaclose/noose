@@ -1,8 +1,8 @@
 #include "connectionSystem.h"
 
-std::vector<logicalConnection> connectionSystem::connections;
+std::vector<connection> connectionSystem::connections;
 
-void connectionSystem::connect(int connectionIndex, const std::vector<logicalNode*>& nodeList, int nodeA, int nodeB, int pinA, int pinB)
+void connectionSystem::connect(int connectionIndex, const std::vector<node*>& nodeList, int nodeA, int nodeB, int pinA, int pinB)
 {
 	if (connectionIndex >= connections.size())
 		connections.resize(connectionIndex + 1);

@@ -1,13 +1,13 @@
 #pragma once
-#include "logicalNode.h"
+#include "node.h"
 
-struct logicalConnection
+struct connection
 {
 	bool deleted = false;
 	// left side node
-	logicalNode* nodeA;
+	node* nodeA;
 	// right side node
-	logicalNode* nodeB;
+	node* nodeB;
 	// left side pin
 	int pinA;
 	// right side pin

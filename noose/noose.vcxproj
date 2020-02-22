@@ -125,49 +125,49 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="connectionSystem.cpp" />
+    <ClCompile Include="logic\connectionSystem.cpp" />
     <ClCompile Include="interface\uiFileSelectorNFD.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="dataController.cpp" />
-    <ClCompile Include="nodeSystem.cpp" />
-    <ClCompile Include="node_system\logicalNode.cpp" />
+    <ClCompile Include="logic\nodeSystem.cpp" />
+    <ClCompile Include="logic\node.cpp" />
     <ClCompile Include="math\graphOperations.cpp" />
     <ClCompile Include="math\vectorOperators.cpp" />
     <ClCompile Include="nodeFunctionality.cpp" />
     <ClCompile Include="interface\uiColorPicker.cpp" />
-    <ClCompile Include="node_system\uiConnections.cpp" />
+    <ClCompile Include="interface\uiConnections.cpp" />
     <ClCompile Include="interface\uiInputField.cpp" />
     <ClCompile Include="math\uiMath.cpp" />
-    <ClCompile Include="node_system\uiNode.cpp" />
-    <ClCompile Include="uiNodeSystem.cpp" />
+    <ClCompile Include="interface\uiNode.cpp" />
+    <ClCompile Include="interface\uiNodeSystem.cpp" />
     <ClCompile Include="interface\uiData.cpp" />
-    <ClCompile Include="searchBar.cpp" />
-    <ClCompile Include="viewport.cpp" />
+    <ClCompile Include="interface\uiSearchBar.cpp" />
+    <ClCompile Include="interface\uiViewport.cpp" />
     <ClCompile Include="vendor\nfd_win.cpp" />
     <ClCompile Include="vendor\nfd_common.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="connectionSystem.h" />
+    <ClInclude Include="logic\connectionSystem.h" />
     <ClInclude Include="dataController.h" />
     <ClInclude Include="interface\uiFileSelector.h" />
-    <ClInclude Include="nodeSystem.h" />
+    <ClInclude Include="logic\nodeSystem.h" />
     <ClInclude Include="types.h" />
-    <ClInclude Include="node_system\logicalConnection.h" />
-    <ClInclude Include="node_system\logicalNode.h" />
+    <ClInclude Include="logic\connection.h" />
+    <ClInclude Include="logic\node.h" />
     <ClInclude Include="math\graphOperations.h" />
     <ClInclude Include="math\vectorOperators.h" />
     <ClInclude Include="nodeData.h" />
     <ClInclude Include="nodeFunctionality.h" />
     <ClInclude Include="res\nodes.dat" />
     <ClInclude Include="interface\uiColorPicker.h" />
-    <ClInclude Include="node_system\uiConnections.h" />
+    <ClInclude Include="interface\uiConnections.h" />
     <ClInclude Include="interface\uiInputField.h" />
     <ClInclude Include="math\uiMath.h" />
-    <ClInclude Include="node_system\uiNode.h" />
-    <ClInclude Include="uiNodeSystem.h" />
+    <ClInclude Include="interface\uiNode.h" />
+    <ClInclude Include="interface\uiNodeSystem.h" />
     <ClInclude Include="interface\uiData.h" />
-    <ClInclude Include="searchBar.h" />
-    <ClInclude Include="viewport.h" />
+    <ClInclude Include="interface\uiSearchBar.h" />
+    <ClInclude Include="interface\uiViewport.h" />
     <ClInclude Include="vendor\nfd.h" />
     <ClInclude Include="vendor\nfd_common.h" />
   </ItemGroup>

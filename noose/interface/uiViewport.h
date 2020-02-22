@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-class viewport
+class uiViewport
 {
 public:
 	static sf::RenderTexture* outputImage;

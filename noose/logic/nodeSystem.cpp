@@ -1,26 +1,26 @@
 #include "nodeSystem.h"
 #include "connectionSystem.h"
-#include "node_system/logicalNode.h"
-#include "nodeData.h"
+#include "node.h"
+#include "../nodeData.h"
 #include <iostream>
 
-std::vector<logicalNode*> nodeList;
+std::vector<node*> nodeList;
 
 void insertNode(int slot, nodeData* data)
 {
 	if (slot >= nodeList.size())
 		nodeList.resize(slot + 1);
 
-	nodeList[slot] = new logicalNode(data);
+	nodeList[slot] = new node(data);
 }
 
 void recalculatePropagationMatrices()
 {
-	for (logicalNode* n : nodeList)
+	for (node* n : nodeList)
 		n->clearPropagationMatrix();
 
 	int i = 0;
-	for (logicalConnection& l : connectionSystem::connections)
+	for (connection& l : connectionSystem::connections)
 	{
 		if (!l.deleted) // not deleted
 		{

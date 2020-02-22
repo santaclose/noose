@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-class searchBar
+class uiSearchBar
 {
 private:
 	static bool searching;

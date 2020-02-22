@@ -1,20 +1,20 @@
 #include "graphOperations.h"
 #include <iostream>
 
-void go::updatePropagationMatrix(std::vector<std::vector<logicalNode*>>& matrix, logicalNode* node)
+void go::updatePropagationMatrix(std::vector<std::vector<node*>>& matrix, node* theNode)
 {
 	// add the right side node if not already added
 	int i, s;
-	nodePositionInMatrix(node, matrix, i, s);
+	nodePositionInMatrix(theNode, matrix, i, s);
 	if (i < 0)
-		appendNodeToMatrix(matrix, node, 0);
+		appendNodeToMatrix(matrix, theNode, 0);
 
 	// add the right node's matrix
-	const std::vector<std::vector<logicalNode*>>& matrixRS = node->getPropagationMatrix();
+	const std::vector<std::vector<node*>>& matrixRS = theNode->getPropagationMatrix();
 	int indexR = 1;
-	for (const std::vector<logicalNode*> l : matrixRS)
+	for (const std::vector<node*> l : matrixRS)
 	{
-		for (logicalNode* n : l)
+		for (node* n : l)
 		{
 			int index, subIndex;
 			nodePositionInMatrix(n, matrix, index, subIndex);
@@ -34,7 +34,7 @@ void go::updatePropagationMatrix(std::vector<std::vector<logicalNode*>>& matrix,
 		indexR++;
 	}
 }
-void go::appendNodeToMatrix(std::vector<std::vector<logicalNode*>>& matrix, logicalNode* node, int index)
+void go::appendNodeToMatrix(std::vector<std::vector<node*>>& matrix, node* theNode, int index)
 {
 	// get more space if needed
 	/*std::cout << "index: " << index << std::endl;
@@ -48,17 +48,17 @@ void go::appendNodeToMatrix(std::vector<std::vector<logicalNode*>>& matrix, logi
 
 	//std::cout << "the size of the matrix is " << matrix.size() << std::endl;
 	// push the node
-	matrix[index].push_back(node);
+	matrix[index].push_back(theNode);
 }
-void go::nodePositionInMatrix(const logicalNode* n, std::vector<std::vector<logicalNode*>>& m, int& index, int& subIndex)
+void go::nodePositionInMatrix(const node* n, std::vector<std::vector<node*>>& m, int& index, int& subIndex)
 {
 	index = 0;
-	for (std::vector<logicalNode*> l : m)
+	for (std::vector<node*> l : m)
 	{
 		subIndex = 0;
-		for (logicalNode* node : l)
+		for (node* theNode : l)
 		{
-			if (node == n)
+			if (theNode == n)
 				return;
 			subIndex++;
 		}
@@ -66,12 +66,12 @@ void go::nodePositionInMatrix(const logicalNode* n, std::vector<std::vector<logi
 	}
 	index = subIndex = -1;
 }
-void go::removeNodeFromList(const logicalNode* n, std::vector<logicalNode*>& list)
+void go::removeNodeFromList(const node* n, std::vector<node*>& list)
 {
 	int j = 0;
-	for (logicalNode* node : list)
+	for (node* theNode : list)
 	{
-		if (node == n)
+		if (theNode == n)
 		{
 			list.erase(list.begin() + j);
 			std::cout << "node erased from left side list\n";
@@ -80,11 +80,11 @@ void go::removeNodeFromList(const logicalNode* n, std::vector<logicalNode*>& lis
 		j++;
 	}
 }
-void go::matrixPropagation(std::vector<std::vector<logicalNode*>>& leftSideMatrix, std::vector<std::vector<logicalNode*>>& rightSideMatrix)
+void go::matrixPropagation(std::vector<std::vector<node*>>& leftSideMatrix, std::vector<std::vector<node*>>& rightSideMatrix)
 {
 	for (int i = 0; i < rightSideMatrix.size(); i++)
 	{
-		for (logicalNode* n : rightSideMatrix[i])
+		for (node* n : rightSideMatrix[i])
 		{
 			int subIndexA;
 			int indexA;
