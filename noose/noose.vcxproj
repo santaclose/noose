@@ -144,7 +144,6 @@
     <ClCompile Include="nodeProvider\nodeFunctionality.cpp" />
     <ClCompile Include="nodeProvider\nodeProvider.cpp" />
     <ClCompile Include="searcher.cpp" />
-    <ClCompile Include="utils.cpp" />
     <ClCompile Include="vendor\nfd_win.cpp" />
     <ClCompile Include="vendor\nfd_common.c" />
   </ItemGroup>

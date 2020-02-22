@@ -72,9 +72,6 @@
     <ClCompile Include="nodeProvider\nodeProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="searcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

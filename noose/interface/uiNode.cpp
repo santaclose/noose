@@ -83,7 +83,7 @@ uiNode::uiNode(const void* theNodeData, sf::Vector2f& initialPosition, void** in
 	m_shapes[0].color = m_shapes[1].color = m_shapes[2].color = m_shapes[3].color = sf::Color(BAR_COLOR);
 	m_shapes[4].color = m_shapes[5].color = m_shapes[6].color = m_shapes[7].color = sf::Color(CONTENT_RECT_COLOR);
 
-	m_title = sf::Text(data->nodeName, uiData::font , NODE_TITLE_FONT_SIZE);
+	m_title = sf::Text(data->nodeName, uiData::font, NODE_TITLE_FONT_SIZE);
 	m_title.setFillColor(sf::Color(TEXT_COLOR));
 
 	m_pinNameTexts = new sf::Text[m_inputPinCount + m_outputPinCount];
@@ -109,9 +109,6 @@ uiNode::~uiNode()
 {
 	delete[] m_pinNameTexts;
 	delete[] m_inputFields;
-	
-	m_connectedLines.clear();
-	m_shapes.clear();
 	//std::cout << "node deleted\n";
 }
 
@@ -261,17 +258,16 @@ void uiNode::displace(const sf::Vector2f& displacement)
 	sf::Vector2f tempv = m_shapes[3].position /* top left corener position*/ + displacement;
 	setPosition(tempv);
 
-	for (lineInfo& i : m_connectedLines)
-		uiConnections::displacePoint(displacement, i.lineIndex, i.pin >= m_inputPinCount);
+	for (int i = 0; i < m_connectedLineIndices.size(); i++)
+		uiConnections::displacePoint(displacement, m_connectedLineIndices[i], m_connectedLinePins[i] >= m_inputPinCount);
 }
 
 void uiNode::attachConnectionPoint(int lineIndex, int pin)
 {
 	// attach line
-	m_connectedLines.emplace_back();
+	m_connectedLineIndices.push_back(lineIndex);
+	m_connectedLinePins.push_back(pin);
 	std::cout << "attaching line index " << lineIndex << std::endl;
-	m_connectedLines.back().lineIndex = lineIndex;
-	m_connectedLines.back().pin = pin;
 
 	if (pin < m_inputPinCount) // is input pin
 		m_inputFields[pin].disable(); // disable input field
@@ -279,16 +275,17 @@ void uiNode::attachConnectionPoint(int lineIndex, int pin)
 
 void uiNode::setLineIndexAsDisconnected(int lineIndex)
 {
-	for (int i = 0; i < m_connectedLines.size(); i++)
+	for (int i = 0; i < m_connectedLineIndices.size(); i++)
 	{
-		if (m_connectedLines[i].lineIndex == lineIndex)
+		if (m_connectedLineIndices[i] == lineIndex)
 		{
-			int pin = m_connectedLines[i].pin;
+			int pin = m_connectedLinePins[i];
 			if (pin < m_inputPinCount) // line is connected to an input pin
 				m_inputFields[pin].enable(); // enable input field
 
 			//std::cout << "line " << m_connectedLines[i] << " being removed from node " << this << std::endl;
-			m_connectedLines.erase(m_connectedLines.begin() + i);
+			m_connectedLinePins.erase(m_connectedLinePins.begin() + i);
+			m_connectedLineIndices.erase(m_connectedLineIndices.begin() + i);
 			break;
 		}
 	}
@@ -297,9 +294,9 @@ void uiNode::setLineIndexAsDisconnected(int lineIndex)
 bool uiNode::canConnectToPin(int pin)
 {
 	bool isConnected = false;
-	for (lineInfo& li : m_connectedLines)
+	for (int linePin : m_connectedLinePins)
 	{
-		if (li.pin == pin)
+		if (linePin == pin)
 		{
 			isConnected = true;
 			break;
@@ -344,11 +341,17 @@ int uiNode::getInputPinCount()
 	return m_inputPinCount;
 }
 
-int* uiNode::getConnectedLinesInfo(int& count)
+const std::vector<int>& uiNode::getConnectedLines()
+{
+	return m_connectedLineIndices;
+}
+
+/*int* uiNode::getConnectedLinesInfo(int& count)
 {
 	count = m_connectedLines.size();
 	int* res = new int[m_connectedLines.size()];
 	for (int i = 0; i < m_connectedLines.size(); i++)
 		res[i] = m_connectedLines[i].lineIndex;
 	return res;
-}
+}*/
+

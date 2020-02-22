@@ -72,9 +72,6 @@ node::~node()
 	{
 		delete m_pinDataPointers[i];
 	}
-
-	m_pinDataPointers.clear();
-	m_receivedDataPointers.clear();
 	
 	delete[] m_pinTypes;
 }

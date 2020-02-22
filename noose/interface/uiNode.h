@@ -6,11 +6,11 @@
 //#include "uiNodeSystem.h"
 #include "../interface/uiInputField.h"
 
-struct lineInfo
+/*struct lineInfo
 {
 	int lineIndex;
 	int pin;
-};
+};*/
 
 class uiNode
 {
@@ -24,7 +24,9 @@ private:
 
 	sf::Text* m_pinNameTexts;
 	uiInputField* m_inputFields;
-	std::vector<lineInfo> m_connectedLines;
+	//std::vector<lineInfo> m_connectedLines;
+	std::vector<int> m_connectedLineIndices;
+	std::vector<int> m_connectedLinePins;
 
 public:
 	enum MousePos {
@@ -55,5 +57,6 @@ public:
 	int getInputPinCount();
 
 	// needed to disconnect before deleting the node 
-	int* getConnectedLinesInfo(int& count);
+	const std::vector<int>& getConnectedLines();
+	//int* getConnectedLinesInfo(int& count);
 };
