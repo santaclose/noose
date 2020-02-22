@@ -78,6 +78,7 @@ logicalNode::~logicalNode()
 	
 	delete[] m_pinTypes;
 }
+
 /*
 bool logicalNode::canConnectToPin(int pin)
 {
@@ -100,8 +101,6 @@ void logicalNode::connect(int lineIndex)
 		m_receivedDataPointers[connectionSystem::connections[lineIndex].pinB] =
 			((logicalNode*)(connectionSystem::connections[lineIndex].nodeA))->getDataPointer(connectionSystem::connections[lineIndex].pinA, false);
 		m_leftSideNodes.push_back((logicalNode*)(connectionSystem::connections[lineIndex].nodeA));
-
-		std::cout << "asdf\n";
 	}
 }
 

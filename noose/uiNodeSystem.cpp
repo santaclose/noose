@@ -367,13 +367,15 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 
 					for (int i = 0; i < lineCount; i++)
 						deleteLine(linesToDelete[i]);
-					delete[] linesToDelete; // free memory
 
 					onNodeDeletedCallback(selectedNodeIndex);
 
 					delete nodeList[selectedNodeIndex];
 					nodeList[selectedNodeIndex] = nullptr;
 
+					nodeSystem::onNodeDeleted(selectedNodeIndex, linesToDelete, lineCount);
+
+					delete[] linesToDelete; // free memory
 					selectedNodeIndex = -1;
 					break;
 				}

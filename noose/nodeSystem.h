@@ -6,7 +6,7 @@ namespace nodeSystem
 	void initialize();
 
 	void onNodeCreated(int n, const void* data);
-	void onNodeDeleted(int n);
+	void onNodeDeleted(int n, int* ci, int cc);// connection indices and connection count
 	void onNodeChanged(int n);
 
 	// nA is always the node that has the output pin

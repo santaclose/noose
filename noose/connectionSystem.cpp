@@ -17,5 +17,7 @@ void connectionSystem::connect(int connectionIndex, const std::vector<logicalNod
 
 void connectionSystem::deleteConnection(int lineIndex)
 {
+	connections[lineIndex].nodeA->disconnect(lineIndex);
+	connections[lineIndex].nodeB->disconnect(lineIndex);
 	connections[lineIndex].deleted = true;
 }
