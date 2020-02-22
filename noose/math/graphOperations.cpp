@@ -37,8 +37,8 @@ void go::updatePropagationMatrix(std::vector<std::vector<node*>>& matrix, node* 
 void go::appendNodeToMatrix(std::vector<std::vector<node*>>& matrix, node* theNode, int index)
 {
 	// get more space if needed
-	/*std::cout << "index: " << index << std::endl;
-	std::cout << "the size of the matrix is " << matrix.size() << std::endl;*/
+	//std::cout << "index: " << index << std::endl;
+	//std::cout << "the size of the matrix is " << matrix.size() << std::endl;
 	while (matrix.size() <= index)
 	{
 		matrix.emplace_back();
@@ -74,7 +74,7 @@ void go::removeNodeFromList(const node* n, std::vector<node*>& list)
 		if (theNode == n)
 		{
 			list.erase(list.begin() + j);
-			std::cout << "node erased from left side list\n";
+			//std::cout << "node erased from left side list\n";
 			return;
 		}
 		j++;
@@ -95,7 +95,7 @@ void go::matrixPropagation(std::vector<std::vector<node*>>& leftSideMatrix, std:
 				continue;
 			}
 
-			std::cout << "indexA: " << indexA << "\nsubIndexA: " << subIndexA << "\ni + 1: " << i + 1 << std::endl;
+			//std::cout << "indexA: " << indexA << "\nsubIndexA: " << subIndexA << "\ni + 1: " << i + 1 << std::endl;
 			if (indexA < i + 1)
 			{
 				//std::cout << "asdf\n";

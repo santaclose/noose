@@ -34,12 +34,12 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
 	imageLimitSprite = sf::Sprite(imageLimitTexture);
 
 	// checker background
-	std::cout << "loading alpha background shader\n";
-	checkerShader.loadFromFile("res/shaders/checker.shader", sf::Shader::Fragment);
+	if (!checkerShader.loadFromFile("res/shaders/checker.shader", sf::Shader::Fragment))
+		std::cout << "[UI] Failed to load alpha background shader\n";
 
 	// dark mode
-	std::cout << "loading dark mode shader\n";
-	invertShader.loadFromFile("res/shaders/invert.shader", sf::Shader::Fragment);
+	if (!invertShader.loadFromFile("res/shaders/invert.shader", sf::Shader::Fragment))
+		std::cout << "[UI] Failed to load dark mode shader\n";
 }
 
 

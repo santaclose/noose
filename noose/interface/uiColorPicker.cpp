@@ -28,8 +28,8 @@ void uiColorPicker::initialize()
 {
 	rs.blendMode = sf::BlendNone;
 
-	std::cout << "loading colorwheel shader\n";
-	colorWheelVerticesShader.loadFromFile("res/shaders/colorwheel.shader", sf::Shader::Fragment);
+	if (!colorWheelVerticesShader.loadFromFile("res/shaders/colorwheel.shader", sf::Shader::Fragment))
+		std::cout << "[UI] Failed to load colorwheel shader\n";
 	colorWheelVertices[0].position.x = colorWheelVertices[0].position.y = colorWheelVertices[1].position.x = colorWheelVertices[3].position.y = 0.0;
 	colorWheelVertices[2].position.x = colorWheelVertices[1].position.y = colorWheelVertices[3].position.x = colorWheelVertices[2].position.y = 220.0;
 	colorWheelVertices[0].texCoords.x = colorWheelVertices[0].texCoords.y = colorWheelVertices[1].texCoords.x = colorWheelVertices[3].texCoords.y = 0.0;
@@ -43,7 +43,8 @@ void uiColorPicker::initialize()
 	colorWheelVerticesShader.setUniform("limit", 1);
 	colorWheel.draw(colorWheelVertices, rs);
 
-	gradientVerticesShader.loadFromFile("res/shaders/gradient.shader", sf::Shader::Fragment);
+	if (!gradientVerticesShader.loadFromFile("res/shaders/gradient.shader", sf::Shader::Fragment))
+		std::cout << "[UI] Failed to load gradient shader\n";
 	gradientVertices[0].position.x = gradientVertices[1].position.x = gradientVertices[0].position.y = gradientVertices[3].position.y = 0.0;
 	gradientVertices[2].position.x = gradientVertices[3].position.x = 40.0;
 	gradientVertices[1].position.y = gradientVertices[2].position.y = 220.0;

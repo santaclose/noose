@@ -37,13 +37,13 @@ void set(sf::Vector2f pinPosA, sf::Vector2f pinPosB, sf::Color color, int index,
 	if (index == linesInfo.size()) // need to allocate more space
 	{
 		lineQuads.resize(index * 4 + 4);
-		std::cout << "--------after lineQuads resize " << index << std::endl;
+		/*std::cout << "--------after lineQuads resize " << index << std::endl;
 		std::cout << pinPosA.x << ", " << pinPosA.y << std::endl;
-		std::cout << pinPosB.x << ", " << pinPosB.y << std::endl;
+		std::cout << pinPosB.x << ", " << pinPosB.y << std::endl;*/
 		linesInfo.resize(index + 1);
-		std::cout << "--------after linesInfo resize " << index << std::endl;
+		/*std::cout << "--------after linesInfo resize " << index << std::endl;
 		std::cout << pinPosA.x << ", " << pinPosA.y << std::endl;
-		std::cout << pinPosB.x << ", " << pinPosB.y << std::endl;
+		std::cout << pinPosB.x << ", " << pinPosB.y << std::endl;*/
 
 		// set up uvs
 		lineQuads[index * 4 + 0].texCoords = sf::Vector2f(0.0, 0.0);
@@ -85,7 +85,8 @@ void printArray()
 
 void uiConnections::initialize()
 {
-	shader.loadFromFile("res/shaders/connection.shader", sf::Shader::Fragment);
+	if (!shader.loadFromFile("res/shaders/connection.shader", sf::Shader::Fragment))
+		std::cout << "[UI] Failed to load line shader\n";
 	shader.setUniform("ratio", 0.6f);//shaderFadeRatio);
 
 	lineQuads.resize(4);
@@ -124,13 +125,13 @@ void uiConnections::displaceTemporary(const sf::Vector2f& displacement)
 
 int uiConnections::connect(const sf::Vector2f& pinPos, int node, int pin)
 {
-	printArray();
+	//printArray();
 	int index = findSlot();
 	
 	// mark as not hidden if hidden
 	linesInfo[index].hidden = false;
 
-	std::cout << "slot found: " << index << std::endl;
+	//std::cout << "slot found: " << index << std::endl;
 	if (startedOnInputPinb) // flip if necessary
 		set(pinPos, linesInfo[0].posA, lineQuads[0].color, index, node, linesInfo[0].nodeA, pin, linesInfo[0].pinA);
 	else

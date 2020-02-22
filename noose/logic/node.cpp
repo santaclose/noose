@@ -67,7 +67,7 @@ node::node(const void* theNodeData)
 
 node::~node()
 {
-	std::cout << "deleting logical node\n";
+	//std::cout << "deleting logical node\n";
 	for (int i = 0; i < getPinCount(); i++)
 	{
 		delete m_pinDataPointers[i];
@@ -90,8 +90,6 @@ void node::connect(int lineIndex)
 		go::updatePropagationMatrix(m_propagationMatrix, (node*)connectionSystem::connections[lineIndex].nodeB);
 		for (node* n : m_leftSideNodes)
 			n->propagateMatrix(m_propagationMatrix);
-
-		std::cout << "fdsa\n";
 	}
 	else // we are the right side node
 	{
@@ -112,7 +110,7 @@ void node::disconnect(int lineIndex)
 
 void node::activate()
 {
-	std::cout << "activating node\n";
+	//std::cout << "activating node\n";
 	// execute node functionality
 	run();
 
@@ -126,7 +124,7 @@ void node::activate()
 
 void node::run()
 {
-	std::cout << "running node\n";
+	//std::cout << "running node\n";
 	m_nodeFunctionalityPointer(this);
 }
 

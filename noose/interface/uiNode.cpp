@@ -267,7 +267,7 @@ void uiNode::attachConnectionPoint(int lineIndex, int pin)
 	// attach line
 	m_connectedLineIndices.push_back(lineIndex);
 	m_connectedLinePins.push_back(pin);
-	std::cout << "attaching line index " << lineIndex << std::endl;
+	//std::cout << "attaching line index " << lineIndex << std::endl;
 
 	if (pin < m_inputPinCount) // is input pin
 		m_inputFields[pin].disable(); // disable input field

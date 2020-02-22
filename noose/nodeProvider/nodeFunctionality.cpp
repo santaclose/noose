@@ -25,37 +25,37 @@ void nodeFunctionality::initialize()
 	rs.blendMode = sf::BlendNone;
 
 	if (!imageShader.loadFromFile("res/shaders/loadImage.shader", sf::Shader::Fragment))
-		std::cout << "could not load image shader\n";
+		std::cout << "[Node provider] Failed to load image shader\n";
 	if (!blendShader.loadFromFile("res/nodeShaders/blend.shader", sf::Shader::Fragment))
-		std::cout << "could not load blend shader\n";
+		std::cout << "[Node provider] Failed to load blend shader\n";
 	if (!brightnessContrastShader.loadFromFile("res/nodeShaders/brightness-contrast.shader", sf::Shader::Fragment))
-		std::cout << "could not load brightness-contrast shader\n";	
+		std::cout << "[Node provider] Failed to load brightness-contrast shader\n";	
 	if (!checkerShader.loadFromFile("res/nodeShaders/checker.shader", sf::Shader::Fragment))
-		std::cout << "could not load checker shader\n";	
+		std::cout << "[Node provider] Failed to load checker shader\n";	
 	if (!flipShader.loadFromFile("res/nodeShaders/flip.shader", sf::Shader::Fragment))
-		std::cout << "could not load flip shader\n";	
+		std::cout << "[Node provider] Failed to load flip shader\n";	
 	if (!invertShader.loadFromFile("res/nodeShaders/invert.shader", sf::Shader::Fragment))
-		std::cout << "could not load invert shader\n";	
+		std::cout << "[Node provider] Failed to load invert shader\n";	
 	if (!linearGradientShader.loadFromFile("res/nodeShaders/linearGradient.shader", sf::Shader::Fragment))
-		std::cout << "could not load linearGradient shader\n";	
+		std::cout << "[Node provider] Failed to load linearGradient shader\n";	
 	if (!repeatShader.loadFromFile("res/nodeShaders/repeat.shader", sf::Shader::Fragment))
-		std::cout << "could not load repeat shader\n";	
+		std::cout << "[Node provider] Failed to load repeat shader\n";	
 	if (!rotate90Shader.loadFromFile("res/nodeShaders/rotate90.shader", sf::Shader::Fragment))
-		std::cout << "could not load rotate90 shader\n";	
+		std::cout << "[Node provider] Failed to load rotate90 shader\n";	
 	if (!solidShader.loadFromFile("res/nodeShaders/solid.shader", sf::Shader::Fragment))
-		std::cout << "could not load solidShader shader\n";	
+		std::cout << "[Node provider] Failed to load solidShader shader\n";	
 	if (!maskShader.loadFromFile("res/nodeShaders/mask.shader", sf::Shader::Fragment))
-		std::cout << "could not load mix shader\n";	
+		std::cout << "[Node provider] Failed to load mix shader\n";	
 	if (!grayscaleShader.loadFromFile("res/nodeShaders/grayscale.shader", sf::Shader::Fragment))
-		std::cout << "could not load grayscale shader\n";	
+		std::cout << "[Node provider] Failed to load grayscale shader\n";	
 	if (!separateShader.loadFromFile("res/nodeShaders/separate.shader", sf::Shader::Fragment))
-		std::cout << "could not load separate shader\n";	
+		std::cout << "[Node provider] Failed to load separate shader\n";	
 	if (!combineShader.loadFromFile("res/nodeShaders/combine.shader", sf::Shader::Fragment))
-		std::cout << "could not load combine shader\n";	
+		std::cout << "[Node provider] Failed to load combine shader\n";	
 	if (!cropShader.loadFromFile("res/nodeShaders/crop.shader", sf::Shader::Fragment))
-		std::cout << "could not load crop shader\n";	
+		std::cout << "[Node provider] Failed to load crop shader\n";	
 	if (!selectByColorShader.loadFromFile("res/nodeShaders/selectByColor.shader", sf::Shader::Fragment))
-		std::cout << "could not load selectByColor shader\n";}
+		std::cout << "[Node provider] Failed to load selectByColor shader\n";}
 
 void nodeFunctionality::Blend(node* theNode)
 {
@@ -207,7 +207,7 @@ void nodeFunctionality::Flip(node* theNode)
 
 	flipShader.setUniform("tx", a->getTexture());
 	flipShader.setUniform("xAxis", *xAxis % 2);
-	std::cout << "xAxis % 2 = " << *xAxis % 2 << std::endl;
+	//std::cout << "xAxis % 2 = " << *xAxis % 2 << std::endl;
 
 	sf::Sprite spr(a->getTexture());
 	rs.shader = &flipShader;
@@ -361,7 +361,7 @@ void nodeFunctionality::Rotate90(node* theNode)
 	else
 		outputPointer->create(size.x, size.y);
 
-	std::cout << fixed << std::endl;
+	//std::cout << fixed << std::endl;
 
 	rotate90Shader.setUniform("tx", a->getTexture());
 	rotate90Shader.setUniform("times", (float)fixed);

@@ -203,7 +203,7 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 	if (!loadImageShaderLoaded)
 	{
 		if (!loadImageShader.loadFromFile("res/shaders/loadImage.shader", sf::Shader::Fragment))
-			std::cout << "could not load image loading shader\n";
+			std::cout << "[UI] Failed to load image loading shader\n";
 		loadImageShaderLoaded = true;
 	}
 }
@@ -291,7 +291,7 @@ void uiInputField::bind(int index)
 			sf::Texture tx;
 			if (!tx.loadFromFile(outPath))
 			{
-				std::cout << "Could not open the image" << std::endl;
+				std::cout << "[UI] Failed to open image file\n";
 				return;
 			}
 			texts[0].setString(utils::getFileNameFromPath(outPath));

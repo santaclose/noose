@@ -14,14 +14,13 @@ static const sf::Color BACKGROUND_COLOR(0x181818ff);
 
 void onNodeSelected(int theNode)
 {
-	std::cout << "node " << theNode << " selected\n";
-	uiViewport::outputImage = nodeSystem::getFirstOutputImageForNode(theNode); //theNode.getFirstOutputImage();
-	std::cout << "viewing image " << uiViewport::outputImage << std::endl;
+	std::cout << "[Main] Node " << theNode << " selected\n";
+	uiViewport::outputImage = nodeSystem::getFirstOutputImageForNode(theNode);
 }
 
 void onNodeDeleted(int theNode)
 {
-	std::cout << "node " << theNode << " deleted\n";
+	std::cout << "[Main] Node " << theNode << " deleted\n";
 	if (nodeSystem::getFirstOutputImageForNode(theNode) == uiViewport::outputImage)
 		uiViewport::outputImage = nullptr;
 }
@@ -70,11 +69,11 @@ int main()
 					if (eventWindowA.key.code == sf::Keyboard::S && !uiSearchBar::userIsSearching())
 					{
 						if (uiViewport::outputImage == nullptr)
-							std::cout << "no image to save\n";
+							std::cout << "[Main] No image to save\n";
 						else
 						{
 							if (uiViewport::outputImage->getTexture().copyToImage().saveToFile("output.png"))
-								std::cout << "image saved as output.png\n";
+								std::cout << "[Main] Image saved as output.png\n";
 						}
 					}
 				}

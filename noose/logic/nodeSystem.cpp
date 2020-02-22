@@ -33,18 +33,18 @@ void recalculatePropagationMatrices()
 
 void nodeSystem::initialize()
 {
-	std::cout << "[NODE SYSTEM] node system initialized\n";
+	std::cout << "[Node system] node system initialized\n";
 }
 
 void nodeSystem::onNodeCreated(int n, const void* data)
 {
-	std::cout << "[NODE SYSTEM] node created\n\tid: " << n << std::endl;
+	std::cout << "[Node system] node created\n\tid: " << n << std::endl;
 	insertNode(n, (nodeData*)data);
 }
 
 void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int* ci, int cc)
 {
-	std::cout << "[NODE SYSTEM] node deleted\n\tid: " << n << std::endl;
+	std::cout << "[Node system] node deleted\n\tid: " << n << std::endl;
 	// delete all connections to the node
 	for (int c : connections)
 		connectionSystem::deleteConnection(c);
@@ -53,13 +53,13 @@ void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int*
 
 void nodeSystem::onNodeChanged(int n)
 {
-	std::cout << "[NODE SYSTEM] node changed\n\tid: " << n << std::endl;
+	std::cout << "[Node system] node changed\n\tid: " << n << std::endl;
 	nodeList[n]->activate();
 }
 
 void nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, int c)
 {
-	std::cout << "[NODE SYSTEM] nodes connected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
+	std::cout << "[Node system] nodes connected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
 
 	connectionSystem::connect(c, nodeList, nA, nB, pA, pB);
 
@@ -71,7 +71,7 @@ void nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, int c)
 
 void nodeSystem::onNodesDisconnected(int nA, int nB, int pA, int pB, int c)
 {
-	std::cout << "[NODE SYSTEM] nodes disconnected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
+	std::cout << "[Node system] nodes disconnected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
 
 	nodeList[nA]->disconnect(c);
 	nodeList[nB]->disconnect(c);

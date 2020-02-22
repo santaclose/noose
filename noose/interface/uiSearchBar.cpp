@@ -93,7 +93,7 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 					void* nodeData = searcher::getDataFor(0);
 					if (nodeData == nullptr)
 					{
-						std::cout << "could not get data\n";
+						std::cout << "[Search Bar] Failed to get node data\n";
 						return;
 					}
 					uiNodeSystem::pushNewNode(nodeData, mousePos);
