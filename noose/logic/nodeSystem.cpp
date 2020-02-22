@@ -42,13 +42,12 @@ void nodeSystem::onNodeCreated(int n, const void* data)
 	insertNode(n, (nodeData*)data);
 }
 
-void nodeSystem::onNodeDeleted(int n, int* ci, int cc)
+void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int* ci, int cc)
 {
 	std::cout << "[NODE SYSTEM] node deleted\n\tid: " << n << std::endl;
-	for (int i = 0; i < cc; i++)
-	{
-		connectionSystem::deleteConnection(ci[i]);
-	}
+	// delete all connections to the node
+	for (int c : connections)
+		connectionSystem::deleteConnection(c);
 	recalculatePropagationMatrices();
 }
 
