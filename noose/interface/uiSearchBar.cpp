@@ -1,7 +1,8 @@
 #include "uiSearchBar.h"
 #include "uiNodeSystem.h"
 #include "uiData.h"
-#include "../dataController.h"
+//#include "../dataController.h"
+#include "../searcher.h"
 
 #include <iostream>
 
@@ -57,12 +58,13 @@ void uiSearchBar::initialize(sf::RenderWindow& window)
 
 void uiSearchBar::performSearch()
 {
-	currentResultCount = dataController::search(searchBuffer, SEARCH_BAR_BUFFER_SIZE, MAX_RESULTS_NUMBER);
+	//currentResultCount = dataController::search(searchBuffer, SEARCH_BAR_BUFFER_SIZE, MAX_RESULTS_NUMBER);
+	currentResultCount = searcher::search(searchBuffer, SEARCH_BAR_BUFFER_SIZE, MAX_RESULTS_NUMBER);
 	resultsBar.setSize(sf::Vector2f(SEARCH_BAR_WIDTH, currentResultCount * RESULT_HEIGHT));
 	for (int i = 0; i < currentResultCount; i++)
 	{
 		//std::cout << *(dataController::searchResults[i]) << std::endl;
-		resultsTexts[i].setString(*(dataController::searchResults[i]));
+		resultsTexts[i].setString(*(searcher::searchResults[i]));
 	}
 }
 
@@ -86,9 +88,9 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 			}
 			else if (e.key.code == sf::Keyboard::Enter)
 			{
-				if (dataController::searchResults.size() > 0)
+				if (searcher::searchResults.size() > 0)
 				{
-					void* nodeData = dataController::getDataFor(0);
+					void* nodeData = searcher::getDataFor(0);
 					if (nodeData == nullptr)
 					{
 						std::cout << "could not get data\n";

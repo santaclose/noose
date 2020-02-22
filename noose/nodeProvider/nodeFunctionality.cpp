@@ -1,7 +1,7 @@
 #include "nodeFunctionality.h"
-#include "dataController.h"
 #include <iostream>
 
+sf::Shader imageShader;
 sf::Shader blendShader;
 sf::Shader brightnessContrastShader;
 sf::Shader checkerShader;
@@ -23,7 +23,9 @@ sf::RenderStates rs;
 void nodeFunctionality::initialize()
 {
 	rs.blendMode = sf::BlendNone;
-	
+
+	if (!imageShader.loadFromFile("res/shaders/loadImage.shader", sf::Shader::Fragment))
+		std::cout << "could not load image shader\n";
 	if (!blendShader.loadFromFile("res/nodeShaders/blend.shader", sf::Shader::Fragment))
 		std::cout << "could not load blend shader\n";
 	if (!brightnessContrastShader.loadFromFile("res/nodeShaders/brightness-contrast.shader", sf::Shader::Fragment))
@@ -249,10 +251,10 @@ void nodeFunctionality::Image(node* theNode)
 
 	outputPointer->create(size.x, size.y);
 
-	dataController::loadImageShader.setUniform("tx", a->getTexture());
+	imageShader.setUniform("tx", a->getTexture());
 
 	sf::Sprite spr(a->getTexture());
-	rs.shader = &dataController::loadImageShader;
+	rs.shader = &imageShader;
 	outputPointer->draw(spr, rs);
 	*outputSize = sf::Vector2i(size.x, size.y);
 }

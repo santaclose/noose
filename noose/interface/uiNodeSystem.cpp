@@ -1,10 +1,8 @@
 #include "uiNodeSystem.h"
 
-#include "node_system/uiNode.h"
-#include "node_system/uiConnections.h"
-#include "nodeSystem.h"
-
-#include "dataController.h"
+#include "uiNode.h"
+#include "uiConnections.h"
+#include "../logic/nodeSystem.h"
 
 #include <iostream>
 #include <vector>

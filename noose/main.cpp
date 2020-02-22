@@ -7,7 +7,8 @@
 #include "interface/uiColorPicker.h"
 #include "interface/uiData.h"
 #include "logic/nodeSystem.h"
-#include "dataController.h"
+//#include "dataController.h"
+#include "nodeProvider/nodeProvider.h"
 
 static const sf::Color BACKGROUND_COLOR(0x181818ff);
 
@@ -33,7 +34,8 @@ int main()
 	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "noose");
 
 	// load nodes.dat in memory and create essential shaders
-	dataController::initialize();
+	//dataController::initialize();
+	nodeProvider::prepare();
 
 	// initialize interface components
 	uiData::load();

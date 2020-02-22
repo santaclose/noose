@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dataController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="vendor\nfd_common.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -37,9 +34,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="interface\uiInputField.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="nodeFunctionality.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="interface\uiData.cpp">
@@ -75,12 +69,21 @@
     <ClCompile Include="logic\node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="nodeProvider\nodeProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="searcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nodeProvider\nodeFunctionality.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\nodes.dat">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vendor\nfd.h">
@@ -105,9 +108,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="interface\uiInputField.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="nodeFunctionality.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="interface\uiData.h">
@@ -144,6 +144,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="logic\node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nodeProvider\nodeProvider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="searcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nodeProvider\nodeFunctionality.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

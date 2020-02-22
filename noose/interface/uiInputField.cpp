@@ -3,7 +3,8 @@
 #include "uiData.h"
 
 #include "../math/uiMath.h"
-#include "../dataController.h"
+//#include "../dataController.h"
+#include "../utils.h"
 #include "../types.h"
 
 #include "uiFileSelector.h"
@@ -28,6 +29,9 @@ static char editingVectorComponent; // stores if editing x or y component of a v
 static int editingColorHue;
 static double editingColorSaturation;
 static double editingColorValue;
+
+static sf::Shader loadImageShader;
+static bool loadImageShaderLoaded;
 
 void uiInputField::updateTextPositions()
 {
@@ -102,13 +106,13 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 		}
 		else
 		{
-			newValueAux = (int)editingInputFieldHelper;
-			if (newValueAux != ((sf::Vector2i*)(editingInputField->dataPointer))->y)
-			{
-				((sf::Vector2i*)(editingInputField->dataPointer))->y = (int)editingInputFieldHelper;
-				editingInputField->texts[1].setString(std::to_string((int)editingInputFieldHelper));
-				editingInputField->onValueChanged();
-			}
+		newValueAux = (int)editingInputFieldHelper;
+		if (newValueAux != ((sf::Vector2i*)(editingInputField->dataPointer))->y)
+		{
+			((sf::Vector2i*)(editingInputField->dataPointer))->y = (int)editingInputFieldHelper;
+			editingInputField->texts[1].setString(std::to_string((int)editingInputFieldHelper));
+			editingInputField->onValueChanged();
+		}
 		}
 		break;
 	}
@@ -194,6 +198,13 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 		texts[0].setCharacterSize(FONT_SIZE);
 		texts[0].setString("None");
 		break;
+	}
+
+	if (!loadImageShaderLoaded)
+	{
+		if (!loadImageShader.loadFromFile("res/shaders/loadImage.shader", sf::Shader::Fragment))
+			std::cout << "could not load image loading shader\n";
+		loadImageShaderLoaded = true;
 	}
 }
 
@@ -283,15 +294,17 @@ void uiInputField::bind(int index)
 				std::cout << "Could not open the image" << std::endl;
 				return;
 			}
-			texts[0].setString(dataController::getFileNameFromPath(outPath));
-			dataController::loadImageShader.setUniform("tx", tx);
+			texts[0].setString(utils::getFileNameFromPath(outPath));
+			//dataController::loadImageShader.setUniform("tx", tx);
+			loadImageShader.setUniform("tx", tx);
 
 			sf::Sprite spr(tx);
 			sf::Vector2u txSize = tx.getSize();
 			sf::RenderTexture* pointer = (sf::RenderTexture*) dataPointer;
 
 			pointer->create(txSize.x, txSize.y);
-			pointer->draw(spr, &dataController::loadImageShader);
+			//pointer->draw(spr, &dataController::loadImageShader);
+			pointer->draw(spr, &loadImageShader);
 			editingInputField->onValueChanged();
 			editingInputField->updateTextPositions();
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "logic/node.h"
+#include "../logic/node.h"
 
 namespace nodeFunctionality
 {

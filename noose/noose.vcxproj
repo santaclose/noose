@@ -128,12 +128,10 @@
     <ClCompile Include="logic\connectionSystem.cpp" />
     <ClCompile Include="interface\uiFileSelectorNFD.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="dataController.cpp" />
     <ClCompile Include="logic\nodeSystem.cpp" />
     <ClCompile Include="logic\node.cpp" />
     <ClCompile Include="math\graphOperations.cpp" />
     <ClCompile Include="math\vectorOperators.cpp" />
-    <ClCompile Include="nodeFunctionality.cpp" />
     <ClCompile Include="interface\uiColorPicker.cpp" />
     <ClCompile Include="interface\uiConnections.cpp" />
     <ClCompile Include="interface\uiInputField.cpp" />
@@ -143,21 +141,26 @@
     <ClCompile Include="interface\uiData.cpp" />
     <ClCompile Include="interface\uiSearchBar.cpp" />
     <ClCompile Include="interface\uiViewport.cpp" />
+    <ClCompile Include="nodeProvider\nodeFunctionality.cpp" />
+    <ClCompile Include="nodeProvider\nodeProvider.cpp" />
+    <ClCompile Include="searcher.cpp" />
+    <ClCompile Include="utils.cpp" />
     <ClCompile Include="vendor\nfd_win.cpp" />
     <ClCompile Include="vendor\nfd_common.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logic\connectionSystem.h" />
-    <ClInclude Include="dataController.h" />
     <ClInclude Include="interface\uiFileSelector.h" />
     <ClInclude Include="logic\nodeSystem.h" />
+    <ClInclude Include="nodeProvider\nodeFunctionality.h" />
+    <ClInclude Include="nodeProvider\nodeProvider.h" />
+    <ClInclude Include="searcher.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="logic\connection.h" />
     <ClInclude Include="logic\node.h" />
     <ClInclude Include="math\graphOperations.h" />
     <ClInclude Include="math\vectorOperators.h" />
     <ClInclude Include="nodeData.h" />
-    <ClInclude Include="nodeFunctionality.h" />
     <ClInclude Include="res\nodes.dat" />
     <ClInclude Include="interface\uiColorPicker.h" />
     <ClInclude Include="interface\uiConnections.h" />
@@ -168,6 +171,7 @@
     <ClInclude Include="interface\uiData.h" />
     <ClInclude Include="interface\uiSearchBar.h" />
     <ClInclude Include="interface\uiViewport.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="vendor\nfd.h" />
     <ClInclude Include="vendor\nfd_common.h" />
   </ItemGroup>

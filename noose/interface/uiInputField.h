@@ -1,7 +1,5 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-//#include "nodeSystem.h"
-//#include "logicalNode.h"
 
 class uiInputField
 {
@@ -21,7 +19,6 @@ public:
 
 	static void onMouseMoved(sf::Vector2f& displacement);
 	static void unbind();
-	//static void initialize(void (onValueChangedFunc)());
 
 	~uiInputField();
 	bool mouseOver(const sf::Vector2f& mousePosInWorld, int& index);
