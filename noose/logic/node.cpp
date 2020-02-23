@@ -52,16 +52,17 @@ node::node(const void* theNodeData)
 	m_pinTypes = new int[m_inputPinCount + m_outputPinCount];
 	std::memcpy(m_pinTypes, &(data->pinTypes[0]), sizeof(int) * (m_inputPinCount + m_outputPinCount));
 
-	m_pinDataPointers.reserve(m_inputPinCount + m_outputPinCount); // so it doesn't have to reallocate at each iteration
+	// so it doesn't have to reallocate at each iteration
+	m_pinDataPointers.resize(m_inputPinCount + m_outputPinCount);
 
 	// data pointers from other nodes
-	m_receivedDataPointers.reserve(m_inputPinCount);
+	m_receivedDataPointers.resize(m_inputPinCount);
 
 	for (int i = 0; i < (m_inputPinCount + m_outputPinCount); i++)
 	{
-		m_pinDataPointers.push_back(reserveDataForPin(m_pinTypes[i], data->pinDefaultData[i]));
+		m_pinDataPointers[i] = reserveDataForPin(m_pinTypes[i], data->pinDefaultData[i]);
 		if (i < m_inputPinCount)
-			m_receivedDataPointers.push_back(nullptr);
+			m_receivedDataPointers[i] = nullptr;
 	}
 }
 

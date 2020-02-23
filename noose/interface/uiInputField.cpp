@@ -123,8 +123,10 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 
 uiInputField::~uiInputField()
 {
-	delete[] texts;
-	delete[] shapes;
+	if (texts != nullptr)
+		delete[] texts;
+	if (shapes != nullptr)
+		delete[] shapes;
 }
 
 bool uiInputField::mouseOver(const sf::Vector2f& mousePosInWorld, int& index)
@@ -187,7 +189,6 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 		break;
 	case NS_TYPE_COLOR:
 		shapes = new sf::Vertex[4];
-		texts = nullptr;
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = sf::Color::Magenta;
 		break;
 	case NS_TYPE_IMAGE:

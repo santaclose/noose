@@ -66,8 +66,8 @@ int findSlot()
 		i++;
 	}
 	//for (; i < linesInfo.size() && !linesInfo[i].hidden; i++) {}
-	std::cout << "[UI] found index " << i << std::endl;
-	std::cout << "[UI] vector size " << linesInfo.size() << std::endl;
+	//std::cout << "[UI] found index " << i << std::endl;
+	//std::cout << "[UI] vector size " << linesInfo.size() << std::endl;
 	return i;
 }
 void printArray()

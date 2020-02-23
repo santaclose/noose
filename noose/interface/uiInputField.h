@@ -8,8 +8,8 @@ class uiInputField
 private:
 	bool enabled = true;
 	int type;
-	sf::Vertex* shapes;
-	sf::Text* texts;
+	sf::Vertex* shapes = nullptr;
+	sf::Text* texts = nullptr;
 
 	void updateTextPositions();
 	void* dataPointer;

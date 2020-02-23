@@ -78,6 +78,9 @@
     <ClCompile Include="nodeProvider\nodeFunctionality.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="interface\uiFileSelectorZenity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\nodes.dat">

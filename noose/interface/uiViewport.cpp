@@ -1,7 +1,7 @@
 #include "uiViewport.h"
 #include <iostream>
 
-sf::RenderTexture* uiViewport::outputImage;
+sf::RenderTexture* uiViewport::outputImage = nullptr;
 float uiViewport::currentZoom;
 sf::RenderWindow* uiViewport::renderWindow;
 

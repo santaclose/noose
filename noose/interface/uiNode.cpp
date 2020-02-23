@@ -345,13 +345,3 @@ std::vector<int> uiNode::getConnectedLines()
 {
 	return m_connectedLineIndices;
 }
-
-/*int* uiNode::getConnectedLinesInfo(int& count)
-{
-	count = m_connectedLines.size();
-	int* res = new int[m_connectedLines.size()];
-	for (int i = 0; i < m_connectedLines.size(); i++)
-		res[i] = m_connectedLines[i].lineIndex;
-	return res;
-}*/
-

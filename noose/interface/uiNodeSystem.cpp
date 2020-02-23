@@ -64,6 +64,7 @@ inline void updateView()
 void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow)
 {
 	uiConnections::initialize();
+	nodeSystem::initialize();
 	renderWindow = &theRenderWindow;
 	updateView();
 }
@@ -72,19 +73,27 @@ void uiNodeSystem::terminate()
 {
 	for (uiNode* n : uiNodeList)
 	{
-		delete n;
+		if (n != nullptr)
+			delete n;
 	}
+	nodeSystem::terminate();
 }
 
 int findSlotForNode()
 {
 	int i = 0;
-	for (; i < uiNodeList.size(); i++)
+	while (true)
 	{
+		if (i == uiNodeList.size())
+		{
+			uiNodeList.resize(i + 1);
+			// no need to set the slot to nullptr since were adding a node to it
+			break;
+		}
 		if (uiNodeList[i] == nullptr)
-			return i;
+			break;
+		i++;
 	}
-	uiNodeList.push_back(nullptr);
 	return i;
 }
 

@@ -17,7 +17,10 @@ void insertNode(int slot, nodeData* data)
 void recalculatePropagationMatrices()
 {
 	for (node* n : nodeList)
-		n->clearPropagationMatrix();
+	{
+		if (n != nullptr)
+			n->clearPropagationMatrix();
+	}
 
 	int i = 0;
 	for (connection& l : connectionSystem::connections)
@@ -33,18 +36,32 @@ void recalculatePropagationMatrices()
 
 void nodeSystem::initialize()
 {
-	std::cout << "[Node system] node system initialized\n";
+	std::cout << "[Node system] Initializing\n";
+}
+
+void nodeSystem::terminate()
+{
+	std::cout << "[Node system] Terminating\n";
+	for (node* n : nodeList)
+	{
+		if (n != nullptr)
+			delete n;
+	}
 }
 
 void nodeSystem::onNodeCreated(int n, const void* data)
 {
-	std::cout << "[Node system] node created\n\tid: " << n << std::endl;
+	std::cout << "[Node system] Node created\n\tid: " << n << std::endl;
 	insertNode(n, (nodeData*)data);
 }
 
 void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int* ci, int cc)
 {
-	std::cout << "[Node system] node deleted\n\tid: " << n << std::endl;
+	std::cout << "[Node system] Node deleted\n\tid: " << n << std::endl;
+
+	delete nodeList[n];
+	nodeList[n] = nullptr;
+
 	// delete all connections to the node
 	for (int c : connections)
 		connectionSystem::deleteConnection(c);
@@ -53,13 +70,13 @@ void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int*
 
 void nodeSystem::onNodeChanged(int n)
 {
-	std::cout << "[Node system] node changed\n\tid: " << n << std::endl;
+	std::cout << "[Node system] Node changed\n\tid: " << n << std::endl;
 	nodeList[n]->activate();
 }
 
 void nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, int c)
 {
-	std::cout << "[Node system] nodes connected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
+	std::cout << "[Node system] Nodes connected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
 
 	connectionSystem::connect(c, nodeList, nA, nB, pA, pB);
 
@@ -71,7 +88,7 @@ void nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, int c)
 
 void nodeSystem::onNodesDisconnected(int nA, int nB, int pA, int pB, int c)
 {
-	std::cout << "[Node system] nodes disconnected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
+	std::cout << "[Node system] Nodes disconnected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
 
 	nodeList[nA]->disconnect(c);
 	nodeList[nB]->disconnect(c);

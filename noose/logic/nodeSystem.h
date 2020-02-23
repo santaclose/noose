@@ -5,6 +5,7 @@
 namespace nodeSystem
 {
 	void initialize();
+	void terminate();
 
 	void onNodeCreated(int n, const void* data);
 	void onNodeDeleted(int n, const std::vector<int>& connections);//int* ci, int cc);// connection indices and connection count

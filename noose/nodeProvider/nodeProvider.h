@@ -10,7 +10,8 @@ class nodeProvider
 {
 public:
 	static std::vector<nodeData> nodeDataList;
-	static void prepare();
+	static void initialize();
+	static void terminate();
 
 private:
 	static void parsePinLine(const std::string& line, std::string& a, std::string& b, std::string& d);

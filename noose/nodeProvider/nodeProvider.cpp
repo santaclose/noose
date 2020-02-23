@@ -3,7 +3,7 @@
 
 std::vector<nodeData> nodeProvider::nodeDataList;
 
-void nodeProvider::prepare()
+void nodeProvider::initialize()
 {
 	using namespace std;
 	bool insideDataSection = false;
@@ -74,6 +74,17 @@ void nodeProvider::prepare()
 
 	// load node shaders and render state
 	nodeFunctionality::initialize();
+}
+void nodeProvider::terminate()
+{
+	for (nodeData& nd : nodeDataList)
+	{
+		for (void* p : nd.pinDefaultData)
+		{
+			if (p != nullptr)
+				delete p;
+		}
+	}
 }
 
 void nodeProvider::parsePinLine(const std::string& line, std::string& a, std::string& b, std::string& d)

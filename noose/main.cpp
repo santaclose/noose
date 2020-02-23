@@ -32,9 +32,8 @@ int main()
 	// Create the main window
 	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "noose");
 
-	// load nodes.dat in memory and create essential shaders
-	//dataController::initialize();
-	nodeProvider::prepare();
+	// load nodes in memory
+	nodeProvider::initialize();
 
 	// initialize interface components
 	uiData::load();
@@ -113,6 +112,7 @@ int main()
 
 	uiNodeSystem::terminate();
 	uiColorPicker::terminate();
+	nodeProvider::terminate();
 
 	return EXIT_SUCCESS;
 }
