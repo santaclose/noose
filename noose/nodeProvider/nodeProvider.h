@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <iostream>
 #include "nodeFunctionality.h"
 #include "../nodeData.h"
 #include "../types.h"
@@ -56,6 +57,7 @@ private:
 			return (void*)nodeFunctionality::Separate;
 		if (index == 19)
 			return (void*)nodeFunctionality::Solid;
+		std::cout << "[Node provider] COULD NOT GET FUNCTIONALITY FOR INDEX " << index << std::endl;
 	}
 
 	static inline int typeFromString(const std::string& s)

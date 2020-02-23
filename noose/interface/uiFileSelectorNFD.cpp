@@ -1,8 +1,8 @@
+#ifdef WINDOWS
 #include "uiFileSelector.h"
-
 #include "../vendor/nfd.h"
 
-char* uiFileSelector::SelectFile()
+char* uiFileSelector::selectFile()
 {
 	nfdchar_t* outPath = nullptr;
 	nfdchar_t filter[] = "bmp,png,tga,jpg,gif,psd,hdr,pic";
@@ -24,3 +24,4 @@ char* uiFileSelector::SelectFile()
 		return nullptr;
 	}
 }
+#endif

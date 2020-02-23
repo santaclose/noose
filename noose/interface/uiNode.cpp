@@ -341,7 +341,7 @@ int uiNode::getInputPinCount()
 	return m_inputPinCount;
 }
 
-const std::vector<int>& uiNode::getConnectedLines()
+std::vector<int> uiNode::getConnectedLines()
 {
 	return m_connectedLineIndices;
 }

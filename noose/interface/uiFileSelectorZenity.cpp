@@ -1,7 +1,8 @@
+#ifdef LINUX
 #include "uiFileSelector.h"
 #include <iostream>
 
-char* uiFileSelector::SelectFile()
+char* uiFileSelector::selectFile()
 {
 	char* filePath = new char[1024];
 	filePath[0] = '\0';
@@ -20,3 +21,4 @@ char* uiFileSelector::SelectFile()
 	filePath[i] = '\0';
 	return filePath;
 }
+#endif

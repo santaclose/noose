@@ -1,5 +1,6 @@
 #include "uiConnections.h"
 #include <iostream>
+#include <vector>
 #include "../math/uiMath.h"
 #include "../math/vectorOperators.h"
 
@@ -27,32 +28,8 @@ void updateLineQuads(int lineIndex)
 	lineQuads[fvi + 0].position = linesInfo[lineIndex].posA + theRightVector * (CONNECTION_LINE_WIDTH / 2.0);
 }
 
-// weird bug when passing const reference
-//void set(const sf::Vector2f& pinPosA, const sf::Vector2f& pinPosB, const sf::Color& color, int index, int nodeA, int nodeB, int pinA, int pinB)
-void set(sf::Vector2f pinPosA, sf::Vector2f pinPosB, sf::Color color, int index, int nodeA, int nodeB, int pinA, int pinB)
+void set(const sf::Vector2f& pinPosA, const sf::Vector2f& pinPosB, const sf::Color& color, int index, int nodeA, int nodeB, int pinA, int pinB)
 {
-	/*if (index > linesInfo.size())
-		std::cout << "NOT POSSIBLE\n";*/
-
-	if (index == linesInfo.size()) // need to allocate more space
-	{
-		lineQuads.resize(index * 4 + 4);
-		/*std::cout << "--------after lineQuads resize " << index << std::endl;
-		std::cout << pinPosA.x << ", " << pinPosA.y << std::endl;
-		std::cout << pinPosB.x << ", " << pinPosB.y << std::endl;*/
-		linesInfo.resize(index + 1);
-		/*std::cout << "--------after linesInfo resize " << index << std::endl;
-		std::cout << pinPosA.x << ", " << pinPosA.y << std::endl;
-		std::cout << pinPosB.x << ", " << pinPosB.y << std::endl;*/
-
-		// set up uvs
-		lineQuads[index * 4 + 0].texCoords = sf::Vector2f(0.0, 0.0);
-		lineQuads[index * 4 + 1].texCoords = sf::Vector2f(1.0, 0.0);
-		lineQuads[index * 4 + 2].texCoords = sf::Vector2f(1.0, 1.0);
-		lineQuads[index * 4 + 3].texCoords = sf::Vector2f(0.0, 1.0);
-		//std::cout << "uvs set up\n";
-	}
-
 	lineQuads[index * 4 + 0].color =
 		lineQuads[index * 4 + 1].color =
 		lineQuads[index * 4 + 2].color =
@@ -71,7 +48,26 @@ void set(sf::Vector2f pinPosA, sf::Vector2f pinPosB, sf::Color color, int index,
 int findSlot()
 {
 	int i = 1;
-	for (; i < linesInfo.size() && !linesInfo[i].hidden; i++) {}
+	while (true)
+	{
+		if (i == linesInfo.size())
+		{
+			lineQuads.resize(i * 4 + 4);
+			linesInfo.resize(i + 1);
+			// set up uvs
+			lineQuads[i * 4 + 0].texCoords = sf::Vector2f(0.0, 0.0);
+			lineQuads[i * 4 + 1].texCoords = sf::Vector2f(1.0, 0.0);
+			lineQuads[i * 4 + 2].texCoords = sf::Vector2f(1.0, 1.0);
+			lineQuads[i * 4 + 3].texCoords = sf::Vector2f(0.0, 1.0);
+			break;
+		}
+		if (linesInfo[i].hidden)
+			break;
+		i++;
+	}
+	//for (; i < linesInfo.size() && !linesInfo[i].hidden; i++) {}
+	std::cout << "[UI] found index " << i << std::endl;
+	std::cout << "[UI] vector size " << linesInfo.size() << std::endl;
 	return i;
 }
 void printArray()
@@ -110,6 +106,9 @@ void uiConnections::displacePoint(const sf::Vector2f& displacement, int connecti
 {
 	//std::cout << "displacing point in line " << connectionIndex << std::endl;
 	int ri = connectionIndex + 1; // real index
+	if (ri >= linesInfo.size())
+		std::cout <<"[UI] INVALID LINE INDEX WHEN DISPLACING POINT\n";
+
 	if (isOutputPin)
 		linesInfo[ri].posA += displacement;
 	else

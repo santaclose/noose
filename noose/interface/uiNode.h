@@ -24,7 +24,7 @@ private:
 
 	sf::Text* m_pinNameTexts;
 	uiInputField* m_inputFields;
-	//std::vector<lineInfo> m_connectedLines;
+	
 	std::vector<int> m_connectedLineIndices;
 	std::vector<int> m_connectedLinePins;
 
@@ -57,6 +57,6 @@ public:
 	int getInputPinCount();
 
 	// needed to disconnect before deleting the node 
-	const std::vector<int>& getConnectedLines();
+	std::vector<int> getConnectedLines();
 	//int* getConnectedLinesInfo(int& count);
 };

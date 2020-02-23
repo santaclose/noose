@@ -14,7 +14,7 @@
 float currentZoom = 1.0f;
 sf::RenderWindow* renderWindow;
 
-std::vector<uiNode*> nodeList;
+std::vector<uiNode*> uiNodeList;
 int selectedNodeIndex = -1;
 int draggingNodeIndex = -1;
 
@@ -38,8 +38,6 @@ void (*onNodeDeletedCallback)(int) = nullptr;
 
 int boundInputFieldNode = -1;
 
-//sf::CircleShape debugCircle;
-
 void onInputFieldValueChanged()
 {
 	nodeSystem::onNodeChanged(boundInputFieldNode);
@@ -50,9 +48,10 @@ void deleteLine(int lineToDelete)
 	int nA, nB;
 	uiConnections::getNodesForLine(lineToDelete, nA, nB);
 
-	nodeList[nA]->setLineIndexAsDisconnected(lineToDelete);
-	nodeList[nB]->setLineIndexAsDisconnected(lineToDelete);
+	uiNodeList[nA]->setLineIndexAsDisconnected(lineToDelete);
+	uiNodeList[nB]->setLineIndexAsDisconnected(lineToDelete);
 
+	std::cout << "hiding line " << lineToDelete << std::endl;
 	uiConnections::hide(lineToDelete);
 }
 
@@ -64,9 +63,6 @@ inline void updateView()
 
 void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow)
 {
-	/*debugCircle.setRadius(2.0);
-	debugCircle.setFillColor(sf::Color(255, 0, 0, 255));*/
-
 	uiConnections::initialize();
 	renderWindow = &theRenderWindow;
 	updateView();
@@ -74,7 +70,7 @@ void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow)
 
 void uiNodeSystem::terminate()
 {
-	for (uiNode* n : nodeList)
+	for (uiNode* n : uiNodeList)
 	{
 		delete n;
 	}
@@ -83,12 +79,12 @@ void uiNodeSystem::terminate()
 int findSlotForNode()
 {
 	int i = 0;
-	for (; i < nodeList.size(); i++)
+	for (; i < uiNodeList.size(); i++)
 	{
-		if (nodeList[i] == nullptr)
+		if (uiNodeList[i] == nullptr)
 			return i;
 	}
-	nodeList.push_back(nullptr);
+	uiNodeList.push_back(nullptr);
 	return i;
 }
 
@@ -100,7 +96,7 @@ void uiNodeSystem::pushNewNode(const void* nodeData, sf::Vector2i& initialScreen
 	int newNodeID = findSlotForNode();
 	nodeSystem::onNodeCreated(newNodeID, nodeData);
 
-	nodeList[newNodeID] = new uiNode(nodeData, worldPos, nodeSystem::getDataPointersForNode(newNodeID), onInputFieldValueChanged);
+	uiNodeList[newNodeID] = new uiNode(nodeData, worldPos, nodeSystem::getDataPointersForNode(newNodeID), onInputFieldValueChanged);
 }
 
 void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
@@ -120,15 +116,15 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 			if (e.mouseButton.button == sf::Mouse::Left)
 			{
 				// collision from top to bottom
-				for (int i = nodeList.size() - 1; i > -1; i--)
+				for (int i = uiNodeList.size() - 1; i > -1; i--)
 				{
-					if (nodeList[i] == nullptr)
+					if (uiNodeList[i] == nullptr)
 						continue;
 
 					// index stores pin or inputfield index
 					// subindex stores subinputfield index
 					int index, subIndex;
-					uiNode::MousePos mp = nodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
+					uiNode::MousePos mp = uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
 
 					if (mp == uiNode::MousePos::Outside)
 						continue;
@@ -147,7 +143,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 						//std::cout << "mouse over pin\n";
 
 						//if (nodeSystem::canConnectToPin(i, index))
-						if (nodeList[i]->canConnectToPin(index))
+						if (uiNodeList[i]->canConnectToPin(index))
 						{
 							// global state
 							creatingConnection = true;
@@ -156,14 +152,14 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 
 							// temporary line
 							uiConnections::createTemporary(
-								nodeList[i]->getPinPosition(index),
+								uiNodeList[i]->getPinPosition(index),
 								mouseWorldPos,
-								nodeList[i]->getPinColor(index),
-								index < nodeList[i]->getInputPinCount(),
+								uiNodeList[i]->getPinColor(index),
+								index < uiNodeList[i]->getInputPinCount(),
 								connectionTempNode,
 								connectionTempPin
 							);
-							//uiNodeConnections::push(pinPosition, mouseWorldPos, pinColor, nodeList[i], index, direction);
+							//uiNodeConnections::push(pinPosition, mouseWorldPos, pinColor, uiNodeList[i], index, direction);
 						}
 						break;
 					}
@@ -171,7 +167,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 					{
 						//std::cout << "mouse over inputField\n";
 						boundInputFieldNode = i;
-						nodeList[i]->bindInputField(index, subIndex);
+						uiNodeList[i]->bindInputField(index, subIndex);
 						break;
 					}
 					}
@@ -184,26 +180,26 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 				bool mouseWasOverTopBar = false;
 
 				// collision from top to bottom
-				for (int i = nodeList.size() - 1; i > -1; i--)
+				for (int i = uiNodeList.size() - 1; i > -1; i--)
 				{
-					if (nodeList[i] == nullptr)
+					if (uiNodeList[i] == nullptr)
 						continue;
 
 					//std::cout << i << "\n";
-					if (nodeList[i]->mouseOverTopBar(mouseWorldPos))
+					if (uiNodeList[i]->mouseOverTopBar(mouseWorldPos))
 					{
 						// node selection
 						if (i == selectedNodeIndex)
 						{
-							nodeList[i]->paintAsUnselected();
+							uiNodeList[i]->paintAsUnselected();
 							selectedNodeIndex = -1;
 							break;
 						}
 
 						if (selectedNodeIndex > -1)
-							nodeList[selectedNodeIndex]->paintAsUnselected();
+							uiNodeList[selectedNodeIndex]->paintAsUnselected();
 
-						nodeList[i]->paintAsSelected();
+						uiNodeList[i]->paintAsSelected();
 						selectedNodeIndex = i;
 						mouseWasOverTopBar = true;
 						if (onNodeSelectedCallback != nullptr)
@@ -236,17 +232,17 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 				// collision from top to bottom
 				if (creatingConnection)
 				{
-					int i = nodeList.size() - 1;
+					int i = uiNodeList.size() - 1;
 
 					for (; i > -1; i--)
 					{
-						if (nodeList[i] == nullptr)
+						if (uiNodeList[i] == nullptr)
 							continue;
 
 						int index, subIndex;
-						if (nodeList[i]->mouseOver(mouseWorldPos, index, subIndex) == uiNode::MousePos::Pin)
+						if (uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex) == uiNode::MousePos::Pin)
 						{
-							if (!nodeList[i]->canConnectToPin(index))
+							if (!uiNodeList[i]->canConnectToPin(index))
 							{
 								uiConnections::hideTemporary();
 								break;
@@ -258,7 +254,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 							int pinB = index;
 														
 							// can't be both output or input
-							bool canConnect = (pinA < nodeList[nodeIndexA]->getInputPinCount()) != (pinB < nodeList[nodeIndexB]->getInputPinCount());
+							bool canConnect = (pinA < uiNodeList[nodeIndexA]->getInputPinCount()) != (pinB < uiNodeList[nodeIndexB]->getInputPinCount());
 							canConnect &= nodeSystem::isConnectionValid(nodeIndexA, nodeIndexB, pinA, pinB);
 
 							if (!canConnect) // failed to connect
@@ -270,14 +266,14 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 							// update interface lines
 
 							// node indices are flipped if necessary such that node a is on the left side
-							int connectionIndex = uiConnections::connect(nodeList[i]->getPinPosition(index), nodeIndexB, pinB);
+							int connectionIndex = uiConnections::connect(uiNodeList[i]->getPinPosition(index), nodeIndexB, pinB);
 
 							// update indices in case they were flipped
 							uiConnections::getNodesForLine(connectionIndex, nodeIndexA, nodeIndexB);
 							uiConnections::getPinsForLine(connectionIndex, pinA, pinB);
 
-							nodeList[nodeIndexB]->attachConnectionPoint(connectionIndex, pinB);
-							nodeList[nodeIndexA]->attachConnectionPoint(connectionIndex, pinA);
+							uiNodeList[nodeIndexB]->attachConnectionPoint(connectionIndex, pinB);
+							uiNodeList[nodeIndexA]->attachConnectionPoint(connectionIndex, pinA);
 
 							nodeSystem::onNodesConnected(nodeIndexA, nodeIndexB, pinA, pinB, connectionIndex);
 
@@ -311,7 +307,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 			}
 			else if (draggingNodeIndex > -1) // dragging a node
 			{
-				nodeList[draggingNodeIndex]->displace(displacement * currentZoom); // pass node index so it can move the lines
+				uiNodeList[draggingNodeIndex]->displace(displacement * currentZoom); // pass node index so it can move the lines
 			}
 			else if (creatingConnection)
 			{
@@ -361,16 +357,17 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 						return;
 
 					/*int lineCount;
-					int* linesToDelete = nodeList[selectedNodeIndex]->getConnectedLinesInfo(lineCount);*/
-					const std::vector<int>& nodeLines = nodeList[selectedNodeIndex]->getConnectedLines();
+					int* linesToDelete = uiNodeList[selectedNodeIndex]->getConnectedLinesInfo(lineCount);*/
+					// a copy is needed
+					std::vector<int> nodeLines = uiNodeList[selectedNodeIndex]->getConnectedLines();
 
 					for (int l : nodeLines)
 						deleteLine(l);
 
 					onNodeDeletedCallback(selectedNodeIndex);
 
-					delete nodeList[selectedNodeIndex];
-					nodeList[selectedNodeIndex] = nullptr;
+					delete uiNodeList[selectedNodeIndex];
+					uiNodeList[selectedNodeIndex] = nullptr;
 
 					nodeSystem::onNodeDeleted(selectedNodeIndex, nodeLines);//linesToDelete, lineCount);
 
@@ -387,15 +384,13 @@ void uiNodeSystem::draw()
 {
 	renderWindow->setView(theView);
 
-	for (uiNode* n : nodeList)
+	for (uiNode* n : uiNodeList)
 	{
 		if (n != nullptr)
 			n->draw(*renderWindow);
 	}
 
 	uiConnections::draw(*renderWindow);
-
-	//renderWindow->draw(debugCircle);
 }
 
 void uiNodeSystem::setOnNodeSelectedCallback(void (*functionPointer)(int))
@@ -411,7 +406,7 @@ void uiNodeSystem::deselectNode()
 {
 	if (selectedNodeIndex > -1)
 	{
-		nodeList[selectedNodeIndex]->paintAsUnselected();
+		uiNodeList[selectedNodeIndex]->paintAsUnselected();
 		selectedNodeIndex = -1;
 	}
 }

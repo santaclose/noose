@@ -3,7 +3,7 @@
 
   http://www.frogtoss.com/labs
  */
-
+#ifdef WINDOWS
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
@@ -140,3 +140,4 @@ int NFDi_IsFilterSegmentChar( char ch )
     return (ch==','||ch==';'||ch=='\0');
 }
 
+#endif

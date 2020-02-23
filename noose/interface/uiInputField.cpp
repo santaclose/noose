@@ -285,7 +285,7 @@ void uiInputField::bind(int index)
 	case NS_TYPE_IMAGE:
 	{
 		editingInputField = this;
-		char* outPath = uiFileSelector::SelectFile();
+		char* outPath = uiFileSelector::selectFile();
 		if (outPath != nullptr)
 		{
 			sf::Texture tx;

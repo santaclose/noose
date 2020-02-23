@@ -3,7 +3,7 @@
 
   http://www.frogtoss.com/labs
  */
-
+#ifdef WINDOWS
 #define _CRTDBG_MAP_ALLOC  
 #include <stdlib.h>  
 #include <crtdbg.h>  
@@ -782,3 +782,4 @@ nfdresult_t NFD_PickFolder(const nfdchar_t* defaultPath,
 
 	return NFD_OKAY;
 }
+#endif
