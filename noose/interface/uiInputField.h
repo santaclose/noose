@@ -1,5 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <string>
+#include <vector>
 
 class uiInputField
 {
@@ -10,6 +12,7 @@ private:
 	int type;
 	sf::Vertex* shapes = nullptr;
 	sf::Text* texts = nullptr;
+	const std::vector<std::string>* enumOptions;
 
 	void updateTextPositions();
 	void* dataPointer;
@@ -23,7 +26,7 @@ public:
 	~uiInputField();
 	bool mouseOver(const sf::Vector2f& mousePosInWorld, int& index);
 
-	void create(int theType, void* pinDataPointer, void(onValueChangedFunc)());
+	void create(int theType, void* pinDataPointer, void(onValueChangedFunc)(), const std::vector<std::string>* enumOptions);
 	void setPosition(const sf::Vector2f& newPosition, float nodeWidth, float height); // top left corner position
 	void draw(sf::RenderWindow& window);
 	void setValue(const void* value);

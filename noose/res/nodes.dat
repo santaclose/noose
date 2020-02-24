@@ -3,7 +3,7 @@ Blend
 	in:
 		Image: source
 		Image: destination
-		Integer: mode{Darken,Lighten,Add,Multiply,Difference,Screen,Color burn,Linear burn,Color dodge}
+		Integer: mode{Alpha blend,Darken,Lighten,Add,Multiply,Difference,Screen,Color burn,Linear burn,Color dodge}
 	out:
 		Image: result
 ]

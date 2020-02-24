@@ -88,7 +88,10 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 		if (newValueAux != *((int*)(editingInputField->dataPointer)))
 		{
 			*((int*)(editingInputField->dataPointer)) = newValueAux;
-			editingInputField->texts[0].setString(std::to_string((int)editingInputFieldHelper));
+			if (editingInputField->enumOptions->size() == 0)
+				editingInputField->texts[0].setString(std::to_string((int)editingInputFieldHelper));
+			else
+				editingInputField->texts[0].setString((*(editingInputField->enumOptions))[((int)editingInputFieldHelper) % editingInputField->enumOptions->size()]);
 			editingInputField->onValueChanged();
 		}
 		break;
@@ -153,8 +156,9 @@ bool uiInputField::mouseOver(const sf::Vector2f& mousePosInWorld, int& index)
 	}
 }
 
-void uiInputField::create(int theType, void* pinDataPointer, void(onValueChangedFunc)())
+void uiInputField::create(int theType, void* pinDataPointer, void(onValueChangedFunc)(), const std::vector<std::string>* enumOptions)
 {
+	this->enumOptions = enumOptions;
 	onValueChanged = onValueChangedFunc;
 	type = theType;
 	dataPointer = pinDataPointer;
@@ -166,7 +170,11 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = INPUT_FIELD_COLOR;
 		texts[0].setFont(uiData::font);
 		texts[0].setCharacterSize(FONT_SIZE);
-		texts[0].setString(std::to_string(*((int*)pinDataPointer)));
+		if (enumOptions->size() == 0)
+			texts[0].setString(std::to_string(*((int*)pinDataPointer)));
+		else
+			texts[0].setString((*enumOptions)[(*((int*)pinDataPointer)) % enumOptions->size()]);
+
 		break;
 	case NS_TYPE_FLOAT:
 		shapes = new sf::Vertex[4];

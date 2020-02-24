@@ -98,7 +98,7 @@ uiNode::uiNode(const nodeData* data, sf::Vector2f& initialPosition, void** input
 
 		// create input fields
 		if (i < m_inputPinCount)
-			m_inputFields[i].create(data->pinTypes[i], inputFieldPointers[i], onValueChangedFunc);
+			m_inputFields[i].create(data->pinTypes[i], inputFieldPointers[i], onValueChangedFunc, &(data->pinEnumOptions[i]));
 	}
 
 	setPosition(initialPosition);
