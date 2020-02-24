@@ -14,7 +14,7 @@ public:
 	static void terminate();
 
 private:
-	static void parsePinLine(const std::string& line, std::string& a, std::string& b, std::string& d);
+	static void parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions);
 
 	static inline void* getFunctionalityFromIndex(int index)
 	{

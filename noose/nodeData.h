@@ -10,6 +10,7 @@ struct nodeData
 	std::vector<int> pinTypes;
 	std::vector<std::string> pinNames;
 	std::vector<void*> pinDefaultData;
+	std::vector<std::vector<std::string>> pinEnumOptions;
 
 	int inputPinCount;
 	int outputPinCount;

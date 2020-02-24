@@ -51,7 +51,7 @@ void deleteLine(int lineToDelete)
 	uiNodeList[nA]->setLineIndexAsDisconnected(lineToDelete);
 	uiNodeList[nB]->setLineIndexAsDisconnected(lineToDelete);
 
-	std::cout << "hiding line " << lineToDelete << std::endl;
+	//std::cout << "hiding line " << lineToDelete << std::endl;
 	uiConnections::hide(lineToDelete);
 }
 

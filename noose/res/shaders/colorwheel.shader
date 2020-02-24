@@ -37,7 +37,7 @@ void main()
 		blue = (abs(angle) - 120.0) / 60.0;
 
 
-	float whiteness = 1.0 - distance(center, gl_TexCoord[0]) / circleRadius;
+	float whiteness = 1.0 - distance(center, gl_TexCoord[0].xy) / circleRadius;
 	gl_FragColor = mix(clamp(vec4(red, green, blue, 1.0), 0.0, 1.0), vec4(1.0), whiteness);
 	//gl_FragColor += (1.0 - whiteness) * vec4(1.0);
 	//gl_FragColor = gl_FragColor * whiteness + vec4(1.0) * (1.0 - whiteness);

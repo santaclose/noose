@@ -77,13 +77,6 @@ node::~node()
 	delete[] m_pinTypes;
 }
 
-/*
-bool node::canConnectToPin(int pin)
-{
-	// cannot connect if its an input pin and is already connected
-	return (pin >= m_inputPinCount || m_receivedDataPointers[pin] == nullptr);
-}*/
-
 void node::connect(int lineIndex)
 {
 	if (connectionSystem::connections[lineIndex].nodeA == (void*)this) // we are the left side node, ours is an output pin

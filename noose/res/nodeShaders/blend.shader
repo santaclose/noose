@@ -25,25 +25,25 @@ void main()
 	else if (m == 1.0)
 		gl_FragColor = vec4(min(src.rgb, dst.rgb), dst.a);
 	// lighten
-	else if (m == 7.0)
+	else if (m == 2.0)
 		gl_FragColor = vec4(max(src.rgb, dst.rgb), dst.a);
 	// add (linear dodge)
-	else if (m == 2.0)
+	else if (m == 3.0)
 		gl_FragColor = vec4(dst.rgb + src.rgb, dst.a);
 	// multiply
-	else if (m == 3.0)
+	else if (m == 4.0)
 		gl_FragColor = vec4(src.rgb * dst.rgb, dst.a);
 	// difference
-	else if (m == 4.0)
+	else if (m == 5.0)
 		gl_FragColor = vec4(abs(dst.rgb - src.rgb), dst.a);
 	// screen
-	else if (m == 8.0)
+	else if (m == 6.0)
 		gl_FragColor = vec4(vec3(1.0) - (vec3(1.0) - src.rgb) * (vec3(1.0) - dst.rgb), dst.a);
 	// color burn
-	else if (m == 5.0)
+	else if (m == 7.0)
 		gl_FragColor = vec4(vec3(1.0) - (1.0 - dst.rgb) / src.rgb, dst.a);
 	// linear burn
-	else if (m == 6.0)
+	else if (m == 8.0)
 		gl_FragColor = vec4(-vec3(1.0) + src.rgb + dst.rgb, dst.a);
 	// color dodge
 	else if (m == 9.0)

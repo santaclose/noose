@@ -15,6 +15,7 @@ void nodeProvider::initialize()
 	string line;
 
 	string type, name, defaultData;
+	vector<string> enumOptions;
 
 	while (getline(inputStream, line))
 	{
@@ -43,9 +44,10 @@ void nodeProvider::initialize()
 				inSection = false;
 			else
 			{
-				parsePinLine(line, type, name, defaultData);
+				parsePinLine(line, type, name, defaultData, enumOptions);
 				nodeDataList.back().pinNames.push_back(name);
 				nodeDataList.back().pinTypes.push_back(typeFromString(type));
+				nodeDataList.back().pinEnumOptions.push_back(enumOptions);
 				if (defaultData.length() == 0)
 					nodeDataList.back().pinDefaultData.push_back(nullptr);
 				else
@@ -87,24 +89,50 @@ void nodeProvider::terminate()
 	}
 }
 
-void nodeProvider::parsePinLine(const std::string& line, std::string& a, std::string& b, std::string& d)
+void nodeProvider::parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions)
 {
 	int i = 2;
 	for (; line[i] != ':'; i++);
-	a = line.substr(2, i - 2);
+	type = line.substr(2, i - 2);
 	i += 2;
+
 	int j = i;
-	for (; j < line.length() && line[j] != '['; j++);
-	b = line.substr(i, j - i);
-	if (j < line.length()) // there is a default value
+	for (; j < line.length() && line[j] != '[' && line[j] != '{'; j++);
+	name = line.substr(i, j - i);
+
+	if (j < line.length() && line[j] == '[') // there is a default value
 	{
 		j++;
 		for (i = j; line[i] != ']'; i++);
-		d = line.substr(j, i - j);
-		//std::cout << "found default" << std::endl;
+		defaultData = line.substr(j, i - j);
 	}
 	else
 	{
-		d = "";
+		defaultData = "";
+	}
+
+	i++;j=i;
+
+	enumOptions.clear();
+	if (j < line.length() && line[j] == '{') // there are enum options
+	{
+		j++;
+		while (true)
+		{
+			if (line[i] == ',')
+			{
+				enumOptions.push_back(line.substr(j, i - j));
+				j = i = i + 1;
+			}
+			else if (line[i] == '}')
+			{
+				enumOptions.push_back(line.substr(j, i - j));
+				break;
+			}
+			else
+			{
+				i++;
+			}
+		}
 	}
 }
