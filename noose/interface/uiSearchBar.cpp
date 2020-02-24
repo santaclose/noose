@@ -1,8 +1,9 @@
 #include "uiSearchBar.h"
 #include "uiNodeSystem.h"
 #include "uiData.h"
-//#include "../dataController.h"
+
 #include "../searcher.h"
+#include "../nodeData.h"
 
 #include <iostream>
 
@@ -90,13 +91,13 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 			{
 				if (searcher::searchResults.size() > 0)
 				{
-					void* nodeData = searcher::getDataFor(0);
-					if (nodeData == nullptr)
+					const nodeData* nData = searcher::getDataFor(0);
+					if (nData == nullptr)
 					{
 						std::cout << "[Search Bar] Failed to get node data\n";
 						return;
 					}
-					uiNodeSystem::pushNewNode(nodeData, mousePos);
+					uiNodeSystem::pushNewNode(nData, mousePos);
 
 					clearSearch();
 				}

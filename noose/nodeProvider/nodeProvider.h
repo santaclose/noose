@@ -11,6 +11,7 @@ class nodeProvider
 public:
 	static std::vector<nodeData> nodeDataList;
 	static void initialize();
+	//static void print();
 	static void terminate();
 
 private:

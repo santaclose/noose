@@ -7,7 +7,6 @@
 #include "interface/uiColorPicker.h"
 #include "interface/uiData.h"
 #include "logic/nodeSystem.h"
-//#include "dataController.h"
 #include "nodeProvider/nodeProvider.h"
 
 static const sf::Color BACKGROUND_COLOR(0x181818ff);
@@ -34,6 +33,7 @@ int main()
 
 	// load nodes in memory
 	nodeProvider::initialize();
+	//nodeProvider::print();
 
 	// initialize interface components
 	uiData::load();

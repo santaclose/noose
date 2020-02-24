@@ -1,5 +1,4 @@
 #include "searcher.h"
-#include "nodeData.h"
 #include "nodeProvider/nodeProvider.h"
 
 std::vector<std::string*> searcher::searchResults;
@@ -20,7 +19,7 @@ int searcher::search(const char* searchBuffer, int bufferSize, int maxResults)
 	return searchResults.size();
 }
 
-void* searcher::getDataFor(int searchResultIndex)
+const nodeData* searcher::getDataFor(int searchResultIndex)
 {
 	for (nodeData& n : nodeProvider::nodeDataList)
 	{

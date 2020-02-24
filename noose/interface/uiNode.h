@@ -3,14 +3,9 @@
 #include <string>
 #include <vector>
 
-//#include "uiNodeSystem.h"
 #include "../interface/uiInputField.h"
+#include "../nodeData.h"
 
-/*struct lineInfo
-{
-	int lineIndex;
-	int pin;
-};*/
 
 class uiNode
 {
@@ -33,7 +28,7 @@ public:
 		TopBar, Pin, InputField, OtherInside, Outside
 	};
 
-	uiNode(const void* nodeData, sf::Vector2f& initialPosition, void** inputFieldPointers, void(onValueChangedFunc)());
+	uiNode(const nodeData* data, sf::Vector2f& initialPosition, void** inputFieldPointers, void(onValueChangedFunc)());
 	~uiNode();
 
 	void setPosition(sf::Vector2f& newPosition);

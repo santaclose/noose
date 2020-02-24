@@ -77,6 +77,21 @@ void nodeProvider::initialize()
 	// load node shaders and render state
 	nodeFunctionality::initialize();
 }
+
+/*void nodeProvider::print()
+{
+	std::cout << "[NODE PROVIDER] PRINTING ENUM THING\n";
+	for (nodeData& d : nodeDataList)
+	{
+		std::cout << "node: " << d.nodeName << std::endl;
+		for (std::vector<std::string>& v : d.pinEnumOptions)
+		{
+			for (std::string& s : v)
+				std::cout << "\t" << s << std::endl;
+		}
+	}
+}*/
+
 void nodeProvider::terminate()
 {
 	for (nodeData& nd : nodeDataList)
@@ -100,18 +115,20 @@ void nodeProvider::parsePinLine(const std::string& line, std::string& type, std:
 	for (; j < line.length() && line[j] != '[' && line[j] != '{'; j++);
 	name = line.substr(i, j - i);
 
+	i = j;
+
 	if (j < line.length() && line[j] == '[') // there is a default value
 	{
 		j++;
 		for (i = j; line[i] != ']'; i++);
 		defaultData = line.substr(j, i - j);
+		i++;
+		j = i;
 	}
 	else
 	{
 		defaultData = "";
 	}
-
-	i++;j=i;
 
 	enumOptions.clear();
 	if (j < line.length() && line[j] == '{') // there are enum options

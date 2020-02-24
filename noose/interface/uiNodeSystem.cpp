@@ -97,15 +97,15 @@ int findSlotForNode()
 	return i;
 }
 
-void uiNodeSystem::pushNewNode(const void* nodeData, sf::Vector2i& initialScreenPosition)
+void uiNodeSystem::pushNewNode(const nodeData* nData, sf::Vector2i& initialScreenPosition)
 {
 	renderWindow->setView(theView);
 	sf::Vector2f worldPos = renderWindow->mapPixelToCoords(initialScreenPosition);
 
 	int newNodeID = findSlotForNode();
-	nodeSystem::onNodeCreated(newNodeID, nodeData);
+	nodeSystem::onNodeCreated(newNodeID, nData);
 
-	uiNodeList[newNodeID] = new uiNode(nodeData, worldPos, nodeSystem::getDataPointersForNode(newNodeID), onInputFieldValueChanged);
+	uiNodeList[newNodeID] = new uiNode(nData, worldPos, nodeSystem::getDataPointersForNode(newNodeID), onInputFieldValueChanged);
 }
 
 void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)

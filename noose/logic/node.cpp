@@ -1,5 +1,4 @@
 #include "../math/graphOperations.h"
-#include "../nodeData.h"
 #include "../types.h"
 
 #include "node.h"
@@ -38,10 +37,8 @@ void* reserveDataForPin(int type, void* defaultValue)
 	}
 }
 
-node::node(const void* theNodeData)
+node::node(const nodeData* data)
 {
-	nodeData* data = (nodeData*)theNodeData;
-
 	// set functionality
 	m_nodeFunctionalityPointer = (void (*)(node* theNode))(data->nodeFunctionality);
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include "../nodeData.h"
 
 class node
 {
@@ -21,7 +22,7 @@ private:
 	void (*m_nodeFunctionalityPointer)(node* theNode);
 
 public:
-	node(const void* nodeData);
+	node(const nodeData* data);
 	~node();
 
 	//bool canConnectToPin(int pin);
