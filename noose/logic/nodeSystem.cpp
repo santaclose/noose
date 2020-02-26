@@ -83,7 +83,7 @@ void nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, int c)
 	//connect right side node before
 	nodeList[nB]->connect(c);
 	nodeList[nA]->connect(c);
-	nodeList[nA]->activate();
+	nodeList[nB]->activate();
 }
 
 void nodeSystem::onNodesDisconnected(int nA, int nB, int pA, int pB, int c)

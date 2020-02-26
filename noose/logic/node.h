@@ -24,8 +24,6 @@ private:
 public:
 	node(const nodeData* data);
 	~node();
-
-	//bool canConnectToPin(int pin);
 	
 	void connect(int lineIndex);
 	void disconnect(int lineIndex);
