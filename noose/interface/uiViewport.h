@@ -28,6 +28,7 @@ private:
 	static sf::Sprite imageLimitSprite;
 
 	// checker background
+	static sf::RectangleShape backgroundRectangle;
 	static sf::Shader checkerShader;
 
 	// dark mode

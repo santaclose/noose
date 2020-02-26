@@ -12,15 +12,13 @@ sf::View uiViewport::theView;
 sf::Vector2f uiViewport::viewPosition = sf::Vector2f(0.0, 0.0);
 sf::Texture uiViewport::imageLimitTexture;
 sf::Sprite uiViewport::imageLimitSprite;
+sf::RectangleShape uiViewport::backgroundRectangle;
 sf::Shader uiViewport::checkerShader;
 sf::Shader uiViewport::invertShader;
 
 
 void uiViewport::updateView(float width, float height)
 {
-	//uiViewport::theView = sf::View(uiViewport::viewPosition, (sf::Vector2f)uiViewport::renderWindow->getSize());
-	//uiViewport::theView.zoom(uiViewport::currentZoom);
-
 	sf::FloatRect visibleArea(uiViewport::viewPosition.x, uiViewport::viewPosition.y, width, height);
 	uiViewport::theView = sf::View(visibleArea);
 }
@@ -29,6 +27,7 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
 {
 	renderWindow = &theRenderWindow;
 	updateView(renderWindow->getSize().x, renderWindow->getSize().y);
+	backgroundRectangle.setSize((sf::Vector2f) renderWindow->getSize());
 
 	imageLimitTexture.loadFromFile("res/images/imageLimit.png");
 	imageLimitSprite = sf::Sprite(imageLimitTexture);
@@ -51,6 +50,7 @@ void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 		{
 			// update the view to the new size of the window
 			updateView(e.size.width, e.size.height);
+			backgroundRectangle.setSize((sf::Vector2f) renderWindow->getSize());
 			break;
 		}
 		case sf::Event::MouseButtonPressed:
@@ -90,10 +90,7 @@ void uiViewport::draw()
 		sf::Vector2f(windowSize.x, windowSize.y));
 	renderWindow->setView(staticView);
 
-	sf::Texture background;
-	background.create(renderWindow->getSize().x, renderWindow->getSize().y);
-	sf::Sprite backgroundSprite(background);
-	renderWindow->draw(backgroundSprite, &checkerShader);
+	renderWindow->draw(backgroundRectangle, &checkerShader);
 	
 	renderWindow->setView(theView);
 	if (outputImage != nullptr)
