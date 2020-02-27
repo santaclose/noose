@@ -11,46 +11,47 @@ void go::updatePropagationMatrix(std::vector<std::vector<node*>>& matrix, node* 
 
 	// add the right node's matrix
 	const std::vector<std::vector<node*>>& matrixRS = theNode->getPropagationMatrix();
+	matrixPropagation(matrix, matrixRS);
+}
+
+void go::matrixPropagation(std::vector<std::vector<node*>>& leftSideMatrix, const std::vector<std::vector<node*>>& rightSideMatrix)
+{
 	int indexR = 1;
-	for (const std::vector<node*> l : matrixRS)
+	for (const std::vector<node*>& l : rightSideMatrix)
 	{
 		for (node* n : l)
 		{
-			int index, subIndex;
-			nodePositionInMatrix(n, matrix, index, subIndex);
-			if (index < 0) // append the node
+			int indexA, subIndexA;
+			nodePositionInMatrix(n, leftSideMatrix, indexA, subIndexA);
+			if (indexA < 0)
 			{
-				appendNodeToMatrix(matrix, n, indexR);
+				appendNodeToMatrix(leftSideMatrix, n, indexR);
 			}
-			else // have to keep the one that is further if we have two repeated nodes
+			else if (indexA < indexR)
 			{
-				if (index < indexR) // we have to replace the node
-				{
-					matrix[index].erase(matrix[index].begin() + subIndex);
-					appendNodeToMatrix(matrix, n, indexR);
-				}
+				// we have to replace the node
+				leftSideMatrix[indexA].erase(leftSideMatrix[indexA].begin() + subIndexA);
+				appendNodeToMatrix(leftSideMatrix, n, indexR);
 			}
 		}
 		indexR++;
 	}
 }
+
 void go::appendNodeToMatrix(std::vector<std::vector<node*>>& matrix, node* theNode, int index)
 {
 	// get more space if needed
 	//std::cout << "index: " << index << std::endl;
 	//std::cout << "the size of the matrix is " << matrix.size() << std::endl;
-	while (matrix.size() <= index)
-	{
-		matrix.emplace_back();
-		//std::cout << "lal\n";
-	}
-
+	if (index >= matrix.size())
+		matrix.resize(index + 1);
 
 	//std::cout << "the size of the matrix is " << matrix.size() << std::endl;
 	// push the node
 	matrix[index].push_back(theNode);
 }
-void go::nodePositionInMatrix(const node* n, std::vector<std::vector<node*>>& m, int& index, int& subIndex)
+
+void go::nodePositionInMatrix(const node* n, const std::vector<std::vector<node*>>& m, int& index, int& subIndex)
 {
 	index = 0;
 	for (std::vector<node*> l : m)
@@ -66,6 +67,7 @@ void go::nodePositionInMatrix(const node* n, std::vector<std::vector<node*>>& m,
 	}
 	index = subIndex = -1;
 }
+
 void go::removeNodeFromList(const node* n, std::vector<node*>& list)
 {
 	int j = 0;
@@ -78,30 +80,5 @@ void go::removeNodeFromList(const node* n, std::vector<node*>& list)
 			return;
 		}
 		j++;
-	}
-}
-void go::matrixPropagation(std::vector<std::vector<node*>>& leftSideMatrix, std::vector<std::vector<node*>>& rightSideMatrix)
-{
-	for (int i = 0; i < rightSideMatrix.size(); i++)
-	{
-		for (node* n : rightSideMatrix[i])
-		{
-			int subIndexA;
-			int indexA;
-			nodePositionInMatrix(n, leftSideMatrix, indexA, subIndexA);
-			if (indexA < 0)
-			{
-				appendNodeToMatrix(leftSideMatrix, n, i + 1);
-				continue;
-			}
-
-			//std::cout << "indexA: " << indexA << "\nsubIndexA: " << subIndexA << "\ni + 1: " << i + 1 << std::endl;
-			if (indexA < i + 1)
-			{
-				//std::cout << "asdf\n";
-				leftSideMatrix[indexA].erase(leftSideMatrix[indexA].begin() + subIndexA);
-				appendNodeToMatrix(leftSideMatrix, n, i + 1);
-			}
-		}
 	}
 }

@@ -115,7 +115,7 @@ void node::activate()
 
 void node::run()
 {
-	std::cout << "running node\n";
+	//std::cout << "running node\n";
 	m_nodeFunctionalityPointer(this);
 }
 

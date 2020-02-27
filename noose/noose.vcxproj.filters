@@ -21,9 +21,6 @@
     <ClCompile Include="vendor\nfd_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="math\graphOperations.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="math\vectorOperators.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -81,6 +78,9 @@
     <ClCompile Include="interface\uiFileSelectorZenity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="math\graphOperations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\nodes.dat">
@@ -93,9 +93,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="nodeData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="math\graphOperations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="math\vectorOperators.h">
@@ -156,6 +153,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="nodeProvider\nodeFunctionality.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\graphOperations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
