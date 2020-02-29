@@ -201,3 +201,48 @@ sf::RenderTexture* node::getFirstOutputImage()
 	}
 	return nullptr;
 }
+
+void node::print()
+{
+	std::cout << "\tm_inputPinCount: " << m_inputPinCount << std::endl;
+	std::cout << "\tm_outputPinCount: " << m_outputPinCount << std::endl;
+
+	std::cout << "\tm_pinTypes: ";
+	for (int i = 0; i < m_inputPinCount + m_outputPinCount; i++)
+	{
+		std::cout << m_pinTypes[i] << ",";
+	}
+	std::cout << std::endl;
+
+	std::cout << "\tm_pinDataPointers: ";
+	for (void* p : m_pinDataPointers)
+	{
+		std::cout << p << ",";
+	}
+	std::cout << std::endl;
+
+	std::cout << "\tm_receivedDataPointers: ";
+	for (void* p : m_receivedDataPointers)
+	{
+		std::cout << p << ",";
+	}
+	std::cout << std::endl;
+
+	std::cout << "\tm_propagationMatrix: ";
+	for (std::vector<node*>& l : m_propagationMatrix)
+	{
+		for (node* n : l)
+			std::cout << n << ",";
+		std::cout << ";";
+	}
+	std::cout << std::endl;
+
+	std::cout << "\tm_leftSideNodes: ";
+	for (node* n : m_leftSideNodes)
+	{
+		std::cout << n << ",";
+	}
+	std::cout << std::endl;
+
+	std::cout << "\tm_nodeFunctionalityPointer: " << m_nodeFunctionalityPointer << std::endl;
+}

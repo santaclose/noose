@@ -6,6 +6,22 @@
 
 std::vector<node*> nodeList;
 
+void printSystemStatus()
+{
+	std::cout << "--nodeList\n";
+	for (node* n : nodeList)
+	{
+		if (n != nullptr)
+		{
+			std::cout << "-\n";
+			n->print();
+		}
+		else
+			std::cout << "-\n\tnullptr\n";
+	}
+	connectionSystem::print();
+}
+
 void insertNode(int slot, nodeData* data)
 {
 	if (slot >= nodeList.size())
@@ -61,14 +77,7 @@ void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int*
 
 	// delete all connections to the node
 	for (int c : connections)
-	{
-		int nodeToDisconnectFrom =
-			connectionSystem::connections[c].nodeIndexA == n ?
-			connectionSystem::connections[c].nodeIndexB :
-			connectionSystem::connections[c].nodeIndexA;
-		nodeList[nodeToDisconnectFrom]->disconnect(c);
 		connectionSystem::deleteConnection(c);
-	}
 
 	delete nodeList[n];
 	nodeList[n] = nullptr;
@@ -87,22 +96,12 @@ void nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, int c)
 	std::cout << "[Node system] Nodes connected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
 
 	connectionSystem::connect(c, nodeList, nA, nB, pA, pB);
-
-	//connect right side node before
-	nodeList[nB]->connect(c);
-	nodeList[nA]->connect(c);
 	nodeList[nB]->activate();
 }
 
 void nodeSystem::onNodesDisconnected(int nA, int nB, int pA, int pB, int c)
 {
 	std::cout << "[Node system] Nodes disconnected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
-
-	std::cout << "disconnecting line " << c << " from node " << nA << std::endl;
-	nodeList[nA]->disconnect(c);
-	std::cout << "disconnecting line " << c << " from node " << nB << std::endl;
-	nodeList[nB]->disconnect(c);
-
 	connectionSystem::deleteConnection(c);
 
 	recalculatePropagationMatrices();
@@ -113,7 +112,7 @@ bool nodeSystem::isConnectionValid(int nA, int nB, int pinA, int pinB)
 	return
 		nA != nB && // can't connect a node to itself
 		nodeList[nA]->getPinType(pinA) == nodeList[nB]->getPinType(pinB); // both pins must be of the same type
-		//(pinA < nodeList[nA]->getInputPinCount()) != (pinB < nodeList[nB]->getInputPinCount()) && // can't be both output or input
+		//(pinA < nodeList[nA]->getInputPinCount()) != (pinB < nodeList[nB]->getInputPinCount()) && // can't be both output or input (handled by the ui already)
 }
 
 void** nodeSystem::getDataPointersForNode(int n)

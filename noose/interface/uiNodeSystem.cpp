@@ -151,7 +151,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 					{
 						//std::cout << "mouse over pin\n";
 
-						//if (nodeSystem::canConnectToPin(i, index))
 						if (uiNodeList[i]->canConnectToPin(index))
 						{
 							// global state
@@ -333,7 +332,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 					uiConnections::getNodesForLine(lineToRemove, nA, nB);
 					uiConnections::getPinsForLine(lineToRemove, pA, pB);
 					nodeSystem::onNodesDisconnected(nA, nB, pA, pB, lineToRemove);
-					//recalculatePropagationMatrices();
 				}
 			}
 		
@@ -365,8 +363,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 					if (selectedNodeIndex < 0 || draggingNodeIndex > -1)
 						return;
 
-					/*int lineCount;
-					int* linesToDelete = uiNodeList[selectedNodeIndex]->getConnectedLinesInfo(lineCount);*/
 					// a copy is needed
 					std::vector<int> nodeLines = uiNodeList[selectedNodeIndex]->getConnectedLines();
 
@@ -380,7 +376,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 
 					nodeSystem::onNodeDeleted(selectedNodeIndex, nodeLines);//linesToDelete, lineCount);
 
-					//delete[] linesToDelete; // free memory
 					selectedNodeIndex = -1;
 					break;
 				}
