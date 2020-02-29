@@ -11,7 +11,8 @@
 std::vector<sf::Vertex> lineQuads;
 std::vector<uiLineInfo> linesInfo;
 sf::Shader shader;
-bool startedOnInputPinb = false;
+
+bool startedOnRightSideNodeB;
 
 void updateLineQuads(int lineIndex)
 {
@@ -28,7 +29,7 @@ void updateLineQuads(int lineIndex)
 	lineQuads[fvi + 0].position = linesInfo[lineIndex].posA + theRightVector * (CONNECTION_LINE_WIDTH / 2.0);
 }
 
-void set(const sf::Vector2f& pinPosA, const sf::Vector2f& pinPosB, const sf::Color& color, int index, int nodeA, int nodeB, int pinA, int pinB)
+void set(const sf::Vector2f& pinPosA, const sf::Vector2f& pinPosB, int nodeA, int nodeB, int pinA, int pinB, const sf::Color& color, int index)
 {
 	lineQuads[index * 4 + 0].color =
 		lineQuads[index * 4 + 1].color =
@@ -62,7 +63,10 @@ int findSlot()
 			break;
 		}
 		if (linesInfo[i].hidden)
+		{
+			linesInfo[i].hidden = false;
 			break;
+		}
 		i++;
 	}
 	//for (; i < linesInfo.size() && !linesInfo[i].hidden; i++) {}
@@ -95,11 +99,14 @@ void uiConnections::initialize()
 	linesInfo.resize(1);
 }
 
-void uiConnections::createTemporary(const sf::Vector2f& pinPos, const sf::Vector2f& mousePos, const sf::Color& color, bool startedOnInputPin, int node, int pin)
+void uiConnections::createTemporary(const sf::Vector2f& pinPos, const sf::Vector2f& mousePos, const sf::Color& color, int node, int pin, bool startedOnRightSideNode)
 {
 	//std::cout << "creating temporary line\n";
-	set(pinPos, mousePos, color, 0, node, -1, pin, -1);
-	startedOnInputPinb = startedOnInputPin;
+	startedOnRightSideNodeB = startedOnRightSideNode;
+	if (!startedOnRightSideNodeB)
+		set(pinPos, mousePos, node, -1, pin, -1, color, 0);
+	else
+		set(mousePos, pinPos, -1, node, -1, pin, color, 0);
 }
 
 void uiConnections::displacePoint(const sf::Vector2f& displacement, int connectionIndex, bool isOutputPin)
@@ -118,7 +125,10 @@ void uiConnections::displacePoint(const sf::Vector2f& displacement, int connecti
 
 void uiConnections::displaceTemporary(const sf::Vector2f& displacement)
 {
-	linesInfo[0].posB += displacement;
+	if (!startedOnRightSideNodeB)
+		linesInfo[0].posB += displacement;
+	else
+		linesInfo[0].posA += displacement;
 	updateLineQuads(0);
 }
 
@@ -126,15 +136,13 @@ int uiConnections::connect(const sf::Vector2f& pinPos, int node, int pin)
 {
 	//printArray();
 	int index = findSlot();
-	
-	// mark as not hidden if hidden
-	linesInfo[index].hidden = false;
 
 	//std::cout << "slot found: " << index << std::endl;
-	if (startedOnInputPinb) // flip if necessary
-		set(pinPos, linesInfo[0].posA, lineQuads[0].color, index, node, linesInfo[0].nodeA, pin, linesInfo[0].pinA);
+	// create new line starting from temporary
+	if (startedOnRightSideNodeB) // flip if necessary
+		set(pinPos, linesInfo[0].posB, node, linesInfo[0].nodeB, pin, linesInfo[0].pinB, lineQuads[0].color, index);
 	else
-		set(linesInfo[0].posA, pinPos, lineQuads[0].color, index, linesInfo[0].nodeA, node, linesInfo[0].pinA, pin);
+		set(linesInfo[0].posA, pinPos, linesInfo[0].nodeA, node, linesInfo[0].pinA, pin, lineQuads[0].color, index);
 	hideTemporary();
 	return index-1;
 }

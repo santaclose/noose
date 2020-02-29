@@ -21,6 +21,7 @@ int draggingNodeIndex = -1;
 bool panning = false;
 
 bool creatingConnection = false;
+bool connectionStartedOnRightSideNode;
 int connectionTempNode;
 int connectionTempPin;
 
@@ -158,14 +159,16 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 							connectionTempNode = i;
 							connectionTempPin = index;
 
+							connectionStartedOnRightSideNode = index < uiNodeList[i]->getInputPinCount();
+
 							// temporary line
 							uiConnections::createTemporary(
 								uiNodeList[i]->getPinPosition(index),
 								mouseWorldPos,
 								uiNodeList[i]->getPinColor(index),
-								index < uiNodeList[i]->getInputPinCount(),
 								connectionTempNode,
-								connectionTempPin
+								connectionTempPin,
+								connectionStartedOnRightSideNode
 							);
 							//uiNodeConnections::push(pinPosition, mouseWorldPos, pinColor, uiNodeList[i], index, direction);
 						}
@@ -256,14 +259,16 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 								break;
 							}
 
-							int nodeIndexA = connectionTempNode;
-							int nodeIndexB = i;
-							int pinA = connectionTempPin;
-							int pinB = index;
-														
+							int leftSideNode = connectionStartedOnRightSideNode ? i : connectionTempNode;
+							int rightSideNode = connectionStartedOnRightSideNode ? connectionTempNode : i;
+							int leftSidePin = connectionStartedOnRightSideNode ? index : connectionTempPin;
+							int rightSidePin = connectionStartedOnRightSideNode ? connectionTempPin : index;
+
 							// can't be both output or input
-							bool canConnect = (pinA < uiNodeList[nodeIndexA]->getInputPinCount()) != (pinB < uiNodeList[nodeIndexB]->getInputPinCount());
-							canConnect &= nodeSystem::isConnectionValid(nodeIndexA, nodeIndexB, pinA, pinB);
+							bool canConnect =
+								(leftSidePin < uiNodeList[leftSideNode]->getInputPinCount()) !=
+								(rightSidePin < uiNodeList[rightSideNode]->getInputPinCount());
+							canConnect &= nodeSystem::isConnectionValid(leftSideNode, rightSideNode, leftSidePin, rightSidePin);
 
 							if (!canConnect) // failed to connect
 							{
@@ -274,16 +279,20 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 							// update interface lines
 
 							// node indices are flipped if necessary such that node a is on the left side
-							int connectionIndex = uiConnections::connect(uiNodeList[i]->getPinPosition(index), nodeIndexB, pinB);
+							int connectionIndex = uiConnections::connect(
+								uiNodeList[i]->getPinPosition(index),
+								connectionStartedOnRightSideNode ? leftSideNode : rightSideNode,
+								connectionStartedOnRightSideNode ? leftSidePin : rightSidePin);
 
 							// update indices in case they were flipped
-							uiConnections::getNodesForLine(connectionIndex, nodeIndexA, nodeIndexB);
-							uiConnections::getPinsForLine(connectionIndex, pinA, pinB);
+							//uiConnections::getNodesForLine(connectionIndex, nodeIndexA, nodeIndexB);
+							//uiConnections::getPinsForLine(connectionIndex, pinA, pinB);
 
-							uiNodeList[nodeIndexB]->attachConnectionPoint(connectionIndex, pinB);
-							uiNodeList[nodeIndexA]->attachConnectionPoint(connectionIndex, pinA);
+							// right side node first
+							uiNodeList[rightSideNode]->attachConnectionPoint(connectionIndex, rightSidePin);
+							uiNodeList[leftSideNode]->attachConnectionPoint(connectionIndex, leftSidePin);
 
-							nodeSystem::onNodesConnected(nodeIndexA, nodeIndexB, pinA, pinB, connectionIndex);
+							nodeSystem::onNodesConnected(leftSideNode, rightSideNode, leftSidePin, rightSidePin, connectionIndex);
 
 							break;
 						}

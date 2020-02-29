@@ -16,7 +16,7 @@ namespace uiConnections
 {
 	void initialize();
 
-	void createTemporary(const sf::Vector2f& pinPos, const sf::Vector2f& mousePos, const sf::Color& color, bool startedOnInputPin, int node, int pin);
+	void createTemporary(const sf::Vector2f& pinPos, const sf::Vector2f& mousePos, const sf::Color& color, int node, int pin, bool startedOnRightSideNode);
 
 	void displacePoint(const sf::Vector2f& displacement, int connectionIndex, bool isOutputPin);
 	void displaceTemporary(const sf::Vector2f& displacement);
