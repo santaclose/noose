@@ -59,12 +59,20 @@ void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int*
 {
 	std::cout << "[Node system] Node deleted\n\tid: " << n << std::endl;
 
+	// delete all connections to the node
+	for (int c : connections)
+	{
+		int nodeToDisconnectFrom =
+			connectionSystem::connections[c].nodeIndexA == n ?
+			connectionSystem::connections[c].nodeIndexB :
+			connectionSystem::connections[c].nodeIndexA;
+		nodeList[nodeToDisconnectFrom]->disconnect(c);
+		connectionSystem::deleteConnection(c);
+	}
+
 	delete nodeList[n];
 	nodeList[n] = nullptr;
 
-	// delete all connections to the node
-	for (int c : connections)
-		connectionSystem::deleteConnection(c);
 	recalculatePropagationMatrices();
 }
 
@@ -90,7 +98,9 @@ void nodeSystem::onNodesDisconnected(int nA, int nB, int pA, int pB, int c)
 {
 	std::cout << "[Node system] Nodes disconnected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
 
+	std::cout << "disconnecting line " << c << " from node " << nA << std::endl;
 	nodeList[nA]->disconnect(c);
+	std::cout << "disconnecting line " << c << " from node " << nB << std::endl;
 	nodeList[nB]->disconnect(c);
 
 	connectionSystem::deleteConnection(c);

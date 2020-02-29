@@ -131,7 +131,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="logic\nodeSystem.cpp" />
     <ClCompile Include="logic\node.cpp" />
-    <ClCompile Include="math\graphOperations.cpp" />
+    <ClCompile Include="logic\graphOperations.cpp" />
     <ClCompile Include="math\vectorOperators.cpp" />
     <ClCompile Include="interface\uiColorPicker.cpp" />
     <ClCompile Include="interface\uiConnections.cpp" />
@@ -158,7 +158,7 @@
     <ClInclude Include="types.h" />
     <ClInclude Include="logic\connection.h" />
     <ClInclude Include="logic\node.h" />
-    <ClInclude Include="math\graphOperations.h" />
+    <ClInclude Include="logic\graphOperations.h" />
     <ClInclude Include="math\vectorOperators.h" />
     <ClInclude Include="nodeData.h" />
     <ClInclude Include="res\nodes.dat" />

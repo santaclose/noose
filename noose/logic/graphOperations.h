@@ -1,5 +1,5 @@
 #pragma once
-#include "../logic/node.h"
+#include "node.h"
 
 class go
 {

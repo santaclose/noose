@@ -1,6 +1,6 @@
-#include "../math/graphOperations.h"
 #include "../types.h"
 
+#include "graphOperations.h"
 #include "node.h"
 #include "connectionSystem.h"
 

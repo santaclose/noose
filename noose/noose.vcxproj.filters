@@ -78,7 +78,7 @@
     <ClCompile Include="interface\uiFileSelectorZenity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="math\graphOperations.cpp">
+    <ClCompile Include="logic\graphOperations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -155,7 +155,7 @@
     <ClInclude Include="nodeProvider\nodeFunctionality.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="math\graphOperations.h">
+    <ClInclude Include="logic\graphOperations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
