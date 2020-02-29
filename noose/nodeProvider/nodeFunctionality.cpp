@@ -6,6 +6,7 @@ sf::Shader blendShader;
 sf::Shader brightnessContrastShader;
 sf::Shader checkerShader;
 sf::Shader flipShader;
+sf::Shader frameShader;
 sf::Shader invertShader;
 sf::Shader linearGradientShader;
 sf::Shader repeatShader;
@@ -31,9 +32,11 @@ void nodeFunctionality::initialize()
 	if (!brightnessContrastShader.loadFromFile("res/nodeShaders/brightness-contrast.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load brightness-contrast shader\n";	
 	if (!checkerShader.loadFromFile("res/nodeShaders/checker.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load checker shader\n";	
+		std::cout << "[Node provider] Failed to load checker shader\n";
 	if (!flipShader.loadFromFile("res/nodeShaders/flip.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load flip shader\n";	
+		std::cout << "[Node provider] Failed to load flip shader\n";
+	if (!frameShader.loadFromFile("res/nodeShaders/frame.shader", sf::Shader::Fragment))
+		std::cout << "[Node provider] Failed to load frame shader\n";
 	if (!invertShader.loadFromFile("res/nodeShaders/invert.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load invert shader\n";	
 	if (!linearGradientShader.loadFromFile("res/nodeShaders/linearGradient.shader", sf::Shader::Fragment))
@@ -219,6 +222,41 @@ void nodeFunctionality::Float(node* theNode)
 	//std::cout << "executing float" << std::endl;
 
 	*((float*)theNode->getDataPointer(1)) = *((float*)theNode->getDataPointer(0));
+}
+
+void nodeFunctionality::Frame(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(3));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
+	int* frame = ((int*)theNode->getDataPointer(1));
+	sf::Color* color = ((sf::Color*) theNode->getDataPointer(2));
+
+	sf::Vector2u size = a->getSize();
+	sf::Vector2f fFrame;
+	if (*frame < 0)
+	{
+		outputPointer->create(size.x - *frame * 2, size.y - *frame * 2);
+		fFrame.x = (float)*frame / (float)size.x * -1.0f;
+		fFrame.y = (float)*frame / (float)size.y * -1.0f;
+	}
+	else if (*frame > 0)
+	{
+		outputPointer->create(size.x + *frame * 2, size.y + *frame * 2);
+		fFrame.x = (float)*frame / (float)size.x;
+		fFrame.y = (float)*frame / (float)size.y;
+	}
+	else
+		return;
+
+	//std::cout << fixed << std::endl;
+
+	frameShader.setUniform("tex", a->getTexture());
+	frameShader.setUniform("frame", sf::Glsl::Vec2(fFrame));
+	frameShader.setUniform("color", sf::Glsl::Vec4(*color));
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &frameShader;
+	outputPointer->draw(spr, rs);
 }
 
 void nodeFunctionality::Grayscale(node* theNode)

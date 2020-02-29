@@ -76,6 +76,15 @@ Float
 	out:
 		Float: out
 ]
+Frame
+[
+	in:
+		Image: in
+		Integer: frame[10]
+		Color: color
+	out:
+		Image: out
+]
 Grayscale
 [
 	in:

@@ -13,6 +13,7 @@ namespace nodeFunctionality
 	void Crop(node* theNode);
 	void Flip(node* theNode);
 	void Float(node* theNode);
+	void Frame(node* theNode);
 	void Grayscale(node* theNode);
 	void Image(node* theNode);
 	void Integer(node* theNode);

@@ -38,26 +38,28 @@ private:
 		if (index == 8)
 			return (void*)nodeFunctionality::Float;
 		if (index == 9)
-			return (void*)nodeFunctionality::Grayscale;
+			return (void*)nodeFunctionality::Frame;
 		if (index == 10)
-			return (void*)nodeFunctionality::Image;
+			return (void*)nodeFunctionality::Grayscale;
 		if (index == 11)
-			return (void*)nodeFunctionality::Integer;
+			return (void*)nodeFunctionality::Image;
 		if (index == 12)
-			return (void*)nodeFunctionality::Invert;
+			return (void*)nodeFunctionality::Integer;
 		if (index == 13)
-			return (void*)nodeFunctionality::LinearGradient;
+			return (void*)nodeFunctionality::Invert;
 		if (index == 14)
-			return (void*)nodeFunctionality::Mask;
+			return (void*)nodeFunctionality::LinearGradient;
 		if (index == 15)
-			return (void*)nodeFunctionality::Repeat;
+			return (void*)nodeFunctionality::Mask;
 		if (index == 16)
-			return (void*)nodeFunctionality::Rotate90;
+			return (void*)nodeFunctionality::Repeat;
 		if (index == 17)
-			return (void*)nodeFunctionality::SelectByColor;
+			return (void*)nodeFunctionality::Rotate90;
 		if (index == 18)
-			return (void*)nodeFunctionality::Separate;
+			return (void*)nodeFunctionality::SelectByColor;
 		if (index == 19)
+			return (void*)nodeFunctionality::Separate;
+		if (index == 20)
 			return (void*)nodeFunctionality::Solid;
 		std::cout << "[Node provider] COULD NOT GET FUNCTIONALITY FOR INDEX " << index << std::endl;
 	}
