@@ -1,6 +1,7 @@
 #include "nodeSystem.h"
 #include "connectionSystem.h"
 #include "node.h"
+#include "graphOperations.h"
 #include "../nodeData.h"
 #include <iostream>
 
@@ -109,9 +110,12 @@ void nodeSystem::onNodesDisconnected(int nA, int nB, int pA, int pB, int c)
 
 bool nodeSystem::isConnectionValid(int nA, int nB, int pinA, int pinB)
 {
+	int nodeIndex, nodeSubIndex;
+	go::nodePositionInMatrix(nodeList[nA], nodeList[nB]->getPropagationMatrix(), nodeIndex, nodeSubIndex);
 	return
 		nA != nB && // can't connect a node to itself
-		nodeList[nA]->getPinType(pinA) == nodeList[nB]->getPinType(pinB); // both pins must be of the same type
+		nodeList[nA]->getPinType(pinA) == nodeList[nB]->getPinType(pinB) && // both pins must be of the same type
+		nodeIndex == -1; // avoid cycles
 		//(pinA < nodeList[nA]->getInputPinCount()) != (pinB < nodeList[nB]->getInputPinCount()) && // can't be both output or input (handled by the ui already)
 }
 
