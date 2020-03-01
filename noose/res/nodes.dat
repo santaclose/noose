@@ -1,3 +1,188 @@
+Int
+[
+	in:
+		Integer: in
+	out:
+		Integer: out
+]
+Add ints
+[
+	in:
+		Integer: a
+		Integer: b
+	out:
+		Integer: out
+]
+Subtract ints
+[
+	in:
+		Integer: a
+		Integer: b
+	out:
+		Integer: out
+]
+Multiply ints
+[
+	in:
+		Integer: a
+		Integer: b
+	out:
+		Integer: out
+]
+Divide ints
+[
+	in:
+		Integer: a
+		Integer: b
+	out:
+		Integer: out
+]
+Int vector
+[
+	in:
+		Vector2i: in
+	out:
+		Vector2i: out
+]
+Int vector from ints
+[
+	in:
+		Integer: x
+		Integer: y
+	out:
+		Vector2i: vector
+]
+Add int vectors
+[
+	in:
+		Vector2i: a
+		Vector2i: b
+	out:
+		Vector2i: out
+]
+Subtract int vectors
+[
+	in:
+		Vector2i: a
+		Vector2i: b
+	out:
+		Vector2i: out
+]
+Int vector times int
+[
+	in:
+		Vector2i: a
+		Integer: b
+	out:
+		Vector2i: out
+]
+Float
+[
+	in:
+		Float: in
+	out:
+		Float: out
+]
+Add floats
+[
+	in:
+		Float: a
+		Float: b
+	out:
+		Float: out
+]
+Subtract floats
+[
+	in:
+		Float: a
+		Float: b
+	out:
+		Float: out
+]
+Multiply floats
+[
+	in:
+		Float: a
+		Float: b
+	out:
+		Float: out
+]
+Divide floats
+[
+	in:
+		Float: a
+		Float: b
+	out:
+		Float: out
+]
+Color
+[
+	in:
+		Color: in
+	out:
+		Color: out
+]
+Color from ints
+[
+	in:
+		Integer: r
+		Integer: g
+		Integer: b
+		Integer: a
+	out:
+		Color: color
+]
+Image
+[
+	in:
+		Image: in
+	out:
+		Image: out
+		Vector2i: size
+]
+Separate channels
+[
+	in:
+		Image: in
+	out:
+		Image: r
+		Image: g
+		Image: b
+		Image: a
+]
+Combine channels
+[
+	in:
+		Image: r
+		Image: g
+		Image: b
+		Image: a
+	out:
+		Image: out
+]
+Solid
+[
+	in:
+		Color: color
+		Vector2i: image size
+	out:
+		Image: image
+]
+Checker
+[
+	in:
+		Integer: square size[20]
+		Vector2i: image size
+	out:
+		Image: result
+]
+Linear Gradient
+[
+	in:
+		Vector2i: image size
+	out:
+		Image: result
+]
 Blend
 [
 	in:
@@ -16,42 +201,6 @@ Brightness and contrast
 	out:
 		Image: out
 ]
-Checker
-[
-	in:
-		Integer: square size[20]
-		Vector2i: image size
-	out:
-		Image: result
-]
-Combine
-[
-	in:
-		Image: r
-		Image: g
-		Image: b
-		Image: a
-	out:
-		Image: out
-]
-Construct Color
-[
-	in:
-		Integer: r
-		Integer: g
-		Integer: b
-		Integer: a
-	out:
-		Color: color
-]
-Construct Vector2i
-[
-	in:
-		Integer: x
-		Integer: y
-	out:
-		Vector2i: vector
-]
 Crop
 [
 	in:
@@ -69,13 +218,6 @@ Flip
 	out:
 		Image: out
 ]
-Float
-[
-	in:
-		Float: in
-	out:
-		Float: out
-]
 Frame
 [
 	in:
@@ -92,34 +234,12 @@ Grayscale
 	out:
 		Image: out
 ]
-Image
-[
-	in:
-		Image: in
-	out:
-		Image: out
-		Vector2i: size
-]
-Integer
-[
-	in:
-		Integer: in
-	out:
-		Integer: out
-]
 Invert
 [
 	in:
 		Image: in
 	out:
 		Image: out
-]
-Linear Gradient
-[
-	in:
-		Vector2i: image size
-	out:
-		Image: result
 ]
 Mask
 [
@@ -153,22 +273,4 @@ Select by color
 		Float: tolerance[0.5]
 	out:
 		Image: out
-]
-Separate
-[
-	in:
-		Image: in
-	out:
-		Image: r
-		Image: g
-		Image: b
-		Image: a
-]
-Solid
-[
-	in:
-		Color: color
-		Vector2i: image size
-	out:
-		Image: image
 ]
