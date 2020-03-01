@@ -36,7 +36,7 @@
 #define PIN_TEXT_MARGIN_Y -8
 #define CHARACTER_WIDTH 7
 
-#define PIN_COLLISION_DISTANCE 8
+#define PIN_COLLISION_DISTANCE 12
 
 inline void setPinColor(sf::Vertex* firstVertex, int type)
 {

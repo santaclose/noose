@@ -9,7 +9,7 @@
 #include <math.h>
 
 #define MAX_ZOOM 5
-#define MIN_ZOOM 30
+#define MIN_ZOOM 20
 
 float currentZoom = 1.0f;
 sf::RenderWindow* renderWindow;
