@@ -37,7 +37,9 @@ bool searcher::searchCheck(const char* searchBuffer, int bufferSize, std::string
 	for (int i = 0; searchBuffer[i] != '\0'; i++)
 	{
 		if (i == nodeName.length())
-			break;
+		{
+			return searchBuffer[i] == '\0';
+		}
 		if (tolower(nodeName[i]) != tolower(searchBuffer[i])) {
 			//std::cout << tolower(nodeName[i]) << " | " << tolower(searchBuffer[i]) << std::endl;
 			return false;
