@@ -176,7 +176,7 @@ void uiSearchBar::draw()
 	}
 }
 
-bool uiSearchBar::userIsSearching()
+/*bool uiSearchBar::userIsSearching()
 {
 	return searching;
-}
+}*/

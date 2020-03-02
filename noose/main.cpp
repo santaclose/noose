@@ -14,14 +14,19 @@ static const sf::Color BACKGROUND_COLOR(0x181818ff);
 void onNodeSelected(int theNode)
 {
 	std::cout << "[Main] Node " << theNode << " selected\n";
-	uiViewport::outputImage = nodeSystem::getFirstOutputImageForNode(theNode);
+
+	uiViewport::selectedNodeDataPointers = &nodeSystem::getDataPointersForNode(theNode);
+	uiViewport::selectedNodePinTypes = nodeSystem::getPinTypesForNode(theNode);
+	uiViewport::selectedNodeOutputPinCount = nodeSystem::getOutputPinCountForNode(theNode);
 }
 
+// just before deleting the node
 void onNodeDeleted(int theNode)
 {
 	std::cout << "[Main] Node " << theNode << " deleted\n";
-	if (nodeSystem::getFirstOutputImageForNode(theNode) == uiViewport::outputImage)
-		uiViewport::outputImage = nullptr;
+
+	if (&nodeSystem::getDataPointersForNode(theNode) == uiViewport::selectedNodeDataPointers)
+		uiViewport::selectedNodeDataPointers = nullptr;
 }
 
 int main()
@@ -63,19 +68,6 @@ int main()
 					windowB.close();
 					break;
 				}
-				case sf::Event::KeyPressed:
-				{
-					if (eventWindowA.key.code == sf::Keyboard::S && !uiSearchBar::userIsSearching())
-					{
-						if (uiViewport::outputImage == nullptr)
-							std::cout << "[Main] No image to save\n";
-						else
-						{
-							if (uiViewport::outputImage->getTexture().copyToImage().saveToFile("output.png"))
-								std::cout << "[Main] Image saved as output.png\n";
-						}
-					}
-				}
 			}
 			uiNodeSystem::onPollEvent(eventWindowA, mousePos);
 			uiSearchBar::onPollEvent(eventWindowA, mousePos);
@@ -90,6 +82,28 @@ int main()
 					windowA.close();
 					windowB.close();
 					break;
+				}
+				case sf::Event::KeyPressed:
+				{
+					if (eventWindowB.key.code >= sf::Keyboard::Num0 &&
+						eventWindowB.key.code <= sf::Keyboard::Num9)
+					{
+						if (uiViewport::selectedNodeDataPointers == nullptr)
+							std::cout << "[Main] No image to save\n";
+						else
+						{
+							int pinIndex =
+								((eventWindowB.key.code - sf::Keyboard::Num0 + 9) % 10) +
+								(uiViewport::selectedNodeDataPointers->size() - uiViewport::selectedNodeOutputPinCount);
+							std::cout << pinIndex << std::endl;
+							if (pinIndex < uiViewport::selectedNodeDataPointers->size() &&
+								uiViewport::selectedNodePinTypes[pinIndex] == NS_TYPE_IMAGE &&
+								((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[pinIndex])->getTexture().copyToImage().saveToFile("output.png"))
+								std::cout << "[Main] Image saved as output.png\n";
+							else
+								std::cout << "[Main] Could not save image\n";
+						}
+					}
 				}
 			}
 			uiViewport::onPollEvent(eventWindowB, mousePos);

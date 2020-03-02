@@ -28,7 +28,7 @@ public:
 		TopBar, Pin, InputField, OtherInside, Outside
 	};
 
-	uiNode(const nodeData* data, sf::Vector2f& initialPosition, void** inputFieldPointers, void(onValueChangedFunc)());
+	uiNode(const nodeData* data, sf::Vector2f& initialPosition, const std::vector<void*>& inputFieldPointers, void(onValueChangedFunc)());
 	~uiNode();
 
 	void setPosition(sf::Vector2f& newPosition);

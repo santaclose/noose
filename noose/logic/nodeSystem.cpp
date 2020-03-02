@@ -119,12 +119,15 @@ bool nodeSystem::isConnectionValid(int nA, int nB, int pinA, int pinB)
 		//(pinA < nodeList[nA]->getInputPinCount()) != (pinB < nodeList[nB]->getInputPinCount()) && // can't be both output or input (handled by the ui already)
 }
 
-void** nodeSystem::getDataPointersForNode(int n)
+const std::vector<void*>& nodeSystem::getDataPointersForNode(int n)
 {
 	return nodeList[n]->getDataPointers();
 }
-
-sf::RenderTexture* nodeSystem::getFirstOutputImageForNode(int n)
+const int* nodeSystem::getPinTypesForNode(int n)
 {
-	return nodeList[n]->getFirstOutputImage();
+	return nodeList[n]->getPinTypes();
+}
+int nodeSystem::getOutputPinCountForNode(int n)
+{
+	return nodeList[n]->getOutputPinCount();
 }

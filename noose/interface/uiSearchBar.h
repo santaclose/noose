@@ -24,5 +24,5 @@ public:
 	static void onPollEvent(const sf::Event& e, sf::Vector2i& mousePos);
 	static void draw();
 
-	static bool userIsSearching();
+	//static bool userIsSearching();
 };

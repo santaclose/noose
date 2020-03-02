@@ -17,6 +17,7 @@ namespace nodeSystem
 
 	bool isConnectionValid(int nA, int nB, int pinA, int pinB);
 
-	void** getDataPointersForNode(int n);
-	sf::RenderTexture* getFirstOutputImageForNode(int n);
+	const std::vector<void*>& getDataPointersForNode(int n);
+	const int* getPinTypesForNode(int n);
+	int getOutputPinCountForNode(int n);
 };

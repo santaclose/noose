@@ -1,7 +1,13 @@
 #include "uiViewport.h"
+#include "../types.h"
 #include <iostream>
 
-sf::RenderTexture* uiViewport::outputImage = nullptr;
+#define IMAGE_MARGIN 24
+
+const std::vector<void*>* uiViewport::selectedNodeDataPointers = nullptr;
+const int* uiViewport::selectedNodePinTypes = nullptr;
+int uiViewport::selectedNodeOutputPinCount;
+
 float uiViewport::currentZoom;
 sf::RenderWindow* uiViewport::renderWindow;
 
@@ -93,20 +99,42 @@ void uiViewport::draw()
 	renderWindow->draw(backgroundRectangle, &checkerShader);
 	
 	renderWindow->setView(theView);
-	if (outputImage != nullptr)
+	if (selectedNodeDataPointers != nullptr)
 	{
-		sf::Sprite spr(outputImage->getTexture());
-		renderWindow->draw(spr);
-
+		unsigned int currentXOffset = 0;
 		int x1 = -9, y1 = -9;
-		int x2 = outputImage->getSize().x - 8, y2 = outputImage->getSize().y - 8;
-		imageLimitSprite.setPosition(x1, y1);
-		renderWindow->draw(imageLimitSprite, &invertShader);
-		imageLimitSprite.setPosition(x1, y2);
-		renderWindow->draw(imageLimitSprite, &invertShader);
-		imageLimitSprite.setPosition(x2, y1);
-		renderWindow->draw(imageLimitSprite, &invertShader);
-		imageLimitSprite.setPosition(x2, y2);
-		renderWindow->draw(imageLimitSprite, &invertShader);
+		int x2, y2;
+		int c = selectedNodeDataPointers->size(); // count
+		for (int i = c - selectedNodeOutputPinCount; i < c; i++)
+		{
+			switch (selectedNodePinTypes[i])
+			{
+			case NS_TYPE_IMAGE:
+			{
+				const sf::Vector2u& imageSize = ((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getSize();
+				sf::Sprite spr(((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getTexture());
+				spr.setPosition((float)currentXOffset, spr.getPosition().y);
+				renderWindow->draw(spr);
+
+				x1 = currentXOffset - 9;
+				x2 = currentXOffset + imageSize.x - 8;
+				y2 = imageSize.y - 8;
+				imageLimitSprite.setPosition(x1, y1);
+				renderWindow->draw(imageLimitSprite, &invertShader);
+				imageLimitSprite.setPosition(x1, y2);
+				renderWindow->draw(imageLimitSprite, &invertShader);
+				imageLimitSprite.setPosition(x2, y1);
+				renderWindow->draw(imageLimitSprite, &invertShader);
+				imageLimitSprite.setPosition(x2, y2);
+				renderWindow->draw(imageLimitSprite, &invertShader);
+
+				currentXOffset += imageSize.x;
+				currentXOffset += IMAGE_MARGIN;
+				break;
+			}
+			default:
+				break;
+			}
+		}
 	}
 }

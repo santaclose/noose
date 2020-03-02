@@ -158,12 +158,12 @@ int node::getPinType(int pinIndex)
 	return m_pinTypes[pinIndex];
 }
 
-const int& node::getInputPinCount()
+int node::getInputPinCount()
 {
 	return m_inputPinCount;
 }
 
-const int& node::getOutputPinCount()
+int node::getOutputPinCount()
 {
 	return m_outputPinCount;
 }
@@ -173,9 +173,15 @@ int node::getPinCount()
 	return m_inputPinCount + m_outputPinCount;
 }
 
-void** node::getDataPointers()
+
+const std::vector<void*>& node::getDataPointers()
 {
-	return &(m_pinDataPointers[0]);
+	return m_pinDataPointers;
+}
+
+const int* node::getPinTypes()
+{
+	return m_pinTypes;
 }
 
 void* node::getDataPointer(int pinIndex, bool acceptReceivedPointers)
@@ -190,16 +196,6 @@ void* node::getDataPointer(int pinIndex, bool acceptReceivedPointers)
 		return m_receivedDataPointers[pinIndex];
 
 	return m_pinDataPointers[pinIndex];
-}
-
-sf::RenderTexture* node::getFirstOutputImage()
-{
-	for (int i = m_inputPinCount; i < m_inputPinCount + m_outputPinCount; i++)
-	{
-		if (m_pinTypes[i] == NS_TYPE_IMAGE)
-			return (sf::RenderTexture*)getDataPointer(i, false);
-	}
-	return nullptr;
 }
 
 void node::print()

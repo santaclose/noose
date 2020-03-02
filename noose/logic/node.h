@@ -36,14 +36,14 @@ public:
 	void rebuildMatrices(int lineIndex);
 
 	int getPinType(int pinIndex);
-	const int& getInputPinCount();
-	const int& getOutputPinCount();
+	int getInputPinCount();
+	int getOutputPinCount();
 	int getPinCount();
 
-	void** getDataPointers();
-	void* getDataPointer(int pinIndex, bool acceptReceivedPointers=true);
+	const std::vector<void*>& getDataPointers();
+	const int* getPinTypes();
 
-	sf::RenderTexture* getFirstOutputImage();
+	void* getDataPointer(int pinIndex, bool acceptReceivedPointers=true);
 
 	void print();
 };

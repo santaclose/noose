@@ -1,11 +1,15 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <vector>
 
 class uiViewport
 {
 public:
-	static sf::RenderTexture* outputImage;
+	static const std::vector<void*>* selectedNodeDataPointers;
+	static const int* selectedNodePinTypes;
+	static int selectedNodeOutputPinCount;
+
 	static float currentZoom;
 	static sf::RenderWindow* renderWindow;
 
