@@ -175,6 +175,9 @@
     <ClInclude Include="vendor\nfd.h" />
     <ClInclude Include="vendor\nfd_common.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="vendor\nfd_cocoa.m" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
