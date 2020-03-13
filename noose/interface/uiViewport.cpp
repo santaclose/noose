@@ -1,14 +1,19 @@
 #include "uiViewport.h"
+#include "uiSelectionBox.h"
+#include "../math/uiMath.h"
 #include "../types.h"
 #include <iostream>
 
 #define IMAGE_MARGIN 24
 
+const std::vector<std::string> uiViewport::CONTEXT_MENU_OPTIONS = { "Save as output.png", "Save as", "Copy to clipboard" };
+int uiViewport::rightClickedImageIndex;
+
 const std::vector<void*>* uiViewport::selectedNodeDataPointers = nullptr;
 const int* uiViewport::selectedNodePinTypes = nullptr;
 int uiViewport::selectedNodeOutputPinCount;
 
-float uiViewport::currentZoom;
+//float uiViewport::currentZoom;
 sf::RenderWindow* uiViewport::renderWindow;
 
 bool uiViewport::panning = false;
@@ -27,6 +32,35 @@ void uiViewport::updateView(float width, float height)
 {
 	sf::FloatRect visibleArea(uiViewport::viewPosition.x, uiViewport::viewPosition.y, width, height);
 	uiViewport::theView = sf::View(visibleArea);
+}
+
+int uiViewport::mouseOver(sf::Vector2f& mousePos)
+{
+	if (selectedNodeDataPointers == nullptr)
+		return -1;
+
+	sf::Vector2f cursor(0.0f, 0.0f);
+	//unsigned int currentXOffset = 0;
+	int c = selectedNodeDataPointers->size(); // count
+	for (int i = c - selectedNodeOutputPinCount; i < c; i++)
+	{
+		switch (selectedNodePinTypes[i])
+		{
+		case NS_TYPE_IMAGE:
+		{
+			const sf::Vector2u& imageSize = ((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getSize();
+			if (uiMath::isPointInsideRect(mousePos, cursor, cursor + (sf::Vector2f) imageSize))
+				return i;
+
+			cursor.x += imageSize.x;
+			cursor.x += IMAGE_MARGIN;
+			break;
+		}
+		default:
+			break;
+		}
+	}
+	return -1;
 }
 
 void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
@@ -50,6 +84,8 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
 
 void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 {
+	renderWindow->setView(theView);
+	sf::Vector2f mouseWorldPos = renderWindow->mapPixelToCoords(mousePos);
 	switch (e.type)
 	{
 		case sf::Event::Resized:
@@ -65,6 +101,36 @@ void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 			{
 				panning = true;
 				lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
+			}
+			else if (e.mouseButton.button == sf::Mouse::Right)
+			{
+				rightClickedImageIndex = mouseOver(mouseWorldPos);
+				if (rightClickedImageIndex > -1)
+				{
+					std::cout << "data pointer " << rightClickedImageIndex << std::endl;
+					uiSelectionBox::display(mouseWorldPos, CONTEXT_MENU_OPTIONS);
+				}
+			}
+			else if (e.mouseButton.button == sf::Mouse::Left)
+			{
+				int index = uiSelectionBox::mouseOver(mouseWorldPos);
+				if (index < 0)
+					std::cout << "mouse out of the box\n";
+				else
+				{
+					switch (index)
+					{
+					case 0:
+						if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile("output.png"))
+							std::cout << "[UI] Image saved as output.png\n";
+						else
+							std::cout << "[UI] Could not save image\n";
+						break;
+					default:
+						break;
+					}
+				}
+				uiSelectionBox::hide();
 			}
 			break;
 		}
@@ -137,4 +203,5 @@ void uiViewport::draw()
 			}
 		}
 	}
+	uiSelectionBox::draw(*renderWindow, sf::Vector2f(0.0, 0.0));
 }

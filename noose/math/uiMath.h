@@ -9,6 +9,7 @@ public:
 
 	static bool isPointInsideRect(const sf::Vector2f& point, const sf::Rect<float>& rect);
 	static bool isPointInsideRect(const sf::Vector2f& point, float top, float bottom, float left, float right);
+	static bool isPointInsideRect(const sf::Vector2f& point, const sf::Vector2f topLeftCorner, const sf::Vector2f bottomRightCorner);
 	static float distance(const sf::Vector2f& a, const sf::Vector2f b);
 	static float dot(const sf::Vector2f& a, const sf::Vector2f b);
 	static float lengthSquared(const sf::Vector2f&& v);

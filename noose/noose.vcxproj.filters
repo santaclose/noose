@@ -81,6 +81,9 @@
     <ClCompile Include="logic\graphOperations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="interface\uiSelectionBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\nodes.dat">
@@ -156,6 +159,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="logic\graphOperations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\uiSelectionBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

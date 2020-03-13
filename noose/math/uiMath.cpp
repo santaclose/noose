@@ -12,6 +12,10 @@ bool uiMath::isPointInsideRect(const sf::Vector2f& point, float top, float botto
 {
 	return point.x < right && point.x > left && point.y > top && point.y < bottom;
 }
+bool uiMath::isPointInsideRect(const sf::Vector2f& point, const sf::Vector2f topLeftCorner, const sf::Vector2f bottomRightCorner)
+{
+	return point.x < bottomRightCorner.x && point.x > topLeftCorner.x && point.y < bottomRightCorner.y && point.y > topLeftCorner.y;
+}
 
 float uiMath::distance(const sf::Vector2f& a, const sf::Vector2f b)
 {

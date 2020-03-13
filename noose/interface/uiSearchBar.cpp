@@ -37,12 +37,16 @@ void uiSearchBar::initialize(sf::RenderWindow& window)
 	searchRectangle.setFillColor(sf::Color(SEARCH_BAR_COLOR));
 
 	resultsBar = sf::RectangleShape(sf::Vector2f(SEARCH_BAR_WIDTH, MAX_RESULTS_NUMBER * RESULT_HEIGHT));
-	resultsBar.setPosition(window.getSize().x / 2.0 - SEARCH_BAR_WIDTH / 2.0, SEARCH_BAR_HEIGHT);
+	resultsBar.setPosition(
+		window.getSize().x / 2.0 - SEARCH_BAR_WIDTH / 2.0,
+		SEARCH_BAR_HEIGHT);
 	resultsBar.setFillColor(sf::Color(RESULTS_BAR_COLOR));
 
 	searchText.setFillColor(sf::Color::White);
 	searchText.setFont(uiData::font);
-	searchText.setPosition(window.getSize().x / 2 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN, SEARCH_BAR_TEXT_MARGIN);
+	searchText.setPosition(
+		window.getSize().x / 2 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN,
+		SEARCH_BAR_TEXT_MARGIN);
 	searchText.setCharacterSize(SEARCH_BAR_FONT_SIZE);
 	searchBuffer[0] = '\0';
 
@@ -51,7 +55,9 @@ void uiSearchBar::initialize(sf::RenderWindow& window)
 	{
 		resultsTexts[i].setFillColor(sf::Color::White);
 		resultsTexts[i].setFont(uiData::font);
-		resultsTexts[i].setPosition(window.getSize().x / 2 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN, SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i);
+		resultsTexts[i].setPosition(
+			window.getSize().x / 2 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN,
+			SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i);
 		resultsTexts[i].setCharacterSize(RESULT_FONT_SIZE);
 	}
 	renderWindow = &window;
@@ -144,15 +150,18 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 	}
 	else if (e.type == sf::Event::Resized)
 	{
-		//sf::FloatRect visibleArea(0, 0, e.size.width, e.size.height);
-		//sf::View previousView = theWindow->getView();
-		//theWindow->setView(sf::View(visibleArea));
 		searchRectangle.setPosition(e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0, 0);
-		searchText.setPosition(e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN, SEARCH_BAR_TEXT_MARGIN);
-		resultsBar.setPosition(e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0, SEARCH_BAR_HEIGHT);
+		searchText.setPosition(
+			e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN,
+			SEARCH_BAR_TEXT_MARGIN);
+		resultsBar.setPosition(
+			e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0,
+			SEARCH_BAR_HEIGHT);
 		for (int i = 0; i < MAX_RESULTS_NUMBER; i++)
 		{
-			resultsTexts[i].setPosition(e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN, SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i);
+			resultsTexts[i].setPosition(
+				e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN,
+				SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i);
 		}
 	}
 }
@@ -161,7 +170,6 @@ void uiSearchBar::draw()
 {
 	if (searching)
 	{
-		//sf::View previousView = window.getView();
 		sf::FloatRect visibleArea(0, 0, renderWindow->getSize().x, renderWindow->getSize().y);
 		renderWindow->setView(sf::View(visibleArea));
 		renderWindow->draw(searchRectangle);
@@ -171,8 +179,6 @@ void uiSearchBar::draw()
 		{
 			renderWindow->draw(resultsTexts[i]);
 		}
-
-		//window.setView(previousView);
 	}
 }
 

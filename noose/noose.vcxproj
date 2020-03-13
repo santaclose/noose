@@ -145,6 +145,7 @@
     <ClCompile Include="nodeProvider\nodeFunctionality.cpp" />
     <ClCompile Include="nodeProvider\nodeProvider.cpp" />
     <ClCompile Include="searcher.cpp" />
+    <ClCompile Include="interface\uiSelectionBox.cpp" />
     <ClCompile Include="vendor\nfd_win.cpp" />
     <ClCompile Include="vendor\nfd_common.c" />
   </ItemGroup>
@@ -171,6 +172,7 @@
     <ClInclude Include="interface\uiData.h" />
     <ClInclude Include="interface\uiSearchBar.h" />
     <ClInclude Include="interface\uiViewport.h" />
+    <ClInclude Include="interface\uiSelectionBox.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="vendor\nfd.h" />
     <ClInclude Include="vendor\nfd_common.h" />
