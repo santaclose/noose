@@ -62,7 +62,7 @@ inline void setPinColor(sf::Vertex* firstVertex, int type)
 	firstVertex[0].color = firstVertex[1].color = firstVertex[2].color = firstVertex[3].color = theColor;
 }
 
-uiNode::uiNode(const nodeData* data, sf::Vector2f& initialPosition, const std::vector<void*>& inputFieldPointers, void(onValueChangedFunc)())
+uiNode::uiNode(const nodeData* data, sf::Vector2f& initialPosition, const std::vector<void*>& inputFieldPointers, void(onValueChangedFunc)(), uiSelectionBox* selectionBox)
 {
  	m_inputPinCount = data->inputPinCount;
 	m_outputPinCount = data->outputPinCount;
@@ -98,7 +98,7 @@ uiNode::uiNode(const nodeData* data, sf::Vector2f& initialPosition, const std::v
 
 		// create input fields
 		if (i < m_inputPinCount)
-			m_inputFields[i].create(data->pinTypes[i], inputFieldPointers[i], onValueChangedFunc, &(data->pinEnumOptions[i]));
+			m_inputFields[i].create(data->pinTypes[i], inputFieldPointers[i], onValueChangedFunc, &(data->pinEnumOptions[i]), selectionBox);
 	}
 
 	setPosition(initialPosition);

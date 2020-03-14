@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include "uiSelectionBox.h"
 
 class uiViewport
 {
@@ -14,6 +15,8 @@ public:
 	static sf::RenderWindow* renderWindow;
 
 	static void initialize(sf::RenderWindow& theRenderWindow);
+	static void terminate();
+	static void hideSelectionBox();
 	static void onPollEvent(const sf::Event& e, sf::Vector2i& mousePos);
 	static void draw();
 private:
@@ -23,6 +26,8 @@ private:
 private:
 	static const std::vector<std::string> CONTEXT_MENU_OPTIONS;
 	static int rightClickedImageIndex;
+	static sf::Vector2f mouseWorldPos;
+	static uiSelectionBox viewportSelectionBox;
 
 	static bool panning;
 

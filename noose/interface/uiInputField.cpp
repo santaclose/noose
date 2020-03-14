@@ -1,9 +1,9 @@
 #include "uiInputField.h"
 #include "uiColorPicker.h"
 #include "uiData.h"
+#include "uiSelectionBox.h"
 
 #include "../math/uiMath.h"
-//#include "../dataController.h"
 #include "../utils.h"
 #include "../types.h"
 
@@ -19,7 +19,6 @@
 const sf::Color INPUT_FIELD_COLOR = sf::Color(0x343434bb);
 
 // static //
-static bool bEditingInputField;
 static uiInputField* editingInputField;
 // int
 static float editingInputFieldHelper;
@@ -32,6 +31,8 @@ static double editingColorValue;
 
 static sf::Shader loadImageShader;
 static bool loadImageShaderLoaded;
+
+uiSelectionBox* uiInputField::selectionBox = nullptr;
 
 void uiInputField::updateTextPositions()
 {
@@ -67,12 +68,12 @@ void onColorPickerSetColor(sf::Color* newColor)
 
 void uiInputField::unbind()
 {
-	bEditingInputField = false;
+	editingInputField = nullptr;
 }
 
 void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 {
-	if (!bEditingInputField)
+	if (editingInputField == nullptr)
 		return;
 	int newValueAux;
 	switch (editingInputField->type)
@@ -83,15 +84,14 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 		editingInputField->onValueChanged();
 		break;
 	case NS_TYPE_INT:
+		if (editingInputField->enumOptions->size() > 0)
+			break;
 		editingInputFieldHelper += displacement.x * INT_EDITING_SENSITIVITY;
 		newValueAux = (int)editingInputFieldHelper;
 		if (newValueAux != *((int*)(editingInputField->dataPointer)))
 		{
 			*((int*)(editingInputField->dataPointer)) = newValueAux;
-			if (editingInputField->enumOptions->size() == 0)
-				editingInputField->texts[0].setString(std::to_string((int)editingInputFieldHelper));
-			else
-				editingInputField->texts[0].setString((*(editingInputField->enumOptions))[((int)editingInputFieldHelper) % editingInputField->enumOptions->size()]);
+			editingInputField->texts[0].setString(std::to_string((int)editingInputFieldHelper));
 			editingInputField->onValueChanged();
 		}
 		break;
@@ -120,6 +120,49 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 		break;
 	}
 	editingInputField->updateTextPositions();
+}
+
+bool uiInputField::onMouseDown(sf::Vector2f& mousePos)
+{
+	if (editingInputField == nullptr)
+		return false;
+
+	if (editingInputField->type == NS_TYPE_INT &&
+		editingInputField->enumOptions->size() > 0) // enum type
+	{
+		int index = selectionBox->mouseOver(mousePos);
+		if (index > -1)
+		{
+			//std::cout << "INDEX: " << index << std::endl;
+			*((int*)(editingInputField->dataPointer)) = index;
+			editingInputField->texts[0].setString((*(editingInputField->enumOptions))[index]);
+			editingInputField->onValueChanged();
+		}
+		selectionBox->hide();
+		editingInputField->updateTextPositions();
+		unbind();
+		return true;
+	}
+	return false;
+}
+
+void uiInputField::onMouseUp()
+{
+	if (editingInputField == nullptr)
+		return;
+
+	switch (editingInputField->type)
+	{
+	case NS_TYPE_FLOAT:
+		unbind();
+		break;
+	case NS_TYPE_INT:
+		if (editingInputField->enumOptions->size() == 0) // not an enum
+			unbind();
+		break;
+	default:
+		break;
+	}
 }
 
 // non static //
@@ -156,9 +199,11 @@ bool uiInputField::mouseOver(const sf::Vector2f& mousePosInWorld, int& index)
 	}
 }
 
-void uiInputField::create(int theType, void* pinDataPointer, void(onValueChangedFunc)(), const std::vector<std::string>* enumOptions)
+// TODO: think of a better way for getting the selection box pointer
+void uiInputField::create(int theType, void* pinDataPointer, void(onValueChangedFunc)(), const std::vector<std::string>* theEnumOptions, uiSelectionBox* theSelectionBox)
 {
-	this->enumOptions = enumOptions;
+	selectionBox = theSelectionBox;
+	enumOptions = theEnumOptions;
 	onValueChanged = onValueChangedFunc;
 	type = theType;
 	dataPointer = pinDataPointer;
@@ -294,17 +339,16 @@ void uiInputField::bind(int index)
 	case NS_TYPE_IMAGE:
 	{
 		editingInputField = this;
-		char* outPath = uiFileSelector::selectFile();
-		if (outPath != nullptr)
+		char* filePath = uiFileSelector::selectFile(false);
+		if (filePath != nullptr)
 		{
 			sf::Texture tx;
-			if (!tx.loadFromFile(outPath))
+			if (!tx.loadFromFile(filePath))
 			{
 				std::cout << "[UI] Failed to open image file\n";
 				return;
 			}
-			texts[0].setString(utils::getFileNameFromPath(outPath));
-			//dataController::loadImageShader.setUniform("tx", tx);
+			texts[0].setString(utils::getFileNameFromPath(filePath));
 			loadImageShader.setUniform("tx", tx);
 
 			sf::Sprite spr(tx);
@@ -312,12 +356,11 @@ void uiInputField::bind(int index)
 			sf::RenderTexture* pointer = (sf::RenderTexture*) dataPointer;
 
 			pointer->create(txSize.x, txSize.y);
-			//pointer->draw(spr, &dataController::loadImageShader);
 			pointer->draw(spr, &loadImageShader);
 			editingInputField->onValueChanged();
 			editingInputField->updateTextPositions();
 
-			free(outPath);
+			free(filePath);
 		}
 
 		editingInputField = nullptr;
@@ -326,8 +369,6 @@ void uiInputField::bind(int index)
 	case NS_TYPE_COLOR:
 	{
 		editingInputField = this;
-		bEditingInputField = true;
-
 		///
 		uiColorPicker::onSetColor = onColorPickerSetColor;
 		uiColorPicker::show((sf::Color*) editingInputField->dataPointer);
@@ -337,14 +378,20 @@ void uiInputField::bind(int index)
 	case NS_TYPE_FLOAT:
 	{
 		editingInputField = this;
-		bEditingInputField = true;
 		return;
 	}
 	case NS_TYPE_INT:
 	{
-		editingInputField = this;
-		editingInputFieldHelper = (float)*((int*)(editingInputField->dataPointer));
-		bEditingInputField = true;
+		if (this->enumOptions->size() == 0) // normal int case
+		{
+			editingInputField = this;
+			editingInputFieldHelper = (float)*((int*)(editingInputField->dataPointer));
+		} // enum case
+		else
+		{
+			editingInputField = this;
+			selectionBox->display(shapes[3].position, *(editingInputField->enumOptions));
+		}
 		return;
 	}
 	case NS_TYPE_VECTOR2I: // edit vectors as separate integers
@@ -354,7 +401,6 @@ void uiInputField::bind(int index)
 			editingInputField = this;
 			editingInputFieldHelper = (float)((sf::Vector2i*)(editingInputField->dataPointer))->x;
 			editingVectorComponent = 'x';
-			bEditingInputField = true;
 			return;
 		}
 		else if (index == 1)
@@ -362,7 +408,6 @@ void uiInputField::bind(int index)
 			editingInputField = this;
 			editingInputFieldHelper = (float)((sf::Vector2i*)(editingInputField->dataPointer))->y;
 			editingVectorComponent = 'y';
-			bEditingInputField = true;
 			return;
 		}
 		return;
@@ -385,7 +430,7 @@ void uiInputField::enable()
 	enabled = true;
 }
 
-const bool& uiInputField::isEnabled()
+bool uiInputField::isEnabled()
 {
 	return enabled;
 }

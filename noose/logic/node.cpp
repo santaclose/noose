@@ -57,6 +57,7 @@ node::node(const nodeData* data)
 
 	for (int i = 0; i < (m_inputPinCount + m_outputPinCount); i++)
 	{
+		// TODO: move data pointers to uiNode
 		m_pinDataPointers[i] = reserveDataForPin(m_pinTypes[i], data->pinDefaultData[i]);
 		if (i < m_inputPinCount)
 			m_receivedDataPointers[i] = nullptr;

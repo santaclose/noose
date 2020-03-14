@@ -2,6 +2,7 @@
 
 #include "uiNode.h"
 #include "uiConnections.h"
+#include "uiSelectionBox.h"
 #include "../logic/nodeSystem.h"
 
 #include <iostream>
@@ -13,6 +14,8 @@
 
 float currentZoom = 1.0f;
 sf::RenderWindow* renderWindow;
+sf::Vector2f mouseWorldPos;
+uiSelectionBox nodeSystemSelectionBox;
 
 std::vector<uiNode*> uiNodeList;
 int selectedNodeIndex = -1;
@@ -68,6 +71,7 @@ void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow)
 	nodeSystem::initialize();
 	renderWindow = &theRenderWindow;
 	updateView();
+	nodeSystemSelectionBox.initialize();
 }
 
 void uiNodeSystem::terminate()
@@ -77,6 +81,7 @@ void uiNodeSystem::terminate()
 		if (n != nullptr)
 			delete n;
 	}
+	nodeSystemSelectionBox.terminate();
 	nodeSystem::terminate();
 }
 
@@ -106,13 +111,13 @@ void uiNodeSystem::pushNewNode(const nodeData* nData, sf::Vector2i& initialScree
 	int newNodeID = findSlotForNode();
 	nodeSystem::onNodeCreated(newNodeID, nData);
 
-	uiNodeList[newNodeID] = new uiNode(nData, worldPos, nodeSystem::getDataPointersForNode(newNodeID), onInputFieldValueChanged);
+	uiNodeList[newNodeID] = new uiNode(nData, worldPos, nodeSystem::getDataPointersForNode(newNodeID), onInputFieldValueChanged, &nodeSystemSelectionBox);
 }
 
 void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 {
 	renderWindow->setView(theView);
-	sf::Vector2f mouseWorldPos = renderWindow->mapPixelToCoords(mousePos);
+	mouseWorldPos = renderWindow->mapPixelToCoords(mousePos);
 
 	switch (e.type)
 	{
@@ -125,6 +130,9 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 		{
 			if (e.mouseButton.button == sf::Mouse::Left)
 			{
+				if (uiInputField::onMouseDown(mouseWorldPos))
+					return;
+
 				// collision from top to bottom
 				for (int i = uiNodeList.size() - 1; i > -1; i--)
 				{
@@ -179,7 +187,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 						//std::cout << "mouse over inputField\n";
 						boundInputFieldNode = i;
 						uiNodeList[i]->bindInputField(index, subIndex);
-						break;
+						return;
 					}
 					}
 					//std::cout << "clicked inside node\n";
@@ -305,7 +313,8 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 
 				draggingNodeIndex = -1;
 				creatingConnection = false;
-				uiInputField::unbind();
+				//uiInputField::unbind();
+				uiInputField::onMouseUp();
 			}
 			else if (e.mouseButton.button == sf::Mouse::Right)
 			{
@@ -344,8 +353,8 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 				}
 			}
 		
-			uiInputField::onMouseMoved(displacement);
 			lastMouseScreenPos = currentMouseScreenPos;
+			uiInputField::onMouseMoved(displacement);
 			break;
 		}
 		case sf::Event::MouseWheelScrolled:
@@ -404,6 +413,7 @@ void uiNodeSystem::draw()
 	}
 
 	uiConnections::draw(*renderWindow);
+	nodeSystemSelectionBox.draw(*renderWindow, mouseWorldPos);
 }
 
 void uiNodeSystem::setOnNodeSelectedCallback(void (*functionPointer)(int))

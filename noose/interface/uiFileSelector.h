@@ -4,5 +4,5 @@
 
 namespace uiFileSelector
 {
-	char* selectFile();
+	char* selectFile(bool save);
 }

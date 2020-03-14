@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
-
+#include "uiSelectionBox.h"
 #include "../interface/uiInputField.h"
 #include "../nodeData.h"
 
@@ -28,7 +28,7 @@ public:
 		TopBar, Pin, InputField, OtherInside, Outside
 	};
 
-	uiNode(const nodeData* data, sf::Vector2f& initialPosition, const std::vector<void*>& inputFieldPointers, void(onValueChangedFunc)());
+	uiNode(const nodeData* data, sf::Vector2f& initialPosition, const std::vector<void*>& inputFieldPointers, void(onValueChangedFunc)(), uiSelectionBox* selectionBox);
 	~uiNode();
 
 	void setPosition(sf::Vector2f& newPosition);
@@ -53,5 +53,4 @@ public:
 
 	// needed to disconnect before deleting the node 
 	std::vector<int> getConnectedLines();
-	//int* getConnectedLinesInfo(int& count);
 };

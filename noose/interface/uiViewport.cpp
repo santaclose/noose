@@ -1,13 +1,15 @@
 #include "uiViewport.h"
-#include "uiSelectionBox.h"
+#include "uiFileSelector.h"
 #include "../math/uiMath.h"
 #include "../types.h"
 #include <iostream>
 
 #define IMAGE_MARGIN 24
 
-const std::vector<std::string> uiViewport::CONTEXT_MENU_OPTIONS = { "Save as output.png", "Save as", "Copy to clipboard" };
+const std::vector<std::string> uiViewport::CONTEXT_MENU_OPTIONS = { "Save as output.png", "Save as"/*, "Copy to clipboard" */};
 int uiViewport::rightClickedImageIndex;
+sf::Vector2f uiViewport::mouseWorldPos;
+uiSelectionBox uiViewport::viewportSelectionBox;
 
 const std::vector<void*>* uiViewport::selectedNodeDataPointers = nullptr;
 const int* uiViewport::selectedNodePinTypes = nullptr;
@@ -79,13 +81,25 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
 	// dark mode
 	if (!invertShader.loadFromFile("res/shaders/invert.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load dark mode shader\n";
+
+	viewportSelectionBox.initialize();
+}
+
+void uiViewport::terminate()
+{
+	viewportSelectionBox.terminate();
+}
+
+void uiViewport::hideSelectionBox()
+{
+	viewportSelectionBox.hide();
 }
 
 
 void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 {
 	renderWindow->setView(theView);
-	sf::Vector2f mouseWorldPos = renderWindow->mapPixelToCoords(mousePos);
+	mouseWorldPos = renderWindow->mapPixelToCoords(mousePos);
 	switch (e.type)
 	{
 		case sf::Event::Resized:
@@ -106,31 +120,38 @@ void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 			{
 				rightClickedImageIndex = mouseOver(mouseWorldPos);
 				if (rightClickedImageIndex > -1)
-				{
-					std::cout << "data pointer " << rightClickedImageIndex << std::endl;
-					uiSelectionBox::display(mouseWorldPos, CONTEXT_MENU_OPTIONS);
-				}
+					viewportSelectionBox.display(mouseWorldPos, CONTEXT_MENU_OPTIONS);
 			}
 			else if (e.mouseButton.button == sf::Mouse::Left)
 			{
-				int index = uiSelectionBox::mouseOver(mouseWorldPos);
-				if (index < 0)
-					std::cout << "mouse out of the box\n";
-				else
+				int index = viewportSelectionBox.mouseOver(mouseWorldPos);
+				if (index > -1)
 				{
 					switch (index)
 					{
-					case 0:
+					case 0: // save as output.png
 						if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile("output.png"))
 							std::cout << "[UI] Image saved as output.png\n";
 						else
 							std::cout << "[UI] Could not save image\n";
 						break;
+					case 1: // save as
+					{
+						char* filePath = uiFileSelector::selectFile(true);
+						if (filePath != nullptr)
+						{
+							if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(filePath))
+								std::cout << "[UI] Image saved\n";
+							else
+								std::cout << "[UI] Could not save image\n";
+							free(filePath);
+						}
+					}
 					default:
 						break;
 					}
 				}
-				uiSelectionBox::hide();
+				viewportSelectionBox.hide();
 			}
 			break;
 		}
@@ -203,5 +224,5 @@ void uiViewport::draw()
 			}
 		}
 	}
-	uiSelectionBox::draw(*renderWindow, sf::Vector2f(0.0, 0.0));
+	viewportSelectionBox.draw(*renderWindow, mouseWorldPos);
 }

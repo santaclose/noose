@@ -15,9 +15,8 @@ static const sf::Color BACKGROUND_COLOR(0x181818ff);
 void onNodeSelected(int theNode)
 {
 	std::cout << "[Main] Node " << theNode << " selected\n";
-
-	uiSelectionBox::hide();
-
+	
+	uiViewport::hideSelectionBox();
 	uiViewport::selectedNodeDataPointers = &nodeSystem::getDataPointersForNode(theNode);
 	uiViewport::selectedNodePinTypes = nodeSystem::getPinTypesForNode(theNode);
 	uiViewport::selectedNodeOutputPinCount = nodeSystem::getOutputPinCountForNode(theNode);
@@ -28,7 +27,7 @@ void onNodeDeleted(int theNode)
 {
 	std::cout << "[Main] Node " << theNode << " deleted\n";
 
-	uiSelectionBox::hide();
+	uiViewport::hideSelectionBox();
 
 	if (&nodeSystem::getDataPointersForNode(theNode) == uiViewport::selectedNodeDataPointers)
 		uiViewport::selectedNodeDataPointers = nullptr;
@@ -107,6 +106,7 @@ int main()
 		uiColorPicker::tick();
 	}
 
+	uiViewport::terminate();
 	uiNodeSystem::terminate();
 	uiColorPicker::terminate();
 	nodeProvider::terminate();

@@ -2,11 +2,15 @@
 #include "uiFileSelector.h"
 #include <iostream>
 
-char* uiFileSelector::selectFile()
+char* uiFileSelector::selectFile(bool save)
 {
 	char* filePath = new char[1024];
 	filePath[0] = '\0';
-	FILE* f = popen("zenity --file-selection", "r");
+	FILE* f;
+	if (save)
+		f = popen("zenity --file-selection --save", "r");
+	else
+		f = popen("zenity --file-selection", "r");
 	fgets(filePath, 1024, f);
 
 	if (filePath[0] == '\0')
