@@ -26,7 +26,7 @@ char* uiFileSelector::selectFile(bool save)
 			{
 				// add 4 chars for the extension and 1 for \0
 				int prevLength = strlen(outPath);
-				char* fixedPath = (char*) malloc(sizeof(char) * (prevLength + 4 + 1)); //new char[prevLength + 4 + 1];
+				char* fixedPath = (char*) malloc(sizeof(char) * (prevLength + 4 + 1));
 				memcpy(fixedPath, outPath, prevLength);
 				memcpy(&(fixedPath[prevLength]), ".png\0", 5);
 				free(outPath);

@@ -88,6 +88,7 @@ private:
 		if (index == 33)
 			return (void*)nodeFunctionality::SelectByColor;
 		std::cout << "[Node provider] COULD NOT GET FUNCTIONALITY FOR INDEX " << index << std::endl;
+		return nullptr;
 	}
 
 	static inline int typeFromString(const std::string& s)
@@ -102,6 +103,8 @@ private:
 			return NS_TYPE_IMAGE;
 		else if (s == "Color")
 			return NS_TYPE_COLOR;
+		std::cout << "[Node provider] ERROR WHEN PARSING PIN TYPE \"" << s << "\"\n";
+		return -1;
 	}
 };
 

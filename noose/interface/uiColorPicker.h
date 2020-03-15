@@ -38,6 +38,7 @@ public:
 	static void tick();
 	static void terminate();
 	static void show(sf::Color* newPointer);
+	static void hide();
 
 private:
 	static void setColor();

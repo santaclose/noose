@@ -69,6 +69,16 @@ void uiColorPicker::show(sf::Color* newPointer)
 	outputPointer = newPointer;
 }
 
+void uiColorPicker::hide()
+{
+	if (theWindow == nullptr)
+		return;
+	
+	theWindow->close();
+	delete theWindow;
+	theWindow = nullptr;
+}
+
 void uiColorPicker::tick()
 {
 	if (theWindow == nullptr)

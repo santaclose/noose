@@ -1,7 +1,7 @@
 #include "uiInputField.h"
 #include "uiColorPicker.h"
-#include "uiData.h"
 #include "uiSelectionBox.h"
+#include "uiData.h"
 
 #include "../math/uiMath.h"
 #include "../utils.h"
@@ -153,6 +153,7 @@ void uiInputField::onMouseUp()
 
 	switch (editingInputField->type)
 	{
+	case NS_TYPE_VECTOR2I:
 	case NS_TYPE_FLOAT:
 		unbind();
 		break;
@@ -195,6 +196,8 @@ bool uiInputField::mouseOver(const sf::Vector2f& mousePosInWorld, int& index)
 			index = 1;
 			return true;
 		}
+		return false;
+	default:
 		return false;
 	}
 }
@@ -334,6 +337,9 @@ void uiInputField::setValue(const void* value)
 
 void uiInputField::bind(int index)
 {
+	if (type != NS_TYPE_COLOR)
+		uiColorPicker::hide();
+
 	switch (type)
 	{
 	case NS_TYPE_IMAGE:

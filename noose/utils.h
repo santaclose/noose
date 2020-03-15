@@ -1,4 +1,5 @@
 #pragma once
+
 namespace utils
 {
 	/*inline char charToLower(char c)
@@ -28,5 +29,4 @@ namespace utils
 				return true;
 		}
 	}
-};
-
+}

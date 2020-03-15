@@ -48,17 +48,17 @@ void nodeProvider::initialize()
 				nodeDataList.back().pinNames.push_back(name);
 				nodeDataList.back().pinTypes.push_back(typeFromString(type));
 				nodeDataList.back().pinEnumOptions.push_back(enumOptions);
-				if (defaultData.length() == 0)
-					nodeDataList.back().pinDefaultData.push_back(nullptr);
-				else
+				nodeDataList.back().pinDefaultData.push_back(nullptr);
+
+				if (defaultData.length() > 0)
 				{
 					switch (nodeDataList.back().pinTypes.back())
 					{
 					case NS_TYPE_FLOAT:
-						nodeDataList.back().pinDefaultData.push_back(new float(std::stof(defaultData)));
+						nodeDataList.back().pinDefaultData.back() = new float(std::stof(defaultData));
 						break;
 					case NS_TYPE_INT:
-						nodeDataList.back().pinDefaultData.push_back(new int(std::stoi(defaultData)));
+						nodeDataList.back().pinDefaultData.back() = new int(std::stoi(defaultData));
 						break;
 					}
 				}
@@ -96,10 +96,21 @@ void nodeProvider::terminate()
 {
 	for (nodeData& nd : nodeDataList)
 	{
-		for (void* p : nd.pinDefaultData)
+		for (int i = 0 ; i < nd.pinDefaultData.size(); i++)
 		{
+			void* p = nd.pinDefaultData[i];
 			if (p != nullptr)
-				delete p;
+			{
+				switch(nd.pinTypes[i])
+				{
+					case NS_TYPE_FLOAT:
+						delete (float*) p;
+						break;
+					case NS_TYPE_INT:
+						delete (int*) p;
+						break;
+				}
+			}
 		}
 	}
 }

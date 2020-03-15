@@ -35,7 +35,33 @@ void* reserveDataForPin(int type, void* defaultValue)
 		if (defaultValue == nullptr)
 			return new sf::RenderTexture();
 	}
+	std::cout << "[Node system] COULD NOT RESERVE DATA FOR PIN\n";
+	return nullptr;
 }
+
+void deletePinData(int type, void* pointer)
+{
+
+	switch (type)
+	{
+	case NS_TYPE_INT:
+		delete (int*) pointer;
+		break;
+	case NS_TYPE_FLOAT:
+		delete (float*) pointer;
+		break;
+	case NS_TYPE_VECTOR2I:
+		delete (sf::Vector2i*) pointer;
+		break;
+	case NS_TYPE_COLOR:
+		delete (sf::Color*) pointer;
+		break;
+	case NS_TYPE_IMAGE:
+		delete (sf::RenderTexture*) pointer;
+		break;
+	}
+}
+
 
 node::node(const nodeData* data)
 {
@@ -68,9 +94,7 @@ node::~node()
 {
 	//std::cout << "deleting logical node\n";
 	for (int i = 0; i < getPinCount(); i++)
-	{
-		delete m_pinDataPointers[i];
-	}
+		deletePinData(m_pinTypes[i], m_pinDataPointers[i]);
 	
 	delete[] m_pinTypes;
 }
