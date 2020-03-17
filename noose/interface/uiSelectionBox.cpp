@@ -85,3 +85,8 @@ void uiSelectionBox::terminate()
 	for (sf::Text* p : m_optionTexts)
 		delete p;
 }
+
+bool uiSelectionBox::isVisible()
+{
+	return m_onScreen;
+}

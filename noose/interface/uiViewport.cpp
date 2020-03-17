@@ -6,7 +6,7 @@
 
 #define IMAGE_MARGIN 24
 
-const std::vector<std::string> uiViewport::CONTEXT_MENU_OPTIONS = { "Save as output.png", "Save as"/*, "Copy to clipboard" */};
+const std::vector<std::string> uiViewport::CONTEXT_MENU_OPTIONS = { "Save as png", "Save as jpg", "Save as bmp", "Save as tga"/* TODO: "Copy to clipboard" */};
 int uiViewport::rightClickedImageIndex;
 sf::Vector2f uiViewport::mouseWorldPos;
 uiSelectionBox uiViewport::viewportSelectionBox;
@@ -125,30 +125,33 @@ void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 			else if (e.mouseButton.button == sf::Mouse::Left)
 			{
 				int index = viewportSelectionBox.mouseOver(mouseWorldPos);
-				if (index > -1)
+				if (index > -1 && viewportSelectionBox.isVisible())
 				{
+					std::string fileExtension;
 					switch (index)
 					{
-					case 0: // save as output.png
-						if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile("output.png"))
-							std::cout << "[UI] Image saved as output.png\n";
+					default:
+					case 0:
+						fileExtension = "png";
+						break;
+					case 1:
+						fileExtension = "jpg";
+						break;
+					case 2:
+						fileExtension = "bmp";
+						break;
+					case 3:
+						fileExtension = "tga";
+						break;
+					}
+					char* filePath = uiFileSelector::saveFileDialog(fileExtension);
+					if (filePath != nullptr)
+					{
+						if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(filePath))
+							std::cout << "[UI] Image saved\n";
 						else
 							std::cout << "[UI] Could not save image\n";
-						break;
-					case 1: // save as
-					{
-						char* filePath = uiFileSelector::selectFile(true);
-						if (filePath != nullptr)
-						{
-							if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(filePath))
-								std::cout << "[UI] Image saved\n";
-							else
-								std::cout << "[UI] Could not save image\n";
-							free(filePath);
-						}
-					}
-					default:
-						break;
+						free(filePath);
 					}
 				}
 				viewportSelectionBox.hide();

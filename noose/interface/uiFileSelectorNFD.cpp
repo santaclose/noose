@@ -1,40 +1,60 @@
 #ifdef WINDOWS
 #include <string.h>
+#include <iostream>
 #include "uiFileSelector.h"
 #include "../vendor/nfd.h"
 #include "../utils.h"
 
-char* uiFileSelector::selectFile(bool save)
+char* uiFileSelector::openFileDialog()
 {
 	nfdchar_t* outPath = nullptr;
-	//nfdchar_t filter[] = "bmp,png,tga,jpg,gif,psd,hdr,pic";
+	nfdresult_t result = NFD_OpenDialog("bmp,png,tga,jpg,gif,psd,hdr,pic", NULL, &outPath);
 
-	nfdresult_t result;
-	if (save)
-		result = NFD_SaveDialog("png", NULL, &outPath);
+	if (result == NFD_OKAY)
+	{
+		return outPath;
+	}
+	else if (result == NFD_CANCEL)
+	{
+		puts("[NFD] User pressed cancel.");
+		return nullptr;
+	}
 	else
-		result = NFD_OpenDialog("bmp,png,tga,jpg,gif,psd,hdr,pic", NULL, &outPath);
+	{
+		printf("[NFD] Error: %s\n", NFD_GetError());
+		return nullptr;
+	}
+}
+
+char* uiFileSelector::saveFileDialog(const std::string& fileExtension)
+{
+	nfdchar_t* outPath = nullptr;
+	nfdresult_t result = NFD_SaveDialog(fileExtension.c_str(), NULL, &outPath);
 
 	if (result == NFD_OKAY)
 	{
 		puts("[NFD] Success");
-		if (save)
+		if (utils::fileHasExtension(outPath, fileExtension.c_str()))
 		{
-			if (utils::fileHasExtension(outPath))
-				return outPath;
-			else
-			{
-				// add 4 chars for the extension and 1 for \0
-				int prevLength = strlen(outPath);
-				char* fixedPath = (char*) malloc(sizeof(char) * (prevLength + 4 + 1));
-				memcpy(fixedPath, outPath, prevLength);
-				memcpy(&(fixedPath[prevLength]), ".png\0", 5);
-				free(outPath);
-				return fixedPath;
-			}
+			std::cout << "file already has extension\n";
+			return outPath;
 		}
 		else
-			return outPath;
+		{
+			std::cout << "file doesn't have extension\n";
+			// add 4 chars for the extension and 1 for \0
+			int prevLength = strlen(outPath);
+			char* fixedPath = (char*)malloc(sizeof(char) * (prevLength + fileExtension.length() + 2)); // include dot and \0
+			if (fixedPath == NULL)
+			{
+				std::cout << "[NFD] No memory available\n";
+				return nullptr;
+			}
+			memcpy(fixedPath, outPath, prevLength);
+			memcpy(&(fixedPath[prevLength]), ('.' + fileExtension).c_str(), fileExtension.length() + 2); // include dot and \0
+			free(outPath);
+			return fixedPath;
+		}
 	}
 	else if (result == NFD_CANCEL)
 	{

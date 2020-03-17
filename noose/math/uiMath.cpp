@@ -27,16 +27,16 @@ float uiMath::dot(const sf::Vector2f& a, const sf::Vector2f b)
 {
 	return a.x * b.x + a.y * b.y;
 }
-float uiMath::lengthSquared(const sf::Vector2f&& v)
+float uiMath::lengthSquared(const sf::Vector2f& v)
 {
 	return v.x * v.x + v.y * v.y;
 }
 
-sf::Vector2f uiMath::rightVector(sf::Vector2f&& a)
+sf::Vector2f uiMath::rightVector(const sf::Vector2f& a)
 {
 	return sf::Vector2f(a.y, -a.x);
 }
-sf::Vector2f uiMath::normalized(sf::Vector2f&& a)
+sf::Vector2f uiMath::normalized(const sf::Vector2f& a)
 {
 	return a / sqrt(a.x * a.x + a.y * a.y);
 }

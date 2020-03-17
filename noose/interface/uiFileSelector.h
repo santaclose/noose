@@ -4,5 +4,6 @@
 
 namespace uiFileSelector
 {
-	char* selectFile(bool save);
+	char* openFileDialog();
+	char* saveFileDialog(const std::string& fileExtension);
 }

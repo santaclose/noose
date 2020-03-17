@@ -18,4 +18,6 @@ public:
 	void hide();
 	void draw(sf::RenderWindow& window, const sf::Vector2f& mousePos);
 	void terminate();
+
+	bool isVisible();
 };
