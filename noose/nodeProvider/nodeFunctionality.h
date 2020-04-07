@@ -34,6 +34,7 @@ namespace nodeFunctionality
 	void Flip(node* theNode);
 	void Frame(node* theNode);
 	void Grayscale(node* theNode);
+	void GammaCorrection(node* theNode);
 	void Invert(node* theNode);
 	void Mask(node* theNode);
 	void Repeat(node* theNode);

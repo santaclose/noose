@@ -1,5 +1,3 @@
-//uniform vec4 colorA;
-//uniform vec4 colorB;
 uniform float squareSize;
 
 void main()

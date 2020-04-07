@@ -78,14 +78,16 @@ private:
 		if (index == 28)
 			return (void*)nodeFunctionality::Grayscale;
 		if (index == 29)
-			return (void*)nodeFunctionality::Invert;
+			return (void*)nodeFunctionality::GammaCorrection;
 		if (index == 30)
-			return (void*)nodeFunctionality::Mask;
+			return (void*)nodeFunctionality::Invert;
 		if (index == 31)
-			return (void*)nodeFunctionality::Repeat;
+			return (void*)nodeFunctionality::Mask;
 		if (index == 32)
-			return (void*)nodeFunctionality::Rotate90;
+			return (void*)nodeFunctionality::Repeat;
 		if (index == 33)
+			return (void*)nodeFunctionality::Rotate90;
+		if (index == 34)
 			return (void*)nodeFunctionality::SelectByColor;
 		std::cout << "[Node provider] COULD NOT GET FUNCTIONALITY FOR INDEX " << index << std::endl;
 		return nullptr;

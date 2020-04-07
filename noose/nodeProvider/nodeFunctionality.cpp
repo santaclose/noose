@@ -14,6 +14,7 @@ sf::Shader rotate90Shader;
 sf::Shader solidShader;
 sf::Shader maskShader;
 sf::Shader grayscaleShader;
+sf::Shader gammaCorrectionShader;
 sf::Shader separateShader;
 sf::Shader combineShader;
 sf::Shader cropShader;
@@ -30,7 +31,7 @@ void nodeFunctionality::initialize()
 	if (!blendShader.loadFromFile("res/nodeShaders/blend.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load blend shader\n";
 	if (!brightnessContrastShader.loadFromFile("res/nodeShaders/brightness-contrast.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load brightness-contrast shader\n";	
+		std::cout << "[Node provider] Failed to load brightness-contrast shader\n";
 	if (!checkerShader.loadFromFile("res/nodeShaders/checker.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load checker shader\n";
 	if (!flipShader.loadFromFile("res/nodeShaders/flip.shader", sf::Shader::Fragment))
@@ -38,25 +39,27 @@ void nodeFunctionality::initialize()
 	if (!frameShader.loadFromFile("res/nodeShaders/frame.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load frame shader\n";
 	if (!invertShader.loadFromFile("res/nodeShaders/invert.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load invert shader\n";	
+		std::cout << "[Node provider] Failed to load invert shader\n";
 	if (!linearGradientShader.loadFromFile("res/nodeShaders/linearGradient.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load linearGradient shader\n";	
+		std::cout << "[Node provider] Failed to load linearGradient shader\n";
 	if (!repeatShader.loadFromFile("res/nodeShaders/repeat.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load repeat shader\n";	
+		std::cout << "[Node provider] Failed to load repeat shader\n";
 	if (!rotate90Shader.loadFromFile("res/nodeShaders/rotate90.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load rotate90 shader\n";	
+		std::cout << "[Node provider] Failed to load rotate90 shader\n";
 	if (!solidShader.loadFromFile("res/nodeShaders/solid.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load solidShader shader\n";	
+		std::cout << "[Node provider] Failed to load solidShader shader\n";
 	if (!maskShader.loadFromFile("res/nodeShaders/mask.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load mix shader\n";	
+		std::cout << "[Node provider] Failed to load mix shader\n";
 	if (!grayscaleShader.loadFromFile("res/nodeShaders/grayscale.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load grayscale shader\n";	
+		std::cout << "[Node provider] Failed to load grayscale shader\n";
+	if (!gammaCorrectionShader.loadFromFile("res/nodeShaders/gammaCorrection.shader", sf::Shader::Fragment))
+		std::cout << "[Node provider] Failed to load gammaCorrection shader\n";
 	if (!separateShader.loadFromFile("res/nodeShaders/separate.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load separate shader\n";	
+		std::cout << "[Node provider] Failed to load separate shader\n";
 	if (!combineShader.loadFromFile("res/nodeShaders/combine.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load combine shader\n";	
+		std::cout << "[Node provider] Failed to load combine shader\n";
 	if (!cropShader.loadFromFile("res/nodeShaders/crop.shader", sf::Shader::Fragment))
-		std::cout << "[Node provider] Failed to load crop shader\n";	
+		std::cout << "[Node provider] Failed to load crop shader\n";
 	if (!selectByColorShader.loadFromFile("res/nodeShaders/selectByColor.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load selectByColor shader\n";
 }
@@ -434,6 +437,22 @@ void nodeFunctionality::Grayscale(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &grayscaleShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::GammaCorrection(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(1));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
+
+	sf::Vector2u size = a->getSize();
+
+	outputPointer->create(size.x, size.y);
+
+	gammaCorrectionShader.setUniform("tex", a->getTexture());
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &gammaCorrectionShader;
 	outputPointer->draw(spr, rs);
 }
 

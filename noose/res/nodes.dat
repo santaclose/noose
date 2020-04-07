@@ -234,6 +234,13 @@ Grayscale
 	out:
 		Image: out
 ]
+Gamma Correction
+[
+	in:
+		Image: in
+	out:
+		Image: out
+]
 Invert
 [
 	in:

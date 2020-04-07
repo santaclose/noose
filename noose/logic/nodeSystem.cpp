@@ -106,6 +106,7 @@ void nodeSystem::onNodesDisconnected(int nA, int nB, int pA, int pB, int c)
 	connectionSystem::deleteConnection(c);
 
 	recalculatePropagationMatrices();
+	nodeList[nB]->activate();
 }
 
 bool nodeSystem::isConnectionValid(int nA, int nB, int pinA, int pinB)
