@@ -4,15 +4,30 @@
 #include "uiFileSelector.h"
 #include "../utils.h"
 
-char* uiFileSelector::selectFile(bool save)
+char* uiFileSelector::openFileDialog()
 {
 	char* filePath = (char*) malloc(sizeof(char) * 1024);
 	filePath[0] = '\0';
-	FILE* f;
-	if (save)
-		f = popen("zenity --file-selection --save", "r");
-	else
-		f = popen("zenity --file-selection", "r");
+	FILE* f = popen("zenity --file-selection", "r");
+	fgets(filePath, 1024, f);
+
+	if (filePath[0] == '\0')
+	{
+		std::cout << "[Zenity] Could not select file\n";
+		delete[] filePath;
+		return nullptr;
+	}
+
+	// remove endline
+	int i; for (i = 0; filePath[i] != '\n'; i++);
+	filePath[i] = '\0';
+	return filePath;
+}
+char* uiFileSelector::saveFileDialog(const std::string& fileExtension)
+{
+	char* filePath = (char*) malloc(sizeof(char) * 1024);
+	filePath[0] = '\0';
+	FILE* f = popen("zenity --file-selection --save", "r");
 	fgets(filePath, 1024, f);
 
 	if (filePath[0] == '\0')
@@ -26,20 +41,24 @@ char* uiFileSelector::selectFile(bool save)
 	int i; for (i = 0; filePath[i] != '\n'; i++);
 	filePath[i] = '\0';
 
-	if (save)
+	if (utils::fileHasExtension(filePath, fileExtension.c_str()))
 	{
-		if (utils::fileHasExtension(filePath))
-			return filePath;
-		else
+		return filePath;
+	}
+	else
+	{
+		// add 4 chars for the extension and 1 for \0
+		int prevLength = strlen(filePath);
+		char* fixedPath = (char*)malloc(sizeof(char) * (prevLength + fileExtension.length() + 2)); // include dot and \0
+		if (fixedPath == NULL)
 		{
-			// add 4 chars for the extension and 1 for \0
-			int prevLength = strlen(filePath);
-			char* fixedPath = (char*) malloc(sizeof(char) * (prevLength + 4 + 1));
-			memcpy(fixedPath, filePath, prevLength);
-			memcpy(&(fixedPath[prevLength]), ".png\0", 5);
-			free(filePath);
-			return fixedPath;
+			std::cout << "[NFD] No memory available\n";
+			return nullptr;
 		}
+		memcpy(fixedPath, filePath, prevLength);
+		memcpy(&(fixedPath[prevLength]), ('.' + fileExtension).c_str(), fileExtension.length() + 2); // include dot and \0
+		free(filePath);
+		return fixedPath;
 	}
 
 	return filePath;

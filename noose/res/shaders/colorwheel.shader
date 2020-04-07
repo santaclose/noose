@@ -3,7 +3,7 @@ const float deg2rad = pi / 180.0;
 const float rad2deg = 180.0 / pi;
 const float circleRadius = 0.45; // in uv space
 
-uniform int limit = 1;
+uniform float limit;
 
 void main()
 {
@@ -50,7 +50,7 @@ void main()
 	float l = length(vec2(x, y));
 	// antialiasing
 	float fadeRange = 0.007;
-	if (l > circleRadius && limit == 1)
+	if (l > circleRadius && limit == 1.0)
 	{
 		//gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
 		float factor = l - circleRadius;
@@ -58,6 +58,6 @@ void main()
 			factor = fadeRange;
 
 		factor = factor / fadeRange;
-		gl_FragColor *= 1.0 - factor;
+		gl_FragColor.rgb *= 1.0 - factor;
 	}
 }

@@ -1,5 +1,3 @@
-uniform int limit = 1;
-
 void main()
 {
 	const float ratio = 0.1;

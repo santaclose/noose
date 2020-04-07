@@ -8,7 +8,7 @@ void main()
 
 	//float r = dot(normalize(p.rgb), normalize(color.rgb));
 
-	float r = 1.0 - length(p.rgb - color.rgb) / sqrt(3);
+	float r = 1.0 - length(p.rgb - color.rgb) / sqrt(3.0);
 	r = smoothstep(1.0 - tolerance, 1.0, r);
 	gl_FragColor = vec4(r, r, r, p.a);
 }

@@ -36,12 +36,12 @@ char* uiFileSelector::saveFileDialog(const std::string& fileExtension)
 		puts("[NFD] Success");
 		if (utils::fileHasExtension(outPath, fileExtension.c_str()))
 		{
-			std::cout << "file already has extension\n";
+			//std::cout << "file already has extension\n";
 			return outPath;
 		}
 		else
 		{
-			std::cout << "file doesn't have extension\n";
+			//std::cout << "file doesn't have extension\n";
 			// add 4 chars for the extension and 1 for \0
 			int prevLength = strlen(outPath);
 			char* fixedPath = (char*)malloc(sizeof(char) * (prevLength + fileExtension.length() + 2)); // include dot and \0

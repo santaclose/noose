@@ -36,11 +36,11 @@ void uiColorPicker::initialize()
 	colorWheelVertices[2].texCoords.x = colorWheelVertices[1].texCoords.y = colorWheelVertices[3].texCoords.x = colorWheelVertices[2].texCoords.y = 1.0;
 
 	colorWheel.create(220, 220);
-	colorWheelVerticesShader.setUniform("limit", 0);
+	colorWheelVerticesShader.setUniform("limit", 0.0f);
 	rs.shader = &colorWheelVerticesShader;
 	colorWheel.draw(colorWheelVertices, rs);
 	colorWheelImage = colorWheel.getTexture().copyToImage();
-	colorWheelVerticesShader.setUniform("limit", 1);
+	colorWheelVerticesShader.setUniform("limit", 1.0f);
 	colorWheel.draw(colorWheelVertices, rs);
 
 	if (!gradientVerticesShader.loadFromFile("res/shaders/gradient.shader", sf::Shader::Fragment))
