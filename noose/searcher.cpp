@@ -33,15 +33,22 @@ const nodeData* searcher::getDataFor(int searchResultIndex)
 
 bool searcher::searchCheck(const char* searchBuffer, int bufferSize, std::string& nodeName)
 {
-	//std::cout << "Comparing with " << nodeName << std::endl;
+	int offset = 0;
+	while (tolower(nodeName[offset]) != tolower(searchBuffer[0]))
+	{
+		if (nodeName[offset] == '\0')
+			return false;
+		offset++;
+	}
+
 	for (int i = 0; searchBuffer[i] != '\0'; i++)
 	{
 		if (i == nodeName.length())
 		{
 			return searchBuffer[i] == '\0';
 		}
-		if (tolower(nodeName[i]) != tolower(searchBuffer[i])) {
-			//std::cout << tolower(nodeName[i]) << " | " << tolower(searchBuffer[i]) << std::endl;
+		if (tolower(nodeName[i + offset]) != tolower(searchBuffer[i]))
+		{
 			return false;
 		}
 	}
