@@ -321,5 +321,6 @@ void uiViewport::draw()
 		renderWindow->draw(bottomBarRectangle);
 		renderWindow->draw(bottomBarText);
 	}
+	renderWindow->setView(theView);
 	viewportSelectionBox.draw(*renderWindow, mouseWorldPos);
 }
