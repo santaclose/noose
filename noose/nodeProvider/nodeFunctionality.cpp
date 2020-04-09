@@ -115,6 +115,13 @@ void nodeFunctionality::Vector2iFromInts(node* theNode)
 	outputPointer->y = *((int*)(theNode->getDataPointer(1)));
 }
 
+void nodeFunctionality::SeparateVector2i(node* theNode)
+{
+	sf::Vector2i* input = (sf::Vector2i*) theNode->getDataPointer(0);
+	*((int*)theNode->getDataPointer(1)) = input->x;
+	*((int*)theNode->getDataPointer(2)) = input->y;
+}
+
 void nodeFunctionality::Vector2iAddition(node* theNode)
 {
 	sf::Vector2i* outputPointer = ((sf::Vector2i*) theNode->getDataPointer(2));

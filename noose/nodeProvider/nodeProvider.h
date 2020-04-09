@@ -34,60 +34,62 @@ private:
 		if (index == 6)
 			return (void*)nodeFunctionality::Vector2iFromInts;
 		if (index == 7)
-			return (void*)nodeFunctionality::Vector2iAddition;
+			return (void*)nodeFunctionality::SeparateVector2i;
 		if (index == 8)
-			return (void*)nodeFunctionality::Vector2iSubtraction;
+			return (void*)nodeFunctionality::Vector2iAddition;
 		if (index == 9)
-			return (void*)nodeFunctionality::Vector2iTimesInt;
+			return (void*)nodeFunctionality::Vector2iSubtraction;
 		if (index == 10)
-			return (void*)nodeFunctionality::Float;
+			return (void*)nodeFunctionality::Vector2iTimesInt;
 		if (index == 11)
-			return (void*)nodeFunctionality::FloatAddition;
+			return (void*)nodeFunctionality::Float;
 		if (index == 12)
-			return (void*)nodeFunctionality::FloatSubtraction;
+			return (void*)nodeFunctionality::FloatAddition;
 		if (index == 13)
-			return (void*)nodeFunctionality::FloatProduct;
+			return (void*)nodeFunctionality::FloatSubtraction;
 		if (index == 14)
-			return (void*)nodeFunctionality::FloatDivision;
+			return (void*)nodeFunctionality::FloatProduct;
 		if (index == 15)
-			return (void*)nodeFunctionality::Color;
+			return (void*)nodeFunctionality::FloatDivision;
 		if (index == 16)
-			return (void*)nodeFunctionality::ColorFromInts;
+			return (void*)nodeFunctionality::Color;
 		if (index == 17)
-			return (void*)nodeFunctionality::Image;
+			return (void*)nodeFunctionality::ColorFromInts;
 		if (index == 18)
-			return (void*)nodeFunctionality::SeparateChannels;
+			return (void*)nodeFunctionality::Image;
 		if (index == 19)
-			return (void*)nodeFunctionality::CombineChannels;
+			return (void*)nodeFunctionality::SeparateChannels;
 		if (index == 20)
-			return (void*)nodeFunctionality::Solid;
+			return (void*)nodeFunctionality::CombineChannels;
 		if (index == 21)
-			return (void*)nodeFunctionality::Checker;
+			return (void*)nodeFunctionality::Solid;
 		if (index == 22)
-			return (void*)nodeFunctionality::LinearGradient;
+			return (void*)nodeFunctionality::Checker;
 		if (index == 23)
-			return (void*)nodeFunctionality::Blend;
+			return (void*)nodeFunctionality::LinearGradient;
 		if (index == 24)
-			return (void*)nodeFunctionality::BrightnessContrast;
+			return (void*)nodeFunctionality::Blend;
 		if (index == 25)
-			return (void*)nodeFunctionality::Crop;
+			return (void*)nodeFunctionality::BrightnessContrast;
 		if (index == 26)
-			return (void*)nodeFunctionality::Flip;
+			return (void*)nodeFunctionality::Crop;
 		if (index == 27)
-			return (void*)nodeFunctionality::Frame;
+			return (void*)nodeFunctionality::Flip;
 		if (index == 28)
-			return (void*)nodeFunctionality::Grayscale;
+			return (void*)nodeFunctionality::Frame;
 		if (index == 29)
-			return (void*)nodeFunctionality::GammaCorrection;
+			return (void*)nodeFunctionality::Grayscale;
 		if (index == 30)
-			return (void*)nodeFunctionality::Invert;
+			return (void*)nodeFunctionality::GammaCorrection;
 		if (index == 31)
-			return (void*)nodeFunctionality::Mask;
+			return (void*)nodeFunctionality::Invert;
 		if (index == 32)
-			return (void*)nodeFunctionality::Repeat;
+			return (void*)nodeFunctionality::Mask;
 		if (index == 33)
-			return (void*)nodeFunctionality::Rotate90;
+			return (void*)nodeFunctionality::Repeat;
 		if (index == 34)
+			return (void*)nodeFunctionality::Rotate90;
+		if (index == 35)
 			return (void*)nodeFunctionality::SelectByColor;
 		std::cout << "[Node provider] COULD NOT GET FUNCTIONALITY FOR INDEX " << index << std::endl;
 		return nullptr;

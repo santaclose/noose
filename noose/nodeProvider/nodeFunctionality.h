@@ -12,6 +12,7 @@ namespace nodeFunctionality
 	void IntegerDivision(node* theNode);
 	void Vector2i(node* theNode);
 	void Vector2iFromInts(node* theNode);
+	void SeparateVector2i(node* theNode);
 	void Vector2iAddition(node* theNode);
 	void Vector2iSubtraction(node* theNode);
 	void Vector2iTimesInt(node* theNode);

@@ -52,6 +52,14 @@ Int vector from ints
 	out:
 		Vector2i: vector
 ]
+Separate int vector
+[
+	in:
+		Vector2i: vector
+	out:
+		Integer: x
+		Integer: y
+]
 Add int vectors
 [
 	in:
