@@ -6,6 +6,7 @@ class uiData
 {
 public:
 	static sf::Font font;
+	static sf::Font monospaceFont;
 	static void load();
 };
 

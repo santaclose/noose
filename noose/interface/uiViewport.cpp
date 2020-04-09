@@ -1,10 +1,17 @@
 #include "uiViewport.h"
 #include "uiFileSelector.h"
+#include "uiData.h"
 #include "../math/uiMath.h"
 #include "../types.h"
+#include "../utils.h"
 #include <iostream>
+#include <sstream>
 
 #define IMAGE_MARGIN 24
+#define BOTTOM_BAR_COLOR 0x222222ff
+#define BOTTOM_BAR_HEIGHT 24
+#define BOTTOM_BAR_FONT_SIZE 14
+#define BOTTOM_BAR_TEXT_MARGIN 4
 
 const std::vector<std::string> uiViewport::CONTEXT_MENU_OPTIONS = { "Save as png", "Save as jpg", "Save as bmp", "Save as tga"/* TODO: "Copy to clipboard" */};
 int uiViewport::rightClickedImageIndex;
@@ -27,8 +34,9 @@ sf::Texture uiViewport::imageLimitTexture;
 sf::Sprite uiViewport::imageLimitSprite;
 sf::RectangleShape uiViewport::backgroundRectangle;
 sf::Shader uiViewport::checkerShader;
+sf::Text uiViewport::bottomBarText;
+sf::RectangleShape uiViewport::bottomBarRectangle;
 sf::Shader uiViewport::invertShader;
-
 
 void uiViewport::updateView(float width, float height)
 {
@@ -42,7 +50,6 @@ int uiViewport::mouseOver(sf::Vector2f& mousePos)
 		return -1;
 
 	sf::Vector2f cursor(0.0f, 0.0f);
-	//unsigned int currentXOffset = 0;
 	int c = selectedNodeDataPointers->size(); // count
 	for (int i = c - selectedNodeOutputPinCount; i < c; i++)
 	{
@@ -69,7 +76,21 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
 {
 	renderWindow = &theRenderWindow;
 	updateView(renderWindow->getSize().x, renderWindow->getSize().y);
+
+	bottomBarText = sf::Text("", uiData::monospaceFont, BOTTOM_BAR_FONT_SIZE);
 	backgroundRectangle.setSize((sf::Vector2f) renderWindow->getSize());
+
+	bottomBarRectangle.setSize(sf::Vector2f(
+		renderWindow->getSize().x,
+		BOTTOM_BAR_HEIGHT));
+	bottomBarRectangle.setPosition(sf::Vector2f(
+		0.0,
+		renderWindow->getSize().y - BOTTOM_BAR_HEIGHT));
+	bottomBarText.setPosition(sf::Vector2f(
+		BOTTOM_BAR_TEXT_MARGIN,
+		renderWindow->getSize().y - BOTTOM_BAR_HEIGHT + BOTTOM_BAR_TEXT_MARGIN));
+
+	bottomBarRectangle.setFillColor(sf::Color(BOTTOM_BAR_COLOR));
 
 	imageLimitTexture.loadFromFile("res/images/imageLimit.png");
 	imageLimitSprite = sf::Sprite(imageLimitTexture);
@@ -83,6 +104,64 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow)
 		std::cout << "[UI] Failed to load dark mode shader\n";
 
 	viewportSelectionBox.initialize();
+}
+
+void uiViewport::setNodeData(const std::vector<void*>* pointers, const int* pinTypes, int outputPinCount)
+{
+	selectedNodeDataPointers = pointers;
+	selectedNodePinTypes = pinTypes;
+	selectedNodeOutputPinCount = outputPinCount;
+
+	// update bottom bar text
+	std::stringstream newBottomBarText;
+	bool firstPrinted = false;
+	int c = selectedNodeDataPointers->size(); // count
+	for (int i = c - selectedNodeOutputPinCount; i < c; i++)
+	{
+		if (pinTypes[i] != NS_TYPE_IMAGE)
+		{
+			if (firstPrinted)
+				newBottomBarText << " | ";
+			else
+				firstPrinted = true;
+		}
+		switch (pinTypes[i])
+		{
+			case NS_TYPE_INT:
+			{
+				newBottomBarText << *((int*) (*pointers)[i]);
+				break;
+			}
+			case NS_TYPE_FLOAT:
+			{
+				newBottomBarText << *((float*) (*pointers)[i]);
+				break;
+			}
+			case NS_TYPE_VECTOR2I:
+			{
+				sf::Vector2i* data = (sf::Vector2i*) (*pointers)[i];
+				newBottomBarText << data->x << "," << data->y;
+				break;
+			}
+			case NS_TYPE_IMAGE:
+				break;
+			case NS_TYPE_COLOR:
+			{
+				newBottomBarText << "#" << utils::intToHex(((sf::Color*) (*pointers)[i])->toInteger());
+				break;
+			}
+		}
+	}
+	bottomBarText.setString(newBottomBarText.str());
+}
+const std::vector<void*>* uiViewport::getNodeDataPointers()
+{
+	return selectedNodeDataPointers;
+}
+
+void uiViewport::hideNodeData()
+{
+	selectedNodeDataPointers = nullptr;
 }
 
 void uiViewport::terminate()
@@ -107,6 +186,16 @@ void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 			// update the view to the new size of the window
 			updateView(e.size.width, e.size.height);
 			backgroundRectangle.setSize((sf::Vector2f) renderWindow->getSize());
+			bottomBarRectangle.setSize(sf::Vector2f(
+				renderWindow->getSize().x,
+				BOTTOM_BAR_HEIGHT));
+			bottomBarRectangle.setPosition(sf::Vector2f(
+				0.0,
+				renderWindow->getSize().y - BOTTOM_BAR_HEIGHT));
+			bottomBarText.setPosition(sf::Vector2f(
+				BOTTOM_BAR_TEXT_MARGIN,
+				renderWindow->getSize().y - BOTTOM_BAR_HEIGHT + BOTTOM_BAR_TEXT_MARGIN
+				));
 			break;
 		}
 		case sf::Event::MouseButtonPressed:
@@ -182,10 +271,11 @@ void uiViewport::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 void uiViewport::draw()
 {
 	const sf::Vector2u& windowSize = renderWindow->getSize();
-	sf::View staticView(sf::Vector2f(windowSize.x / 2.0, windowSize.y / 2.0),
+	sf::View staticView(
+		sf::Vector2f(windowSize.x / 2.0, windowSize.y / 2.0),
 		sf::Vector2f(windowSize.x, windowSize.y));
-	renderWindow->setView(staticView);
 
+	renderWindow->setView(staticView);
 	renderWindow->draw(backgroundRectangle, &checkerShader);
 	
 	renderWindow->setView(theView);
@@ -226,6 +316,10 @@ void uiViewport::draw()
 				break;
 			}
 		}
+
+		renderWindow->setView(staticView);
+		renderWindow->draw(bottomBarRectangle);
+		renderWindow->draw(bottomBarText);
 	}
 	viewportSelectionBox.draw(*renderWindow, mouseWorldPos);
 }

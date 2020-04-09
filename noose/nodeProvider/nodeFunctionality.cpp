@@ -92,6 +92,12 @@ void nodeFunctionality::IntegerProduct(node* theNode)
 
 void nodeFunctionality::IntegerDivision(node* theNode)
 {
+	if (*((int*)theNode->getDataPointer(1)) == 0)
+	{
+		std::cout << "[Node functionality] Cannot divide by zero\n";
+		return;
+	}
+
 	*((int*)theNode->getDataPointer(2)) =
 		*((int*)theNode->getDataPointer(0)) /
 		*((int*)theNode->getDataPointer(1));

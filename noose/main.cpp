@@ -10,16 +10,18 @@
 #include "logic/nodeSystem.h"
 #include "nodeProvider/nodeProvider.h"
 
-static const sf::Color BACKGROUND_COLOR(0x181818ff);
+static const sf::Color BACKGROUND_COLOR(0x222222ff);
 
 void onNodeSelected(int theNode)
 {
 	std::cout << "[Main] Node " << theNode << " selected\n";
 	
 	uiViewport::hideSelectionBox();
-	uiViewport::selectedNodeDataPointers = &nodeSystem::getDataPointersForNode(theNode);
-	uiViewport::selectedNodePinTypes = nodeSystem::getPinTypesForNode(theNode);
-	uiViewport::selectedNodeOutputPinCount = nodeSystem::getOutputPinCountForNode(theNode);
+	uiViewport::setNodeData(
+		&nodeSystem::getDataPointersForNode(theNode),
+		nodeSystem::getPinTypesForNode(theNode),
+		nodeSystem::getOutputPinCountForNode(theNode)
+		);
 }
 
 // just before deleting the node
@@ -29,8 +31,8 @@ void onNodeDeleted(int theNode)
 
 	uiViewport::hideSelectionBox();
 
-	if (&nodeSystem::getDataPointersForNode(theNode) == uiViewport::selectedNodeDataPointers)
-		uiViewport::selectedNodeDataPointers = nullptr;
+	if (&nodeSystem::getDataPointersForNode(theNode) == uiViewport::getNodeDataPointers())
+		uiViewport::hideNodeData();
 }
 
 int main()

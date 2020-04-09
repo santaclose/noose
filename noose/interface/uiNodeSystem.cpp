@@ -373,7 +373,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 		{
 			switch (e.key.code)
 			{
-				// TODO: check if user is using the search bar
 				case sf::Keyboard::BackSpace:
 				case sf::Keyboard::Delete:
 				{
