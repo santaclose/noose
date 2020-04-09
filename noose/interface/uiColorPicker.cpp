@@ -2,58 +2,126 @@
 #include <iostream>
 #include <cstdint>
 
-void (*uiColorPicker::onSetColor)(sf::Color*);
-sf::RenderStates uiColorPicker::rs;
-sf::RenderWindow* uiColorPicker::theWindow = nullptr;
-sf::Shader uiColorPicker::colorWheelVerticesShader;
-sf::VertexArray uiColorPicker::colorWheelVertices = sf::VertexArray(sf::Quads, 4);
-sf::RenderTexture uiColorPicker::colorWheel;
-sf::Image uiColorPicker::colorWheelImage; // copy to get pixel colors
-sf::Shader uiColorPicker::gradientVerticesShader;
-sf::VertexArray uiColorPicker::gradientVertices = sf::VertexArray(sf::Quads, 4);
-sf::RenderTexture uiColorPicker::gradient;
-sf::Image uiColorPicker::gradientImage;
-sf::Vector2u uiColorPicker::lastColorPos;
-float uiColorPicker::lastIntensity = 1.0;
-sf::Color* uiColorPicker::outputPointer = nullptr;
-MouseState uiColorPicker::mouseState = MouseState::None;
-sf::Vector2u uiColorPicker::mousePos;
+#define COLOR_WHEEL_SIZE 220.0
+#define INTENSITY_AND_ALPHA_WIDTH 40.0
+#define MARGIN_WIDTH 2.0
+
+void (*onColorSelectedCallback)(sf::Color*);
+sf::Color* outputPointer = nullptr;
+
+sf::RenderStates rsOverwrite;
+//sf::RenderStates rsAlphaBlend;
+
+sf::RenderWindow* theWindow = nullptr;
+
+sf::RenderTexture renderTexture;
+
+sf::Shader colorWheelShader;
+sf::Shader gradientShader;
+
+sf::Image colorWheelImage; // copy to get pixel colors
+sf::Image gradientImage;
+
+sf::Vector2u lastColorPos;
+float lastIntensity = 1.0;
+sf::Uint8 lastAlpha = 255;
+
+SelectionState selectionState = SelectionState::None;
+sf::Vector2u mousePos;
 
 sf::Color operator*(const sf::Color& c, const float f)
 {
 	return sf::Color(c.r * f, c.g * f, c.b * f, c.a);
 }
 
+void setColor()
+{
+	if (outputPointer == nullptr || onColorSelectedCallback == nullptr)
+		return;
+
+	switch (selectionState)
+	{
+	case SelectionState::Color:
+		lastColorPos = sf::Vector2u(mousePos.x, mousePos.y);
+		break;
+	case SelectionState::Intensity:
+		lastIntensity = gradientImage.getPixel(0, mousePos.y).r / 255.0;
+		break;
+	case SelectionState::Alpha:
+		lastAlpha = gradientImage.getPixel(0, mousePos.y).r;
+		break;
+	}
+
+	*outputPointer = colorWheelImage.getPixel(lastColorPos.x, lastColorPos.y) * lastIntensity;
+	outputPointer->a = lastAlpha;
+	onColorSelectedCallback(outputPointer);
+}
+
 void uiColorPicker::initialize()
 {
-	rs.blendMode = sf::BlendNone;
+	rsOverwrite.blendMode = sf::BlendNone;
+	//rsAlphaBlend.blendMode = sf::BlendAlpha;
 
-	if (!colorWheelVerticesShader.loadFromFile("res/shaders/colorwheel.shader", sf::Shader::Fragment))
+	if (!colorWheelShader.loadFromFile("res/shaders/colorwheel.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load colorwheel shader\n";
-	colorWheelVertices[0].position.x = colorWheelVertices[0].position.y = colorWheelVertices[1].position.x = colorWheelVertices[3].position.y = 0.0;
-	colorWheelVertices[2].position.x = colorWheelVertices[1].position.y = colorWheelVertices[3].position.x = colorWheelVertices[2].position.y = 220.0;
-	colorWheelVertices[0].texCoords.x = colorWheelVertices[0].texCoords.y = colorWheelVertices[1].texCoords.x = colorWheelVertices[3].texCoords.y = 0.0;
-	colorWheelVertices[2].texCoords.x = colorWheelVertices[1].texCoords.y = colorWheelVertices[3].texCoords.x = colorWheelVertices[2].texCoords.y = 1.0;
-
-	colorWheel.create(220, 220);
-	colorWheelVerticesShader.setUniform("limit", 0.0f);
-	rs.shader = &colorWheelVerticesShader;
-	colorWheel.draw(colorWheelVertices, rs);
-	colorWheelImage = colorWheel.getTexture().copyToImage();
-	colorWheelVerticesShader.setUniform("limit", 1.0f);
-	colorWheel.draw(colorWheelVertices, rs);
-
-	if (!gradientVerticesShader.loadFromFile("res/shaders/gradient.shader", sf::Shader::Fragment))
+	if (!gradientShader.loadFromFile("res/shaders/gradient.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load gradient shader\n";
-	gradientVertices[0].position.x = gradientVertices[1].position.x = gradientVertices[0].position.y = gradientVertices[3].position.y = 0.0;
-	gradientVertices[2].position.x = gradientVertices[3].position.x = 40.0;
-	gradientVertices[1].position.y = gradientVertices[2].position.y = 220.0;
-	gradientVertices[0].texCoords.y = gradientVertices[3].texCoords.y = 0.0;
-	gradientVertices[1].texCoords.y = gradientVertices[2].texCoords.y = 1.0;
 
-	gradient.create(40, 220);
-	gradient.draw(gradientVertices, &gradientVerticesShader);
-	gradientImage = gradient.getTexture().copyToImage();
+	// get colorwheel image in ram
+	sf::VertexArray cva(sf::Quads, 4);
+	cva[0].position.x = cva[0].position.y = cva[1].position.x = cva[3].position.y = 0.0;
+	cva[2].position.x = cva[1].position.y = cva[3].position.x = cva[2].position.y = COLOR_WHEEL_SIZE;
+	cva[0].texCoords.x = cva[0].texCoords.y = cva[1].texCoords.x = cva[3].texCoords.y = 0.0;
+	cva[2].texCoords.x = cva[1].texCoords.y = cva[3].texCoords.x = cva[2].texCoords.y = 1.0;
+
+	renderTexture.create(COLOR_WHEEL_SIZE, COLOR_WHEEL_SIZE);
+	colorWheelShader.setUniform("limit", 0.0f);
+	rsOverwrite.shader = &colorWheelShader;
+	renderTexture.draw(cva, rsOverwrite);
+	colorWheelImage = renderTexture.getTexture().copyToImage();
+
+	// get intensity/alpha image in ram
+	sf::VertexArray gva(sf::Quads, 4);
+	gva[0].position.x = gva[1].position.x = gva[0].position.y = gva[3].position.y = 0.0;
+	gva[2].position.x = gva[3].position.x = INTENSITY_AND_ALPHA_WIDTH;
+	gva[1].position.y = gva[2].position.y = COLOR_WHEEL_SIZE;
+	gva[0].texCoords.y = gva[3].texCoords.y = 0.0;
+	gva[1].texCoords.y = gva[2].texCoords.y = 1.0;
+
+	renderTexture.create(1, COLOR_WHEEL_SIZE);
+	rsOverwrite.shader = &gradientShader;
+	renderTexture.draw(gva, rsOverwrite);
+	gradientImage = renderTexture.getTexture().copyToImage();
+
+	// get final render texture to display
+	renderTexture.create(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 2 + MARGIN_WIDTH * 2, COLOR_WHEEL_SIZE);
+	renderTexture.clear(sf::Color::Black); // margin color
+
+	// draw colorwheel
+	colorWheelShader.setUniform("limit", 1.0f);
+	rsOverwrite.shader = &colorWheelShader;
+	renderTexture.draw(cva, rsOverwrite);
+
+	gva[0].position.x += MARGIN_WIDTH + COLOR_WHEEL_SIZE;
+	gva[1].position.x += MARGIN_WIDTH + COLOR_WHEEL_SIZE;
+	gva[2].position.x += MARGIN_WIDTH + COLOR_WHEEL_SIZE;
+	gva[3].position.x += MARGIN_WIDTH + COLOR_WHEEL_SIZE;
+
+	rsOverwrite.shader = &gradientShader;
+	renderTexture.draw(gva, rsOverwrite);
+
+	gva[0].position.x += MARGIN_WIDTH + INTENSITY_AND_ALPHA_WIDTH;
+	gva[1].position.x += MARGIN_WIDTH + INTENSITY_AND_ALPHA_WIDTH;
+	gva[2].position.x += MARGIN_WIDTH + INTENSITY_AND_ALPHA_WIDTH;
+	gva[3].position.x += MARGIN_WIDTH + INTENSITY_AND_ALPHA_WIDTH;
+
+	rsOverwrite.shader = &gradientShader;
+	renderTexture.draw(gva, rsOverwrite);
+}
+
+void uiColorPicker::setOnColorSelectCallback(void (*onSetColor)(sf::Color*))
+{
+	onColorSelectedCallback = onSetColor;
 }
 
 void uiColorPicker::show(sf::Color* newPointer)
@@ -64,7 +132,11 @@ void uiColorPicker::show(sf::Color* newPointer)
 	}
 	else // initial case
 	{
-		theWindow = new sf::RenderWindow(sf::VideoMode(260, 220), "color", sf::Style::Close);
+		theWindow = new sf::RenderWindow(sf::VideoMode(
+				COLOR_WHEEL_SIZE + MARGIN_WIDTH * 2 + INTENSITY_AND_ALPHA_WIDTH * 2,
+				COLOR_WHEEL_SIZE),
+			"Color Selection",
+			sf::Style::Close);
 	}
 	outputPointer = newPointer;
 }
@@ -98,11 +170,12 @@ void uiColorPicker::tick()
 			{
 				if (e.mouseButton.button == sf::Mouse::Left)
 				{
-					//mousePressed = true;
-					if (e.mouseButton.x > 220)
-						mouseState = MouseState::IntensitySide;
+					if (e.mouseButton.x > INTENSITY_AND_ALPHA_WIDTH + MARGIN_WIDTH * 1.5 + COLOR_WHEEL_SIZE)
+						selectionState = SelectionState::Alpha;
+					else if (e.mouseButton.x < MARGIN_WIDTH * 0.5 + COLOR_WHEEL_SIZE)
+						selectionState = SelectionState::Color;
 					else
-						mouseState = MouseState::ColorSide;
+						selectionState = SelectionState::Intensity;
 
 					mousePos = sf::Vector2u(e.mouseButton.x, e.mouseButton.y);
 					setColor();
@@ -111,12 +184,12 @@ void uiColorPicker::tick()
 			}
 			case sf::Event::MouseButtonReleased:
 			{
-				mouseState = MouseState::None;
+				selectionState = SelectionState::None;
 				break;
 			}
 			case sf::Event::MouseMoved:
 			{
-				if (mouseState == MouseState::None)
+				if (selectionState == SelectionState::None)
 					return;
 				mousePos = sf::Vector2u(e.mouseMove.x, e.mouseMove.y);
 				setColor();
@@ -133,12 +206,15 @@ void uiColorPicker::tick()
 	}
 	else
 	{
-		sf::Sprite cw(colorWheel.getTexture());
+		/*sf::Sprite cw(colorWheel.getTexture());
 		sf::Sprite in(gradient.getTexture());
 		cw.setPosition(0.0, 0.0);
 		in.setPosition(220.0, 0.0);
 		theWindow->draw(cw);
-		theWindow->draw(in);
+		theWindow->draw(in);*/
+		sf::Sprite sprt(renderTexture.getTexture());
+		sprt.setPosition(0.0, 0.0);
+		theWindow->draw(sprt);
 
 		theWindow->display();
 	}
@@ -151,23 +227,4 @@ void uiColorPicker::terminate()
 		theWindow->close();
 		delete theWindow;
 	}
-}
-
-void uiColorPicker::setColor()
-{
-	if (outputPointer == nullptr || onSetColor == nullptr)
-		return;
-
-	if (mouseState == MouseState::ColorSide)
-	{
-		lastColorPos = sf::Vector2u(mousePos.x, mousePos.y);
-	}
-	else if (mouseState == MouseState::IntensitySide)
-	{
-		lastIntensity = gradientImage.getPixel(20, mousePos.y).r / 255.0;
-		//std::cout << "selected intensity: " << lastIntensity << std::endl;
-	}
-
-	*outputPointer = colorWheelImage.getPixel(lastColorPos.x, lastColorPos.y) * lastIntensity;
-	onSetColor(outputPointer);
 }

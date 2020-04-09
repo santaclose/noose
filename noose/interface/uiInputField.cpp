@@ -376,7 +376,7 @@ void uiInputField::bind(int index)
 	{
 		editingInputField = this;
 		///
-		uiColorPicker::onSetColor = onColorPickerSetColor;
+		uiColorPicker::setOnColorSelectCallback(onColorPickerSetColor);
 		uiColorPicker::show((sf::Color*) editingInputField->dataPointer);
 		///
 		return;
