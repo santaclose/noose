@@ -15,32 +15,62 @@
 #define SEARCH_BAR_TEXT_MARGIN 8
 #define MAX_RESULTS_NUMBER 5
 #define RESULTS_BAR_COLOR 0x383838ff
-#define RESULT_HEIGHT 40
+#define RESULT_HEIGHT 36
 #define RESULT_FONT_SIZE 14
 
-bool uiSearchBar::searching = false;
-sf::RectangleShape uiSearchBar::searchRectangle;
-sf::Text uiSearchBar::searchText;
-char uiSearchBar::searchBuffer[SEARCH_BAR_BUFFER_SIZE];
-int uiSearchBar::searchBufferCurrentChar = 0;
+sf::RenderWindow* sbRenderWindow;
 
-sf::RectangleShape uiSearchBar::resultsBar;
-sf::Text uiSearchBar::resultsTexts[MAX_RESULTS_NUMBER];
-int uiSearchBar::currentResultCount = 0;
+bool searching = false;
+sf::RectangleShape searchRectangle;
+sf::Text searchText;
+char searchBuffer[SEARCH_BAR_BUFFER_SIZE];
+int searchBufferCurrentChar = 0;
 
-sf::RenderWindow* uiSearchBar::renderWindow;
+int selectedSearchResult = 0;
+sf::VertexArray resultsVA;
+sf::Text resultsTexts[MAX_RESULTS_NUMBER];
+sf::Shader resultBoxShader;
+
+int currentResultCount = 0;
+
+void performSearch()
+{
+	currentResultCount = searcher::search(searchBuffer, SEARCH_BAR_BUFFER_SIZE, MAX_RESULTS_NUMBER);
+	resultsVA[1].position.y = resultsVA[2].position.y = SEARCH_BAR_HEIGHT + currentResultCount * RESULT_HEIGHT;
+	for (int i = 0; i < currentResultCount; i++)
+	{
+		resultsTexts[i].setString(*(searcher::searchResults[i]));
+	}
+	selectedSearchResult = 0;
+	resultBoxShader.setUniform("count", (float)currentResultCount);
+	resultBoxShader.setUniform("sel", 0.0f);
+}
+
+void clearSearch()
+{
+	searching = false;
+	searchBuffer[0] = '\0';
+	searchBufferCurrentChar = 0;
+	searchText.setString(searchBuffer);
+}
 
 void uiSearchBar::initialize(sf::RenderWindow& window)
 {
+	if (!resultBoxShader.loadFromFile("res/shaders/searchResults.shader", sf::Shader::Fragment))
+		std::cout << "[UI] Failed to load search results shader\n";
+
 	searchRectangle = sf::RectangleShape(sf::Vector2f(SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT));
 	searchRectangle.setPosition(window.getSize().x / 2.0 - SEARCH_BAR_WIDTH / 2.0, 0);
 	searchRectangle.setFillColor(sf::Color(SEARCH_BAR_COLOR));
 
-	resultsBar = sf::RectangleShape(sf::Vector2f(SEARCH_BAR_WIDTH, MAX_RESULTS_NUMBER * RESULT_HEIGHT));
-	resultsBar.setPosition(
-		window.getSize().x / 2.0 - SEARCH_BAR_WIDTH / 2.0,
-		SEARCH_BAR_HEIGHT);
-	resultsBar.setFillColor(sf::Color(RESULTS_BAR_COLOR));
+	resultsVA = sf::VertexArray(sf::Quads, 4);
+	resultsVA[0].color = resultsVA[1].color = resultsVA[2].color = resultsVA[3].color = sf::Color(RESULTS_BAR_COLOR);
+	resultsVA[0].position.x = resultsVA[1].position.x = window.getSize().x / 2.0 - SEARCH_BAR_WIDTH / 2.0;
+	resultsVA[2].position.x = resultsVA[3].position.x = window.getSize().x / 2.0 + SEARCH_BAR_WIDTH / 2.0;
+	resultsVA[0].position.y = resultsVA[3].position.y = SEARCH_BAR_HEIGHT;
+	resultsVA[1].position.y = resultsVA[2].position.y = SEARCH_BAR_HEIGHT + MAX_RESULTS_NUMBER * RESULT_HEIGHT;
+	resultsVA[0].texCoords.y = resultsVA[3].texCoords.y = 0.0;
+	resultsVA[1].texCoords.y = resultsVA[2].texCoords.y = 1.0;
 
 	searchText.setFillColor(sf::Color::White);
 	searchText.setFont(uiData::font);
@@ -60,27 +90,7 @@ void uiSearchBar::initialize(sf::RenderWindow& window)
 			SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i);
 		resultsTexts[i].setCharacterSize(RESULT_FONT_SIZE);
 	}
-	renderWindow = &window;
-}
-
-void uiSearchBar::performSearch()
-{
-	//currentResultCount = dataController::search(searchBuffer, SEARCH_BAR_BUFFER_SIZE, MAX_RESULTS_NUMBER);
-	currentResultCount = searcher::search(searchBuffer, SEARCH_BAR_BUFFER_SIZE, MAX_RESULTS_NUMBER);
-	resultsBar.setSize(sf::Vector2f(SEARCH_BAR_WIDTH, currentResultCount * RESULT_HEIGHT));
-	for (int i = 0; i < currentResultCount; i++)
-	{
-		//std::cout << *(dataController::searchResults[i]) << std::endl;
-		resultsTexts[i].setString(*(searcher::searchResults[i]));
-	}
-}
-
-void uiSearchBar::clearSearch()
-{
-	searching = false;
-	searchBuffer[0] = '\0';
-	searchBufferCurrentChar = 0;
-	searchText.setString(searchBuffer);
+	sbRenderWindow = &window;
 }
 
 void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mousePos in window coordinates
@@ -97,7 +107,7 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 			{
 				if (searcher::searchResults.size() > 0)
 				{
-					const nodeData* nData = searcher::getDataFor(0);
+					const nodeData* nData = searcher::getDataFor(selectedSearchResult);
 					if (nData == nullptr)
 					{
 						std::cout << "[Search Bar] Failed to get node data\n";
@@ -106,6 +116,22 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 					uiNodeSystem::pushNewNode(nData, mousePos);
 
 					clearSearch();
+				}
+			}
+			else if (e.key.code == sf::Keyboard::Down)
+			{
+				if (selectedSearchResult < currentResultCount - 1)
+				{
+					selectedSearchResult++;
+					resultBoxShader.setUniform("sel", (float) selectedSearchResult);
+				}
+			}
+			else if (e.key.code == sf::Keyboard::Up)
+			{
+				if (selectedSearchResult > 0)
+				{
+					selectedSearchResult--;
+					resultBoxShader.setUniform("sel", (float)selectedSearchResult);
 				}
 			}
 		}
@@ -123,16 +149,23 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 	{
 		if (searching) // type on search box
 		{
-			if (e.text.unicode == '\b')
+			if (e.text.unicode >= 128)
 			{
+				std::cout << "[UI] Non ASCII character typed on the search bar\n";
+				return;
+			}
+			switch (e.text.unicode)
+			{
+			case '\r':
+				return;
+			case '\b':
 				if (searchBufferCurrentChar > 0)
 				{
 					searchBuffer[searchBufferCurrentChar - 1] = '\0';
 					searchBufferCurrentChar--;
 				}
-			}
-			else
-			{
+				break;
+			default:
 				if (searchBufferCurrentChar == SEARCH_BAR_BUFFER_SIZE - 1)
 					return;
 				if (e.text.unicode == ' ' && searchBuffer[0] == '\0')
@@ -140,8 +173,9 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 				searchBuffer[searchBufferCurrentChar] = e.text.unicode;
 				searchBuffer[searchBufferCurrentChar + 1] = '\0';
 				searchBufferCurrentChar++;
+				break;
 			}
-			//std::cout << searchBuffer << std::endl;
+
 			searchText.setString(searchBuffer);
 
 			// search logic
@@ -154,9 +188,10 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 		searchText.setPosition(
 			e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN,
 			SEARCH_BAR_TEXT_MARGIN);
-		resultsBar.setPosition(
-			e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0,
-			SEARCH_BAR_HEIGHT);
+
+		resultsVA[0].position.x = resultsVA[1].position.x = e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0;
+		resultsVA[2].position.x = resultsVA[3].position.x = e.size.width / 2.0 + SEARCH_BAR_WIDTH / 2.0;
+
 		for (int i = 0; i < MAX_RESULTS_NUMBER; i++)
 		{
 			resultsTexts[i].setPosition(
@@ -170,19 +205,14 @@ void uiSearchBar::draw()
 {
 	if (searching)
 	{
-		sf::FloatRect visibleArea(0, 0, renderWindow->getSize().x, renderWindow->getSize().y);
-		renderWindow->setView(sf::View(visibleArea));
-		renderWindow->draw(searchRectangle);
-		renderWindow->draw(searchText);
-		renderWindow->draw(resultsBar);
+		sf::FloatRect visibleArea(0, 0, sbRenderWindow->getSize().x, sbRenderWindow->getSize().y);
+		sbRenderWindow->setView(sf::View(visibleArea));
+		sbRenderWindow->draw(searchRectangle);
+		sbRenderWindow->draw(searchText);
+		sbRenderWindow->draw(resultsVA, &resultBoxShader);
 		for (int i = 0; i < currentResultCount; i++)
 		{
-			renderWindow->draw(resultsTexts[i]);
+			sbRenderWindow->draw(resultsTexts[i]);
 		}
 	}
 }
-
-/*bool uiSearchBar::userIsSearching()
-{
-	return searching;
-}*/
