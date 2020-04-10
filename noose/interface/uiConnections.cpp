@@ -83,11 +83,12 @@ void printArray()
 	std::cout << std::endl;
 }
 
-void uiConnections::initialize()
+void uiConnections::initialize(float zoom)
 {
 	if (!shader.loadFromFile("res/shaders/connection.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load line shader\n";
-	shader.setUniform("ratio", 0.6f);//shaderFadeRatio);
+	//shader.setUniform("ratio", 0.6f);//shaderFadeRatio);
+	shader.setUniform("zoom", zoom);
 
 	lineQuads.resize(4);
 	// set up uvs
@@ -169,7 +170,8 @@ void uiConnections::hideTemporary()
 // line effect for antialiasing
 void uiConnections::updateShaderUniform(float zoom)
 {
-	shader.setUniform("ratio", 1.0f - zoom / 3.0f); // looks good
+	//shader.setUniform("ratio", 1.0f - zoom / 3.0f); // looks good
+	shader.setUniform("zoom", zoom);
 }
 
 void uiConnections::draw(sf::RenderWindow& window)

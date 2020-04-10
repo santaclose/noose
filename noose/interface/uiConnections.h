@@ -14,7 +14,7 @@ struct uiLineInfo
 
 namespace uiConnections
 {
-	void initialize();
+	void initialize(float zoom);
 
 	void createTemporary(const sf::Vector2f& pinPos, const sf::Vector2f& mousePos, const sf::Color& color, int node, int pin, bool startedOnRightSideNode);
 

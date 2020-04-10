@@ -12,7 +12,6 @@
 #define MAX_ZOOM 5
 #define MIN_ZOOM 20
 
-float currentZoom = 1.0f;
 sf::RenderWindow* renderWindow;
 sf::Vector2f mouseWorldPos;
 uiSelectionBox nodeSystemSelectionBox;
@@ -36,6 +35,7 @@ sf::Vector2f currentMouseScreenPos;
 sf::View theView; // view with panning and zoom transformations
 sf::Vector2f viewPosition;
 int zoomInt = 10;
+float currentZoom = 1.0f;
 
 void (*onNodeSelectedCallback)(int) = nullptr;
 void (*onNodeDeletedCallback)(int) = nullptr;
@@ -67,7 +67,7 @@ inline void updateView()
 
 void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow)
 {
-	uiConnections::initialize();
+	uiConnections::initialize(currentZoom);
 	nodeSystem::initialize();
 	renderWindow = &theRenderWindow;
 	updateView();
