@@ -12,8 +12,9 @@
 #define MAX_ZOOM 5
 #define MIN_ZOOM 20
 
-sf::RenderWindow* renderWindow;
-sf::Vector2f mouseWorldPos;
+sf::RenderWindow* nsRenderWindow;
+const sf::Vector2i* nsMouseScreenPosPointer;
+sf::Vector2f nsMouseWorldPos;
 uiSelectionBox nodeSystemSelectionBox;
 
 std::vector<uiNode*> uiNodeList;
@@ -39,12 +40,14 @@ float currentZoom = 1.0f;
 
 void (*onNodeSelectedCallback)(int) = nullptr;
 void (*onNodeDeletedCallback)(int) = nullptr;
+void (*onNodeChangedCallback)(int) = nullptr;
 
 int boundInputFieldNode = -1;
 
 void onInputFieldValueChanged()
 {
 	nodeSystem::onNodeChanged(boundInputFieldNode);
+	onNodeChangedCallback(boundInputFieldNode);
 }
 
 void deleteLine(int lineToDelete)
@@ -61,15 +64,16 @@ void deleteLine(int lineToDelete)
 
 inline void updateView()
 {
-	theView = sf::View(viewPosition, (sf::Vector2f)renderWindow->getSize());
+	theView = sf::View(viewPosition, (sf::Vector2f)nsRenderWindow->getSize());
 	theView.zoom(currentZoom);
 }
 
-void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow)
+void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer)
 {
 	uiConnections::initialize(currentZoom);
 	nodeSystem::initialize();
-	renderWindow = &theRenderWindow;
+	nsRenderWindow = &theRenderWindow;
+	nsMouseScreenPosPointer = mouseScreenPosPointer;
 	updateView();
 	nodeSystemSelectionBox.initialize();
 }
@@ -103,10 +107,19 @@ int findSlotForNode()
 	return i;
 }
 
-void uiNodeSystem::pushNewNode(const nodeData* nData, sf::Vector2i& initialScreenPosition)
+void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode)
 {
-	renderWindow->setView(theView);
-	sf::Vector2f worldPos = renderWindow->mapPixelToCoords(initialScreenPosition);
+	nsRenderWindow->setView(theView);
+	sf::Vector2f worldPos;
+	switch (mode)
+	{
+	case Centered:
+		worldPos = nsRenderWindow->mapPixelToCoords(sf::Vector2i(nsRenderWindow->getSize().x / 2, nsRenderWindow->getSize().y / 2));
+		break;
+	case OnCursorPosition:
+		worldPos = nsRenderWindow->mapPixelToCoords(*nsMouseScreenPosPointer);
+		break;
+	}
 
 	int newNodeID = findSlotForNode();
 	nodeSystem::onNodeCreated(newNodeID, nData);
@@ -114,10 +127,10 @@ void uiNodeSystem::pushNewNode(const nodeData* nData, sf::Vector2i& initialScree
 	uiNodeList[newNodeID] = new uiNode(nData, worldPos, nodeSystem::getDataPointersForNode(newNodeID), onInputFieldValueChanged, &nodeSystemSelectionBox);
 }
 
-void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
+void uiNodeSystem::onPollEvent(const sf::Event& e)
 {
-	renderWindow->setView(theView);
-	mouseWorldPos = renderWindow->mapPixelToCoords(mousePos);
+	nsRenderWindow->setView(theView);
+	nsMouseWorldPos = nsRenderWindow->mapPixelToCoords(*nsMouseScreenPosPointer);
 
 	switch (e.type)
 	{
@@ -130,7 +143,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 		{
 			if (e.mouseButton.button == sf::Mouse::Left)
 			{
-				if (uiInputField::onMouseDown(mouseWorldPos))
+				if (uiInputField::onMouseDown(nsMouseWorldPos))
 					return;
 
 				// collision from top to bottom
@@ -142,7 +155,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 					// index stores pin or inputfield index
 					// subindex stores subinputfield index
 					int index, subIndex;
-					uiNode::MousePos mp = uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
+					uiNode::MousePos mp = uiNodeList[i]->mouseOver(nsMouseWorldPos, index, subIndex);
 
 					if (mp == uiNode::MousePos::Outside)
 						continue;
@@ -151,15 +164,12 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 					{
 					case uiNode::MousePos::TopBar: // drag node
 					{
-						//std::cout << "mouse over topbar\n";
 						draggingNodeIndex = i;
 						lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
 						break;
 					}
 					case uiNode::MousePos::Pin: // mouse is over a pin
 					{
-						//std::cout << "mouse over pin\n";
-
 						if (uiNodeList[i]->canConnectToPin(index))
 						{
 							// global state
@@ -172,25 +182,22 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 							// temporary line
 							uiConnections::createTemporary(
 								uiNodeList[i]->getPinPosition(index),
-								mouseWorldPos,
+								nsMouseWorldPos,
 								uiNodeList[i]->getPinColor(index),
 								connectionTempNode,
 								connectionTempPin,
 								connectionStartedOnRightSideNode
 							);
-							//uiNodeConnections::push(pinPosition, mouseWorldPos, pinColor, uiNodeList[i], index, direction);
 						}
 						break;
 					}
 					case uiNode::MousePos::InputField: // mouse is over an input field
 					{
-						//std::cout << "mouse over inputField\n";
 						boundInputFieldNode = i;
 						uiNodeList[i]->bindInputField(index, subIndex);
 						return;
 					}
 					}
-					//std::cout << "clicked inside node\n";
 					break; // don't allow to click through nodes
 				}
 			}
@@ -204,8 +211,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 					if (uiNodeList[i] == nullptr)
 						continue;
 
-					//std::cout << i << "\n";
-					if (uiNodeList[i]->mouseOverTopBar(mouseWorldPos))
+					if (uiNodeList[i]->mouseOverTopBar(nsMouseWorldPos))
 					{
 						// node selection
 						if (i == selectedNodeIndex)
@@ -259,7 +265,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 							continue;
 
 						int index, subIndex;
-						if (uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex) == uiNode::MousePos::Pin)
+						if (uiNodeList[i]->mouseOver(nsMouseWorldPos, index, subIndex) == uiNode::MousePos::Pin)
 						{
 							if (!uiNodeList[i]->canConnectToPin(index))
 							{
@@ -285,16 +291,11 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 							}
 							
 							// update interface lines
-
 							// node indices are flipped if necessary such that node a is on the left side
 							int connectionIndex = uiConnections::connect(
 								uiNodeList[i]->getPinPosition(index),
 								connectionStartedOnRightSideNode ? leftSideNode : rightSideNode,
 								connectionStartedOnRightSideNode ? leftSidePin : rightSidePin);
-
-							// update indices in case they were flipped
-							//uiConnections::getNodesForLine(connectionIndex, nodeIndexA, nodeIndexB);
-							//uiConnections::getPinsForLine(connectionIndex, pinA, pinB);
 
 							// right side node first
 							uiNodeList[rightSideNode]->attachConnectionPoint(connectionIndex, rightSidePin);
@@ -313,7 +314,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 
 				draggingNodeIndex = -1;
 				creatingConnection = false;
-				//uiInputField::unbind();
 				uiInputField::onMouseUp();
 			}
 			else if (e.mouseButton.button == sf::Mouse::Right)
@@ -341,7 +341,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 			}
 			else if (removingConnections)
 			{
-				int lineToRemove = uiConnections::onTryingToRemove(mouseWorldPos);
+				int lineToRemove = uiConnections::onTryingToRemove(nsMouseWorldPos);
 				if (lineToRemove > -1) // mouse was over a line and we have to detach it from nodeA and nodeB
 				{
 					deleteLine(lineToRemove);
@@ -403,16 +403,16 @@ void uiNodeSystem::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos)
 
 void uiNodeSystem::draw()
 {
-	renderWindow->setView(theView);
+	nsRenderWindow->setView(theView);
 
 	for (uiNode* n : uiNodeList)
 	{
 		if (n != nullptr)
-			n->draw(*renderWindow);
+			n->draw(*nsRenderWindow);
 	}
 
-	uiConnections::draw(*renderWindow);
-	nodeSystemSelectionBox.draw(*renderWindow, mouseWorldPos);
+	uiConnections::draw(*nsRenderWindow);
+	nodeSystemSelectionBox.draw(*nsRenderWindow, nsMouseWorldPos);
 }
 
 void uiNodeSystem::setOnNodeSelectedCallback(void (*functionPointer)(int))
@@ -424,11 +424,7 @@ void uiNodeSystem::setOnNodeDeletedCallback(void (*functionPointer)(int))
 	onNodeDeletedCallback = functionPointer;
 }
 
-void uiNodeSystem::deselectNode()
+void uiNodeSystem::setOnNodeChangedCallback(void(*functionPointer)(int))
 {
-	if (selectedNodeIndex > -1)
-	{
-		uiNodeList[selectedNodeIndex]->paintAsUnselected();
-		selectedNodeIndex = -1;
-	}
+	onNodeChangedCallback = functionPointer;
 }

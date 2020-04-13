@@ -1,6 +1,8 @@
 #include "searcher.h"
 #include "nodeProvider/nodeProvider.h"
 
+//#include <string.h>
+
 std::vector<std::string*> searcher::searchResults;
 
 int searcher::search(const char* searchBuffer, int bufferSize, int maxResults)
@@ -33,24 +35,26 @@ const nodeData* searcher::getDataFor(int searchResultIndex)
 
 bool searcher::searchCheck(const char* searchBuffer, int bufferSize, std::string& nodeName)
 {
+	if (searchBuffer[0] == '\0')
+		return true;
+
 	int offset = 0;
-	while (tolower(nodeName[offset]) != tolower(searchBuffer[0]))
+	while (true)
 	{
 		if (nodeName[offset] == '\0')
 			return false;
+		if (tolower(nodeName[offset]) == tolower(searchBuffer[0]))
+		{
+			for (int i = 0; searchBuffer[i] != '\0'; i++)
+			{
+				if (i == nodeName.length())
+					return searchBuffer[i] == '\0';
+				if (tolower(nodeName[i + offset]) != tolower(searchBuffer[i]))
+					goto l;
+			}
+			return true;
+		}
+		l:
 		offset++;
 	}
-
-	for (int i = 0; searchBuffer[i] != '\0'; i++)
-	{
-		if (i == nodeName.length())
-		{
-			return searchBuffer[i] == '\0';
-		}
-		if (tolower(nodeName[i + offset]) != tolower(searchBuffer[i]))
-		{
-			return false;
-		}
-	}
-	return true;
 }

@@ -3,12 +3,18 @@
 
 std::vector<nodeData> nodeProvider::nodeDataList;
 
+std::vector<std::string> nodeProvider::categoryNames;
+std::vector<int> nodeProvider::categoryStartIndex;
+std::vector<std::vector<std::string>> nodeProvider::nodeNamesByCategory;
+//std::vector<categoryData> nodeProvider::categories;
+
 void nodeProvider::initialize()
 {
 	using namespace std;
 	bool insideDataSection = false;
 	bool inSection = true;
 
+	int currentCategory = 0;
 	int currentNode = -1;
 
 	ifstream inputStream("res/nodes.dat");
@@ -19,6 +25,15 @@ void nodeProvider::initialize()
 
 	while (getline(inputStream, line))
 	{
+		if (line[0] == '-' && line[1] == '-' && line[2] == ' ')
+		{
+			categoryNames.emplace_back(line.substr(3, line.length() - 3));
+			categoryStartIndex.push_back(nodeDataList.size());
+			nodeNamesByCategory.emplace_back();
+			currentCategory++;
+			continue;
+		}
+
 		if (line[0] == '[')
 		{
 			insideDataSection = true;
@@ -31,6 +46,7 @@ void nodeProvider::initialize()
 		}
 		if (!insideDataSection)
 		{
+			nodeNamesByCategory[currentCategory - 1].push_back(line);
 			nodeDataList.emplace_back();
 			nodeDataList.back().nodeName = line;
 			nodeDataList.back().outputPinCount = nodeDataList.back().inputPinCount = 0;

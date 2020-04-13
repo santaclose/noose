@@ -1,12 +1,12 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-enum SelectionState {
-	None, Color, Intensity, Alpha
-};
-
 namespace uiColorPicker
 {
+	enum SelectionState {
+		None, Color, Intensity, Alpha
+	};
+
 	void initialize();
 	void setOnColorSelectCallback(void (*onSetColor)(sf::Color*));
 	void tick();

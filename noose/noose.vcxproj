@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="interface\uiCategoryPusher.cpp" />
     <ClCompile Include="interface\uiFileSelectorZenity.cpp" />
     <ClCompile Include="logic\connectionSystem.cpp" />
     <ClCompile Include="interface\uiFileSelectorNFD.cpp" />
@@ -150,6 +151,7 @@
     <ClCompile Include="vendor\nfd_common.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="interface\uiCategoryPusher.h" />
     <ClInclude Include="logic\connectionSystem.h" />
     <ClInclude Include="interface\uiFileSelector.h" />
     <ClInclude Include="logic\nodeSystem.h" />

@@ -64,139 +64,7 @@ void nodeFunctionality::initialize()
 		std::cout << "[Node provider] Failed to load selectByColor shader\n";
 }
 
-void nodeFunctionality::Integer(node* theNode)
-{
-	*((int*)theNode->getDataPointer(1)) = *((int*)theNode->getDataPointer(0));
-}
-
-void nodeFunctionality::IntegerAddition(node* theNode)
-{
-	*((int*)theNode->getDataPointer(2)) =
-		*((int*)theNode->getDataPointer(0)) +
-		*((int*)theNode->getDataPointer(1));
-}
-
-void nodeFunctionality::IntegerSubtraction(node* theNode)
-{
-	*((int*)theNode->getDataPointer(2)) =
-		*((int*)theNode->getDataPointer(0)) -
-		*((int*)theNode->getDataPointer(1));
-}
-
-void nodeFunctionality::IntegerProduct(node* theNode)
-{
-	*((int*)theNode->getDataPointer(2)) =
-		*((int*)theNode->getDataPointer(0)) *
-		*((int*)theNode->getDataPointer(1));
-}
-
-void nodeFunctionality::IntegerDivision(node* theNode)
-{
-	if (*((int*)theNode->getDataPointer(1)) == 0)
-	{
-		std::cout << "[Node functionality] Cannot divide by zero\n";
-		return;
-	}
-
-	*((int*)theNode->getDataPointer(2)) =
-		*((int*)theNode->getDataPointer(0)) /
-		*((int*)theNode->getDataPointer(1));
-}
-
-void nodeFunctionality::Vector2i(node* theNode)
-{
-	*((sf::Vector2i*)theNode->getDataPointer(1)) = *((sf::Vector2i*)theNode->getDataPointer(0));
-}
-
-void nodeFunctionality::Vector2iFromInts(node* theNode)
-{
-	sf::Vector2i* outputPointer = ((sf::Vector2i*) theNode->getDataPointer(2));
-	outputPointer->x = *((int*)(theNode->getDataPointer(0)));
-	outputPointer->y = *((int*)(theNode->getDataPointer(1)));
-}
-
-void nodeFunctionality::SeparateVector2i(node* theNode)
-{
-	sf::Vector2i* input = (sf::Vector2i*) theNode->getDataPointer(0);
-	*((int*)theNode->getDataPointer(1)) = input->x;
-	*((int*)theNode->getDataPointer(2)) = input->y;
-}
-
-void nodeFunctionality::Vector2iAddition(node* theNode)
-{
-	sf::Vector2i* outputPointer = ((sf::Vector2i*) theNode->getDataPointer(2));
-	sf::Vector2i* a = ((sf::Vector2i*)(theNode->getDataPointer(0)));
-	sf::Vector2i* b = ((sf::Vector2i*)(theNode->getDataPointer(1)));
-	outputPointer->x = a->x + b->x;
-	outputPointer->y = a->y + b->y;
-}
-
-void nodeFunctionality::Vector2iSubtraction(node* theNode)
-{
-	sf::Vector2i* outputPointer = ((sf::Vector2i*) theNode->getDataPointer(2));
-	sf::Vector2i* a = ((sf::Vector2i*)(theNode->getDataPointer(0)));
-	sf::Vector2i* b = ((sf::Vector2i*)(theNode->getDataPointer(1)));
-	outputPointer->x = a->x - b->x;
-	outputPointer->y = a->y - b->y;
-}
-
-void nodeFunctionality::Vector2iTimesInt(node* theNode)
-{
-	sf::Vector2i* outputPointer = ((sf::Vector2i*) theNode->getDataPointer(2));
-	sf::Vector2i* a = ((sf::Vector2i*)(theNode->getDataPointer(0)));
-	int b = *((int*)(theNode->getDataPointer(1)));
-	outputPointer->x = a->x * b;
-	outputPointer->y = a->y * b;
-}
-
-void nodeFunctionality::Float(node* theNode)
-{
-	*((float*)theNode->getDataPointer(1)) = *((float*)theNode->getDataPointer(0));
-}
-
-void nodeFunctionality::FloatAddition(node* theNode)
-{
-	*((float*)theNode->getDataPointer(2)) =
-		*((float*)theNode->getDataPointer(0)) +
-		*((float*)theNode->getDataPointer(1));
-}
-
-void nodeFunctionality::FloatSubtraction(node* theNode)
-{
-	*((float*)theNode->getDataPointer(2)) =
-		*((float*)theNode->getDataPointer(0)) -
-		*((float*)theNode->getDataPointer(1));
-}
-
-void nodeFunctionality::FloatProduct(node* theNode)
-{
-	*((float*)theNode->getDataPointer(2)) =
-		*((float*)theNode->getDataPointer(0)) *
-		*((float*)theNode->getDataPointer(1));
-}
-
-void nodeFunctionality::FloatDivision(node* theNode)
-{
-	*((float*)theNode->getDataPointer(2)) =
-		*((float*)theNode->getDataPointer(0)) /
-		*((float*)theNode->getDataPointer(1));
-}
-
-void nodeFunctionality::Color(node* theNode)
-{
-	*((sf::Color*)theNode->getDataPointer(1)) = *((sf::Color*)theNode->getDataPointer(0));
-}
-
-void nodeFunctionality::ColorFromInts(node* theNode)
-{
-	sf::Color* outputPointer = ((sf::Color*)theNode->getDataPointer(4));
-	outputPointer->r = *((int*)theNode->getDataPointer(0));
-	outputPointer->g = *((int*)theNode->getDataPointer(1));
-	outputPointer->b = *((int*)theNode->getDataPointer(2));
-	outputPointer->a = *((int*)theNode->getDataPointer(3));
-}
-
-void nodeFunctionality::Image(node* theNode)
+void nodeFunctionality::ImageFromFile(node* theNode)
 {
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(1));
 	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointer(2));
@@ -212,58 +80,6 @@ void nodeFunctionality::Image(node* theNode)
 	rs.shader = &imageShader;
 	outputPointer->draw(spr, rs);
 	*outputSize = sf::Vector2i(size.x, size.y);
-}
-
-void nodeFunctionality::SeparateChannels(node* theNode)
-{
-	sf::RenderTexture* outputPointerR = ((sf::RenderTexture*) theNode->getDataPointer(1));
-	sf::RenderTexture* outputPointerG = ((sf::RenderTexture*) theNode->getDataPointer(2));
-	sf::RenderTexture* outputPointerB = ((sf::RenderTexture*) theNode->getDataPointer(3));
-	sf::RenderTexture* outputPointerA = ((sf::RenderTexture*) theNode->getDataPointer(4));
-	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0)); //inputPins[0]->getData());
-
-	sf::Vector2u size = a->getSize();
-
-	outputPointerR->create(size.x, size.y);
-	outputPointerG->create(size.x, size.y);
-	outputPointerB->create(size.x, size.y);
-	outputPointerA->create(size.x, size.y);
-
-	rs.shader = &separateShader;
-	separateShader.setUniform("tx", a->getTexture());
-
-	sf::Sprite spr(a->getTexture());
-
-	separateShader.setUniform("mode", 0);
-	outputPointerR->draw(spr, rs);
-	separateShader.setUniform("mode", 1);
-	outputPointerG->draw(spr, rs);
-	separateShader.setUniform("mode", 2);
-	outputPointerB->draw(spr, rs);
-	separateShader.setUniform("mode", 3);
-	outputPointerA->draw(spr, rs);
-}
-
-void nodeFunctionality::CombineChannels(node* theNode)
-{
-	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(4));
-	sf::RenderTexture* red = ((sf::RenderTexture*) theNode->getDataPointer(0));
-	sf::RenderTexture* green = ((sf::RenderTexture*) theNode->getDataPointer(1));
-	sf::RenderTexture* blue = ((sf::RenderTexture*) theNode->getDataPointer(2));
-	sf::RenderTexture* alpha = ((sf::RenderTexture*) theNode->getDataPointer(3));
-
-	sf::Vector2u size = red->getSize();
-
-	outputPointer->create(size.x, size.y);
-
-	combineShader.setUniform("r", red->getTexture());
-	combineShader.setUniform("g", green->getTexture());
-	combineShader.setUniform("b", blue->getTexture());
-	combineShader.setUniform("a", alpha->getTexture());
-
-	sf::Sprite spr(outputPointer->getTexture());
-	rs.shader = &combineShader;
-	outputPointer->draw(spr, rs);
 }
 
 void nodeFunctionality::Solid(node* theNode)
@@ -315,6 +131,58 @@ void nodeFunctionality::LinearGradient(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &linearGradientShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::SeparateChannels(node* theNode)
+{
+	sf::RenderTexture* outputPointerR = ((sf::RenderTexture*) theNode->getDataPointer(1));
+	sf::RenderTexture* outputPointerG = ((sf::RenderTexture*) theNode->getDataPointer(2));
+	sf::RenderTexture* outputPointerB = ((sf::RenderTexture*) theNode->getDataPointer(3));
+	sf::RenderTexture* outputPointerA = ((sf::RenderTexture*) theNode->getDataPointer(4));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0)); //inputPins[0]->getData());
+
+	sf::Vector2u size = a->getSize();
+
+	outputPointerR->create(size.x, size.y);
+	outputPointerG->create(size.x, size.y);
+	outputPointerB->create(size.x, size.y);
+	outputPointerA->create(size.x, size.y);
+
+	rs.shader = &separateShader;
+	separateShader.setUniform("tx", a->getTexture());
+
+	sf::Sprite spr(a->getTexture());
+
+	separateShader.setUniform("mode", 0);
+	outputPointerR->draw(spr, rs);
+	separateShader.setUniform("mode", 1);
+	outputPointerG->draw(spr, rs);
+	separateShader.setUniform("mode", 2);
+	outputPointerB->draw(spr, rs);
+	separateShader.setUniform("mode", 3);
+	outputPointerA->draw(spr, rs);
+}
+
+void nodeFunctionality::CombineChannels(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(4));
+	sf::RenderTexture* red = ((sf::RenderTexture*) theNode->getDataPointer(0));
+	sf::RenderTexture* green = ((sf::RenderTexture*) theNode->getDataPointer(1));
+	sf::RenderTexture* blue = ((sf::RenderTexture*) theNode->getDataPointer(2));
+	sf::RenderTexture* alpha = ((sf::RenderTexture*) theNode->getDataPointer(3));
+
+	sf::Vector2u size = red->getSize();
+
+	outputPointer->create(size.x, size.y);
+
+	combineShader.setUniform("r", red->getTexture());
+	combineShader.setUniform("g", green->getTexture());
+	combineShader.setUniform("b", blue->getTexture());
+	combineShader.setUniform("a", alpha->getTexture());
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &combineShader;
 	outputPointer->draw(spr, rs);
 }
 
@@ -371,14 +239,14 @@ void nodeFunctionality::Crop(node* theNode)
 	sf::Vector2u size = a->getSize();
 
 	outputPointer->create(outputSize->x, outputSize->y);
-	float top = topleft->y / ((float) size.y);
-	float left = topleft->x / ((float) size.x);
-	
+	float top = topleft->y / ((float)size.y);
+	float left = topleft->x / ((float)size.x);
+
 
 	cropShader.setUniform("tex", a->getTexture());
 	cropShader.setUniform("topLeft", sf::Glsl::Vec2(left, top));
 	cropShader.setUniform("ratio", sf::Glsl::Vec2(size.x / ((float)outputSize->x),
-												  size.y / ((float)outputSize->y)));
+		size.y / ((float)outputSize->y)));
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &cropShader;
@@ -547,7 +415,7 @@ void nodeFunctionality::SelectByColor(node* theNode)
 {
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(3));
 	sf::RenderTexture* inImage = ((sf::RenderTexture*) theNode->getDataPointer(0));
-	sf::Glsl::Vec4 inColor(*((sf::Color*)(theNode->getDataPointer(1))));
+	sf::Glsl::Vec4 inColor(*((sf::Color*) (theNode->getDataPointer(1))));
 	float* inTolerance = ((float*) theNode->getDataPointer(2));
 
 	sf::Vector2u size = inImage->getSize();
@@ -560,4 +428,145 @@ void nodeFunctionality::SelectByColor(node* theNode)
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &selectByColorShader;
 	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::Color(node* theNode)
+{
+	*((sf::Color*)theNode->getDataPointer(1)) = *((sf::Color*)theNode->getDataPointer(0));
+}
+
+void nodeFunctionality::ColorFromRGBAInts(node* theNode)
+{
+	sf::Color* outputPointer = ((sf::Color*)theNode->getDataPointer(4));
+	outputPointer->r = *((int*)theNode->getDataPointer(0));
+	outputPointer->g = *((int*)theNode->getDataPointer(1));
+	outputPointer->b = *((int*)theNode->getDataPointer(2));
+	outputPointer->a = *((int*)theNode->getDataPointer(3));
+}
+
+void nodeFunctionality::RGBAIntsFromColor(node* theNode)
+{
+	sf::Color* inputPointer = ((sf::Color*)theNode->getDataPointer(0));
+	*((int*)theNode->getDataPointer(1)) = inputPointer->r;
+	*((int*)theNode->getDataPointer(2)) = inputPointer->g;
+	*((int*)theNode->getDataPointer(3)) = inputPointer->b;
+	*((int*)theNode->getDataPointer(4)) = inputPointer->a;
+}
+
+void nodeFunctionality::Vector2i(node* theNode)
+{
+	*((sf::Vector2i*)theNode->getDataPointer(1)) = *((sf::Vector2i*)theNode->getDataPointer(0));
+}
+
+void nodeFunctionality::Vector2iFromInts(node* theNode)
+{
+	sf::Vector2i* outputPointer = ((sf::Vector2i*) theNode->getDataPointer(2));
+	outputPointer->x = *((int*)(theNode->getDataPointer(0)));
+	outputPointer->y = *((int*)(theNode->getDataPointer(1)));
+}
+
+void nodeFunctionality::SeparateVector2i(node* theNode)
+{
+	sf::Vector2i* input = (sf::Vector2i*) theNode->getDataPointer(0);
+	*((int*)theNode->getDataPointer(1)) = input->x;
+	*((int*)theNode->getDataPointer(2)) = input->y;
+}
+
+void nodeFunctionality::Vector2iAddition(node* theNode)
+{
+	sf::Vector2i* outputPointer = ((sf::Vector2i*) theNode->getDataPointer(2));
+	sf::Vector2i* a = ((sf::Vector2i*)(theNode->getDataPointer(0)));
+	sf::Vector2i* b = ((sf::Vector2i*)(theNode->getDataPointer(1)));
+	outputPointer->x = a->x + b->x;
+	outputPointer->y = a->y + b->y;
+}
+
+void nodeFunctionality::Vector2iSubtraction(node* theNode)
+{
+	sf::Vector2i* outputPointer = ((sf::Vector2i*) theNode->getDataPointer(2));
+	sf::Vector2i* a = ((sf::Vector2i*)(theNode->getDataPointer(0)));
+	sf::Vector2i* b = ((sf::Vector2i*)(theNode->getDataPointer(1)));
+	outputPointer->x = a->x - b->x;
+	outputPointer->y = a->y - b->y;
+}
+
+void nodeFunctionality::Vector2iTimesInt(node* theNode)
+{
+	sf::Vector2i* outputPointer = ((sf::Vector2i*) theNode->getDataPointer(2));
+	sf::Vector2i* a = ((sf::Vector2i*)(theNode->getDataPointer(0)));
+	int b = *((int*)(theNode->getDataPointer(1)));
+	outputPointer->x = a->x * b;
+	outputPointer->y = a->y * b;
+}
+
+void nodeFunctionality::Integer(node* theNode)
+{
+	*((int*)theNode->getDataPointer(1)) = *((int*)theNode->getDataPointer(0));
+}
+
+void nodeFunctionality::IntegerAddition(node* theNode)
+{
+	*((int*)theNode->getDataPointer(2)) =
+		*((int*)theNode->getDataPointer(0)) +
+		*((int*)theNode->getDataPointer(1));
+}
+
+void nodeFunctionality::IntegerSubtraction(node* theNode)
+{
+	*((int*)theNode->getDataPointer(2)) =
+		*((int*)theNode->getDataPointer(0)) -
+		*((int*)theNode->getDataPointer(1));
+}
+
+void nodeFunctionality::IntegerProduct(node* theNode)
+{
+	*((int*)theNode->getDataPointer(2)) =
+		*((int*)theNode->getDataPointer(0)) *
+		*((int*)theNode->getDataPointer(1));
+}
+
+void nodeFunctionality::IntegerDivision(node* theNode)
+{
+	if (*((int*)theNode->getDataPointer(1)) == 0)
+	{
+		std::cout << "[Node functionality] Cannot divide by zero\n";
+		return;
+	}
+
+	*((int*)theNode->getDataPointer(2)) =
+		*((int*)theNode->getDataPointer(0)) /
+		*((int*)theNode->getDataPointer(1));
+}
+
+void nodeFunctionality::Float(node* theNode)
+{
+	*((float*)theNode->getDataPointer(1)) = *((float*)theNode->getDataPointer(0));
+}
+
+void nodeFunctionality::FloatAddition(node* theNode)
+{
+	*((float*)theNode->getDataPointer(2)) =
+		*((float*)theNode->getDataPointer(0)) +
+		*((float*)theNode->getDataPointer(1));
+}
+
+void nodeFunctionality::FloatSubtraction(node* theNode)
+{
+	*((float*)theNode->getDataPointer(2)) =
+		*((float*)theNode->getDataPointer(0)) -
+		*((float*)theNode->getDataPointer(1));
+}
+
+void nodeFunctionality::FloatProduct(node* theNode)
+{
+	*((float*)theNode->getDataPointer(2)) =
+		*((float*)theNode->getDataPointer(0)) *
+		*((float*)theNode->getDataPointer(1));
+}
+
+void nodeFunctionality::FloatDivision(node* theNode)
+{
+	*((float*)theNode->getDataPointer(2)) =
+		*((float*)theNode->getDataPointer(0)) /
+		*((float*)theNode->getDataPointer(1));
 }

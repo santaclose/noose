@@ -1,14 +1,18 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
+#include "interface/uiSelectionBox.h"
+#include "interface/uiData.h"
+
 #include "interface/uiNodeSystem.h"
+#include "interface/uiColorPicker.h"
+
+#include "interface/uiCategoryPusher.h"
 #include "interface/uiSearchBar.h"
 #include "interface/uiViewport.h"
-#include "interface/uiColorPicker.h"
-#include "interface/uiData.h"
-#include "interface/uiSelectionBox.h"
-#include "logic/nodeSystem.h"
+
 #include "nodeProvider/nodeProvider.h"
+#include "logic/nodeSystem.h"
 
 static const sf::Color BACKGROUND_COLOR(0x222222ff);
 
@@ -18,6 +22,7 @@ void onNodeSelected(int theNode)
 	
 	uiViewport::hideSelectionBox();
 	uiViewport::setNodeData(
+		theNode,
 		&nodeSystem::getDataPointersForNode(theNode),
 		nodeSystem::getPinTypesForNode(theNode),
 		nodeSystem::getOutputPinCountForNode(theNode)
@@ -30,17 +35,20 @@ void onNodeDeleted(int theNode)
 	std::cout << "[Main] Node " << theNode << " deleted\n";
 
 	uiViewport::hideSelectionBox();
+	uiViewport::onNodeDeleted(theNode);
+}
 
-	if (&nodeSystem::getDataPointersForNode(theNode) == uiViewport::getNodeDataPointers())
-		uiViewport::hideNodeData();
+void onNodeChanged(int theNode)
+{
+	uiViewport::onNodeChanged(theNode);
 }
 
 int main()
 {
-	// Create the output window
-	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport");
 	// Create the main window
 	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "noose");
+	// Create the output window
+	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport");
 
 	// load nodes in memory
 	nodeProvider::initialize();
@@ -49,15 +57,20 @@ int main()
 	// initialize interface components
 	uiData::load();
 	uiColorPicker::initialize();
+	
+	sf::Vector2i mousePosWindowA;
+	sf::Vector2i mousePosWindowB;
 
-	uiNodeSystem::initialize(windowA);
-	uiSearchBar::initialize(windowA);
-	uiViewport::initialize(windowB);
+	uiNodeSystem::initialize(windowA, &mousePosWindowA);
+	uiSearchBar::initialize(windowA, &mousePosWindowA);
+	uiCategoryPusher::initialize(windowA, &mousePosWindowA);
+	uiViewport::initialize(windowB, &mousePosWindowB);
 
 	// node system callbacks
 	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
 	uiNodeSystem::setOnNodeDeletedCallback(onNodeDeleted);
-	
+	uiNodeSystem::setOnNodeChangedCallback(onNodeChanged);
+
 	// Start the game loop
 	while (windowA.isOpen() || windowB.isOpen())
 	{
@@ -65,7 +78,7 @@ int main()
 		sf::Event eventWindowA, eventWindowB;
 		while (windowA.pollEvent(eventWindowA))
 		{
-			sf::Vector2i mousePos = sf::Mouse::getPosition(windowA);
+			mousePosWindowA = sf::Mouse::getPosition(windowA);
 			switch (eventWindowA.type)
 			{
 				case sf::Event::Closed:
@@ -75,12 +88,17 @@ int main()
 					break;
 				}
 			}
-			uiNodeSystem::onPollEvent(eventWindowA, mousePos);
-			uiSearchBar::onPollEvent(eventWindowA, mousePos);
+
+			if (!uiSearchBar::isActive() && !uiCategoryPusher::isActive())
+				uiNodeSystem::onPollEvent(eventWindowA);
+			if (!uiCategoryPusher::isActive())
+				uiSearchBar::onPollEvent(eventWindowA);
+			if (!uiSearchBar::isActive())
+				uiCategoryPusher::onPollEvent(eventWindowA);
 		}
 		while (windowB.pollEvent(eventWindowB))
 		{
-			sf::Vector2i mousePos = sf::Mouse::getPosition(windowB);
+			mousePosWindowB = sf::Mouse::getPosition(windowB);
 			switch (eventWindowB.type)
 			{
 				case sf::Event::Closed:
@@ -90,7 +108,7 @@ int main()
 					break;
 				}
 			}
-			uiViewport::onPollEvent(eventWindowB, mousePos);
+			uiViewport::onPollEvent(eventWindowB);
 		}
 		// Clear screen
 		windowA.clear(BACKGROUND_COLOR);
@@ -98,6 +116,7 @@ int main()
 
 		uiNodeSystem::draw();
 		uiSearchBar::draw();
+		uiCategoryPusher::draw();
 
 		uiViewport::draw();
 
@@ -108,6 +127,7 @@ int main()
 		uiColorPicker::tick();
 	}
 
+	uiCategoryPusher::terminate();
 	uiViewport::terminate();
 	uiNodeSystem::terminate();
 	uiColorPicker::terminate();

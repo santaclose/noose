@@ -4,6 +4,7 @@
 
 #include "../searcher.h"
 #include "../nodeData.h"
+#include "../math/uiMath.h"
 
 #include <iostream>
 
@@ -19,6 +20,7 @@
 #define RESULT_FONT_SIZE 14
 
 sf::RenderWindow* sbRenderWindow;
+const sf::Vector2i* sbMouseScreenPosPointer;
 
 bool searching = false;
 sf::RectangleShape searchRectangle;
@@ -54,7 +56,21 @@ void clearSearch()
 	searchText.setString(searchBuffer);
 }
 
-void uiSearchBar::initialize(sf::RenderWindow& window)
+void pushSelectedNode()
+{
+	const nodeData* nData = searcher::getDataFor(selectedSearchResult);
+	if (nData == nullptr)
+	{
+		std::cout << "[Search Bar] Failed to get node data\n";
+		return;
+	}
+
+	uiNodeSystem::pushNewNode(nData, uiNodeSystem::OnCursorPosition);
+
+	clearSearch();
+}
+
+void uiSearchBar::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer)
 {
 	if (!resultBoxShader.loadFromFile("res/shaders/searchResults.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load search results shader\n";
@@ -90,10 +106,12 @@ void uiSearchBar::initialize(sf::RenderWindow& window)
 			SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i);
 		resultsTexts[i].setCharacterSize(RESULT_FONT_SIZE);
 	}
+
 	sbRenderWindow = &window;
+	sbMouseScreenPosPointer = mouseScreenPosPointer;
 }
 
-void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mousePos in window coordinates
+void uiSearchBar::onPollEvent(const sf::Event& e)
 {
 	if (e.type == sf::Event::KeyPressed)
 	{
@@ -106,17 +124,7 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 			else if (e.key.code == sf::Keyboard::Enter)
 			{
 				if (searcher::searchResults.size() > 0)
-				{
-					const nodeData* nData = searcher::getDataFor(selectedSearchResult);
-					if (nData == nullptr)
-					{
-						std::cout << "[Search Bar] Failed to get node data\n";
-						return;
-					}
-					uiNodeSystem::pushNewNode(nData, mousePos);
-
-					clearSearch();
-				}
+					pushSelectedNode();
 			}
 			else if (e.key.code == sf::Keyboard::Down)
 			{
@@ -139,7 +147,6 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 		{
 			if (e.key.code == sf::Keyboard::Space)
 			{
-				uiNodeSystem::deselectNode();
 				searching = true;
 				performSearch();
 			}
@@ -199,6 +206,28 @@ void uiSearchBar::onPollEvent(const sf::Event& e, sf::Vector2i& mousePos) // mou
 				SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i);
 		}
 	}
+	else if (e.type == sf::Event::MouseMoved)
+	{
+		if (!searching)
+			return;
+
+		sf::Vector2f mousePos = sf::Vector2f(e.mouseMove.x, e.mouseMove.y);
+		if (uiMath::isPointInsideRect(mousePos, resultsVA[0].position, resultsVA[2].position))
+		{
+			selectedSearchResult = (int)((mousePos - resultsVA[0].position).y / RESULT_HEIGHT);
+			resultBoxShader.setUniform("sel", (float)selectedSearchResult);
+		}
+	}
+	else if (e.type == sf::Event::MouseButtonPressed)
+	{
+		if (e.mouseButton.button != sf::Mouse::Left || !searching)
+			return;
+
+		if (uiMath::isPointInsideRect((sf::Vector2f) * sbMouseScreenPosPointer, resultsVA[0].position, resultsVA[2].position))
+			pushSelectedNode();
+		else
+			clearSearch();
+	}
 }
 
 void uiSearchBar::draw()
@@ -215,4 +244,9 @@ void uiSearchBar::draw()
 			sbRenderWindow->draw(resultsTexts[i]);
 		}
 	}
+}
+
+bool uiSearchBar::isActive()
+{
+	return searching;
 }

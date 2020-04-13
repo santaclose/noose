@@ -8,7 +8,7 @@
 #define OPTION_FONT_SIZE 14
 #define BOX_WIDTH 160
 #define BOX_HEIGHT 30
-#define COLOR 0x222222cc
+#define COLOR 0x3a3a3acc
 #define TEXT_MARGIN_X 7
 #define TEXT_MARGIN_Y 7
 
@@ -22,7 +22,7 @@ void uiSelectionBox::initialize()
 		std::cout << "[UI] Failed to load selection box shader\n";
 }
 
-void uiSelectionBox::display(const sf::Vector2f& position, const std::vector<std::string>& options)
+void uiSelectionBox::display(const sf::Vector2f& position, const std::vector<std::string>& options, DisplayMode mode)
 {
 	m_onScreen = true;
 	int prevSize = m_currentOptionCount;
@@ -31,7 +31,23 @@ void uiSelectionBox::display(const sf::Vector2f& position, const std::vector<std
 	if (m_currentOptionCount > prevSize)
 		m_optionTexts.resize(m_currentOptionCount, nullptr);
 
-	sf::Vector2f cursor = position;// -sf::Vector2f(BOX_WIDTH / 2.0, BOX_HEIGHT / 2.0);
+	sf::Vector2f cursor;
+	switch (mode)
+	{
+	case DisplayMode::TopLeftCorner:
+		cursor = position;
+		break;
+	case DisplayMode::BottomLeftCorner:
+		cursor = position + sf::Vector2f(0.0, -m_currentOptionCount * BOX_HEIGHT);
+		break;
+	case DisplayMode::BottomRightCorner:
+		cursor = position + sf::Vector2f(-BOX_WIDTH, -m_currentOptionCount * BOX_HEIGHT);
+		break;
+	case DisplayMode::TopRightCorner:
+		cursor = position + sf::Vector2f(-BOX_WIDTH, 0.0);
+		break;
+	}
+
 	m_box[0].position.x = m_box[1].position.x = cursor.x;
 	m_box[0].position.y = m_box[3].position.y = cursor.y;
 	m_box[2].position.x = m_box[3].position.x = cursor.x + BOX_WIDTH;
@@ -47,19 +63,16 @@ void uiSelectionBox::display(const sf::Vector2f& position, const std::vector<std
 
 		cursor.y += BOX_HEIGHT;
 	}
-	m_mouseOverShader.setUniform("boxCount", (float)m_currentOptionCount);
+	m_mouseOverShader.setUniform("boxCount", (float) m_currentOptionCount);
 }
 
 int uiSelectionBox::mouseOver(const sf::Vector2f& position)
 {
-	sf::FloatRect boxRect(m_box[0].position, sf::Vector2f(BOX_WIDTH, BOX_HEIGHT));
-	for (int i = 0; i < m_currentOptionCount; i++)
-	{
-		if (uiMath::isPointInsideRect(position, boxRect))
-			return i;
-		boxRect.top += BOX_HEIGHT;
-	}
-	return -1;
+	if (!uiMath::isPointInsideRect(position, m_box[0].position, m_box[2].position))
+		return -1;
+
+	sf::Vector2f boxSpacePos = position - m_box[0].position;
+	return (int) (boxSpacePos.y / BOX_HEIGHT);
 }
 
 void uiSelectionBox::hide()
@@ -84,6 +97,16 @@ void uiSelectionBox::terminate()
 {
 	for (sf::Text* p : m_optionTexts)
 		delete p;
+}
+
+int uiSelectionBox::getBoxHeight()
+{
+	return BOX_HEIGHT;
+}
+
+int uiSelectionBox::getBoxWidth()
+{
+	return BOX_WIDTH;
 }
 
 bool uiSelectionBox::isVisible()

@@ -11,9 +11,9 @@
 #include "../types.h"
 
 #define TEXT_COLOR 0xf0f0f0ff
-#define BAR_COLOR 0x363636bb
-#define SELECTED_BAR_COLOR 0x464646bb
-#define CONTENT_RECT_COLOR 0x2c2c2cbb
+#define BAR_COLOR 0x505050bb
+#define SELECTED_BAR_COLOR 0x5a5a5abb
+#define CONTENT_RECT_COLOR 0x353535bb
 
 #define INPUT_FIELD_HEIGHT 20
 
@@ -101,7 +101,10 @@ uiNode::uiNode(const nodeData* data, sf::Vector2f& initialPosition, const std::v
 			m_inputFields[i].create(data->pinTypes[i], inputFieldPointers[i], onValueChangedFunc, &(data->pinEnumOptions[i]), selectionBox);
 	}
 
-	setPosition(initialPosition);
+	sf::Vector2f nodePosOnScreen = sf::Vector2f(
+		initialPosition.x - NODE_WIDTH / 2.0,
+		initialPosition.y - m_contentHeight / 2.0);
+	setPosition(nodePosOnScreen);
 }
 
 uiNode::~uiNode()

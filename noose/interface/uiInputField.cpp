@@ -16,7 +16,7 @@
 #define FLOAT_EDITING_SENSITIVITY 0.001
 #define FONT_SIZE 12
 
-const sf::Color INPUT_FIELD_COLOR = sf::Color(0x343434bb);
+const sf::Color INPUT_FIELD_COLOR = sf::Color(0x4b4b4bbb);
 
 // static //
 static uiInputField* editingInputField;
@@ -253,7 +253,7 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = INPUT_FIELD_COLOR;
 		texts[0].setFont(uiData::font);
 		texts[0].setCharacterSize(FONT_SIZE);
-		texts[0].setString("None");
+		texts[0].setString("Open file...");
 		break;
 	}
 

@@ -84,6 +84,9 @@
     <ClCompile Include="interface\uiSelectionBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="interface\uiCategoryPusher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\nodes.dat">
@@ -162,6 +165,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="interface\uiSelectionBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\uiCategoryPusher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

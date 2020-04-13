@@ -88,7 +88,7 @@ void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int*
 
 void nodeSystem::onNodeChanged(int n)
 {
-	std::cout << "[Node system] Node changed\n\tid: " << n << std::endl;
+	//std::cout << "[Node system] Node changed\n\tid: " << n << std::endl;
 	nodeList[n]->activate();
 }
 

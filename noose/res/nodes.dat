@@ -1,172 +1,11 @@
-Int
-[
-	in:
-		Integer: in
-	out:
-		Integer: out
-]
-Add ints
-[
-	in:
-		Integer: a
-		Integer: b
-	out:
-		Integer: out
-]
-Subtract ints
-[
-	in:
-		Integer: a
-		Integer: b
-	out:
-		Integer: out
-]
-Multiply ints
-[
-	in:
-		Integer: a
-		Integer: b
-	out:
-		Integer: out
-]
-Divide ints
-[
-	in:
-		Integer: a
-		Integer: b
-	out:
-		Integer: out
-]
-Int vector
-[
-	in:
-		Vector2i: in
-	out:
-		Vector2i: out
-]
-Int vector from ints
-[
-	in:
-		Integer: x
-		Integer: y
-	out:
-		Vector2i: vector
-]
-Separate int vector
-[
-	in:
-		Vector2i: vector
-	out:
-		Integer: x
-		Integer: y
-]
-Add int vectors
-[
-	in:
-		Vector2i: a
-		Vector2i: b
-	out:
-		Vector2i: out
-]
-Subtract int vectors
-[
-	in:
-		Vector2i: a
-		Vector2i: b
-	out:
-		Vector2i: out
-]
-Int vector times int
-[
-	in:
-		Vector2i: a
-		Integer: b
-	out:
-		Vector2i: out
-]
-Float
-[
-	in:
-		Float: in
-	out:
-		Float: out
-]
-Add floats
-[
-	in:
-		Float: a
-		Float: b
-	out:
-		Float: out
-]
-Subtract floats
-[
-	in:
-		Float: a
-		Float: b
-	out:
-		Float: out
-]
-Multiply floats
-[
-	in:
-		Float: a
-		Float: b
-	out:
-		Float: out
-]
-Divide floats
-[
-	in:
-		Float: a
-		Float: b
-	out:
-		Float: out
-]
-Color
-[
-	in:
-		Color: in
-	out:
-		Color: out
-]
-Color from ints
-[
-	in:
-		Integer: r
-		Integer: g
-		Integer: b
-		Integer: a
-	out:
-		Color: color
-]
-Image
+-- Insert image
+Image from file
 [
 	in:
 		Image: in
 	out:
 		Image: out
 		Vector2i: size
-]
-Separate channels
-[
-	in:
-		Image: in
-	out:
-		Image: r
-		Image: g
-		Image: b
-		Image: a
-]
-Combine channels
-[
-	in:
-		Image: r
-		Image: g
-		Image: b
-		Image: a
-	out:
-		Image: out
 ]
 Solid
 [
@@ -190,6 +29,27 @@ Linear Gradient
 		Vector2i: image size
 	out:
 		Image: result
+]
+-- Image processing
+Separate channels
+[
+	in:
+		Image: in
+	out:
+		Image: r
+		Image: g
+		Image: b
+		Image: a
+]
+Combine channels
+[
+	in:
+		Image: r
+		Image: g
+		Image: b
+		Image: a
+	out:
+		Image: out
 ]
 Blend
 [
@@ -288,4 +148,160 @@ Select by color
 		Float: tolerance[0.5]
 	out:
 		Image: out
+]
+-- Color operations
+Color
+[
+	in:
+		Color: in
+	out:
+		Color: out
+]
+Color from RGBA ints
+[
+	in:
+		Integer: r[255]
+		Integer: g[0]
+		Integer: b[255]
+		Integer: a[255]
+	out:
+		Color: color
+]
+RGBA ints from Color
+[
+	in:
+		Color: color
+	out:
+		Integer: r
+		Integer: g
+		Integer: b
+		Integer: a
+]
+-- Int vector operations
+Int vector
+[
+	in:
+		Vector2i: in
+	out:
+		Vector2i: out
+]
+Int vector from ints
+[
+	in:
+		Integer: x
+		Integer: y
+	out:
+		Vector2i: vector
+]
+Separate int vector
+[
+	in:
+		Vector2i: vector
+	out:
+		Integer: x
+		Integer: y
+]
+Add int vectors
+[
+	in:
+		Vector2i: a
+		Vector2i: b
+	out:
+		Vector2i: out
+]
+Subtract int vectors
+[
+	in:
+		Vector2i: a
+		Vector2i: b
+	out:
+		Vector2i: out
+]
+Int vector times int
+[
+	in:
+		Vector2i: a
+		Integer: b
+	out:
+		Vector2i: out
+]
+-- Integer operations
+Int
+[
+	in:
+		Integer: in
+	out:
+		Integer: out
+]
+Add ints
+[
+	in:
+		Integer: a
+		Integer: b
+	out:
+		Integer: out
+]
+Subtract ints
+[
+	in:
+		Integer: a
+		Integer: b
+	out:
+		Integer: out
+]
+Multiply ints
+[
+	in:
+		Integer: a
+		Integer: b
+	out:
+		Integer: out
+]
+Divide ints
+[
+	in:
+		Integer: a
+		Integer: b
+	out:
+		Integer: out
+]
+-- Float operations
+Float
+[
+	in:
+		Float: in
+	out:
+		Float: out
+]
+Add floats
+[
+	in:
+		Float: a
+		Float: b
+	out:
+		Float: out
+]
+Subtract floats
+[
+	in:
+		Float: a
+		Float: b
+	out:
+		Float: out
+]
+Multiply floats
+[
+	in:
+		Float: a
+		Float: b
+	out:
+		Float: out
+]
+Divide floats
+[
+	in:
+		Float: a
+		Float: b
+	out:
+		Float: out
 ]

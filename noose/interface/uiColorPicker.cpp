@@ -26,7 +26,7 @@ sf::Vector2u lastColorPos;
 float lastIntensity = 1.0;
 sf::Uint8 lastAlpha = 255;
 
-SelectionState selectionState = SelectionState::None;
+uiColorPicker::SelectionState selectionState = uiColorPicker::SelectionState::None;
 sf::Vector2u mousePos;
 
 sf::Color operator*(const sf::Color& c, const float f)
@@ -41,13 +41,13 @@ void setColor()
 
 	switch (selectionState)
 	{
-	case SelectionState::Color:
+	case uiColorPicker::SelectionState::Color:
 		lastColorPos = sf::Vector2u(mousePos.x, mousePos.y);
 		break;
-	case SelectionState::Intensity:
+	case uiColorPicker::SelectionState::Intensity:
 		lastIntensity = gradientImage.getPixel(0, mousePos.y).r / 255.0;
 		break;
-	case SelectionState::Alpha:
+	case uiColorPicker::SelectionState::Alpha:
 		lastAlpha = gradientImage.getPixel(0, mousePos.y).r;
 		break;
 	}
@@ -206,12 +206,6 @@ void uiColorPicker::tick()
 	}
 	else
 	{
-		/*sf::Sprite cw(colorWheel.getTexture());
-		sf::Sprite in(gradient.getTexture());
-		cw.setPosition(0.0, 0.0);
-		in.setPosition(220.0, 0.0);
-		theWindow->draw(cw);
-		theWindow->draw(in);*/
 		sf::Sprite sprt(renderTexture.getTexture());
 		sprt.setPosition(0.0, 0.0);
 		theWindow->draw(sprt);
