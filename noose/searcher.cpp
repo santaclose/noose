@@ -1,19 +1,16 @@
 #include "searcher.h"
 #include "nodeProvider/nodeProvider.h"
 
-//#include <string.h>
-
 std::vector<std::string*> searcher::searchResults;
 
 int searcher::search(const char* searchBuffer, int bufferSize, int maxResults)
 {
 	searchResults.clear();
-	for (nodeData& n : nodeProvider::nodeDataList)
+	for (int order : nodeProvider::sortedByLength)
 	{
-		if (searchCheck(searchBuffer, bufferSize, n.nodeName))
+		if (searchCheck(searchBuffer, bufferSize, nodeProvider::nodeDataList[order].nodeName))
 		{
-			//std::cout << "pushing to search results\n";
-			searchResults.push_back(&n.nodeName);
+			searchResults.push_back(&(nodeProvider::nodeDataList[order].nodeName));
 			if (searchResults.size() == maxResults)
 				return maxResults;
 		}

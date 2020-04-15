@@ -309,9 +309,9 @@ bool uiNode::canConnectToPin(int pin)
 	return (pin >= m_inputPinCount || !isConnected);
 }
 
-void uiNode::bindInputField(int index, int subIndex)
+void uiNode::bindInputField(int index, int subIndex, uiInputField::InteractionMode interactionMode)
 {
-	m_inputFields[index].bind(subIndex);
+	m_inputFields[index].bind(subIndex, interactionMode);
 }
 
 sf::Vector2f uiNode::getPinPosition(int index)

@@ -203,22 +203,36 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 			}
 			else if (e.mouseButton.button == sf::Mouse::Right)
 			{
-				bool mouseWasOverTopBar = false;
-
 				// collision from top to bottom
 				for (int i = uiNodeList.size() - 1; i > -1; i--)
 				{
 					if (uiNodeList[i] == nullptr)
 						continue;
 
-					if (uiNodeList[i]->mouseOverTopBar(nsMouseWorldPos))
+					// index stores pin or inputfield index
+					// subindex stores subinputfield index
+					int index, subIndex;
+					uiNode::MousePos mp = uiNodeList[i]->mouseOver(nsMouseWorldPos, index, subIndex);
+
+					if (mp == uiNode::MousePos::Outside)
+						continue;
+
+					switch (mp)
+					{
+					case uiNode::MousePos::InputField: // mouse is over an input field
+					{
+						boundInputFieldNode = i;
+						uiNodeList[i]->bindInputField(index, subIndex, uiInputField::InteractionMode::Typing);
+						return;
+					}
+					case uiNode::MousePos::TopBar:
 					{
 						// node selection
 						if (i == selectedNodeIndex)
 						{
 							uiNodeList[i]->paintAsUnselected();
 							selectedNodeIndex = -1;
-							break;
+							return;
 						}
 
 						if (selectedNodeIndex > -1)
@@ -226,18 +240,16 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 
 						uiNodeList[i]->paintAsSelected();
 						selectedNodeIndex = i;
-						mouseWasOverTopBar = true;
+
 						if (onNodeSelectedCallback != nullptr)
 							onNodeSelectedCallback(i);
-						break;
+						return;
 					}
+					}
+					break;
 				}
-				// mouse was not over any top bar
-				if (!mouseWasOverTopBar)
-				{
-					removingConnections = true;
-					lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
-				}
+				removingConnections = true;
+				lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
 			}
 			else if (e.mouseButton.button == sf::Mouse::Middle)
 			{
@@ -377,7 +389,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 				case sf::Keyboard::Delete:
 				{
 					// can't delete if node is not selected or any node being moved
-					if (selectedNodeIndex < 0 || draggingNodeIndex > -1)
+					if (selectedNodeIndex < 0 || draggingNodeIndex > -1 || uiInputField::isBound())
 						return;
 
 					// a copy is needed
@@ -397,6 +409,10 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					break;
 				}
 			}
+		}
+		case sf::Event::TextEntered:
+		{
+			uiInputField::keyboardInput(e.text.unicode);
 		}
 	}
 }

@@ -3,10 +3,11 @@
 
 std::vector<nodeData> nodeProvider::nodeDataList;
 
+std::vector<int> nodeProvider::sortedByLength;
+
 std::vector<std::string> nodeProvider::categoryNames;
 std::vector<int> nodeProvider::categoryStartIndex;
 std::vector<std::vector<std::string>> nodeProvider::nodeNamesByCategory;
-//std::vector<categoryData> nodeProvider::categories;
 
 void nodeProvider::initialize()
 {
@@ -51,6 +52,8 @@ void nodeProvider::initialize()
 			nodeDataList.back().nodeName = line;
 			nodeDataList.back().outputPinCount = nodeDataList.back().inputPinCount = 0;
 			nodeDataList.back().nodeFunctionality = getFunctionalityFromIndex(nodeDataList.size() - 1);
+
+			insertSorted();
 		}
 		else
 		{
@@ -129,6 +132,18 @@ void nodeProvider::terminate()
 			}
 		}
 	}
+}
+
+void nodeProvider::insertSorted()
+{
+	int i = 0;
+	for (int item : sortedByLength)
+	{
+		if (nodeDataList[item].nodeName.length() > nodeDataList.back().nodeName.length())
+			break;
+		i++;
+	}
+	sortedByLength.insert(sortedByLength.begin() + i, nodeDataList.size() - 1);
 }
 
 void nodeProvider::parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions)

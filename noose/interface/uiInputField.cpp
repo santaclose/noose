@@ -19,7 +19,10 @@
 const sf::Color INPUT_FIELD_COLOR = sf::Color(0x4b4b4bbb);
 
 // static //
-static uiInputField* editingInputField;
+static uiInputField* editingInputField = nullptr;
+static uiInputField::InteractionMode currentInteractionMode;
+static std::string keyboardInputString = "";
+static bool incorrectKeyboardInput = false;
 // int
 static float editingInputFieldHelper;
 // vector2i
@@ -54,7 +57,7 @@ void uiInputField::updateTextPositions()
 
 void onColorPickerSetColor(sf::Color* newColor)
 {
-	if (editingInputField->type == NS_TYPE_COLOR)
+	if (editingInputField != nullptr && editingInputField->type == NS_TYPE_COLOR)
 	{
 		editingInputField->shapes[0].color = editingInputField->shapes[1].color =
 			editingInputField->shapes[2].color = editingInputField->shapes[3].color =
@@ -71,9 +74,14 @@ void uiInputField::unbind()
 	editingInputField = nullptr;
 }
 
+bool uiInputField::isBound()
+{
+	return editingInputField != nullptr;
+}
+
 void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 {
-	if (editingInputField == nullptr)
+	if (editingInputField == nullptr || currentInteractionMode == InteractionMode::Typing)
 		return;
 	int newValueAux;
 	switch (editingInputField->type)
@@ -163,6 +171,123 @@ void uiInputField::onMouseUp()
 		break;
 	default:
 		break;
+	}
+}
+
+void uiInputField::keyboardInput(sf::Uint32 unicode)
+{
+	if (editingInputField == nullptr || currentInteractionMode == Default)
+		return;
+	if (unicode == '\r')
+	{
+		if (editingInputField->type == NS_TYPE_INT)
+		{
+			if (incorrectKeyboardInput)
+			{
+				*((int*)(editingInputField->dataPointer)) = 0;
+				editingInputField->texts[0].setString("0");
+			}
+		}
+		else if (editingInputField->type == NS_TYPE_FLOAT)
+		{
+			if (incorrectKeyboardInput)
+			{
+				*((float*)(editingInputField->dataPointer)) = 0.0;
+				editingInputField->texts[0].setString("0.0");
+			}
+		}
+		else if (editingInputField->type == NS_TYPE_VECTOR2I)
+		{
+			if (incorrectKeyboardInput)
+			{
+				if (editingVectorComponent == 'x')
+				{
+					((sf::Vector2i*)(editingInputField->dataPointer))->x = 0;
+					editingInputField->texts[0].setString("0");
+				}
+				else
+				{
+					((sf::Vector2i*)(editingInputField->dataPointer))->y = 0;
+					editingInputField->texts[1].setString("0");
+				}
+			}
+		}
+		editingInputField->updateTextPositions();
+		editingInputField->onValueChanged();
+		unbind();
+		return;
+	}
+
+	if (editingInputField->type == NS_TYPE_FLOAT)
+	{
+		if (unicode == '\b')
+		{
+			if (keyboardInputString.length() > 0)
+				keyboardInputString.resize(keyboardInputString.length() - 1);
+			else
+				return;
+		}
+		else if (
+			unicode <= '9' && unicode >= '0' || unicode == '-' && keyboardInputString.length() == 0 ||
+			unicode == '.' && keyboardInputString.find('.') == -1)
+			keyboardInputString += unicode;
+		else
+			return;
+
+		try
+		{
+			*((float*)(editingInputField->dataPointer)) = std::stof(keyboardInputString);
+			incorrectKeyboardInput = false;
+		}
+		catch (...)
+		{
+			incorrectKeyboardInput = true;
+		}
+
+		if (keyboardInputString.length() == 0)
+			incorrectKeyboardInput = true;
+
+		editingInputField->texts[0].setString(keyboardInputString);
+		editingInputField->updateTextPositions();
+	}
+	else if (editingInputField->type == NS_TYPE_INT || editingInputField->type == NS_TYPE_VECTOR2I)
+	{
+		if (unicode == '\b')
+		{
+			if (keyboardInputString.length() > 0)
+				keyboardInputString.resize(keyboardInputString.length() - 1);
+			else
+				return;
+		}
+		else if (unicode <= '9' && unicode >= '0' || unicode == '-' && keyboardInputString.length() == 0)
+			keyboardInputString += unicode;
+		else
+			return;
+
+		try
+		{
+			if (editingInputField->type == NS_TYPE_INT)
+				*((int*)(editingInputField->dataPointer)) = std::stoi(keyboardInputString);
+			else if (editingVectorComponent == 'x')
+				((sf::Vector2i*)(editingInputField->dataPointer))->x = std::stoi(keyboardInputString);
+			else
+				((sf::Vector2i*)(editingInputField->dataPointer))->y = std::stoi(keyboardInputString);
+			incorrectKeyboardInput = false;
+		}
+		catch (...)
+		{
+			incorrectKeyboardInput = true;
+		}
+
+		if (keyboardInputString.length() == 0)
+			incorrectKeyboardInput = true;
+
+		if (editingInputField->type == NS_TYPE_INT || editingVectorComponent == 'x')
+			editingInputField->texts[0].setString(keyboardInputString);
+		else
+			editingInputField->texts[1].setString(keyboardInputString);
+
+		editingInputField->updateTextPositions();
 	}
 }
 
@@ -335,16 +460,32 @@ void uiInputField::setValue(const void* value)
 	}
 }
 
-void uiInputField::bind(int index)
+// the index tells which of the two components of a vector is gonna change
+void uiInputField::bind(int index, InteractionMode interactionMode)
 {
 	if (type != NS_TYPE_COLOR)
 		uiColorPicker::hide();
+
+	currentInteractionMode = interactionMode;
+	editingInputField = this;
+
+	if (currentInteractionMode == InteractionMode::Typing)
+	{
+		keyboardInputString = "";
+		incorrectKeyboardInput = true;
+	}
 
 	switch (type)
 	{
 	case NS_TYPE_IMAGE:
 	{
-		editingInputField = this;
+		if (currentInteractionMode == InteractionMode::Typing)
+		{
+			// no typing interaction to load an image
+			editingInputField = nullptr;
+			return;
+		}
+
 		char* filePath = uiFileSelector::openFileDialog();
 		if (filePath != nullptr)
 		{
@@ -374,28 +515,37 @@ void uiInputField::bind(int index)
 	}
 	case NS_TYPE_COLOR:
 	{
-		editingInputField = this;
-		///
-		uiColorPicker::setOnColorSelectCallback(onColorPickerSetColor);
-		uiColorPicker::show((sf::Color*) editingInputField->dataPointer);
-		///
+		if (currentInteractionMode == InteractionMode::Default)
+		{
+			uiColorPicker::setOnColorSelectCallback(onColorPickerSetColor);
+			uiColorPicker::show((sf::Color*) editingInputField->dataPointer);
+		}
 		return;
 	}
 	case NS_TYPE_FLOAT:
 	{
-		editingInputField = this;
+		if (currentInteractionMode == InteractionMode::Typing)
+		{
+			this->texts[0].setString("");
+			*((float*)(this->dataPointer)) = 0;
+		}
 		return;
 	}
 	case NS_TYPE_INT:
 	{
+		if (currentInteractionMode == InteractionMode::Typing)
+		{
+			this->texts[0].setString("");
+			*((int*)(this->dataPointer)) = 0;
+			return;
+		}
+
 		if (this->enumOptions->size() == 0) // normal int case
 		{
-			editingInputField = this;
 			editingInputFieldHelper = (float)*((int*)(editingInputField->dataPointer));
 		} // enum case
 		else
 		{
-			editingInputField = this;
 			selectionBox->display(shapes[3].position, *(editingInputField->enumOptions));
 		}
 		return;
@@ -404,17 +554,23 @@ void uiInputField::bind(int index)
 	{
 		if (index == 0)
 		{
-			editingInputField = this;
 			editingInputFieldHelper = (float)((sf::Vector2i*)(editingInputField->dataPointer))->x;
 			editingVectorComponent = 'x';
-			return;
+			if (currentInteractionMode == InteractionMode::Typing)
+			{
+				this->texts[0].setString("");
+				((sf::Vector2i*)(this->dataPointer))->x = 0;
+			}
 		}
 		else if (index == 1)
 		{
-			editingInputField = this;
 			editingInputFieldHelper = (float)((sf::Vector2i*)(editingInputField->dataPointer))->y;
 			editingVectorComponent = 'y';
-			return;
+			if (currentInteractionMode == InteractionMode::Typing)
+			{
+				this->texts[1].setString("");
+				((sf::Vector2i*)(this->dataPointer))->y = 0;
+			}
 		}
 		return;
 	}

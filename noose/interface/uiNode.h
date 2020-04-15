@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "uiSelectionBox.h"
+#include "uiInputField.h"
 #include "../interface/uiInputField.h"
 #include "../nodeData.h"
 
@@ -45,7 +46,7 @@ public:
 
 	bool canConnectToPin(int pin);
 
-	void bindInputField(int index, int subIndex);
+	void bindInputField(int index, int subIndex, uiInputField::InteractionMode interactionMode = uiInputField::InteractionMode::Default);
 
 	sf::Vector2f getPinPosition(int index);
 	const sf::Color& getPinColor(int index);

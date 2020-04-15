@@ -4,14 +4,15 @@
 #include <iostream>
 #include "nodeFunctionality.h"
 #include "../nodeData.h"
-//#include "../categoryData.h"
 #include "../types.h"
 
 class nodeProvider
 {
 public:
 	static std::vector<nodeData> nodeDataList;
-	//static std::vector<categoryData> categories;
+
+	// we need to sort nodes by name length for the search engine to work correctly
+	static std::vector<int> sortedByLength;
 
 	static std::vector<std::string> categoryNames;
 	static std::vector<int> categoryStartIndex;
@@ -22,6 +23,7 @@ public:
 	static void terminate();
 
 private:
+	static void insertSorted();
 	static void parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions);
 
 	static inline void* getFunctionalityFromIndex(int index)
