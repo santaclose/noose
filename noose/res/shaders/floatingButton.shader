@@ -3,7 +3,7 @@ uniform float radius;
 
 #define fadeRange 0.05
 #define plusSignLength 0.4
-#define plusSignThickness 0.07
+#define plusSignThickness 0.03
 
 void main()
 {

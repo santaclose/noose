@@ -45,6 +45,8 @@ public:
 
 	void* getDataPointer(int pinIndex, bool acceptReceivedPointers=true);
 
-	void print();
+#ifdef TEST
+	void status(std::ostream& stream);
+#endif
 };
 

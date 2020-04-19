@@ -11,6 +11,6 @@ public:
 	static void deleteConnection(int lineIndex);
 
 #ifdef TEST
-	static void print();
+	static std::ostream& status(std::ostream& stream);
 #endif
 };

@@ -29,18 +29,19 @@ void connectionSystem::deleteConnection(int lineIndex)
 }
 
 #ifdef TEST
-void connectionSystem::print()
+std::ostream& connectionSystem::status(std::ostream& stream)
 {
-	std::cout << "--connections\n";
+	stream << "--connections\n";
 	for (const connection& c : connections)
 	{
-		std::cout << "-\n\tdeleted: " << c.deleted << std::endl;
-		std::cout << "\tnodeA: " << c.nodeA << std::endl;
-		std::cout << "\tnodeB: " << c.nodeB << std::endl;
-		std::cout << "\tpinA: " << c.pinA << std::endl;
-		std::cout << "\tpinB: " << c.pinB << std::endl;
-		std::cout << "\tnodeIndexA: " << c.nodeIndexA << std::endl;
-		std::cout << "\tnodeIndexB: " << c.nodeIndexB << std::endl;
+		stream << "-\n\tdeleted: " << c.deleted << std::endl;
+		stream << "\tnodeA: " << c.nodeA << std::endl;
+		stream << "\tnodeB: " << c.nodeB << std::endl;
+		stream << "\tpinA: " << c.pinA << std::endl;
+		stream << "\tpinB: " << c.pinB << std::endl;
+		stream << "\tnodeIndexA: " << c.nodeIndexA << std::endl;
+		stream << "\tnodeIndexB: " << c.nodeIndexB << std::endl;
 	}
+	return stream;
 }
 #endif
