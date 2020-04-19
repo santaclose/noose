@@ -178,7 +178,7 @@ void uiInputField::keyboardInput(sf::Uint32 unicode)
 {
 	if (editingInputField == nullptr || currentInteractionMode == Default)
 		return;
-	if (unicode == '\r')
+	if (unicode == '\r' || unicode == '\n')
 	{
 		if (editingInputField->type == NS_TYPE_INT)
 		{

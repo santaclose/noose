@@ -1,6 +1,6 @@
 import os
 
-defines = ["LINUX"]
+defines = ["MACOS"]
 links = "-lsfml-graphics -lsfml-window -lsfml-system"
 output = "noose"
 cppFiles = os.popen("find . | grep cpp").read().replace("\n", " ")
@@ -14,7 +14,7 @@ for item in defines:
 		first = False
 	defineString += f"-D{item}"
 
-finalString = f"g++ -o {output} -std=c++11 {cppFiles} {links} {defineString}"
+finalString = f"g++ -o {output} -std=c++11 {cppFiles} {links} {defineString} -O3"
 print(finalString)
 os.system(finalString)
 #os.system("cd noose && ./noose")

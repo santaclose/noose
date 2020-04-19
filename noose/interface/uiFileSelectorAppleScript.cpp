@@ -1,45 +1,63 @@
-#ifdef LINUX
+#ifdef MACOS
 #include <string.h>
 #include <iostream>
 #include "uiFileSelector.h"
 #include "../utils.h"
 
+char* fixAppleScriptOutput(char* in)
+{
+	int startIndex = -1;
+	int i = 0;
+	for (; in[i] != '\0'; i++)
+	{
+		if (startIndex < 0 && in[i] == ':')
+			startIndex = i;
+		if (in[i] == ':')
+			in[i] = '/';
+		if (in[i] == '\n')
+		{
+			in[i] = '\0';
+			break;
+		}
+	}
+	char* out = (char*) malloc(sizeof(char) * (i - startIndex + 1));
+	memcpy(out, &(in[startIndex]), i - startIndex + 1);
+	free(in);
+	return out;
+}
+
 char* uiFileSelector::openFileDialog()
 {
 	char* filePath = (char*) malloc(sizeof(char) * 1024);
 	filePath[0] = '\0';
-	FILE* f = popen("zenity --file-selection", "r");
+	FILE* f = popen("osascript interface/uiFileSelectorMacOS.scpt", "r");
 	fgets(filePath, 1024, f);
 
 	if (filePath[0] == '\0')
 	{
-		std::cout << "[Zenity handler] Could not select file\n";
+		std::cout << "[AppleScript handler] Could not select file\n";
 		free(filePath);
 		return nullptr;
 	}
+	filePath = fixAppleScriptOutput(filePath);
 
-	// remove endline
-	int i; for (i = 0; filePath[i] != '\n'; i++);
-	filePath[i] = '\0';
 	return filePath;
 }
 char* uiFileSelector::saveFileDialog(const std::string& fileExtension)
 {
 	char* filePath = (char*) malloc(sizeof(char) * 1024);
 	filePath[0] = '\0';
-	FILE* f = popen("zenity --file-selection --save", "r");
+	FILE* f = popen("osascript interface/uiFileSelectorSaveMacOS.scpt", "r");
 	fgets(filePath, 1024, f);
 
 	if (filePath[0] == '\0')
 	{
-		std::cout << "[Zenity handler] Could not select file\n";
+		std::cout << "[AppleScript handler] Could not select file\n";
 		delete[] filePath;
 		return nullptr;
 	}
 
-	// remove endline
-	int i; for (i = 0; filePath[i] != '\n'; i++);
-	filePath[i] = '\0';
+	filePath = fixAppleScriptOutput(filePath);
 
 	if (utils::fileHasExtension(filePath, fileExtension.c_str()))
 	{
@@ -52,7 +70,7 @@ char* uiFileSelector::saveFileDialog(const std::string& fileExtension)
 		char* fixedPath = (char*)malloc(sizeof(char) * (prevLength + fileExtension.length() + 2)); // include dot and \0
 		if (fixedPath == NULL)
 		{
-			std::cout << "[Zenity handler] No memory available\n";
+			std::cout << "[AppleScript handler] No memory available\n";
 			return nullptr;
 		}
 		memcpy(fixedPath, filePath, prevLength);
