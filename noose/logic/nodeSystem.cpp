@@ -7,22 +7,6 @@
 
 std::vector<node*> nodeList;
 
-void printSystemStatus()
-{
-	std::cout << "--nodeList\n";
-	for (node* n : nodeList)
-	{
-		if (n != nullptr)
-		{
-			std::cout << "-\n";
-			n->print();
-		}
-		else
-			std::cout << "-\n\tnullptr\n";
-	}
-	connectionSystem::print();
-}
-
 void insertNode(int slot, nodeData* data)
 {
 	if (slot >= nodeList.size())
@@ -132,3 +116,21 @@ int nodeSystem::getOutputPinCountForNode(int n)
 {
 	return nodeList[n]->getOutputPinCount();
 }
+
+#ifdef TEST
+void nodeSystem::printSystemStatus()
+{
+	std::cout << "--nodeList\n";
+	for (node* n : nodeList)
+	{
+		if (n != nullptr)
+		{
+			std::cout << "-\n";
+			n->print();
+		}
+		else
+			std::cout << "-\n\tnullptr\n";
+	}
+	connectionSystem::print();
+}
+#endif

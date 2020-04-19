@@ -14,7 +14,7 @@ for item in defines:
 		first = False
 	defineString += f"-D{item}"
 
-finalString = f"g++ -o {output} {cppFiles} {links} {defineString}"
+finalString = f"g++ -o {output} {cppFiles} {links} {defineString} -O3"
 print(finalString)
 os.system(finalString)
 #os.system("cd noose && ./noose")

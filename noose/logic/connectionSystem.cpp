@@ -28,6 +28,7 @@ void connectionSystem::deleteConnection(int lineIndex)
 	connections[lineIndex].deleted = true;
 }
 
+#ifdef TEST
 void connectionSystem::print()
 {
 	std::cout << "--connections\n";
@@ -42,3 +43,4 @@ void connectionSystem::print()
 		std::cout << "\tnodeIndexB: " << c.nodeIndexB << std::endl;
 	}
 }
+#endif

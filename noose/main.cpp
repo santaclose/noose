@@ -48,7 +48,7 @@ int main()
 	// Create the main window
 	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "noose");
 	// Create the output window
-	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport");
+	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport", sf::Style::Titlebar);
 
 	// load nodes in memory
 	nodeProvider::initialize();

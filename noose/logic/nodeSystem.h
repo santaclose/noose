@@ -20,4 +20,8 @@ namespace nodeSystem
 	const std::vector<void*>& getDataPointersForNode(int n);
 	const int* getPinTypesForNode(int n);
 	int getOutputPinCountForNode(int n);
+
+#ifdef TEST
+	void printSystemStatus();
+#endif
 };
