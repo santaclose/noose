@@ -84,6 +84,8 @@ void uiCategoryPusher::onPollEvent(const sf::Event& e)
 
 		if (categorySelectionBox.isVisible())
 			showCategorySelectionBox();
+		if (nodeSelectionBox.isVisible())
+			showNodeSelectionBox(selectedCategory);
 
 		break;
 	case sf::Event::MouseButtonPressed:

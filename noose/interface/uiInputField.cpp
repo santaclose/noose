@@ -178,6 +178,30 @@ void uiInputField::keyboardInput(sf::Uint32 unicode)
 {
 	if (editingInputField == nullptr || currentInteractionMode == Default)
 		return;
+
+	if (unicode == '\t')
+	{
+		editingInputField->onValueChanged();
+		if (editingInputField->type == NS_TYPE_VECTOR2I)
+		{
+			if (editingVectorComponent == 'x')
+			{
+				editingVectorComponent = 'y';
+				editingInputField->texts[1].setString("");
+				((sf::Vector2i*)(editingInputField->dataPointer))->y = 0;
+			}
+			else
+			{
+				editingVectorComponent = 'x';
+				editingInputField->texts[0].setString("");
+				((sf::Vector2i*)(editingInputField->dataPointer))->x = 0;
+			}
+			keyboardInputString = "";
+			incorrectKeyboardInput = true;
+		}
+		return;
+	}
+
 	if (unicode == '\r' || unicode == '\n')
 	{
 		if (editingInputField->type == NS_TYPE_INT)
@@ -212,7 +236,7 @@ void uiInputField::keyboardInput(sf::Uint32 unicode)
 				}
 			}
 		}
-		editingInputField->updateTextPositions();
+		//editingInputField->updateTextPositions();
 		editingInputField->onValueChanged();
 		unbind();
 		return;
@@ -518,7 +542,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 		if (currentInteractionMode == InteractionMode::Default)
 		{
 			uiColorPicker::setOnColorSelectCallback(onColorPickerSetColor);
-			uiColorPicker::show((sf::Color*) editingInputField->dataPointer);
+			uiColorPicker::show((sf::Color*) editingInputField->dataPointer, unbind);
 		}
 		return;
 	}

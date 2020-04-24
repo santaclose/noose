@@ -11,6 +11,6 @@ namespace uiColorPicker
 	void setOnColorSelectCallback(void (*onSetColor)(sf::Color*));
 	void tick();
 	void terminate();
-	void show(sf::Color* newPointer);
+	void show(sf::Color* newPointer, void (*onCloseWindow)());
 	void hide();
 }

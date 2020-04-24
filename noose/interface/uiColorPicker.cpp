@@ -26,6 +26,8 @@ sf::Vector2u lastColorPos;
 float lastIntensity = 1.0;
 sf::Uint8 lastAlpha = 255;
 
+void (*cpOnCloseWindow)() = nullptr;
+
 uiColorPicker::SelectionState selectionState = uiColorPicker::SelectionState::None;
 sf::Vector2u mousePos;
 
@@ -124,8 +126,9 @@ void uiColorPicker::setOnColorSelectCallback(void (*onSetColor)(sf::Color*))
 	onColorSelectedCallback = onSetColor;
 }
 
-void uiColorPicker::show(sf::Color* newPointer)
+void uiColorPicker::show(sf::Color* newPointer, void (*onCloseWindow)())
 {
+	cpOnCloseWindow = onCloseWindow;
 	if (theWindow != nullptr)
 	{
 		theWindow->requestFocus();
@@ -164,6 +167,7 @@ void uiColorPicker::tick()
 			case sf::Event::Closed:
 			{
 				theWindow->close();
+				cpOnCloseWindow();
 				break;
 			}
 			case sf::Event::MouseButtonPressed:
