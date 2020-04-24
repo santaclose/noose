@@ -44,8 +44,8 @@ inline void showCategorySelectionBox()
 
 void uiCategoryPusher::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer)
 {
-	if (!addButtonShader.loadFromFile("res/shaders/floatingButton.shader", sf::Shader::Fragment))
-		std::cout << "[UI] Failed to load floating button shader\n";
+	if (!addButtonShader.loadFromFile("res/shaders/addFloatingButton.shader", sf::Shader::Fragment))
+		std::cout << "[UI] Failed to load add floating button shader\n";
 	addButtonShader.setUniform("radius", BUTTON_RADIUS);
 
 	cpRenderWindow = &window;

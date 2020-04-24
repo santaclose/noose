@@ -8,6 +8,7 @@
 #include "interface/uiColorPicker.h"
 
 #include "interface/uiCategoryPusher.h"
+#include "interface/uiHelp.h"
 #include "interface/uiSearchBar.h"
 #include "interface/uiViewport.h"
 
@@ -46,7 +47,7 @@ void onNodeChanged(int theNode)
 int main()
 {
 	// Create the main window
-	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "noose");
+	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "node editor");
 	// Create the output window
 	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport", sf::Style::Resize);
 
@@ -64,6 +65,7 @@ int main()
 	uiNodeSystem::initialize(windowA, &mousePosWindowA);
 	uiSearchBar::initialize(windowA, &mousePosWindowA);
 	uiCategoryPusher::initialize(windowA, &mousePosWindowA);
+	uiHelp::initialize(windowA, &mousePosWindowA);
 	uiViewport::initialize(windowB, &mousePosWindowB);
 
 	// node system callbacks
@@ -89,12 +91,24 @@ int main()
 				}
 			}
 
-			if (!uiSearchBar::isActive() && !uiCategoryPusher::isActive())
+			if (eventWindowA.type == sf::Event::Resized)
+			{
 				uiNodeSystem::onPollEvent(eventWindowA);
-			if (!uiCategoryPusher::isActive())
+				uiHelp::onPollEvent(eventWindowA);
 				uiSearchBar::onPollEvent(eventWindowA);
-			if (!uiSearchBar::isActive())
 				uiCategoryPusher::onPollEvent(eventWindowA);
+			}
+			else
+			{
+				if (!uiSearchBar::isActive() && !uiCategoryPusher::isActive() && !uiHelp::isActive())
+					uiNodeSystem::onPollEvent(eventWindowA);
+				if (!uiCategoryPusher::isActive() && !uiSearchBar::isActive())
+					uiHelp::onPollEvent(eventWindowA);
+				if (!uiCategoryPusher::isActive() && !uiHelp::isActive())
+					uiSearchBar::onPollEvent(eventWindowA);
+				if (!uiSearchBar::isActive() && !uiHelp::isActive())
+					uiCategoryPusher::onPollEvent(eventWindowA);
+			}
 		}
 		while (windowB.pollEvent(eventWindowB))
 		{
@@ -117,6 +131,7 @@ int main()
 		uiNodeSystem::draw();
 		uiSearchBar::draw();
 		uiCategoryPusher::draw();
+		uiHelp::draw();
 
 		uiViewport::draw();
 
@@ -127,6 +142,7 @@ int main()
 		uiColorPicker::tick();
 	}
 
+	uiHelp::terminate();
 	uiCategoryPusher::terminate();
 	uiViewport::terminate();
 	uiNodeSystem::terminate();

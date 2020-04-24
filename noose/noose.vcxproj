@@ -147,6 +147,7 @@
     <ClCompile Include="nodeProvider\nodeProvider.cpp" />
     <ClCompile Include="searcher.cpp" />
     <ClCompile Include="interface\uiSelectionBox.cpp" />
+    <ClCompile Include="interface\uiHelp.cpp" />
     <ClCompile Include="vendor\nfd_win.cpp" />
     <ClCompile Include="vendor\nfd_common.c" />
   </ItemGroup>
@@ -175,12 +176,16 @@
     <ClInclude Include="interface\uiSearchBar.h" />
     <ClInclude Include="interface\uiViewport.h" />
     <ClInclude Include="interface\uiSelectionBox.h" />
+    <ClInclude Include="interface\uiHelp.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="vendor\nfd.h" />
     <ClInclude Include="vendor\nfd_common.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="vendor\nfd_cocoa.m" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\help.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
