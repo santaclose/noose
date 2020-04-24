@@ -136,12 +136,11 @@ bool uiInputField::onMouseDown(sf::Vector2f& mousePos)
 		return false;
 
 	if (editingInputField->type == NS_TYPE_INT &&
-		editingInputField->enumOptions->size() > 0) // enum type
+		editingInputField->enumOptions->size() > 0) // selection box type
 	{
 		int index = selectionBox->mouseOver(mousePos);
 		if (index > -1)
 		{
-			//std::cout << "INDEX: " << index << std::endl;
 			*((int*)(editingInputField->dataPointer)) = index;
 			editingInputField->texts[0].setString((*(editingInputField->enumOptions))[index]);
 			editingInputField->onValueChanged();
@@ -166,7 +165,7 @@ void uiInputField::onMouseUp()
 		unbind();
 		break;
 	case NS_TYPE_INT:
-		if (editingInputField->enumOptions->size() == 0) // not an enum
+		if (editingInputField->enumOptions->size() == 0) // int without selection box
 			unbind();
 		break;
 	default:
@@ -236,7 +235,6 @@ void uiInputField::keyboardInput(sf::Uint32 unicode)
 				}
 			}
 		}
-		//editingInputField->updateTextPositions();
 		editingInputField->onValueChanged();
 		unbind();
 		return;
@@ -564,10 +562,10 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 			return;
 		}
 
-		if (this->enumOptions->size() == 0) // normal int case
+		if (this->enumOptions->size() == 0) // int with no selection box case
 		{
 			editingInputFieldHelper = (float)*((int*)(editingInputField->dataPointer));
-		} // enum case
+		} // selection box case
 		else
 		{
 			selectionBox->display(shapes[3].position, *(editingInputField->enumOptions));

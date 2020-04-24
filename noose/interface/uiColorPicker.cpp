@@ -138,7 +138,7 @@ void uiColorPicker::show(sf::Color* newPointer, void (*onCloseWindow)())
 		theWindow = new sf::RenderWindow(sf::VideoMode(
 				COLOR_WHEEL_SIZE + MARGIN_WIDTH * 2 + INTENSITY_AND_ALPHA_WIDTH * 2,
 				COLOR_WHEEL_SIZE),
-			"Color Selection",
+			"color picker",
 			sf::Style::Close);
 	}
 	outputPointer = newPointer;
