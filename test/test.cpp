@@ -57,7 +57,8 @@ int main()
 	LOGIC_PRINT_STATUS
 	std::cout << "//--------------------------------//\n//------------ TESTING -----------//\n";
 	
-	//std::cout << ss.str();
+	// print report
+	// std::cout << ss.str();
 
 	if (!equalsAt(&(ss.str()[75]), "\t")) // created successfully
 		std::cout << "failed\n";

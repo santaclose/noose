@@ -125,6 +125,15 @@ void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode)
 	nodeSystem::onNodeCreated(newNodeID, nData);
 
 	uiNodeList[newNodeID] = new uiNode(nData, worldPos, nodeSystem::getDataPointersForNode(newNodeID), onInputFieldValueChanged, &nodeSystemSelectionBox);
+
+	if (selectedNodeIndex == -1)
+	{
+		selectedNodeIndex = newNodeID;
+		uiNodeList[newNodeID]->paintAsSelected();
+		if (onNodeSelectedCallback != nullptr)
+			onNodeSelectedCallback(newNodeID);
+
+	}
 }
 
 void uiNodeSystem::onPollEvent(const sf::Event& e)
