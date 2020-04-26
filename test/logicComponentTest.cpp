@@ -19,16 +19,12 @@ bool equalsAt(char* string, char* substring)
 int main()
 {
 	std::stringstream ss;
-	//---------------//
+	//-------------//
 	nodeProvider::initialize();
 	nodeSystem::initialize();
-	//---------------//
+	//-------------//
 
-
-	//-- NODE PROVIDER TEST --//
-
-
-	//-- LOGICAL PART TEST --//
+	//-- TESTING --//
 
 	std::vector<int> c;
 	LOGIC_PRINT_STATUS
@@ -55,7 +51,7 @@ int main()
 	c.push_back(0);
 	nodeSystem::onNodeDeleted(0, c);
 	LOGIC_PRINT_STATUS
-	std::cout << "//--------------------------------//\n//------------ TESTING -----------//\n";
+	std::cout << "--------- fails ----------\n";
 	
 	// print report
 	// std::cout << ss.str();

@@ -97,20 +97,6 @@ void nodeProvider::initialize()
 	nodeFunctionality::initialize();
 }
 
-/*void nodeProvider::print()
-{
-	std::cout << "[NODE PROVIDER] PRINTING ENUM THING\n";
-	for (nodeData& d : nodeDataList)
-	{
-		std::cout << "node: " << d.nodeName << std::endl;
-		for (std::vector<std::string>& v : d.pinEnumOptions)
-		{
-			for (std::string& s : v)
-				std::cout << "\t" << s << std::endl;
-		}
-	}
-}*/
-
 void nodeProvider::terminate()
 {
 	for (nodeData& nd : nodeDataList)
@@ -195,3 +181,31 @@ void nodeProvider::parsePinLine(const std::string& line, std::string& type, std:
 		}
 	}
 }
+
+#ifdef TEST
+std::ostream& nodeProvider::status(std::ostream& stream)
+{
+	for (nodeData& d : nodeDataList)
+	{
+		stream << "---------\n";
+		stream << "node name: " << d.nodeName << "\npin types: ";
+		for (int type : d.pinTypes)
+			stream << type << ", ";
+		stream << "\npin names: ";
+		for (std::string& name : d.pinNames)
+			stream << name << ", ";
+		stream << "\npin default data: ";
+		for (void* defaultData : d.pinDefaultData)
+			stream << defaultData << ", ";
+		stream << "\npin enum options:\n";
+		for (std::vector<std::string>& v : d.pinEnumOptions)
+		{
+			for (std::string& s : v)
+				stream << "\t" << s << std::endl;
+		}
+		stream << "input pin count: " << d.inputPinCount << std::endl;
+		stream << "output pin count: " << d.outputPinCount << std::endl;
+		stream << "node functionality: " << d.nodeFunctionality << std::endl;
+	}
+}
+#endif

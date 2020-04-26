@@ -44,9 +44,16 @@ void (*onNodeChangedCallback)(int) = nullptr;
 
 int boundInputFieldNode = -1;
 
+#ifdef TEST
+std::ostream* testStream;
+#endif
+
 void onInputFieldValueChanged()
 {
 	nodeSystem::onNodeChanged(boundInputFieldNode);
+#ifdef TEST
+	(*testStream) << "onNodeChanged:\n\tbound input field node: " << boundInputFieldNode << std::endl;
+#endif
 	onNodeChangedCallback(boundInputFieldNode);
 }
 
@@ -123,6 +130,9 @@ void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode)
 
 	int newNodeID = findSlotForNode();
 	nodeSystem::onNodeCreated(newNodeID, nData);
+#ifdef TEST
+	(*testStream) << "onNodeCreated:\n\tnode id: " << newNodeID << "\n\tnode name: " << nData->nodeName << std::endl;
+#endif
 
 	uiNodeList[newNodeID] = new uiNode(nData, worldPos, nodeSystem::getDataPointersForNode(newNodeID), onInputFieldValueChanged, &nodeSystemSelectionBox);
 
@@ -323,6 +333,9 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 							uiNodeList[leftSideNode]->attachConnectionPoint(connectionIndex, leftSidePin);
 
 							nodeSystem::onNodesConnected(leftSideNode, rightSideNode, leftSidePin, rightSidePin, connectionIndex);
+#ifdef TEST
+	(*testStream) << "onNodesConnected:\n\tleft side node: " << leftSideNode << "\n\tright side node: " << rightSideNode << "\n\tleft side pin: " << leftSidePin << "\n\tright side pin: " << rightSidePin << "\n\tconnection index: " << connectionIndex << std::endl;
+#endif
 
 							break;
 						}
@@ -371,6 +384,9 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					uiConnections::getNodesForLine(lineToRemove, nA, nB);
 					uiConnections::getPinsForLine(lineToRemove, pA, pB);
 					nodeSystem::onNodesDisconnected(nA, nB, pA, pB, lineToRemove);
+#ifdef TEST
+	(*testStream) << "onNodesDisconnected:\n\tleft side node: " << nA << "\n\tright side node: " << nB << "\n\tleft side pin: " << pA << "\n\tright side pin: " << pB << "\n\tconnection index: " << lineToRemove << std::endl;
+#endif
 				}
 			}
 		
@@ -413,6 +429,12 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					uiNodeList[selectedNodeIndex] = nullptr;
 
 					nodeSystem::onNodeDeleted(selectedNodeIndex, nodeLines);//linesToDelete, lineCount);
+#ifdef TEST
+					(*testStream) << "onNodeDeleted:\n\tselected node index: " << selectedNodeIndex << "\n\tnode lines: ";
+					for (int l : nodeLines)
+						(*testStream) << l << ", ";
+					(*testStream) << std::endl;
+#endif
 
 					selectedNodeIndex = -1;
 					break;
@@ -453,3 +475,16 @@ void uiNodeSystem::setOnNodeChangedCallback(void(*functionPointer)(int))
 {
 	onNodeChangedCallback = functionPointer;
 }
+
+#ifdef TEST
+void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer, std::ostream& stream)
+{
+	uiConnections::initialize(currentZoom);
+	nodeSystem::initialize();
+	nsRenderWindow = &theRenderWindow;
+	nsMouseScreenPosPointer = mouseScreenPosPointer;
+	updateView();
+	nodeSystemSelectionBox.initialize();
+	testStream = &stream;
+}
+#endif
