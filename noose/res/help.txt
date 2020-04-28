@@ -14,16 +14,16 @@ viewport window and choosing one of the context menu options.
 Use the right mouse button to delete connections by clicking
 and dragging over them.
 
-Use the right mouse button to enter numeric values using the
-keyboard. Press the enter key after introducing the value.
-
 Use the middle mouse button to pan the view.
 
 Use the left mouse button to change node input values.
 Numeric values are modified by dragging across the
 horizontal axis.
 
+Use the right mouse button to enter numeric values using the
+keyboard. Press the enter key after introducing the value.
+
 Use the delete or backspace key after selecting a node to
 delete it.
 
-Use the spacebar to find nodes by typing its name.
+Use the spacebar to find nodes by typing their names.
