@@ -27,7 +27,7 @@ inline void openHTMLFile()
 	system("xdg-open ../help/help.html");
 #endif
 #ifdef MACOS
-	system("open ../help/help.html")
+	system("open ../help/help.html");
 #endif
 }
 
