@@ -7,10 +7,17 @@
 #include <iostream>
 #include <sstream>
 
+#define INITIAL_VIEWPORT_SIZE 500
+
+#define PERCENTAGE_TEXT_MARGIN 20
+
+#define MAX_ZOOM 2
+#define MIN_ZOOM 30
+
 #define IMAGE_MARGIN 24
 #define BOTTOM_BAR_COLOR 0x222222ff
 #define BOTTOM_BAR_HEIGHT 24
-#define BOTTOM_BAR_FONT_SIZE 14
+#define FONT_SIZE 14
 #define BOTTOM_BAR_TEXT_MARGIN 4
 
 const std::vector<std::string> uiViewport::CONTEXT_MENU_OPTIONS = { "Save as png", "Save as jpg", "Save as bmp", "Save as tga"/* TODO: "Copy to clipboard" */};
@@ -23,14 +30,16 @@ const std::vector<void*>* uiViewport::selectedNodeDataPointers = nullptr;
 const int* uiViewport::selectedNodePinTypes = nullptr;
 int uiViewport::selectedNodeOutputPinCount;
 
-//float uiViewport::currentZoom;
+sf::Text uiViewport::zoomPercentageText;
+int uiViewport::zoomInt = 10;
+float uiViewport::currentZoom = 1.0f;
 sf::RenderWindow* uiViewport::vpRenderWindow;
 const sf::Vector2i* uiViewport::vpMouseScreenPosPointer;
 
 bool uiViewport::panning = false;
 sf::Vector2f uiViewport::lastMouseScreenPos;
 sf::View uiViewport::theView;
-sf::Vector2f uiViewport::viewPosition = sf::Vector2f(0.0, 0.0);
+sf::Vector2f uiViewport::viewPosition = sf::Vector2f(INITIAL_VIEWPORT_SIZE / 2.0 - IMAGE_MARGIN, INITIAL_VIEWPORT_SIZE / 2.0 - IMAGE_MARGIN);
 sf::Texture uiViewport::imageLimitTexture;
 sf::Sprite uiViewport::imageLimitSprite;
 sf::RectangleShape uiViewport::backgroundRectangle;
@@ -39,10 +48,10 @@ sf::Text uiViewport::bottomBarText;
 sf::RectangleShape uiViewport::bottomBarRectangle;
 sf::Shader uiViewport::invertShader;
 
-void uiViewport::updateView(float width, float height)
+void uiViewport::updateView()
 {
-	sf::FloatRect visibleArea(uiViewport::viewPosition.x, uiViewport::viewPosition.y, width, height);
-	uiViewport::theView = sf::View(visibleArea);
+	theView = sf::View(viewPosition, (sf::Vector2f)vpRenderWindow->getSize());
+	theView.zoom(currentZoom);
 }
 
 int uiViewport::mouseOver(sf::Vector2f& mousePos)
@@ -121,9 +130,15 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2
 {
 	vpMouseScreenPosPointer = mouseScreenPosPointer;
 	vpRenderWindow = &theRenderWindow;
-	updateView(vpRenderWindow->getSize().x, vpRenderWindow->getSize().y);
+	updateView();
 
-	bottomBarText = sf::Text("", uiData::monospaceFont, BOTTOM_BAR_FONT_SIZE);
+	zoomPercentageText = sf::Text("100%", uiData::monospaceFont, FONT_SIZE);
+	zoomPercentageText.setPosition(sf::Vector2f(
+		-zoomPercentageText.getLocalBounds().width + vpRenderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
+		PERCENTAGE_TEXT_MARGIN
+		));
+
+	bottomBarText = sf::Text("", uiData::monospaceFont, FONT_SIZE);
 	backgroundRectangle.setSize((sf::Vector2f) vpRenderWindow->getSize());
 
 	bottomBarRectangle.setSize(sf::Vector2f(
@@ -162,16 +177,6 @@ void uiViewport::setNodeData(int theSelectedNode, const std::vector<void*>* poin
 	updateBottomBarText();
 }
 
-/*const std::vector<void*>* uiViewport::getNodeDataPointers()
-{
-	return selectedNodeDataPointers;
-}*/
-/*
-void uiViewport::hideNodeData()
-{
-	selectedNodeDataPointers = nullptr;
-}*/
-
 void uiViewport::terminate()
 {
 	viewportSelectionBox.terminate();
@@ -192,7 +197,7 @@ void uiViewport::onPollEvent(const sf::Event& e)
 		case sf::Event::Resized:
 		{
 			// update the view to the new size of the window
-			updateView(e.size.width, e.size.height);
+			updateView();
 			backgroundRectangle.setSize((sf::Vector2f) vpRenderWindow->getSize());
 			bottomBarRectangle.setSize(sf::Vector2f(
 				vpRenderWindow->getSize().x,
@@ -204,6 +209,10 @@ void uiViewport::onPollEvent(const sf::Event& e)
 				BOTTOM_BAR_TEXT_MARGIN,
 				vpRenderWindow->getSize().y - BOTTOM_BAR_HEIGHT + BOTTOM_BAR_TEXT_MARGIN
 				));
+			zoomPercentageText.setPosition(sf::Vector2f(
+				-zoomPercentageText.getLocalBounds().width + vpRenderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
+				PERCENTAGE_TEXT_MARGIN
+			));
 			break;
 		}
 		case sf::Event::MouseButtonPressed:
@@ -266,11 +275,28 @@ void uiViewport::onPollEvent(const sf::Event& e)
 			sf::Vector2f displacement = -lastMouseScreenPos + currentMouseScreenPos;
 			if (panning)
 			{
-				viewPosition -= displacement;// * currentZoom;
-				updateView(vpRenderWindow->getSize().x, vpRenderWindow->getSize().y);
+				viewPosition -= displacement * currentZoom;
+				updateView();
 			}
 
 			lastMouseScreenPos = currentMouseScreenPos;
+			break;
+		}
+		case sf::Event::MouseWheelScrolled:
+		{
+			zoomInt -= e.mouseWheelScroll.delta;
+
+			//clamp from min to max zoom
+			if (zoomInt < MAX_ZOOM) zoomInt = MAX_ZOOM; else if (zoomInt > MIN_ZOOM) zoomInt = MIN_ZOOM;
+			currentZoom = zoomInt / 10.0f;
+			std::stringstream percentageStream;
+			percentageStream << (1.0f / currentZoom) * 100.0f << '%';
+			zoomPercentageText.setString(percentageStream.str());
+			zoomPercentageText.setPosition(sf::Vector2f(
+				-zoomPercentageText.getLocalBounds().width + vpRenderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
+				PERCENTAGE_TEXT_MARGIN
+			));
+			updateView();
 			break;
 		}
 	}
@@ -342,6 +368,7 @@ void uiViewport::draw()
 		vpRenderWindow->setView(staticView);
 		vpRenderWindow->draw(bottomBarRectangle);
 		vpRenderWindow->draw(bottomBarText);
+		vpRenderWindow->draw(zoomPercentageText);
 	}
 	vpRenderWindow->setView(theView);
 	viewportSelectionBox.draw(*vpRenderWindow, mouseWorldPos);

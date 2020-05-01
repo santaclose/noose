@@ -7,15 +7,13 @@
 class uiViewport
 {
 private:
-	static void updateView(float width, float height);
+	static void updateView();
 	static int mouseOver(sf::Vector2f& mousePos);
 	static void updateBottomBarText();
 
 public:
 	static void initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer);
 	static void setNodeData(int theSelectedNode, const std::vector<void*>* pointers, const int* pinTypes, int outputPinCount);
-	//static const std::vector<void*>* getNodeDataPointers();
-	//static void hideNodeData();
 	static void terminate();
 	static void hideSelectionBox();
 	static void onPollEvent(const sf::Event& e);
@@ -29,7 +27,9 @@ private:
 	static const int* selectedNodePinTypes;
 	static int selectedNodeOutputPinCount;
 
-	//static float currentZoom;
+	static sf::Text zoomPercentageText;
+	static int zoomInt;
+	static float currentZoom;
 	static sf::RenderWindow* vpRenderWindow;
 	static const sf::Vector2i* vpMouseScreenPosPointer;
 
