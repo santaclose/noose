@@ -27,6 +27,7 @@ Linear Gradient
 [
 	in:
 		Vector2i: image size
+		Integer: mode{Horizontal, Vertical}
 	out:
 		Image: result
 ]
@@ -82,7 +83,7 @@ Flip
 [
 	in:
 		Image: in
-		Integer: vertical?
+		Integer: mode{Horizontally, Vertically}
 	out:
 		Image: out
 ]
@@ -106,6 +107,7 @@ Gamma Correction
 [
 	in:
 		Image: in
+		Float: gamma[0.45454545454]
 	out:
 		Image: out
 ]

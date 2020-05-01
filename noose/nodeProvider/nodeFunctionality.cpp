@@ -119,15 +119,16 @@ void nodeFunctionality::Checker(node* theNode)
 
 void nodeFunctionality::LinearGradient(node* theNode)
 {
-	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(1));
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(2));
 	sf::Vector2i* imageSize = ((sf::Vector2i*) theNode->getDataPointer(0));
+	int vertical = *((int*)theNode->getDataPointer(1));
 
 	if (imageSize->x < 1 || imageSize->y < 1)
 		return;
 
 	outputPointer->create(imageSize->x, imageSize->y);
 
-	linearGradientShader.setUniform("xResolution", (float)imageSize->x);
+	linearGradientShader.setUniform("vertical", (float) vertical);
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &linearGradientShader;
@@ -256,16 +257,15 @@ void nodeFunctionality::Crop(node* theNode)
 void nodeFunctionality::Flip(node* theNode)
 {
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(2));
-	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0)); //inputPins[0]->getData());
-	int* xAxis = ((int*)theNode->getDataPointer(1));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
+	int vertically = *((int*)theNode->getDataPointer(1));
 
 	sf::Vector2u size = a->getSize();
 
 	outputPointer->create(size.x, size.y);
 
 	flipShader.setUniform("tx", a->getTexture());
-	flipShader.setUniform("xAxis", *xAxis % 2);
-	//std::cout << "xAxis % 2 = " << *xAxis % 2 << std::endl;
+	flipShader.setUniform("vertically", (float) vertically);
 
 	sf::Sprite spr(a->getTexture());
 	rs.shader = &flipShader;
@@ -323,7 +323,7 @@ void nodeFunctionality::Grayscale(node* theNode)
 
 void nodeFunctionality::GammaCorrection(node* theNode)
 {
-	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(1));
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(2));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 
 	sf::Vector2u size = a->getSize();
@@ -331,6 +331,7 @@ void nodeFunctionality::GammaCorrection(node* theNode)
 	outputPointer->create(size.x, size.y);
 
 	gammaCorrectionShader.setUniform("tex", a->getTexture());
+	gammaCorrectionShader.setUniform("gamma", *((float*) theNode->getDataPointer(1)));
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &gammaCorrectionShader;

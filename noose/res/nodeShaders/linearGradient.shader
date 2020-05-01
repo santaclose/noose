@@ -1,6 +1,11 @@
-uniform float xResolution;
+uniform float vertical;
 
 void main()
 {
-	gl_FragColor = vec4(vec3(gl_FragCoord.x/xResolution), 1.0);
+	if (mod(vertical, 2.0) == 1.0)
+		gl_FragColor.rgb = 1.0 - gl_TexCoord[0].t;
+	else
+		gl_FragColor.rgb = gl_TexCoord[0].s;
+
+	gl_FragColor.a = 1.0;
 }

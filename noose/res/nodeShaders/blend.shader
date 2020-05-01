@@ -15,11 +15,6 @@ void main()
 		gl_FragColor = vec4(
 			dst.rgb * (1.0 - src.a) + src.rgb * src.a,
 			src.a + dst.a);
-		/*gl_FragColor.a = src.a + dst.a * (1.0 - src.a);
-		if (gl_FragColor.a == 0.0)
-			gl_FragColor.rgb = vec3(0.0);
-		else
-			gl_FragColor.rgb = (src.rgb * src.a + dst.rgb * dst * (1.0 - src.a)) / gl_FragColor.a;*/
 	}
 	// darken
 	else if (m == 1.0)
