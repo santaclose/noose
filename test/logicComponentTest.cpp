@@ -1,93 +1,94 @@
 #include <iostream>
-#include <sstream>
-#include "../noose/logic/nodeSystem.h"
+#include <gtest/gtest.h>
 #include "../noose/nodeProvider/nodeProvider.h"
+#include "../noose/logic/nodeSystem.h"
+#include "../noose/logic/node.h"
+#include "../noose/logic/connectionSystem.h"
 
-#define LOGIC_PRINT_STATUS nodeSystem::status(ss);ss<<"//--------------------------------//\n";
-
-bool equalsAt(char* string, char* substring)
+bool stringsAreEqual(const char* a, const char* b)
 {
-	int substringIndex = 0;
-	for (int substringIndex = 0;
-		 substring[substringIndex] != '\0';
-		 substringIndex++)
-		if (substring[substringIndex] != string[substringIndex])
+	int i = 0;
+	for (; a[i] != '\0'; i++)
+	{
+		if (b[i] != a[i])
+		{
 			return false;
-	return true;
+		}
+	}
+	return a[i] == b[i];
 }
 
-int main()
+TEST(LogicalNodeSystemTest, NodeCreationAndDeletion)
 {
-	std::stringstream ss;
-	//-------------//
-	nodeProvider::initialize();
-	nodeSystem::initialize();
-	//-------------//
-
-	//-- TESTING --//
+	std::vector<node*>* nodeList = (std::vector<node*>*) nodeSystem::getNodeList();
+	ASSERT_TRUE(nodeList->size() == 0);
+	nodeSystem::onNodeCreated(0, &(nodeProvider::nodeDataList[0]));
+	ASSERT_TRUE(nodeList->size() == 1);
+	ASSERT_TRUE((*nodeList)[0]->m_inputPinCount == 1);
+	ASSERT_TRUE((*nodeList)[0]->m_outputPinCount == 2);
+	ASSERT_TRUE((*nodeList)[0]->m_pinTypes[0] == 3);
+	ASSERT_TRUE((*nodeList)[0]->m_pinTypes[1] == 3);
+	ASSERT_TRUE((*nodeList)[0]->m_pinTypes[2] == 2);
+	ASSERT_TRUE((*nodeList)[0]->m_pinDataPointers.size() == 3);
+	ASSERT_TRUE((*nodeList)[0]->m_pinDataPointers[0] != nullptr);
+	ASSERT_TRUE((*nodeList)[0]->m_pinDataPointers[1] != nullptr);
+	ASSERT_TRUE((*nodeList)[0]->m_pinDataPointers[2] != nullptr);
+	ASSERT_TRUE((*nodeList)[0]->m_receivedDataPointers.size() == 1);
+	ASSERT_TRUE((*nodeList)[0]->m_receivedDataPointers[0] == nullptr);
+	ASSERT_TRUE((*nodeList)[0]->m_propagationMatrix.size() == 0);
+	ASSERT_TRUE((*nodeList)[0]->m_leftSideNodes.size() == 0);
+	ASSERT_TRUE((*nodeList)[0]->m_nodeFunctionalityPointer != nullptr);
 
 	std::vector<int> c;
-	LOGIC_PRINT_STATUS
-	nodeSystem::onNodeCreated(0, &(nodeProvider::nodeDataList[0]));
-	LOGIC_PRINT_STATUS
 	nodeSystem::onNodeDeleted(0, c);
-	LOGIC_PRINT_STATUS
-	nodeSystem::onNodeCreated(0, &(nodeProvider::nodeDataList[0]));
-	LOGIC_PRINT_STATUS
-	nodeSystem::onNodeCreated(1, &(nodeProvider::nodeDataList[4]));
-	LOGIC_PRINT_STATUS
-	nodeSystem::onNodeDeleted(0, c);
-	LOGIC_PRINT_STATUS
-	nodeSystem::onNodeCreated(0, &(nodeProvider::nodeDataList[1]));
-	LOGIC_PRINT_STATUS
+	ASSERT_TRUE(nodeList->size() == 1);
+	ASSERT_TRUE((*nodeList)[0] == nullptr);
+}
+
+TEST(LogicalNodeSystemTest, ReusingVectorSlotsAndDefaultDataCreated)
+{
+	std::vector<node*>* nodeList = (std::vector<node*>*) nodeSystem::getNodeList();
 	nodeSystem::onNodeCreated(0, &(nodeProvider::nodeDataList[2]));
-	LOGIC_PRINT_STATUS
-	nodeSystem::onNodesConnected(0, 1, 2, 0, 0);
-	LOGIC_PRINT_STATUS
-	nodeSystem::onNodesDisconnected(0, 1, 2, 0, 0);
-	LOGIC_PRINT_STATUS
-	nodeSystem::onNodesConnected(0, 1, 2, 0, 0);
-	LOGIC_PRINT_STATUS
-	c.push_back(0);
+	ASSERT_TRUE((*nodeList)[0]->m_pinDataPointers.size() == 3);
+	ASSERT_TRUE(*((int*)((*nodeList)[0]->m_pinDataPointers[0])) == 20);
+	std::vector<int> c;
 	nodeSystem::onNodeDeleted(0, c);
-	LOGIC_PRINT_STATUS
-	std::cout << "--------- fails ----------\n";
-	
-	// print report
-	// std::cout << ss.str();
+}
 
-	if (!equalsAt(&(ss.str()[75]), "\t")) // created successfully
-		std::cout << "failed\n";
+TEST(LogicalNodeSystemTest, ConnectingNodesAndTestingGetDataPointerFunction)
+{
+	std::vector<node*>* nodeList = (std::vector<node*>*) nodeSystem::getNodeList();
+	nodeSystem::onNodeCreated(0, &(nodeProvider::nodeDataList[2]));
+	nodeSystem::onNodeCreated(1, &(nodeProvider::nodeDataList[0]));
+	nodeSystem::onNodesConnected(0, 1, 2, 0, 0);
+	void* receivedDataPointer = (*nodeList)[1]->m_receivedDataPointers[0];
+	ASSERT_TRUE(receivedDataPointer != nullptr);
+	ASSERT_TRUE(receivedDataPointer == (*nodeList)[0]->m_pinDataPointers[2]);
+	ASSERT_TRUE(connectionSystem::connections.size() == 1);
+	ASSERT_TRUE(connectionSystem::connections[0].deleted == false);
+	ASSERT_TRUE(connectionSystem::connections[0].nodeA == (*nodeList)[0]);
+	ASSERT_TRUE(connectionSystem::connections[0].nodeB == (*nodeList)[1]);
+	ASSERT_TRUE(connectionSystem::connections[0].pinA == 2);
+	ASSERT_TRUE(connectionSystem::connections[0].pinB == 0);
+	ASSERT_TRUE(connectionSystem::connections[0].nodeIndexA == 0);
+	ASSERT_TRUE(connectionSystem::connections[0].nodeIndexB == 1);
+	ASSERT_TRUE(receivedDataPointer == (*nodeList)[1]->getDataPointer(0, true));
+	ASSERT_TRUE((*nodeList)[1]->m_pinDataPointers[0] == (*nodeList)[1]->getDataPointer(0, false));
 
-	if (!equalsAt(&(ss.str()[368]), "nullptr")) // deleted successfully
-		std::cout << "failed\n";
+	ASSERT_TRUE((*nodeList)[0]->m_propagationMatrix.size() == 1);
+	ASSERT_TRUE((*nodeList)[0]->m_propagationMatrix[0].size() == 1);
+	ASSERT_TRUE((*nodeList)[0]->m_propagationMatrix[0][0] == (*nodeList)[1]);
+	ASSERT_TRUE((*nodeList)[0]->m_leftSideNodes.size() == 0);
+	ASSERT_TRUE((*nodeList)[1]->m_propagationMatrix.size() == 0);
+	ASSERT_TRUE((*nodeList)[1]->m_leftSideNodes.size() == 1);
+	ASSERT_TRUE((*nodeList)[1]->m_leftSideNodes[0] == (*nodeList)[0]);
 
-	if (!equalsAt(&(ss.str()[460]), "\t")) // created successfully again
-		std::cout << "failed\n";
+}
 
-	if (!equalsAt(&(ss.str()[962]), "\t")) // another node created successfully
-		std::cout << "failed\n";
-
-	if (!equalsAt(&(ss.str()[1289]), "nullptr")) // node 0 deleted successfully
-		std::cout << "failed\n";
-
-	if (!equalsAt(&(ss.str()[1645]), "\t")) // node 0 recreated successfully, slot reused
-		std::cout << "failed\n";
-
-	if (!equalsAt(&(ss.str()[2237]), "0")) // node 0 overwritten successfully
-		std::cout << "failed\n";
-
-	if (!equalsAt(&(ss.str()[3293]), "-") ||
-		!equalsAt(&(ss.str()[3305]), "0")) // nodes connected successfully
-		std::cout << "failed\n";
-
-	if (!equalsAt(&(ss.str()[3971]), "1")) // nodes disconnected successfully
-		std::cout << "failed\n";
-
-	if (!equalsAt(&(ss.str()[4681]), "0")) // nodes reconnected successfully, slot reused
-		std::cout << "failed\n";
-
-	if (!equalsAt(&(ss.str()[4828]), "nullptr") ||
-		!equalsAt(&(ss.str()[5126]), "1") ) // node deleted while connected successfully
-		std::cout << "failed\n";
+int main(int argc, char** argv)
+{
+	testing::InitGoogleTest(&argc, argv);
+	nodeProvider::initialize();
+	nodeSystem::initialize();
+	return RUN_ALL_TESTS();
 }

@@ -9,8 +9,4 @@ public:
 	static std::vector<connection> connections;
 	static void connect(int connectionIndex, const std::vector<node*>& nodeList, int nodeA, int nodeB, int pinA, int pinB);
 	static void deleteConnection(int lineIndex);
-
-#ifdef TEST
-	static std::ostream& status(std::ostream& stream);
-#endif
 };

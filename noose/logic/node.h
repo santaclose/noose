@@ -6,6 +6,9 @@
 class node
 {
 private:
+#ifdef TEST
+public:
+#endif TEST
 	// pins
 	int m_inputPinCount;
 	int m_outputPinCount;
@@ -44,9 +47,5 @@ public:
 	const int* getPinTypes();
 
 	void* getDataPointer(int pinIndex, bool acceptReceivedPointers=true);
-
-#ifdef TEST
-	void status(std::ostream& stream);
-#endif
 };
 

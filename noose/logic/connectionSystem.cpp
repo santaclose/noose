@@ -27,21 +27,3 @@ void connectionSystem::deleteConnection(int lineIndex)
 
 	connections[lineIndex].deleted = true;
 }
-
-#ifdef TEST
-std::ostream& connectionSystem::status(std::ostream& stream)
-{
-	stream << "--connections\n";
-	for (const connection& c : connections)
-	{
-		stream << "-\n\tdeleted: " << c.deleted << std::endl;
-		stream << "\tnodeA: " << c.nodeA << std::endl;
-		stream << "\tnodeB: " << c.nodeB << std::endl;
-		stream << "\tpinA: " << c.pinA << std::endl;
-		stream << "\tpinB: " << c.pinB << std::endl;
-		stream << "\tnodeIndexA: " << c.nodeIndexA << std::endl;
-		stream << "\tnodeIndexB: " << c.nodeIndexB << std::endl;
-	}
-	return stream;
-}
-#endif

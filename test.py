@@ -30,7 +30,7 @@ print('--------------------------')
 print('-- logic component test --')
 print('--------------------------')
 
-cppFiles = "../noose/nodeProvider/nodeFunctionality.cpp ../noose/nodeProvider/nodeProvider.cpp ../noose/logic/connectionSystem.cpp ../noose/logic/graphOperations.cpp ../noose/logic/node.cpp ../noose/logic/nodeSystem.cpp test.cpp"
+cppFiles = "../noose/nodeProvider/nodeFunctionality.cpp ../noose/nodeProvider/nodeProvider.cpp ../noose/logic/connectionSystem.cpp ../noose/logic/graphOperations.cpp ../noose/logic/node.cpp ../noose/logic/nodeSystem.cpp logicComponentTest.cpp"
 
 finalString = f"g++ -o {output} {cppFiles} {links} {defineString} -w"
 os.system(finalString)
