@@ -29,6 +29,9 @@ inline void openHTMLFile()
 #ifdef MACOS
 	system("open ../help/help.html");
 #endif
+#ifdef WINDOWS
+	system("start ..\\help\\help.html");
+#endif
 }
 
 void uiHelp::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer)

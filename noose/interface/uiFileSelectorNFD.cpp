@@ -1,4 +1,4 @@
-#ifdef WINDOWS
+#ifdef NFDFILESELECTION
 #include <string.h>
 #include <iostream>
 #include "uiFileSelector.h"
