@@ -8,7 +8,7 @@ class node
 private:
 #ifdef TEST
 public:
-#endif TEST
+#endif
 	// pins
 	int m_inputPinCount;
 	int m_outputPinCount;
