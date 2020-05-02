@@ -23,7 +23,8 @@ cppFiles = os.popen("find . | grep cpp").read().replace("\n", " ")
 
 finalString = f"g++ -o {output} -std=c++11 {cppFiles} {links} {defineString} -O3"
 print(finalString)
-os.system(finalString)
+if 'n' not in sys.argv:
+	os.system(finalString)
 
 if 'r' in sys.argv:
 	os.system("./noose")

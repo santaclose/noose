@@ -20,9 +20,16 @@ const sf::Vector2i* hlpMouseScreenPosPointer;
 sf::VertexArray helpButtonVA;
 sf::Text hlpQuestionMark;
 sf::Shader floatingButtonShader;
-bool hlpActive = false;
-sf::Text instructionsText;
-sf::VertexArray instructionsBoxVA;
+
+inline void openHTMLFile()
+{
+#ifdef LINUX
+	system("xdg-open ../help/help.html");
+#endif
+#ifdef MACOS
+	system("open ../help/help.html")
+#endif
+}
 
 void uiHelp::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer)
 {
@@ -48,21 +55,6 @@ void uiHelp::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScree
 	hlpQuestionMark.setPosition(
 		MARGIN + BUTTON_SIZE / 2.0 - hlpQuestionMark.getLocalBounds().width / 2.0,
 		hlpRenderWindow->getSize().y - MARGIN - BUTTON_SIZE / 2.0 - hlpQuestionMark.getLocalBounds().height / 1.2);
-
-	std::ifstream instructionsFile("res/help.txt");
-	std::string str((std::istreambuf_iterator<char>(instructionsFile)), std::istreambuf_iterator<char>());
-	instructionsText = sf::Text(
-		sf::String(str),
-		uiData::monospaceFont, 13);
-	instructionsText.setPosition(
-		hlpRenderWindow->getSize().x / 2.0 - instructionsText.getLocalBounds().width / 2.0,
-		hlpRenderWindow->getSize().y / 2.0 - instructionsText.getLocalBounds().height / 2.0);
-	instructionsBoxVA = sf::VertexArray(sf::Quads, 4);
-	instructionsBoxVA[0].color = instructionsBoxVA[1].color = instructionsBoxVA[2].color = instructionsBoxVA[3].color = sf::Color(INSTRUCTIONS_BOX_COLOR);
-	instructionsBoxVA[0].position.x = instructionsBoxVA[1].position.x = hlpRenderWindow->getSize().x / 2.0 - instructionsText.getLocalBounds().width / 2.0 - MARGIN;
-	instructionsBoxVA[2].position.x = instructionsBoxVA[3].position.x = hlpRenderWindow->getSize().x / 2.0 + instructionsText.getLocalBounds().width / 2.0 + MARGIN;
-	instructionsBoxVA[0].position.y = instructionsBoxVA[3].position.y = hlpRenderWindow->getSize().y / 2.0 - instructionsText.getLocalBounds().height / 2.0 - MARGIN;
-	instructionsBoxVA[1].position.y = instructionsBoxVA[2].position.y = hlpRenderWindow->getSize().y / 2.0 + instructionsText.getLocalBounds().height / 2.0 + MARGIN;
 }
 
 void uiHelp::terminate()
@@ -77,29 +69,17 @@ void uiHelp::onPollEvent(const sf::Event& e)
 		helpButtonVA[0].position.y = helpButtonVA[3].position.y = e.size.height - BUTTON_SIZE - MARGIN;
 		helpButtonVA[1].position.y = helpButtonVA[2].position.y = e.size.height - MARGIN;
 		hlpQuestionMark.setPosition(hlpQuestionMark.getPosition().x, e.size.height - MARGIN - BUTTON_SIZE / 2.0 - hlpQuestionMark.getLocalBounds().height / 1.2);
-		instructionsText.setPosition(
-			hlpRenderWindow->getSize().x / 2.0 - instructionsText.getLocalBounds().width / 2.0,
-			hlpRenderWindow->getSize().y / 2.0 - instructionsText.getLocalBounds().height / 2.0);
-		instructionsBoxVA[0].position.x = instructionsBoxVA[1].position.x = hlpRenderWindow->getSize().x / 2.0 - instructionsText.getLocalBounds().width / 2.0 - MARGIN;
-		instructionsBoxVA[2].position.x = instructionsBoxVA[3].position.x = hlpRenderWindow->getSize().x / 2.0 + instructionsText.getLocalBounds().width / 2.0 + MARGIN;
-		instructionsBoxVA[0].position.y = instructionsBoxVA[3].position.y = hlpRenderWindow->getSize().y / 2.0 - instructionsText.getLocalBounds().height / 2.0 - MARGIN;
-		instructionsBoxVA[1].position.y = instructionsBoxVA[2].position.y = hlpRenderWindow->getSize().y / 2.0 + instructionsText.getLocalBounds().height / 2.0 + MARGIN;
 		break;
 	case sf::Event::MouseButtonPressed:
 	{
 		if (e.mouseButton.button != sf::Mouse::Left)
 			break;
 
-		if (hlpActive)
-			hlpActive = false;
-		else
-		{
-			sf::Vector2f mousePosInUVSpace =
-				(sf::Vector2f(hlpMouseScreenPosPointer->x, hlpMouseScreenPosPointer->y) - helpButtonVA[0].position) /
-				BUTTON_SIZE;
-			if (uiMath::distance(sf::Vector2f(0.5, 0.5), mousePosInUVSpace) < BUTTON_RADIUS)
-				hlpActive = true;
-		}
+		sf::Vector2f mousePosInUVSpace =
+			(sf::Vector2f(hlpMouseScreenPosPointer->x, hlpMouseScreenPosPointer->y) - helpButtonVA[0].position) /
+			BUTTON_SIZE;
+		if (uiMath::distance(sf::Vector2f(0.5, 0.5), mousePosInUVSpace) < BUTTON_RADIUS)
+			openHTMLFile();
 		break;
 	}
 	}
@@ -112,14 +92,4 @@ void uiHelp::draw()
 	sf::Vector2f mousePos = sf::Vector2f(hlpMouseScreenPosPointer->x, hlpMouseScreenPosPointer->y);
 	hlpRenderWindow->draw(helpButtonVA, &floatingButtonShader);
 	hlpRenderWindow->draw(hlpQuestionMark);
-	if (hlpActive)
-	{
-		hlpRenderWindow->draw(instructionsBoxVA);
-		hlpRenderWindow->draw(instructionsText);
-	}
-}
-
-bool uiHelp::isActive()
-{
-	return hlpActive;
 }

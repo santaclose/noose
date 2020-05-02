@@ -22,6 +22,6 @@ namespace nodeSystem
 	int getOutputPinCountForNode(int n);
 
 #ifdef TEST
-	std::ostream& status(std::ostream& stream);
+	void* getNodeList();
 #endif
 };

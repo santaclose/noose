@@ -9,5 +9,4 @@ namespace uiHelp
 
 	void onPollEvent(const sf::Event& e);
 	void draw();
-	bool isActive();
 }

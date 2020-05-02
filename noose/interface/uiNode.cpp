@@ -11,8 +11,8 @@
 #include "../types.h"
 
 #define TEXT_COLOR 0xf0f0f0ff
-#define BAR_COLOR 0x505050bb
-#define SELECTED_BAR_COLOR 0x5a5a5abb
+#define BAR_COLOR 0x424242bb
+#define SELECTED_BAR_COLOR 0x6a6a6abb
 #define CONTENT_RECT_COLOR 0x353535bb
 
 #define INPUT_FIELD_HEIGHT 20

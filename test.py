@@ -2,7 +2,7 @@ import os
 import time
 
 defines = ["LINUX", "TEST"]
-links = "-lsfml-graphics -lsfml-window -lsfml-system"
+links = "-lsfml-graphics -lsfml-window -lsfml-system -lgtest -pthread"
 output = "test"
 
 defineString = ""
@@ -30,14 +30,14 @@ print('--------------------------')
 print('-- logic component test --')
 print('--------------------------')
 
-cppFiles = "../noose/nodeProvider/nodeFunctionality.cpp ../noose/nodeProvider/nodeProvider.cpp ../noose/logic/connectionSystem.cpp ../noose/logic/graphOperations.cpp ../noose/logic/node.cpp ../noose/logic/nodeSystem.cpp logicComponentTest.cpp"
+cppFiles = "../noose/nodeProvider/nodeFunctionality.cpp ../noose/nodeProvider/nodeProvider.cpp ../noose/logic/connectionSystem.cpp ../noose/logic/graphOperations.cpp ../noose/logic/node.cpp ../noose/logic/nodeSystem.cpp test.cpp"
 
 finalString = f"g++ -o {output} {cppFiles} {links} {defineString} -w"
 os.system(finalString)
-os.chdir("../noose/")
-os.system("../test/test")
-os.chdir("../test/")
+# stay in the test directory to use the same nodes.dat every time
+os.system("./test")
 
+'''
 print('--------------------------')
 print('-- ui node system test  --')
 print('--------------------------')
@@ -55,3 +55,4 @@ time.sleep(5.0)
 os.system("cnee --replay -f ../test/uiNodeSystemTest.xns --speed-percent 80")
 #
 os.chdir("../test/")
+'''

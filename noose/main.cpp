@@ -100,13 +100,16 @@ int main()
 			}
 			else
 			{
-				if (!uiSearchBar::isActive() && !uiCategoryPusher::isActive() && !uiHelp::isActive())
+				bool sbActive = uiSearchBar::isActive();
+				bool cpActive = uiCategoryPusher::isActive();
+				if (!sbActive && !cpActive)
+				{
 					uiNodeSystem::onPollEvent(eventWindowA);
-				if (!uiCategoryPusher::isActive() && !uiSearchBar::isActive())
 					uiHelp::onPollEvent(eventWindowA);
-				if (!uiCategoryPusher::isActive() && !uiHelp::isActive())
+				}
+				if (!cpActive)
 					uiSearchBar::onPollEvent(eventWindowA);
-				if (!uiSearchBar::isActive() && !uiHelp::isActive())
+				if (!sbActive)
 					uiCategoryPusher::onPollEvent(eventWindowA);
 			}
 		}

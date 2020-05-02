@@ -118,20 +118,8 @@ int nodeSystem::getOutputPinCountForNode(int n)
 }
 
 #ifdef TEST
-std::ostream& nodeSystem::status(std::ostream& stream)
+void* nodeSystem::getNodeList()
 {
-	stream << "--nodeList\n";
-	for (node* n : nodeList)
-	{
-		if (n != nullptr)
-		{
-			stream << "-\n";
-			n->status(stream);
-		}
-		else
-			stream << "-\n\tnullptr\n";
-	}
-	connectionSystem::status(stream);
-	return stream;
+	return &nodeList;
 }
 #endif
