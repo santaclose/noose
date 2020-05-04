@@ -40,14 +40,9 @@ void go::matrixPropagation(std::vector<std::vector<node*>>& leftSideMatrix, cons
 
 void go::appendNodeToMatrix(std::vector<std::vector<node*>>& matrix, node* theNode, int index)
 {
-	// get more space if needed
-	//std::cout << "index: " << index << std::endl;
-	//std::cout << "the size of the matrix is " << matrix.size() << std::endl;
 	if (index >= matrix.size())
 		matrix.resize(index + 1);
 
-	//std::cout << "the size of the matrix is " << matrix.size() << std::endl;
-	// push the node
 	matrix[index].push_back(theNode);
 }
 
@@ -76,7 +71,6 @@ void go::removeNodeFromList(const node* n, std::vector<node*>& list)
 		if (theNode == n)
 		{
 			list.erase(list.begin() + j);
-			//std::cout << "node erased from left side list\n";
 			return;
 		}
 		j++;

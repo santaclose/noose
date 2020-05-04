@@ -121,10 +121,5 @@ private:
 		std::cout << "[Node provider] ERROR WHEN PARSING PIN TYPE \"" << s << "\"\n";
 		return -1;
 	}
-
-#ifdef TEST
-public:
-	static std::ostream& status(std::ostream& stream);
-#endif
 };
 

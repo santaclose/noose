@@ -17,8 +17,4 @@ namespace uiNodeSystem
 	void setOnNodeSelectedCallback(void (*functionPointer)(int));
 	void setOnNodeDeletedCallback(void (*functionPointer)(int)); // called just before deleting the node
 	void setOnNodeChangedCallback(void (*functionPointer)(int));
-
-#ifdef TEST
-	void initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer, std::ostream& stream);
-#endif
 }

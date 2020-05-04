@@ -2,8 +2,8 @@
 ## Basic examples
 ### Convert an image to grayscale
 ![Grayscale example](grayscale.png)
-### Apply a mask and put an image over a background:
-![Background example](background.png)
+### Replace the background of an image using color selection:
+![Background example](backgroundChange.png)
 ## Application usage
 
 - Use the right mouse button to select nodes by clicking on their top bar. After selecting a node, you can visualize its outputs inside the viewport window.

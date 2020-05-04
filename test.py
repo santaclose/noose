@@ -1,5 +1,6 @@
 import os
 import time
+import sys
 
 defines = ["LINUX", "TEST"]
 links = "-lsfml-graphics -lsfml-window -lsfml-system -lgtest -pthread"
@@ -15,6 +16,19 @@ for item in defines:
 	defineString += f"-D{item}"
 
 os.chdir("test")
+
+'''
+print('---------------------------')
+print('-- graph operations test --')
+print('---------------------------')
+
+cppFiles = "../noose/nodeProvider/nodeFunctionality.cpp ../noose/nodeProvider/nodeProvider.cpp ../noose/logic/connectionSystem.cpp ../noose/logic/graphOperations.cpp ../noose/logic/node.cpp ../noose/logic/nodeSystem.cpp graphOperationsTest.cpp"
+
+finalString = f"g++ -o {output} {cppFiles} {links} {defineString} -w"
+os.system(finalString)
+# stay in the test directory to use the same nodes.dat every time
+os.system("./test")
+
 print('--------------------------')
 print('--  node provider test  --')
 print('--------------------------')
@@ -36,23 +50,18 @@ finalString = f"g++ -o {output} {cppFiles} {links} {defineString} -w"
 os.system(finalString)
 # stay in the test directory to use the same nodes.dat every time
 os.system("./test")
-
 '''
+
+if 'ui' not in sys.argv:
+	exit()
+
 print('--------------------------')
 print('-- ui node system test  --')
 print('--------------------------')
 
 os.chdir("../noose/")
-cppFiles = " ".join(["../noose" + file[1:] for file in os.popen("find . | grep cpp").read().split("\n") if "main.cpp" not in file and len(file) > 0]) + " uiNodeSystemTest.cpp"
+cppFiles = " ".join(["../noose" + file[1:] for file in os.popen("find . | grep cpp").read().split("\n") if len(file) > 0])
 os.chdir("../test/")
-finalString = f"g++ -o {output} {cppFiles} {links} {defineString} -w"
+finalString = f"g++ -o {output} {cppFiles} {links} {defineString} -w -DTEST"
 os.system(finalString)
-os.chdir("../noose/")
-#
-os.system("../test/test&")
-time.sleep(5.0)
-#os.system("cnee --record --mouse --keyboard -o ../test/uiNodeSystemTest.xns -sk q")
-os.system("cnee --replay -f ../test/uiNodeSystemTest.xns --speed-percent 80")
-#
-os.chdir("../test/")
-'''
+os.system("./test")
