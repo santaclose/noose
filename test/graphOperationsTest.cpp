@@ -14,7 +14,7 @@ TEST(NodeInsertionInMatrix, InsertingAtIndex0)
 	ASSERT_TRUE(matrix[0][0] == (node*) 200);
 }
 
-TEST(NodeInsertionInMatrix, InsertingAtIndex3)
+TEST(NodeInsertionInMatrix, InsertingAtIndex2)
 {
 	std::vector<std::vector<node*>> matrix;
 	go::appendNodeToMatrix(matrix, (node*) 100, 2);
