@@ -17,7 +17,6 @@ for item in defines:
 
 os.chdir("test")
 
-'''
 print('---------------------------')
 print('-- graph operations test --')
 print('---------------------------')
@@ -26,7 +25,6 @@ cppFiles = "../noose/nodeProvider/nodeFunctionality.cpp ../noose/nodeProvider/no
 
 finalString = f"g++ -o {output} {cppFiles} {links} {defineString} -w"
 os.system(finalString)
-# stay in the test directory to use the same nodes.dat every time
 os.system("./test")
 
 print('--------------------------')
@@ -37,7 +35,16 @@ cppFiles = "../noose/nodeProvider/nodeFunctionality.cpp ../noose/nodeProvider/no
 
 finalString = f"g++ -o {output} {cppFiles} {links} {defineString} -w"
 os.system(finalString)
-# stay in the test directory to use the same nodes.dat every time
+os.system("./test")
+
+print('--------------------------')
+print('--    searcher test     --')
+print('--------------------------')
+
+cppFiles = "../noose/nodeProvider/nodeFunctionality.cpp ../noose/nodeProvider/nodeProvider.cpp ../noose/logic/connectionSystem.cpp ../noose/logic/graphOperations.cpp ../noose/logic/node.cpp ../noose/logic/nodeSystem.cpp ../noose/searcher.cpp searcherTest.cpp"
+
+finalString = f"g++ -o {output} {cppFiles} {links} {defineString} -w"
+os.system(finalString)
 os.system("./test")
 
 print('--------------------------')
@@ -48,9 +55,16 @@ cppFiles = "../noose/nodeProvider/nodeFunctionality.cpp ../noose/nodeProvider/no
 
 finalString = f"g++ -o {output} {cppFiles} {links} {defineString} -w"
 os.system(finalString)
-# stay in the test directory to use the same nodes.dat every time
 os.system("./test")
+
+
+
 '''
+'''
+'''
+'''
+
+
 
 if 'ui' not in sys.argv:
 	exit()
