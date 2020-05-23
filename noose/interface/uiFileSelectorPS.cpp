@@ -1,4 +1,4 @@
-#ifdef WINDOWS
+#ifdef USE_POWERSHELL_FILE_SELECTION
 #include <string.h>
 #include <stdio.h>
 #include <iostream>

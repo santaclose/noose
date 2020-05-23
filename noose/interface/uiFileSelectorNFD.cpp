@@ -1,8 +1,8 @@
-#ifdef NFDFILESELECTION
+#ifdef WINDOWS
 #include <string.h>
 #include <iostream>
 #include "uiFileSelector.h"
-#include "../vendor/nfd.h"
+#include "../vendor/nativefiledialog/src/nfd.h"
 #include "../utils.h"
 
 char* uiFileSelector::openFileDialog()

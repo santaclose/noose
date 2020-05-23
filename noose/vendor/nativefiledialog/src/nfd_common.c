@@ -3,7 +3,7 @@
 
   http://www.frogtoss.com/labs
  */
-#ifdef WINDOWS
+
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
@@ -92,13 +92,13 @@ int NFDi_SafeStrncpy( char *dst, const char *src, size_t maxCopy )
 
 
 /* adapted from microutf8 */
-size_t NFDi_UTF8_Strlen( const nfdchar_t *str )
+int32_t NFDi_UTF8_Strlen( const nfdchar_t *str )
 {
 	/* This function doesn't properly check validity of UTF-8 character 
 	sequence, it is supposed to use only with valid UTF-8 strings. */
     
-	size_t character_count = 0;
-	size_t i = 0; /* Counter used to iterate over string. */
+	int32_t character_count = 0;
+	int32_t i = 0; /* Counter used to iterate over string. */
 	nfdchar_t maybe_bom[4];
 	
 	/* If there is UTF-8 BOM ignore it. */
@@ -140,4 +140,3 @@ int NFDi_IsFilterSegmentChar( char ch )
     return (ch==','||ch==';'||ch=='\0');
 }
 
-#endif
