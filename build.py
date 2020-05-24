@@ -19,7 +19,8 @@ for item in defines:
 	defineString += f"-D{item}"
 
 os.chdir("noose")
-cppFiles = os.popen("find . | grep cpp").read().replace("\n", " ")
+
+cppFiles = os.popen('find . | grep ".*\.c\(pp\)\?$"').read().replace("\n", " ")
 
 finalString = f"g++ -o {output} -std=c++11 {cppFiles} {links} {defineString} -O3"
 print(finalString)
