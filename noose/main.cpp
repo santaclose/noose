@@ -9,6 +9,7 @@
 
 #include "interface/uiCategoryPusher.h"
 #include "interface/uiHelp.h"
+#include "interface/uiShowViewport.h"
 #include "interface/uiSearchBar.h"
 #include "interface/uiViewport.h"
 
@@ -66,6 +67,7 @@ int main()
 	uiSearchBar::initialize(windowA, &mousePosWindowA);
 	uiCategoryPusher::initialize(windowA, &mousePosWindowA);
 	uiHelp::initialize(windowA, &mousePosWindowA);
+	uiShowViewport::initialize(windowA, &mousePosWindowA, &windowB);
 	uiViewport::initialize(windowB, &mousePosWindowB);
 
 	// node system callbacks
@@ -95,6 +97,7 @@ int main()
 			{
 				uiNodeSystem::onPollEvent(eventWindowA);
 				uiHelp::onPollEvent(eventWindowA);
+				uiShowViewport::onPollEvent(eventWindowA);
 				uiSearchBar::onPollEvent(eventWindowA);
 				uiCategoryPusher::onPollEvent(eventWindowA);
 			}
@@ -106,6 +109,7 @@ int main()
 				{
 					uiNodeSystem::onPollEvent(eventWindowA);
 					uiHelp::onPollEvent(eventWindowA);
+					uiShowViewport::onPollEvent(eventWindowA);
 				}
 				if (!cpActive)
 					uiSearchBar::onPollEvent(eventWindowA);
@@ -135,6 +139,7 @@ int main()
 		uiSearchBar::draw();
 		uiCategoryPusher::draw();
 		uiHelp::draw();
+		uiShowViewport::draw();
 
 		uiViewport::draw();
 
@@ -145,6 +150,7 @@ int main()
 		uiColorPicker::tick();
 	}
 
+	uiShowViewport::terminate();
 	uiHelp::terminate();
 	uiCategoryPusher::terminate();
 	uiViewport::terminate();
