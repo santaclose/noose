@@ -147,7 +147,7 @@ Select by color
 	in:
 		Image: in
 		Color: color
-		Float: tolerance[0.5]
+		Float: tolerance[1.0]
 	out:
 		Image: out
 ]
