@@ -18,6 +18,8 @@ sf::Shader gammaCorrectionShader;
 sf::Shader separateShader;
 sf::Shader combineShader;
 sf::Shader cropShader;
+sf::Shader extendShader;
+sf::Shader patchShader;
 sf::Shader selectByColorShader;
 
 sf::RenderStates rs;
@@ -60,6 +62,10 @@ void nodeFunctionality::initialize()
 		std::cout << "[Node provider] Failed to load combine shader\n";
 	if (!cropShader.loadFromFile("res/nodeShaders/crop.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load crop shader\n";
+	if (!extendShader.loadFromFile("res/nodeShaders/extend.shader", sf::Shader::Fragment))
+		std::cout << "[Node provider] Failed to load extend shader\n";
+	if (!patchShader.loadFromFile("res/nodeShaders/patch.shader", sf::Shader::Fragment))
+		std::cout << "[Node provider] Failed to load patch shader\n";
 	if (!selectByColorShader.loadFromFile("res/nodeShaders/selectByColor.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load selectByColor shader\n";
 }
@@ -251,6 +257,66 @@ void nodeFunctionality::Crop(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &cropShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::Extend(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(4));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
+	int side = *((int*)theNode->getDataPointer(1)) % 4;
+	int pixels = *((int*)theNode->getDataPointer(2));
+	sf::Color color = *((sf::Color*)theNode->getDataPointer(3));
+
+	sf::Vector2u size = a->getSize();
+
+	float ratio;
+	if (side == 1 || side == 3)
+	{
+		outputPointer->create(size.x + pixels, size.y);
+		ratio = (float)pixels / (float)size.x;
+	}
+	else
+	{
+		outputPointer->create(size.x, size.y + pixels);
+		ratio = (float)pixels / (float)size.y;
+	}
+
+	extendShader.setUniform("tx", a->getTexture());
+	extendShader.setUniform("side", (float)side);
+	extendShader.setUniform("ratio", (float)ratio);
+	extendShader.setUniform("color", sf::Glsl::Vec4(color));
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &extendShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::Patch(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(3));
+	sf::RenderTexture* image = ((sf::RenderTexture*) theNode->getDataPointer(0));
+	sf::RenderTexture* patch = ((sf::RenderTexture*) theNode->getDataPointer(1));
+	sf::Vector2i* position = ((sf::Vector2i*) theNode->getDataPointer(2));
+
+	sf::Vector2u imageSize = image->getSize();
+	sf::Vector2u patchSize = patch->getSize();
+
+	outputPointer->create(imageSize.x, imageSize.y);
+
+	float top = (float) position->y / (float) imageSize.y;
+	float left = (float) position->x / (float) imageSize.x;
+
+	float ratioX = (float) patchSize.x / (float) imageSize.x;
+	float ratioY = (float) patchSize.y / (float) imageSize.y;
+
+	patchShader.setUniform("tx", image->getTexture());
+	patchShader.setUniform("patch", patch->getTexture());
+	patchShader.setUniform("topLeft", sf::Glsl::Vec2(left, top));
+	patchShader.setUniform("ratio", sf::Glsl::Vec2(ratioX, ratioY));
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &patchShader;
 	outputPointer->draw(spr, rs);
 }
 

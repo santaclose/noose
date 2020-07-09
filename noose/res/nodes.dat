@@ -79,6 +79,25 @@ Crop
 	out:
 		Image: out
 ]
+Extend
+[
+	in:
+		Image: in
+		Integer: side{Top,Right,Bottom,Left}
+		Integer: pixels
+		Color: color
+	out:
+		Image: out
+]
+Patch
+[
+	in:
+		Image: image
+		Image: patch
+		Vector2i: position
+	out:
+		Image: out
+]
 Flip
 [
 	in:

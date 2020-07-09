@@ -16,6 +16,8 @@ namespace nodeFunctionality
 	void Blend(node* theNode);
 	void BrightnessContrast(node* theNode);
 	void Crop(node* theNode);
+	void Extend(node* theNode);
+	void Patch(node* theNode);
 	void Flip(node* theNode);
 	void Frame(node* theNode);
 	void Grayscale(node* theNode);

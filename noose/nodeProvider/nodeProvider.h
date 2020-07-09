@@ -47,60 +47,64 @@ private:
 		if (index == 8)
 			return (void*)nodeFunctionality::Crop;
 		if (index == 9)
-			return (void*)nodeFunctionality::Flip;
+			return (void*)nodeFunctionality::Extend;
 		if (index == 10)
-			return (void*)nodeFunctionality::Frame;
+			return (void*)nodeFunctionality::Patch;
 		if (index == 11)
-			return (void*)nodeFunctionality::Grayscale;
+			return (void*)nodeFunctionality::Flip;
 		if (index == 12)
-			return (void*)nodeFunctionality::GammaCorrection;
+			return (void*)nodeFunctionality::Frame;
 		if (index == 13)
-			return (void*)nodeFunctionality::Invert;
+			return (void*)nodeFunctionality::Grayscale;
 		if (index == 14)
-			return (void*)nodeFunctionality::Mask;
+			return (void*)nodeFunctionality::GammaCorrection;
 		if (index == 15)
-			return (void*)nodeFunctionality::Repeat;
+			return (void*)nodeFunctionality::Invert;
 		if (index == 16)
-			return (void*)nodeFunctionality::Rotate90;
+			return (void*)nodeFunctionality::Mask;
 		if (index == 17)
-			return (void*)nodeFunctionality::SelectByColor;
+			return (void*)nodeFunctionality::Repeat;
 		if (index == 18)
-			return (void*)nodeFunctionality::Color;
+			return (void*)nodeFunctionality::Rotate90;
 		if (index == 19)
-			return (void*)nodeFunctionality::ColorFromRGBAInts;
+			return (void*)nodeFunctionality::SelectByColor;
 		if (index == 20)
-			return (void*)nodeFunctionality::RGBAIntsFromColor;
+			return (void*)nodeFunctionality::Color;
 		if (index == 21)
-			return (void*)nodeFunctionality::Vector2i;
+			return (void*)nodeFunctionality::ColorFromRGBAInts;
 		if (index == 22)
-			return (void*)nodeFunctionality::Vector2iFromInts;
+			return (void*)nodeFunctionality::RGBAIntsFromColor;
 		if (index == 23)
-			return (void*)nodeFunctionality::SeparateVector2i;
+			return (void*)nodeFunctionality::Vector2i;
 		if (index == 24)
-			return (void*)nodeFunctionality::Vector2iAddition;
+			return (void*)nodeFunctionality::Vector2iFromInts;
 		if (index == 25)
-			return (void*)nodeFunctionality::Vector2iSubtraction;
+			return (void*)nodeFunctionality::SeparateVector2i;
 		if (index == 26)
-			return (void*)nodeFunctionality::Vector2iTimesInt;
+			return (void*)nodeFunctionality::Vector2iAddition;
 		if (index == 27)
-			return (void*)nodeFunctionality::Integer;
+			return (void*)nodeFunctionality::Vector2iSubtraction;
 		if (index == 28)
-			return (void*)nodeFunctionality::IntegerAddition;
+			return (void*)nodeFunctionality::Vector2iTimesInt;
 		if (index == 29)
-			return (void*)nodeFunctionality::IntegerSubtraction;
+			return (void*)nodeFunctionality::Integer;
 		if (index == 30)
-			return (void*)nodeFunctionality::IntegerProduct;
+			return (void*)nodeFunctionality::IntegerAddition;
 		if (index == 31)
-			return (void*)nodeFunctionality::IntegerDivision;
+			return (void*)nodeFunctionality::IntegerSubtraction;
 		if (index == 32)
-			return (void*)nodeFunctionality::Float;
+			return (void*)nodeFunctionality::IntegerProduct;
 		if (index == 33)
-			return (void*)nodeFunctionality::FloatAddition;
+			return (void*)nodeFunctionality::IntegerDivision;
 		if (index == 34)
-			return (void*)nodeFunctionality::FloatSubtraction;
+			return (void*)nodeFunctionality::Float;
 		if (index == 35)
-			return (void*)nodeFunctionality::FloatProduct;
+			return (void*)nodeFunctionality::FloatAddition;
 		if (index == 36)
+			return (void*)nodeFunctionality::FloatSubtraction;
+		if (index == 37)
+			return (void*)nodeFunctionality::FloatProduct;
+		if (index == 38)
 			return (void*)nodeFunctionality::FloatDivision;
 		std::cout << "[Node provider] COULD NOT GET FUNCTIONALITY FOR INDEX " << index << std::endl;
 		return nullptr;
