@@ -1,4 +1,4 @@
-#ifdef WINDOWS
+#ifdef NOOSE_PLATFORM_WINDOWS
 
 /*
   Native File Dialog

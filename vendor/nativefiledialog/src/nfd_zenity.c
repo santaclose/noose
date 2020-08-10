@@ -1,4 +1,4 @@
-#ifdef WINDOWS
+#ifdef NOOSE_USE_ZENITY
 
 /*
   Native File Dialog

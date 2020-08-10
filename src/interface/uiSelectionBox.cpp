@@ -18,7 +18,7 @@ void uiSelectionBox::initialize()
 	m_box[0].texCoords.x = m_box[0].texCoords.y = m_box[1].texCoords.x = m_box[3].texCoords.y = 0.0;
 	m_box[2].texCoords.x = m_box[2].texCoords.y = m_box[1].texCoords.y = m_box[3].texCoords.x = 1.0;
 
-	if (!m_mouseOverShader.loadFromFile("res/shaders/selectionBox.shader", sf::Shader::Fragment))
+	if (!m_mouseOverShader.loadFromFile("assets/shaders/selectionBox.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load selection box shader\n";
 }
 

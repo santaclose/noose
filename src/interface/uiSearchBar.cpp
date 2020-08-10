@@ -72,7 +72,7 @@ void pushSelectedNode()
 
 void uiSearchBar::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer)
 {
-	if (!resultBoxShader.loadFromFile("res/shaders/searchResults.shader", sf::Shader::Fragment))
+	if (!resultBoxShader.loadFromFile("assets/shaders/searchResults.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load search results shader\n";
 
 	searchRectangle = sf::RectangleShape(sf::Vector2f(SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT));

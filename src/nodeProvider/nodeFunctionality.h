@@ -26,6 +26,7 @@ namespace nodeFunctionality
 	void Mask(node* theNode);
 	void Repeat(node* theNode);
 	void Rotate90(node* theNode);
+	void Scale(node* theNode);
 	void SelectByColor(node* theNode);
 	// color operations
 	void Color(node* theNode);

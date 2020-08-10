@@ -18,7 +18,7 @@ void nodeProvider::initialize()
 	int currentCategory = 0;
 	int currentNode = -1;
 
-	ifstream inputStream("res/nodes.dat");
+	ifstream inputStream("assets/nodes.dat");
 	string line;
 
 	string type, name, defaultData;

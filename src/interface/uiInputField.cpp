@@ -406,7 +406,7 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 
 	if (!loadImageShaderLoaded)
 	{
-		if (!loadImageShader.loadFromFile("res/shaders/loadImage.shader", sf::Shader::Fragment))
+		if (!loadImageShader.loadFromFile("assets/shaders/loadImage.shader", sf::Shader::Fragment))
 			std::cout << "[UI] Failed to load image loading shader\n";
 		loadImageShaderLoaded = true;
 	}

@@ -23,20 +23,21 @@ sf::Shader floatingButtonShader;
 
 inline void openHTMLFile()
 {
-#ifdef LINUX
-	system("xdg-open ../help/help.html");
+	std::cout << "[Help] Opening help HTML\n";
+#ifdef NOOSE_PLATFORM_LINUX
+	system("xdg-open help/help.html");
 #endif
-#ifdef MACOS
-	system("open ../help/help.html");
+#ifdef NOOSE_PLATFORM_MACOS
+	system("open help/help.html");
 #endif
-#ifdef WINDOWS
-	system("start ..\\help\\help.html");
+#ifdef NOOSE_PLATFORM_WINDOWS
+	system("start help\\help.html");
 #endif
 }
 
 void uiHelp::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer)
 {
-	if (!floatingButtonShader.loadFromFile("res/shaders/floatingButton.shader", sf::Shader::Fragment))
+	if (!floatingButtonShader.loadFromFile("assets/shaders/floatingButton.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load floating button shader\n";
 	floatingButtonShader.setUniform("radius", BUTTON_RADIUS);
 

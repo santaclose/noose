@@ -64,9 +64,9 @@ void uiColorPicker::initialize()
 	rsOverwrite.blendMode = sf::BlendNone;
 	//rsAlphaBlend.blendMode = sf::BlendAlpha;
 
-	if (!colorWheelShader.loadFromFile("res/shaders/colorwheel.shader", sf::Shader::Fragment))
+	if (!colorWheelShader.loadFromFile("assets/shaders/colorwheel.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load colorwheel shader\n";
-	if (!gradientShader.loadFromFile("res/shaders/gradient.shader", sf::Shader::Fragment))
+	if (!gradientShader.loadFromFile("assets/shaders/gradient.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load gradient shader\n";
 
 	// get colorwheel image in ram

@@ -1,8 +1,8 @@
-#ifdef WINDOWS
+#ifdef NOOSE_PLATFORM_WINDOWS
 #include <string.h>
 #include <iostream>
+#include <nfd.h>
 #include "uiFileSelector.h"
-#include "../vendor/nativefiledialog/src/nfd.h"
 #include "../utils.h"
 
 char* uiFileSelector::openFileDialog()

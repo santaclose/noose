@@ -161,6 +161,15 @@ Rotate 90
 	out:
 		Image: image
 ]
+Scale
+[
+	in:
+		Image: image
+		Float: factor[1.0]
+	out:
+		Image: out
+		Vector2i: new size
+]
 Select by color
 [
 	in:
