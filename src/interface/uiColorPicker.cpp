@@ -22,14 +22,14 @@ sf::Shader gradientShader;
 sf::Image colorWheelImage; // copy to get pixel colors
 sf::Image gradientImage;
 
-sf::Vector2u lastColorPos;
-float lastIntensity = 1.0;
-sf::Uint8 lastAlpha = 255;
+sf::Vector2i lastColorPos;
+int lastIntensityPos;
+int lastAlphaPos;
 
 void (*cpOnCloseWindow)() = nullptr;
 
 uiColorPicker::SelectionState selectionState = uiColorPicker::SelectionState::None;
-sf::Vector2u mousePos;
+sf::Vector2i mousePos;
 
 sf::Color operator*(const sf::Color& c, const float f)
 {
@@ -44,18 +44,22 @@ void setColor()
 	switch (selectionState)
 	{
 	case uiColorPicker::SelectionState::Color:
-		lastColorPos = sf::Vector2u(mousePos.x, mousePos.y);
+		lastColorPos = mousePos;
+		if (lastColorPos.x < 0) lastColorPos.x = 0; else if (lastColorPos.x > gradientImage.getSize().y - 1) lastColorPos.x = gradientImage.getSize().y - 1;
+		if (lastColorPos.y < 0) lastColorPos.y = 0; else if (lastColorPos.y > gradientImage.getSize().y - 1) lastColorPos.y = gradientImage.getSize().y - 1;
 		break;
 	case uiColorPicker::SelectionState::Intensity:
-		lastIntensity = gradientImage.getPixel(0, mousePos.y).r / 255.0;
+		lastIntensityPos = mousePos.y;
+		if (lastIntensityPos < 0) lastIntensityPos = 0; else if (lastIntensityPos > gradientImage.getSize().y - 1) lastIntensityPos = gradientImage.getSize().y - 1;
 		break;
 	case uiColorPicker::SelectionState::Alpha:
-		lastAlpha = gradientImage.getPixel(0, mousePos.y).r;
+		lastAlphaPos = mousePos.y;
+		if (lastAlphaPos < 0) lastAlphaPos = 0; else if (lastAlphaPos > gradientImage.getSize().y - 1) lastAlphaPos = gradientImage.getSize().y - 1;
 		break;
 	}
 
-	*outputPointer = colorWheelImage.getPixel(lastColorPos.x, lastColorPos.y) * lastIntensity;
-	outputPointer->a = lastAlpha;
+	*outputPointer = colorWheelImage.getPixel(lastColorPos.x, lastColorPos.y) * (gradientImage.getPixel(0, lastIntensityPos).r / 255.0f);
+	outputPointer->a = gradientImage.getPixel(0, lastAlphaPos).r;
 	onColorSelectedCallback(outputPointer);
 }
 
@@ -181,7 +185,7 @@ void uiColorPicker::tick()
 					else
 						selectionState = SelectionState::Intensity;
 
-					mousePos = sf::Vector2u(e.mouseButton.x, e.mouseButton.y);
+					mousePos = sf::Vector2i(e.mouseButton.x, e.mouseButton.y);
 					setColor();
 				}
 				break;
@@ -195,7 +199,7 @@ void uiColorPicker::tick()
 			{
 				if (selectionState == SelectionState::None)
 					return;
-				mousePos = sf::Vector2u(e.mouseMove.x, e.mouseMove.y);
+				mousePos = sf::Vector2i(e.mouseMove.x, e.mouseMove.y);
 				setColor();
 				break;
 			}
