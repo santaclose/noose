@@ -1,4 +1,3 @@
-#ifdef NOOSE_PLATFORM_WINDOWS
 
 /*
   Native File Dialog
@@ -762,5 +761,3 @@ nfdresult_t NFD_PickFolder(const nfdchar_t *defaultPath,
 
     return nfdResult;
 }
-
-#endif

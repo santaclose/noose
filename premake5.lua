@@ -7,6 +7,12 @@ workspace "noose"
 		"Debug",
 		"Release"
 	}
+	system
+	{
+		"Windows",
+		"Unix",
+		"Mac"
+	}
 	
 	flags
 	{
@@ -28,9 +34,8 @@ project "noose"
 	{
 		"src/**.h",
 		"src/**.cpp",
-		"vendor/nativefiledialog/src/**.h",
-		"vendor/nativefiledialog/src/**.c",
-		"vendor/nativefiledialog/src/**.cpp"
+		"vendor/nativefiledialog/src/nfd_common.c",
+		"vendor/nativefiledialog/src/**.h"
 	}
 
 	defines
@@ -58,12 +63,46 @@ project "noose"
 	-- 	"winmm"
 	-- }
 
-	filter "system:windows"
+	filter "system:Windows"
+		system "windows"
 		systemversion "latest"
+
+		files
+		{
+			"vendor/nativefiledialog/src/nfd_win.cpp"
+		}
 
 		defines
 		{
 			"NOOSE_PLATFORM_WINDOWS"
+		}
+
+	filter "system:Unix"
+		system "linux"
+		systemversion "latest"
+
+		files
+		{
+			"vendor/nativefiledialog/src/nfd_gtk.c"
+		}
+
+		defines
+		{
+			"NOOSE_PLATFORM_LINUX"
+		}
+
+	filter "system:Mac"
+		system "macosx"
+		systemversion "latest"
+
+		files
+		{
+			"vendor/nativefiledialog/src/nfd_cocoa.m"
+		}
+
+		defines
+		{
+			"NOOSE_PLATFORM_MACOS"
 		}
 
 	filter "configurations:Debug"

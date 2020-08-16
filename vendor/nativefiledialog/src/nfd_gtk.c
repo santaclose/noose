@@ -1,4 +1,3 @@
-#ifdef WINDOWS
 
 /*
   Native File Dialog
@@ -379,5 +378,3 @@ nfdresult_t NFD_PickFolder(const nfdchar_t *defaultPath,
     
     return result;
 }
-
-#endif
