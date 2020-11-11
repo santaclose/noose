@@ -2,6 +2,7 @@
 
 #include "../math/uiMath.h"
 #include "../math/vectorOperators.h"
+#include "../utils.h"
 
 #include <iostream>
 
@@ -18,7 +19,7 @@ sf::RenderWindow* viewportWindow = nullptr;
 
 void uiShowViewport::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer, sf::RenderWindow* theViewportWindow)
 {
-	if (!showViewportButtonShader.loadFromFile("assets/shaders/showViewportButton.shader", sf::Shader::Fragment))
+	if (!showViewportButtonShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/showViewportButton.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load viewport button shader\n";
 	showViewportButtonShader.setUniform("radius", BUTTON_RADIUS);
 

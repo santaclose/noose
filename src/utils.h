@@ -1,16 +1,17 @@
 #pragma once
 #include <sstream>
 #include <iomanip>
+#include <queue>
 
 namespace utils
 {
-	/*inline char charToLower(char c)
-	{
-		if (c <= 'Z' && c >= 'A')
-			return c - ('Z' - 'z');
-		return c;
-	}*/
-	inline char* getFileNameFromPath(char* path)
+	void setProgramDirectory(const std::string& executablePath);
+	const std::string& getProgramDirectory();
+
+	std::string getRelativePath(const std::string& fileRelativeTo, const std::string& targetPath);
+	std::string getFolderPath(const std::string& filePath);
+
+	inline const char* getFileNameFromPath(const char* path)
 	{
 		int i = 0;
 		for (; path[i] != '\0'; i++);

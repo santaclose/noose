@@ -1,6 +1,7 @@
 #include "uiColorPicker.h"
 #include <iostream>
 #include <cstdint>
+#include "../utils.h"
 
 #define COLOR_WHEEL_SIZE 220.0
 #define INTENSITY_AND_ALPHA_WIDTH 40.0
@@ -68,9 +69,9 @@ void uiColorPicker::initialize()
 	rsOverwrite.blendMode = sf::BlendNone;
 	//rsAlphaBlend.blendMode = sf::BlendAlpha;
 
-	if (!colorWheelShader.loadFromFile("assets/shaders/colorwheel.shader", sf::Shader::Fragment))
+	if (!colorWheelShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/colorwheel.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load colorwheel shader\n";
-	if (!gradientShader.loadFromFile("assets/shaders/gradient.shader", sf::Shader::Fragment))
+	if (!gradientShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/gradient.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load gradient shader\n";
 
 	// get colorwheel image in ram

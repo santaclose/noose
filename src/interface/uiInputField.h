@@ -3,18 +3,23 @@
 #include <string>
 #include <vector>
 #include "uiSelectionBox.h"
+#include "../serializer.h"
 
 class uiInputField
 {
 	friend void onColorPickerSetColor(sf::Color* newColor);
+	friend serializer;
 
 private:
 	bool enabled = true;
 	int type;
 	sf::Vertex* shapes = nullptr;
 	sf::Text* texts = nullptr;
+	std::string imagePath;
 	const std::vector<std::string>* enumOptions;
 	static uiSelectionBox* selectionBox;
+	
+	static sf::Shader loadImageShader;
 
 	void updateTextPositions();
 	void* dataPointer;
@@ -25,7 +30,7 @@ public:
 	enum InteractionMode { Default = 0, Typing = 1 };
 
 	static void onMouseMoved(sf::Vector2f& displacement);
-	// returns if there was a collision
+	// returns true if there was a collision
 	static bool onMouseDown(sf::Vector2f& mousePos);
 	static void onMouseUp();
 	static void keyboardInput(sf::Uint32 unicode);

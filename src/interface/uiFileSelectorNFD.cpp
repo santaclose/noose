@@ -5,10 +5,10 @@
 #include "uiFileSelector.h"
 #include "../utils.h"
 
-char* uiFileSelector::openFileDialog()
+char* uiFileSelector::openFileDialog(const std::string& filter)
 {
 	nfdchar_t* outPath = nullptr;
-	nfdresult_t result = NFD_OpenDialog("bmp,png,tga,jpg,gif,psd,hdr,pic", NULL, &outPath);
+	nfdresult_t result = NFD_OpenDialog(filter.c_str(), NULL, &outPath);
 
 	if (result == NFD_OKAY)
 	{

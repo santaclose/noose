@@ -9,6 +9,7 @@
 
 #include "../nodeData.h"
 #include "../types.h"
+#include "../type2color.h"
 
 #define TEXT_COLOR 0xf0f0f0ff
 #define BAR_COLOR 0x424242bb
@@ -40,30 +41,18 @@
 
 inline void setPinColor(sf::Vertex* firstVertex, int type)
 {
-	sf::Color theColor;
-	switch (type)
-	{
-	case NS_TYPE_INT:
-		theColor = sf::Color(0x4ca4fbff);
-		break;
-	case NS_TYPE_FLOAT:
-		theColor = sf::Color(0xee1133ff);
-		break;
-	case NS_TYPE_VECTOR2I:
-		theColor = sf::Color(0x56957aff);
-		break;
-	case NS_TYPE_COLOR:
-		theColor = sf::Color(0xaa7700ff);
-		break;
-	case NS_TYPE_IMAGE:
-		theColor = sf::Color(0x00bc44ff);
-		break;
-	}
-	firstVertex[0].color = firstVertex[1].color = firstVertex[2].color = firstVertex[3].color = theColor;
+	firstVertex[0].color = firstVertex[1].color = firstVertex[2].color = firstVertex[3].color = sf::Color(type2color::get(type));
 }
 
-uiNode::uiNode(const nodeData* data, sf::Vector2f& initialPosition, const std::vector<void*>& inputFieldPointers, void(onValueChangedFunc)(), uiSelectionBox* selectionBox)
+uiNode::uiNode(
+	const nodeData* data,
+	bool nodeCenterInPosition,
+	sf::Vector2f& initialPosition,
+	const std::vector<void*>& inputFieldPointers,
+	void(onValueChangedFunc)(),
+	uiSelectionBox* selectionBox)
 {
+	m_nodeTypeId = data->nodeId;
  	m_inputPinCount = data->inputPinCount;
 	m_outputPinCount = data->outputPinCount;
 
@@ -101,9 +90,13 @@ uiNode::uiNode(const nodeData* data, sf::Vector2f& initialPosition, const std::v
 			m_inputFields[i].create(data->pinTypes[i], inputFieldPointers[i], onValueChangedFunc, &(data->pinEnumOptions[i]), selectionBox);
 	}
 
-	sf::Vector2f nodePosOnScreen = sf::Vector2f(
-		initialPosition.x - NODE_WIDTH / 2.0,
-		initialPosition.y - m_contentHeight / 2.0);
+	sf::Vector2f nodePosOnScreen;
+	if (nodeCenterInPosition)
+		nodePosOnScreen = sf::Vector2f(
+			initialPosition.x - NODE_WIDTH / 2.0,
+			initialPosition.y - m_contentHeight / 2.0);
+	else
+		nodePosOnScreen = initialPosition;
 	setPosition(nodePosOnScreen);
 }
 

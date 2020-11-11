@@ -6,11 +6,13 @@
 #include "uiInputField.h"
 #include "../interface/uiInputField.h"
 #include "../nodeData.h"
-
+#include "../serializer.h"
 
 class uiNode
 {
+	friend serializer;
 private:
+	unsigned int m_nodeTypeId; // id for nodedata
 	int m_inputPinCount;
 	int m_outputPinCount;
 
@@ -29,7 +31,13 @@ public:
 		TopBar, Pin, InputField, OtherInside, Outside
 	};
 
-	uiNode(const nodeData* data, sf::Vector2f& initialPosition, const std::vector<void*>& inputFieldPointers, void(onValueChangedFunc)(), uiSelectionBox* selectionBox);
+	uiNode(
+		const nodeData* data,
+		bool nodeCenterInPosition,
+		sf::Vector2f& initialPosition,
+		const std::vector<void*>& inputFieldPointers,
+		void(onValueChangedFunc)(),
+		uiSelectionBox* selectionBox);
 	~uiNode();
 
 	void setPosition(sf::Vector2f& newPosition);

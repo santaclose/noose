@@ -21,6 +21,8 @@ namespace nodeSystem
 	const int* getPinTypesForNode(int n);
 	int getOutputPinCountForNode(int n);
 
+	void clearEverything();
+
 #ifdef TEST
 	void* getNodeList();
 #endif

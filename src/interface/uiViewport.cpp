@@ -153,15 +153,15 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2
 
 	bottomBarRectangle.setFillColor(sf::Color(BOTTOM_BAR_COLOR));
 
-	imageLimitTexture.loadFromFile("assets/images/imageLimit.png");
+	imageLimitTexture.loadFromFile(utils::getProgramDirectory() + "assets/images/imageLimit.png");
 	imageLimitSprite = sf::Sprite(imageLimitTexture);
 
 	// checker background
-	if (!checkerShader.loadFromFile("assets/shaders/checker.shader", sf::Shader::Fragment))
+	if (!checkerShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/checker.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load alpha background shader\n";
 
 	// dark mode
-	if (!invertShader.loadFromFile("assets/shaders/invert.shader", sf::Shader::Fragment))
+	if (!invertShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/invert.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load dark mode shader\n";
 
 	viewportSelectionBox.initialize();

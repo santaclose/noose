@@ -15,6 +15,7 @@
 
 #include "nodeProvider/nodeProvider.h"
 #include "logic/nodeSystem.h"
+#include "utils.h"
 
 static const sf::Color BACKGROUND_COLOR(0x222222ff);
 
@@ -45,8 +46,10 @@ void onNodeChanged(int theNode)
 	uiViewport::onNodeChanged(theNode);
 }
 
-int main()
+int main(int argc, char** argv)
 {
+	utils::setProgramDirectory(argv[0]);
+
 	// Create the main window
 	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "node editor");
 	// Create the output window
@@ -74,6 +77,10 @@ int main()
 	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
 	uiNodeSystem::setOnNodeDeletedCallback(onNodeDeleted);
 	uiNodeSystem::setOnNodeChangedCallback(onNodeChanged);
+
+	// load file if opening file
+	if (argc > 1)
+		serializer::LoadFromFile(argv[1]);
 
 	// Start the game loop
 	while (windowA.isOpen() || windowB.isOpen())

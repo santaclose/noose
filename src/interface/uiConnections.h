@@ -22,6 +22,15 @@ namespace uiConnections
 	void displaceTemporary(const sf::Vector2f& displacement);
 
 	int connect(const sf::Vector2f& pinPos, int node, int pin);
+	int connect(
+		const sf::Vector2f& leftPinPos,
+		const sf::Vector2f& rightPinPos,
+		int leftNode,
+		int rightNode,
+		int leftPin,
+		int rightPin,
+		const sf::Color& color
+	);
 
 	void hide(int index);
 	void hideTemporary();
@@ -33,4 +42,8 @@ namespace uiConnections
 	void getPinsForLine(int line, int& pinA, int& pinB);
 
 	int onTryingToRemove(const sf::Vector2f& mousePos);
+
+	const std::vector<uiLineInfo>& getLines();
+
+	void clearEverything();
 };

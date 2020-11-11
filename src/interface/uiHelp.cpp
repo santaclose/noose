@@ -4,9 +4,12 @@
 
 #include "../math/uiMath.h"
 #include "../math/vectorOperators.h"
+#include "../utils.h"
 
 #include <iostream>
 #include <fstream>
+
+#include "serializer.h"
 
 #define BUTTON_RADIUS 0.46f // uv space
 #define BUTTON_COLOR 0x5a5a5aff
@@ -24,20 +27,30 @@ sf::Shader floatingButtonShader;
 inline void openHTMLFile()
 {
 	std::cout << "[Help] Opening help HTML\n";
+	std::string command;
+	std::string localPath;
 #ifdef NOOSE_PLATFORM_LINUX
-	system("xdg-open help/help.html");
+	command = "xdg-open ";
+	localPath = "help/help.html";
+	//system("xdg-open " + utils::getProgramDirectory() + "help/help.html");
 #endif
 #ifdef NOOSE_PLATFORM_MACOS
-	system("open help/help.html");
+	command = "open ";
+	localPath = "help/help.html";
+	//system("open " + utils::getProgramDirectory() + "help/help.html");
 #endif
 #ifdef NOOSE_PLATFORM_WINDOWS
-	system("start help\\help.html");
+	command = "start \"\" ";
+	localPath = "help\\help.html";
+	//system("start " + utils::getProgramDirectory() + "help\\help.html");
 #endif
+	command += "\"" + utils::getProgramDirectory() + localPath + "\"";
+	system(command.c_str());
 }
 
 void uiHelp::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer)
 {
-	if (!floatingButtonShader.loadFromFile("assets/shaders/floatingButton.shader", sf::Shader::Fragment))
+	if (!floatingButtonShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/floatingButton.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load floating button shader\n";
 	floatingButtonShader.setUniform("radius", BUTTON_RADIUS);
 

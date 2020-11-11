@@ -4,6 +4,6 @@
 
 namespace uiFileSelector
 {
-	char* openFileDialog();
+	char* openFileDialog(const std::string& filter = "bmp,png,tga,jpg,gif,psd,hdr,pic");
 	char* saveFileDialog(const std::string& fileExtension);
 }

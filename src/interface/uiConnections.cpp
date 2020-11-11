@@ -3,6 +3,7 @@
 #include <vector>
 #include "../math/uiMath.h"
 #include "../math/vectorOperators.h"
+#include "../utils.h"
 
 #define LINE_DELETE_COLLISION_DISTANCE 6.0f
 #define CONNECTION_LINE_WIDTH 3.0
@@ -85,7 +86,7 @@ void printArray()
 
 void uiConnections::initialize(float zoom)
 {
-	if (!shader.loadFromFile("assets/shaders/connection.shader", sf::Shader::Fragment))
+	if (!shader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/connection.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load line shader\n";
 	//shader.setUniform("ratio", 0.6f);//shaderFadeRatio);
 	shader.setUniform("zoom", zoom);
@@ -145,7 +146,14 @@ int uiConnections::connect(const sf::Vector2f& pinPos, int node, int pin)
 	else
 		set(linesInfo[0].posA, pinPos, linesInfo[0].nodeA, node, linesInfo[0].pinA, pin, lineQuads[0].color, index);
 	hideTemporary();
-	return index-1;
+	return index - 1;
+}
+
+int uiConnections::connect(const sf::Vector2f& leftPinPos, const sf::Vector2f& rightPinPos, int leftNode, int rightNode, int leftPin, int rightPin, const sf::Color& color)
+{
+	int index = findSlot();
+	set(leftPinPos, rightPinPos, leftNode, rightNode, leftPin, rightPin, color, index);
+	return index - 1;
 }
 
 void uiConnections::hide(int index)
@@ -203,4 +211,24 @@ int uiConnections::onTryingToRemove(const sf::Vector2f& mousePos)
 			return lineIndex-1;
 	}
 	return -1;
+}
+
+const std::vector<uiLineInfo>& uiConnections::getLines()
+{
+	return linesInfo;
+}
+
+void uiConnections::clearEverything()
+{
+	linesInfo.clear();
+	lineQuads.clear();
+
+	lineQuads.resize(4);
+	// set up uvs
+	lineQuads[0].texCoords = sf::Vector2f(0.0, 0.0);
+	lineQuads[1].texCoords = sf::Vector2f(1.0, 0.0);
+	lineQuads[2].texCoords = sf::Vector2f(1.0, 1.0);
+	lineQuads[3].texCoords = sf::Vector2f(0.0, 1.0);
+
+	linesInfo.resize(1);
 }

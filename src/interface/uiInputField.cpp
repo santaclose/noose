@@ -32,7 +32,7 @@ static int editingColorHue;
 static double editingColorSaturation;
 static double editingColorValue;
 
-static sf::Shader loadImageShader;
+sf::Shader uiInputField::loadImageShader;
 static bool loadImageShaderLoaded;
 
 uiSelectionBox* uiInputField::selectionBox = nullptr;
@@ -406,7 +406,7 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 
 	if (!loadImageShaderLoaded)
 	{
-		if (!loadImageShader.loadFromFile("assets/shaders/loadImage.shader", sf::Shader::Fragment))
+		if (!loadImageShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/loadImage.shader", sf::Shader::Fragment))
 			std::cout << "[UI] Failed to load image loading shader\n";
 		loadImageShaderLoaded = true;
 	}
@@ -517,6 +517,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 				std::cout << "[UI] Failed to open image file\n";
 				return;
 			}
+			imagePath = std::string(filePath);
 			texts[0].setString(utils::getFileNameFromPath(filePath));
 			loadImageShader.setUniform("tx", tx);
 

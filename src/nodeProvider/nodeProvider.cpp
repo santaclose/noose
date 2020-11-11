@@ -1,5 +1,6 @@
 #include "nodeProvider.h"
 #include <fstream>
+#include "../utils.h"
 
 std::vector<nodeData> nodeProvider::nodeDataList;
 
@@ -15,10 +16,9 @@ void nodeProvider::initialize()
 	bool insideDataSection = false;
 	bool inSection = true;
 
-	int currentCategory = 0;
-	int currentNode = -1;
+	unsigned int currentCategory = 0;
 
-	ifstream inputStream("assets/nodes.dat");
+	ifstream inputStream(utils::getProgramDirectory() + "assets/nodes.dat");
 	string line;
 
 	string type, name, defaultData;
@@ -47,8 +47,9 @@ void nodeProvider::initialize()
 		}
 		if (!insideDataSection)
 		{
-			nodeNamesByCategory[currentCategory - 1].push_back(line);
+			nodeNamesByCategory[currentCategory - 1u].push_back(line);
 			nodeDataList.emplace_back();
+			nodeDataList.back().nodeId = nodeDataList.size() - 1;
 			nodeDataList.back().nodeName = line;
 			nodeDataList.back().outputPinCount = nodeDataList.back().inputPinCount = 0;
 			nodeDataList.back().nodeFunctionality = getFunctionalityFromIndex(nodeDataList.size() - 1);

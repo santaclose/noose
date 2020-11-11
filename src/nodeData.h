@@ -4,6 +4,7 @@
 
 struct nodeData
 {
+	unsigned int nodeId;
 	std::string nodeName;
 	std::vector<int> pinTypes;
 	std::vector<std::string> pinNames;

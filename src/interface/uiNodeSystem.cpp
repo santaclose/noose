@@ -1,9 +1,11 @@
 #include "uiNodeSystem.h"
 
-#include "uiNode.h"
 #include "uiConnections.h"
 #include "uiSelectionBox.h"
 #include "../logic/nodeSystem.h"
+#include "../type2color.h"
+
+#include "uiFileSelector.h"
 
 #include <iostream>
 #include <vector>
@@ -15,7 +17,11 @@
 sf::RenderWindow* nsRenderWindow;
 const sf::Vector2i* nsMouseScreenPosPointer;
 sf::Vector2f nsMouseWorldPos;
-uiSelectionBox nodeSystemSelectionBox;
+uiSelectionBox nsNodeSelectionBox;
+
+uiSelectionBox nsContextSelectionBox;
+std::vector<std::string> nsContextSelectionBoxOptions = { "Load File", "Save File" };
+bool canShowContextSelectionBox = false;
 
 std::vector<uiNode*> uiNodeList;
 int selectedNodeIndex = -1;
@@ -78,7 +84,8 @@ void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow, const sf::Vecto
 	nsRenderWindow = &theRenderWindow;
 	nsMouseScreenPosPointer = mouseScreenPosPointer;
 	updateView();
-	nodeSystemSelectionBox.initialize();
+	nsNodeSelectionBox.initialize();
+	nsContextSelectionBox.initialize();
 }
 
 void uiNodeSystem::terminate()
@@ -88,7 +95,8 @@ void uiNodeSystem::terminate()
 		if (n != nullptr)
 			delete n;
 	}
-	nodeSystemSelectionBox.terminate();
+	nsContextSelectionBox.terminate();
+	nsNodeSelectionBox.terminate();
 	nodeSystem::terminate();
 }
 
@@ -110,16 +118,18 @@ int findSlotForNode()
 	return i;
 }
 
-void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode)
+void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCenterInPosition, sf::Vector2f worldPos)
 {
 	nsRenderWindow->setView(theView);
-	sf::Vector2f worldPos;
 	switch (mode)
 	{
-	case Centered:
-		worldPos = nsRenderWindow->mapPixelToCoords(sf::Vector2i(nsRenderWindow->getSize().x / 2, nsRenderWindow->getSize().y / 2));
+	case PushMode::Centered:
+		worldPos = nsRenderWindow->mapPixelToCoords(
+			sf::Vector2i(
+				nsRenderWindow->getSize().x / 2,
+				nsRenderWindow->getSize().y / 2));
 		break;
-	case OnCursorPosition:
+	case PushMode::AtCursorPosition:
 		worldPos = nsRenderWindow->mapPixelToCoords(*nsMouseScreenPosPointer);
 		break;
 	}
@@ -130,7 +140,14 @@ void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode)
 	std::cout << "onNodeCreated:\n\tnode id: " << newNodeID << "\n\tnode name: " << nData->nodeName << std::endl;
 #endif
 
-	uiNodeList[newNodeID] = new uiNode(nData, worldPos, nodeSystem::getDataPointersForNode(newNodeID), onInputFieldValueChanged, &nodeSystemSelectionBox);
+	uiNodeList[newNodeID] =
+		new uiNode(
+			nData,
+			nodeCenterInPosition,
+			worldPos,
+			nodeSystem::getDataPointersForNode(newNodeID),
+			onInputFieldValueChanged,
+			&nsNodeSelectionBox);
 
 	if (selectedNodeIndex == -1)
 	{
@@ -138,7 +155,6 @@ void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode)
 		uiNodeList[newNodeID]->paintAsSelected();
 		if (onNodeSelectedCallback != nullptr)
 			onNodeSelectedCallback(newNodeID);
-
 	}
 }
 
@@ -156,8 +172,36 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 		}
 		case sf::Event::MouseButtonPressed:
 		{
+			nsContextSelectionBox.hide();
+			canShowContextSelectionBox = false;
 			if (e.mouseButton.button == sf::Mouse::Left)
 			{
+				// context menu
+				int selectedContextMenuOption = nsContextSelectionBox.mouseOver(nsMouseWorldPos);
+				switch (selectedContextMenuOption)
+				{
+					case 0: // load
+					{
+						char* filePath = uiFileSelector::openFileDialog("ns");
+						if (filePath == nullptr)
+							break;
+						selectedNodeIndex = -1; // unselect if there is a node selected
+						serializer::LoadFromFile(filePath);
+						free(filePath);
+						break;
+					}
+					case 1: // save
+					{
+						char* filePath = uiFileSelector::saveFileDialog("ns");
+						if (filePath == nullptr)
+							break;
+						serializer::SaveIntoFile(filePath);
+						free(filePath);
+						break;
+					}
+				}
+				canShowContextSelectionBox = false;
+
 				if (uiInputField::onMouseDown(nsMouseWorldPos))
 					return;
 
@@ -218,8 +262,9 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 			}
 			else if (e.mouseButton.button == sf::Mouse::Right)
 			{
+				int i = uiNodeList.size() - 1;
 				// collision from top to bottom
-				for (int i = uiNodeList.size() - 1; i > -1; i--)
+				for (; i > -1; i--)
 				{
 					if (uiNodeList[i] == nullptr)
 						continue;
@@ -264,6 +309,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					break;
 				}
 				removingConnections = true;
+				canShowContextSelectionBox = i == -1;
 				lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
 			}
 			else if (e.mouseButton.button == sf::Mouse::Middle)
@@ -348,6 +394,9 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 			}
 			else if (e.mouseButton.button == sf::Mouse::Right)
 			{
+				if (canShowContextSelectionBox)
+					nsContextSelectionBox.display(nsMouseWorldPos, nsContextSelectionBoxOptions);
+
 				removingConnections = false;
 			}
 			break;
@@ -374,6 +423,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 				int lineToRemove = uiConnections::onTryingToRemove(nsMouseWorldPos);
 				if (lineToRemove > -1) // mouse was over a line and we have to detach it from nodeA and nodeB
 				{
+					canShowContextSelectionBox = false;
 					deleteLine(lineToRemove);
 
 					int nA, nB, pA, pB;
@@ -455,7 +505,8 @@ void uiNodeSystem::draw()
 	}
 
 	uiConnections::draw(*nsRenderWindow);
-	nodeSystemSelectionBox.draw(*nsRenderWindow, nsMouseWorldPos);
+	nsNodeSelectionBox.draw(*nsRenderWindow, nsMouseWorldPos);
+	nsContextSelectionBox.draw(*nsRenderWindow, nsMouseWorldPos);
 }
 
 void uiNodeSystem::setOnNodeSelectedCallback(void (*functionPointer)(int))
@@ -470,4 +521,40 @@ void uiNodeSystem::setOnNodeDeletedCallback(void (*functionPointer)(int))
 void uiNodeSystem::setOnNodeChangedCallback(void(*functionPointer)(int))
 {
 	onNodeChangedCallback = functionPointer;
+}
+
+std::vector<uiNode*>& uiNodeSystem::getUiNodeList()
+{
+	return uiNodeList;
+}
+
+void uiNodeSystem::setBoundInputFieldNode(int node)
+{
+	boundInputFieldNode = node;
+}
+
+// called before loading a file
+void uiNodeSystem::clearEverything()
+{
+	nodeSystem::clearEverything();
+	uiNodeList.clear();
+	uiConnections::clearEverything();
+}
+
+void uiNodeSystem::createConnection(int leftNode, int rightNode, int leftPin, int rightPin)
+{
+	sf::Vector2f leftPinCoords, rightPinCoords;
+	sf::Color connectionColor;
+
+	leftPinCoords = uiNodeList[leftNode]->getPinPosition(leftPin);
+	rightPinCoords = uiNodeList[rightNode]->getPinPosition(rightPin);
+	connectionColor = uiNodeList[leftNode]->getPinColor(leftPin);
+
+	int connectionIndex = uiConnections::connect(leftPinCoords, rightPinCoords, leftNode, rightNode, leftPin, rightPin, connectionColor);
+
+	// right side node first
+	uiNodeList[rightNode]->attachConnectionPoint(connectionIndex, rightPin);
+	uiNodeList[leftNode]->attachConnectionPoint(connectionIndex, leftPin);
+
+	nodeSystem::onNodesConnected(leftNode, rightNode, leftPin, rightPin, connectionIndex);
 }

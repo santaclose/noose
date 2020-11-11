@@ -117,6 +117,12 @@ int nodeSystem::getOutputPinCountForNode(int n)
 	return nodeList[n]->getOutputPinCount();
 }
 
+void nodeSystem::clearEverything()
+{
+	nodeList.clear();
+	connectionSystem::clearEverything();
+}
+
 #ifdef TEST
 void* nodeSystem::getNodeList()
 {

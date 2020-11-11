@@ -27,3 +27,8 @@ void connectionSystem::deleteConnection(int lineIndex)
 
 	connections[lineIndex].deleted = true;
 }
+
+void connectionSystem::clearEverything()
+{
+	connections.clear();
+}
