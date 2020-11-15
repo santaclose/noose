@@ -112,83 +112,75 @@ void uiSearchBar::initialize(sf::RenderWindow& window, const sf::Vector2i* mouse
 	sbMouseScreenPosPointer = mouseScreenPosPointer;
 }
 
+void uiSearchBar::onSpacebarPressed()
+{
+	searching = true;
+	performSearch();
+}
+
 void uiSearchBar::onPollEvent(const sf::Event& e)
 {
 	if (e.type == sf::Event::KeyPressed)
 	{
-		if (searching)
+		if (e.key.code == sf::Keyboard::Escape)
 		{
-			if (e.key.code == sf::Keyboard::Escape)
+			clearSearch();
+		}
+		else if (e.key.code == sf::Keyboard::Enter)
+		{
+			if (searcher::searchResults.size() > 0)
+				pushSelectedNode();
+		}
+		else if (e.key.code == sf::Keyboard::Down)
+		{
+			if (selectedSearchResult < currentResultCount - 1)
 			{
-				clearSearch();
-			}
-			else if (e.key.code == sf::Keyboard::Enter)
-			{
-				if (searcher::searchResults.size() > 0)
-					pushSelectedNode();
-			}
-			else if (e.key.code == sf::Keyboard::Down)
-			{
-				if (selectedSearchResult < currentResultCount - 1)
-				{
-					selectedSearchResult++;
-					resultBoxShader.setUniform("sel", (float) selectedSearchResult);
-				}
-			}
-			else if (e.key.code == sf::Keyboard::Up)
-			{
-				if (selectedSearchResult > 0)
-				{
-					selectedSearchResult--;
-					resultBoxShader.setUniform("sel", (float)selectedSearchResult);
-				}
+				selectedSearchResult++;
+				resultBoxShader.setUniform("sel", (float) selectedSearchResult);
 			}
 		}
-		else
+		else if (e.key.code == sf::Keyboard::Up)
 		{
-			if (e.key.code == sf::Keyboard::Space)
+			if (selectedSearchResult > 0)
 			{
-				searching = true;
-				performSearch();
+				selectedSearchResult--;
+				resultBoxShader.setUniform("sel", (float) selectedSearchResult);
 			}
 		}
 	}
 	else if (e.type == sf::Event::TextEntered)
 	{
-		if (searching) // type on search box
+		if (e.text.unicode >= 128)
 		{
-			if (e.text.unicode >= 128)
-			{
-				std::cout << "[UI] Non ASCII character typed on the search bar\n";
-				return;
-			}
-			switch (e.text.unicode)
-			{
-			case '\r':
-				return;
-			case '\b':
-				if (searchBufferCurrentChar > 0)
-				{
-					searchBuffer[searchBufferCurrentChar - 1] = '\0';
-					searchBufferCurrentChar--;
-				}
-				break;
-			default:
-				if (searchBufferCurrentChar == SEARCH_BAR_BUFFER_SIZE - 1)
-					return;
-				if (e.text.unicode == ' ' && searchBuffer[0] == '\0')
-					return;
-				searchBuffer[searchBufferCurrentChar] = e.text.unicode;
-				searchBuffer[searchBufferCurrentChar + 1] = '\0';
-				searchBufferCurrentChar++;
-				break;
-			}
-
-			searchText.setString(searchBuffer);
-
-			// search logic
-			performSearch();
+			std::cout << "[UI] Non ASCII character typed on the search bar\n";
+			return;
 		}
+		switch (e.text.unicode)
+		{
+		case '\r':
+			return;
+		case '\b':
+			if (searchBufferCurrentChar > 0)
+			{
+				searchBuffer[searchBufferCurrentChar - 1] = '\0';
+				searchBufferCurrentChar--;
+			}
+			break;
+		default:
+			if (searchBufferCurrentChar == SEARCH_BAR_BUFFER_SIZE - 1)
+				return;
+			if (e.text.unicode == ' ' && searchBuffer[0] == '\0')
+				return;
+			searchBuffer[searchBufferCurrentChar] = e.text.unicode;
+			searchBuffer[searchBufferCurrentChar + 1] = '\0';
+			searchBufferCurrentChar++;
+			break;
+		}
+
+		searchText.setString(searchBuffer);
+
+		// search logic
+		performSearch();
 	}
 	else if (e.type == sf::Event::Resized)
 	{
@@ -209,9 +201,6 @@ void uiSearchBar::onPollEvent(const sf::Event& e)
 	}
 	else if (e.type == sf::Event::MouseMoved)
 	{
-		if (!searching)
-			return;
-
 		sf::Vector2f mousePos = sf::Vector2f(e.mouseMove.x, e.mouseMove.y);
 		if (uiMath::isPointInsideRect(mousePos, resultsVA[0].position, resultsVA[2].position))
 		{

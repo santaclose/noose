@@ -9,7 +9,8 @@
 
 #include "interface/uiCategoryPusher.h"
 #include "interface/uiHelp.h"
-#include "interface/uiShowViewport.h"
+#include "interface/uiFloatingButtonLayer.h"
+
 #include "interface/uiSearchBar.h"
 #include "interface/uiViewport.h"
 
@@ -67,10 +68,15 @@ int main(int argc, char** argv)
 	sf::Vector2i mousePosWindowB;
 
 	uiNodeSystem::initialize(windowA, &mousePosWindowA);
+
 	uiSearchBar::initialize(windowA, &mousePosWindowA);
 	uiCategoryPusher::initialize(windowA, &mousePosWindowA);
-	uiHelp::initialize(windowA, &mousePosWindowA);
-	uiShowViewport::initialize(windowA, &mousePosWindowA, &windowB);
+
+	uiFloatingButtonLayer::initialize(windowA, &mousePosWindowA);
+	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::BottomRight, "assets/shaders/addFloatingButton.shader");
+	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::BottomLeft, '?');
+	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::TopRight, "assets/shaders/showViewportButton.shader");
+
 	uiViewport::initialize(windowB, &mousePosWindowB);
 
 	// node system callbacks
@@ -103,25 +109,41 @@ int main(int argc, char** argv)
 			if (eventWindowA.type == sf::Event::Resized)
 			{
 				uiNodeSystem::onPollEvent(eventWindowA);
-				uiHelp::onPollEvent(eventWindowA);
-				uiShowViewport::onPollEvent(eventWindowA);
 				uiSearchBar::onPollEvent(eventWindowA);
+				uiFloatingButtonLayer::onPollEvent(eventWindowA);
+				uiCategoryPusher::updateButtonCenterCoordinates(uiFloatingButtonLayer::getButtonCenterCoords(uiFloatingButtonLayer::ButtonPosition::BottomRight));
 				uiCategoryPusher::onPollEvent(eventWindowA);
 			}
 			else
 			{
-				bool sbActive = uiSearchBar::isActive();
-				bool cpActive = uiCategoryPusher::isActive();
-				if (!sbActive && !cpActive)
-				{
-					uiNodeSystem::onPollEvent(eventWindowA);
-					uiHelp::onPollEvent(eventWindowA);
-					uiShowViewport::onPollEvent(eventWindowA);
-				}
-				if (!cpActive)
+				if (uiSearchBar::isActive())
 					uiSearchBar::onPollEvent(eventWindowA);
-				if (!sbActive)
+				else if (uiCategoryPusher::isActive())
 					uiCategoryPusher::onPollEvent(eventWindowA);
+				else
+				{
+					if (eventWindowA.type == sf::Event::KeyPressed && eventWindowA.key.code == sf::Keyboard::Space)
+						uiSearchBar::onSpacebarPressed();
+
+					uiFloatingButtonLayer::ButtonPosition bp = uiFloatingButtonLayer::onPollEvent(eventWindowA);
+					if (bp == uiFloatingButtonLayer::ButtonPosition::None)
+						uiNodeSystem::onPollEvent(eventWindowA);
+					else
+					{
+						switch (bp)
+						{
+						case uiFloatingButtonLayer::ButtonPosition::BottomLeft:
+							uiHelp::displayHelp();
+							break;
+						case uiFloatingButtonLayer::ButtonPosition::TopRight:
+							windowB.requestFocus();
+							break;
+						case uiFloatingButtonLayer::ButtonPosition::BottomRight:
+							uiCategoryPusher::onClickFloatingButton(uiFloatingButtonLayer::getButtonCenterCoords(uiFloatingButtonLayer::ButtonPosition::BottomRight));
+							break;
+						}
+					}
+				}
 			}
 		}
 		while (windowB.pollEvent(eventWindowB))
@@ -143,10 +165,9 @@ int main(int argc, char** argv)
 		windowB.clear(BACKGROUND_COLOR);
 
 		uiNodeSystem::draw();
-		uiSearchBar::draw();
+		uiFloatingButtonLayer::draw();
 		uiCategoryPusher::draw();
-		uiHelp::draw();
-		uiShowViewport::draw();
+		uiSearchBar::draw();
 
 		uiViewport::draw();
 
@@ -157,9 +178,8 @@ int main(int argc, char** argv)
 		uiColorPicker::tick();
 	}
 
-	uiShowViewport::terminate();
-	uiHelp::terminate();
 	uiCategoryPusher::terminate();
+	uiFloatingButtonLayer::terminate();
 	uiViewport::terminate();
 	uiNodeSystem::terminate();
 	uiColorPicker::terminate();
