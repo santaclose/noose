@@ -31,17 +31,17 @@ inline void openHTMLFile()
 	std::string localPath;
 #ifdef NOOSE_PLATFORM_LINUX
 	command = "xdg-open ";
-	localPath = "help/help.html";
+	localPath = "assets/help/help.html";
 	//system("xdg-open " + utils::getProgramDirectory() + "help/help.html");
 #endif
 #ifdef NOOSE_PLATFORM_MACOS
 	command = "open ";
-	localPath = "help/help.html";
+	localPath = "assets/help/help.html";
 	//system("open " + utils::getProgramDirectory() + "help/help.html");
 #endif
 #ifdef NOOSE_PLATFORM_WINDOWS
 	command = "start \"\" ";
-	localPath = "help\\help.html";
+	localPath = "assets\\help\\help.html";
 	//system("start " + utils::getProgramDirectory() + "help\\help.html");
 #endif
 	command += "\"" + utils::getProgramDirectory() + localPath + "\"";
