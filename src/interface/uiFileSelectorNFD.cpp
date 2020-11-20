@@ -1,4 +1,3 @@
-#ifdef NOOSE_PLATFORM_WINDOWS
 #include <string.h>
 #include <iostream>
 #include <nfd.h>
@@ -65,4 +64,3 @@ char* uiFileSelector::saveFileDialog(const std::string& fileExtension)
 		return nullptr;
 	}
 }
-#endif

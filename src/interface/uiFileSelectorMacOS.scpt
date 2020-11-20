@@ -1,1 +1,0 @@
-set theImage to choose file with prompt "Select a file to open:" of type {"public.image"}
