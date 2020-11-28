@@ -1,9 +1,11 @@
 #include "uiColorPicker.h"
 #include <iostream>
 #include <cstdint>
+#include "../math/uiMath.h"
 #include "../utils.h"
 
 #define COLOR_WHEEL_SIZE 220.0
+#define COLOR_WHEEL_RADIUS 0.45
 #define INTENSITY_AND_ALPHA_WIDTH 40.0
 #define MARGIN_WIDTH 2.0
 
@@ -13,7 +15,6 @@ namespace uiColorPicker {
 	sf::Color* outputPointer = nullptr;
 
 	sf::RenderStates rsOverwrite;
-	//sf::RenderStates rsAlphaBlend;
 
 	sf::RenderWindow* theWindow = nullptr;
 
@@ -25,11 +26,14 @@ namespace uiColorPicker {
 	sf::Image colorWheelImage; // copy to get pixel colors
 	sf::Image gradientImage;
 
+	sf::Texture marker;
+	sf::Sprite markerSprite;
+
 	sf::Vector2i lastColorPos;
 	int lastIntensityPos;
 	int lastAlphaPos;
 
-	void (*cpOnCloseWindow)() = nullptr;
+	void (*onCloseWindowCallback)() = nullptr;
 
 	uiColorPicker::SelectionState selectionState = uiColorPicker::SelectionState::None;
 	sf::Vector2i mousePos;
@@ -47,6 +51,7 @@ void uiColorPicker::setColor()
 	if (outputPointer == nullptr || onColorSelectedCallback == nullptr)
 		return;
 
+	// clamp between 0 and image size
 	switch (selectionState)
 	{
 	case uiColorPicker::SelectionState::Color:
@@ -72,7 +77,9 @@ void uiColorPicker::setColor()
 void uiColorPicker::initialize()
 {
 	rsOverwrite.blendMode = sf::BlendNone;
-	//rsAlphaBlend.blendMode = sf::BlendAlpha;
+
+	marker.loadFromFile(utils::getProgramDirectory() + "assets/images/imageLimit.png");
+	markerSprite = sf::Sprite(marker);
 
 	if (!colorWheelShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/colorwheel.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load colorwheel shader\n";
@@ -87,6 +94,7 @@ void uiColorPicker::initialize()
 	cva[2].texCoords.x = cva[1].texCoords.y = cva[3].texCoords.x = cva[2].texCoords.y = 1.0;
 
 	renderTexture.create(COLOR_WHEEL_SIZE, COLOR_WHEEL_SIZE);
+	colorWheelShader.setUniform("circleRadius", (float)COLOR_WHEEL_RADIUS);
 	colorWheelShader.setUniform("limit", 0.0f);
 	rsOverwrite.shader = &colorWheelShader;
 	renderTexture.draw(cva, rsOverwrite);
@@ -138,7 +146,7 @@ void uiColorPicker::setOnColorSelectCallback(void (*onSetColor)(sf::Color*))
 
 void uiColorPicker::show(sf::Color* newPointer, void (*onCloseWindow)())
 {
-	cpOnCloseWindow = onCloseWindow;
+	onCloseWindowCallback = onCloseWindow;
 	if (theWindow != nullptr)
 	{
 		theWindow->requestFocus();
@@ -152,6 +160,17 @@ void uiColorPicker::show(sf::Color* newPointer, void (*onCloseWindow)())
 			sf::Style::Close);
 	}
 	outputPointer = newPointer;
+}
+
+void uiColorPicker::updatePositionsFromColor()
+{
+	float h, s, v;
+	utils::rgb2hsv(*outputPointer, h, s, v);
+	lastIntensityPos = (COLOR_WHEEL_SIZE) - v * (COLOR_WHEEL_SIZE);
+	lastAlphaPos = (COLOR_WHEEL_SIZE) - outputPointer->a * (COLOR_WHEEL_SIZE) / 255.0f;
+	float angle = h * uiMath::DEG2RAD;
+	lastColorPos.x = (COLOR_WHEEL_SIZE / 2.0f) + cos(angle) * s * COLOR_WHEEL_RADIUS * (COLOR_WHEEL_SIZE);
+	lastColorPos.y = (COLOR_WHEEL_SIZE / 2.0f) - sin(angle) * s * COLOR_WHEEL_RADIUS * (COLOR_WHEEL_SIZE);
 }
 
 void uiColorPicker::hide()
@@ -177,7 +196,7 @@ void uiColorPicker::tick()
 			case sf::Event::Closed:
 			{
 				theWindow->close();
-				cpOnCloseWindow();
+				onCloseWindowCallback();
 				break;
 			}
 			case sf::Event::MouseButtonPressed:
@@ -222,6 +241,18 @@ void uiColorPicker::tick()
 		sf::Sprite sprt(renderTexture.getTexture());
 		sprt.setPosition(0.0, 0.0);
 		theWindow->draw(sprt);
+
+		// colorwheel marker
+		markerSprite.setPosition(lastColorPos.x - 8, lastColorPos.y - 8);
+		theWindow->draw(markerSprite);
+
+		// intensity marker
+		markerSprite.setPosition(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 0.5f - 8, lastIntensityPos - 8);
+		theWindow->draw(markerSprite);
+
+		// alpha marker
+		markerSprite.setPosition(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 1.5f + MARGIN_WIDTH - 8, lastAlphaPos - 8);
+		theWindow->draw(markerSprite);
 
 		theWindow->display();
 	}

@@ -1,8 +1,8 @@
 const float pi = 3.141592653589793238462643383279502884197169;
 const float deg2rad = pi / 180.0;
 const float rad2deg = 180.0 / pi;
-const float circleRadius = 0.45; // in uv space
 
+uniform float circleRadius; // in uv space
 uniform float limit;
 
 void main()

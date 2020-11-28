@@ -12,5 +12,6 @@ namespace uiColorPicker
 	void tick();
 	void terminate();
 	void show(sf::Color* newPointer, void (*onCloseWindow)());
+	void updatePositionsFromColor();
 	void hide();
 }

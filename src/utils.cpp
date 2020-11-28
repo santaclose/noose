@@ -65,45 +65,42 @@ std::string utils::getFolderPath(const std::string& filePath)
     return filePath.substr(0, i+1);
 }
 
-void utils::HSVtoRGB(int H, double S, double V, sf::Color& output)
+#define min_f(a, b, c)  (fminf(a, fminf(b, c)))
+#define max_f(a, b, c)  (fmaxf(a, fmaxf(b, c)))
+void utils::rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v)
 {
-    double C = S * V;
-    double X = C * (1 - abs(fmod(H / 60.0, 2) - 1));
-    double m = V - C;
-    double Rs, Gs, Bs;
+    float r = rgbColor.r / 255.0f;
+    float g = rgbColor.g / 255.0f;
+    float b = rgbColor.b / 255.0f;
 
-    if (H >= 0 && H < 60) {
-        Rs = C;
-        Gs = X;
-        Bs = 0;
+    //float h, s, v; // h:0-360.0, s:0.0-1.0, v:0.0-1.0
+
+    float max = max_f(r, g, b);
+    float min = min_f(r, g, b);
+
+    v = max;
+
+    if (max == 0.0f) {
+        s = 0;
+        h = 0;
     }
-    else if (H >= 60 && H < 120) {
-        Rs = X;
-        Gs = C;
-        Bs = 0;
-    }
-    else if (H >= 120 && H < 180) {
-        Rs = 0;
-        Gs = C;
-        Bs = X;
-    }
-    else if (H >= 180 && H < 240) {
-        Rs = 0;
-        Gs = X;
-        Bs = C;
-    }
-    else if (H >= 240 && H < 300) {
-        Rs = X;
-        Gs = 0;
-        Bs = C;
+    else if (max - min == 0.0f) {
+        s = 0;
+        h = 0;
     }
     else {
-        Rs = C;
-        Gs = 0;
-        Bs = X;
+        s = (max - min) / max;
+
+        if (max == r) {
+            h = 60 * ((g - b) / (max - min)) + 0;
+        }
+        else if (max == g) {
+            h = 60 * ((b - r) / (max - min)) + 120;
+        }
+        else {
+            h = 60 * ((r - g) / (max - min)) + 240;
+        }
     }
 
-    output.r = (Rs + m) * 255;
-    output.g = (Gs + m) * 255;
-    output.b = (Bs + m) * 255;
+    if (h < 0) h += 360.0f;
 }

@@ -11,8 +11,7 @@ namespace utils
 
 	std::string getRelativePath(const std::string& fileRelativeTo, const std::string& targetPath);
 	std::string getFolderPath(const std::string& filePath);
-
-	void HSVtoRGB(int H, double S, double V, sf::Color& output);
+	void rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v);
 
 	inline const char* getFileNameFromPath(const char* path)
 	{
