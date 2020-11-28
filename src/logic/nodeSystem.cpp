@@ -5,9 +5,15 @@
 #include "../nodeData.h"
 #include <iostream>
 
-std::vector<node*> nodeList;
+namespace nodeSystem {
 
-void insertNode(int slot, nodeData* data)
+	std::vector<node*> nodeList;
+
+	void insertNode(int slot, nodeData* data);
+	void recalculatePropagationMatrices();
+}
+
+void nodeSystem::insertNode(int slot, nodeData* data)
 {
 	if (slot >= nodeList.size())
 		nodeList.resize(slot + 1);
@@ -15,7 +21,7 @@ void insertNode(int slot, nodeData* data)
 	nodeList[slot] = new node(data);
 }
 
-void recalculatePropagationMatrices()
+void nodeSystem::recalculatePropagationMatrices()
 {
 	for (node* n : nodeList)
 	{

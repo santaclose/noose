@@ -1,7 +1,10 @@
 #include "connectionSystem.h"
 #include <iostream>
 
-std::vector<connection> connectionSystem::connections;
+namespace connectionSystem {
+
+	std::vector<connection> connections;
+}
 
 void connectionSystem::connect(int connectionIndex, const std::vector<node*>& nodeList, int nodeA, int nodeB, int pinA, int pinB)
 {

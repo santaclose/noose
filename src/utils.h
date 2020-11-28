@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iomanip>
 #include <queue>
+#include <SFML/Graphics.hpp>
 
 namespace utils
 {
@@ -10,6 +11,8 @@ namespace utils
 
 	std::string getRelativePath(const std::string& fileRelativeTo, const std::string& targetPath);
 	std::string getFolderPath(const std::string& filePath);
+
+	void HSVtoRGB(int H, double S, double V, sf::Color& output);
 
 	inline const char* getFileNameFromPath(const char* path)
 	{

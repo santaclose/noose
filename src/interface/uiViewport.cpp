@@ -20,37 +20,44 @@
 #define FONT_SIZE 14
 #define BOTTOM_BAR_TEXT_MARGIN 4
 
-const std::vector<std::string> uiViewport::CONTEXT_MENU_OPTIONS = { "Save as png", "Save as jpg", "Save as bmp", "Save as tga"/* TODO: "Copy to clipboard" */};
-int uiViewport::rightClickedImageIndex;
-sf::Vector2f uiViewport::mouseWorldPos;
-uiSelectionBox uiViewport::viewportSelectionBox;
+namespace uiViewport {
 
-int uiViewport::selectedNode = -1;
-const std::vector<void*>* uiViewport::selectedNodeDataPointers = nullptr;
-const int* uiViewport::selectedNodePinTypes = nullptr;
-int uiViewport::selectedNodeOutputPinCount;
+	const std::vector<std::string> SAVE_CONTEXT_MENU_OPTIONS = { "Save as png", "Save as jpg", "Save as bmp", "Save as tga"/* TODO: "Copy to clipboard" */ };
+	int rightClickedImageIndex;
+	sf::Vector2f mouseWorldPos;
+	::uiSelectionBox saveSelectionBox;
 
-sf::Text uiViewport::zoomPercentageText;
-int uiViewport::zoomInt = 10;
-float uiViewport::currentZoom = 1.0f;
-sf::RenderWindow* uiViewport::vpRenderWindow;
-const sf::Vector2i* uiViewport::vpMouseScreenPosPointer;
+	int selectedNode = -1;
+	const std::vector<void*>* selectedNodeDataPointers = nullptr;
+	const int* selectedNodePinTypes = nullptr;
+	int selectedNodeOutputPinCount;
 
-bool uiViewport::panning = false;
-sf::Vector2f uiViewport::lastMouseScreenPos;
-sf::View uiViewport::theView;
-sf::Vector2f uiViewport::viewPosition = sf::Vector2f(INITIAL_VIEWPORT_SIZE / 2.0 - IMAGE_MARGIN, INITIAL_VIEWPORT_SIZE / 2.0 - IMAGE_MARGIN);
-sf::Texture uiViewport::imageLimitTexture;
-sf::Sprite uiViewport::imageLimitSprite;
-sf::RectangleShape uiViewport::backgroundRectangle;
-sf::Shader uiViewport::checkerShader;
-sf::Text uiViewport::bottomBarText;
-sf::RectangleShape uiViewport::bottomBarRectangle;
-sf::Shader uiViewport::invertShader;
+	sf::Text zoomPercentageText;
+	int zoomInt = 10;
+	float currentZoom = 1.0f;
+	sf::RenderWindow* renderWindow;
+	const sf::Vector2i* mouseScreenPosPointer;
+
+	bool panning = false;
+	sf::Vector2f lastMouseScreenPos;
+	sf::View theView;
+	sf::Vector2f viewPosition = sf::Vector2f(INITIAL_VIEWPORT_SIZE / 2.0 - IMAGE_MARGIN, INITIAL_VIEWPORT_SIZE / 2.0 - IMAGE_MARGIN);
+	sf::Texture imageLimitTexture;
+	sf::Sprite imageLimitSprite;
+	sf::RectangleShape backgroundRectangle;
+	sf::Shader checkerShader;
+	sf::Text bottomBarText;
+	sf::RectangleShape bottomBarRectangle;
+	sf::Shader invertShader;
+
+	void updateView();
+	int mouseOver(sf::Vector2f& mousePos);
+	void updateBottomBarText();
+}
 
 void uiViewport::updateView()
 {
-	theView = sf::View(viewPosition, (sf::Vector2f)vpRenderWindow->getSize());
+	theView = sf::View(viewPosition, (sf::Vector2f)renderWindow->getSize());
 	theView.zoom(currentZoom);
 }
 
@@ -128,28 +135,28 @@ void uiViewport::updateBottomBarText()
 
 void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer)
 {
-	vpMouseScreenPosPointer = mouseScreenPosPointer;
-	vpRenderWindow = &theRenderWindow;
+	uiViewport::mouseScreenPosPointer = mouseScreenPosPointer;
+	renderWindow = &theRenderWindow;
 	updateView();
 
 	zoomPercentageText = sf::Text("100%", uiData::monospaceFont, FONT_SIZE);
 	zoomPercentageText.setPosition(sf::Vector2f(
-		-zoomPercentageText.getLocalBounds().width + vpRenderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
+		-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
 		PERCENTAGE_TEXT_MARGIN
 		));
 
 	bottomBarText = sf::Text("", uiData::monospaceFont, FONT_SIZE);
-	backgroundRectangle.setSize((sf::Vector2f) vpRenderWindow->getSize());
+	backgroundRectangle.setSize((sf::Vector2f) renderWindow->getSize());
 
 	bottomBarRectangle.setSize(sf::Vector2f(
-		vpRenderWindow->getSize().x,
+		renderWindow->getSize().x,
 		BOTTOM_BAR_HEIGHT));
 	bottomBarRectangle.setPosition(sf::Vector2f(
 		0.0,
-		vpRenderWindow->getSize().y - BOTTOM_BAR_HEIGHT));
+		renderWindow->getSize().y - BOTTOM_BAR_HEIGHT));
 	bottomBarText.setPosition(sf::Vector2f(
 		BOTTOM_BAR_TEXT_MARGIN,
-		vpRenderWindow->getSize().y - BOTTOM_BAR_HEIGHT + BOTTOM_BAR_TEXT_MARGIN));
+		renderWindow->getSize().y - BOTTOM_BAR_HEIGHT + BOTTOM_BAR_TEXT_MARGIN));
 
 	bottomBarRectangle.setFillColor(sf::Color(BOTTOM_BAR_COLOR));
 
@@ -164,7 +171,7 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2
 	if (!invertShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/invert.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load dark mode shader\n";
 
-	viewportSelectionBox.initialize();
+	saveSelectionBox.initialize();
 }
 
 void uiViewport::setNodeData(int theSelectedNode, const std::vector<void*>* pointers, const int* pinTypes, int outputPinCount)
@@ -179,38 +186,38 @@ void uiViewport::setNodeData(int theSelectedNode, const std::vector<void*>* poin
 
 void uiViewport::terminate()
 {
-	viewportSelectionBox.terminate();
+	saveSelectionBox.terminate();
 }
 
 void uiViewport::hideSelectionBox()
 {
-	viewportSelectionBox.hide();
+	saveSelectionBox.hide();
 }
 
 
 void uiViewport::onPollEvent(const sf::Event& e)
 {
-	vpRenderWindow->setView(theView);
-	mouseWorldPos = vpRenderWindow->mapPixelToCoords(*vpMouseScreenPosPointer);
+	renderWindow->setView(theView);
+	mouseWorldPos = renderWindow->mapPixelToCoords(*mouseScreenPosPointer);
 	switch (e.type)
 	{
 		case sf::Event::Resized:
 		{
 			// update the view to the new size of the window
 			updateView();
-			backgroundRectangle.setSize((sf::Vector2f) vpRenderWindow->getSize());
+			backgroundRectangle.setSize((sf::Vector2f) renderWindow->getSize());
 			bottomBarRectangle.setSize(sf::Vector2f(
-				vpRenderWindow->getSize().x,
+				renderWindow->getSize().x,
 				BOTTOM_BAR_HEIGHT));
 			bottomBarRectangle.setPosition(sf::Vector2f(
 				0.0,
-				vpRenderWindow->getSize().y - BOTTOM_BAR_HEIGHT));
+				renderWindow->getSize().y - BOTTOM_BAR_HEIGHT));
 			bottomBarText.setPosition(sf::Vector2f(
 				BOTTOM_BAR_TEXT_MARGIN,
-				vpRenderWindow->getSize().y - BOTTOM_BAR_HEIGHT + BOTTOM_BAR_TEXT_MARGIN
+				renderWindow->getSize().y - BOTTOM_BAR_HEIGHT + BOTTOM_BAR_TEXT_MARGIN
 				));
 			zoomPercentageText.setPosition(sf::Vector2f(
-				-zoomPercentageText.getLocalBounds().width + vpRenderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
+				-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
 				PERCENTAGE_TEXT_MARGIN
 			));
 			break;
@@ -226,12 +233,12 @@ void uiViewport::onPollEvent(const sf::Event& e)
 			{
 				rightClickedImageIndex = mouseOver(mouseWorldPos);
 				if (rightClickedImageIndex > -1)
-					viewportSelectionBox.display(mouseWorldPos, CONTEXT_MENU_OPTIONS);
+					saveSelectionBox.display(mouseWorldPos, SAVE_CONTEXT_MENU_OPTIONS);
 			}
 			else if (e.mouseButton.button == sf::Mouse::Left)
 			{
-				int index = viewportSelectionBox.mouseOver(mouseWorldPos);
-				if (index > -1 && viewportSelectionBox.isVisible())
+				int index = saveSelectionBox.mouseOver(mouseWorldPos);
+				if (index > -1 && saveSelectionBox.isVisible())
 				{
 					std::string fileExtension;
 					switch (index)
@@ -260,7 +267,7 @@ void uiViewport::onPollEvent(const sf::Event& e)
 						free(filePath);
 					}
 				}
-				viewportSelectionBox.hide();
+				saveSelectionBox.hide();
 			}
 			break;
 		}
@@ -293,7 +300,7 @@ void uiViewport::onPollEvent(const sf::Event& e)
 			percentageStream << (1.0f / currentZoom) * 100.0f << '%';
 			zoomPercentageText.setString(percentageStream.str());
 			zoomPercentageText.setPosition(sf::Vector2f(
-				-zoomPercentageText.getLocalBounds().width + vpRenderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
+				-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
 				PERCENTAGE_TEXT_MARGIN
 			));
 			updateView();
@@ -318,15 +325,15 @@ void uiViewport::onNodeDeleted(int theNode)
 
 void uiViewport::draw()
 {
-	const sf::Vector2u& windowSize = vpRenderWindow->getSize();
+	const sf::Vector2u& windowSize = renderWindow->getSize();
 	sf::View staticView(
 		sf::Vector2f(windowSize.x / 2.0, windowSize.y / 2.0),
 		sf::Vector2f(windowSize.x, windowSize.y));
 
-	vpRenderWindow->setView(staticView);
-	vpRenderWindow->draw(backgroundRectangle, &checkerShader);
+	renderWindow->setView(staticView);
+	renderWindow->draw(backgroundRectangle, &checkerShader);
 	
-	vpRenderWindow->setView(theView);
+	renderWindow->setView(theView);
 	if (selectedNode > -1)
 	{
 		unsigned int currentXOffset = 0;
@@ -342,19 +349,19 @@ void uiViewport::draw()
 				const sf::Vector2u& imageSize = ((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getSize();
 				sf::Sprite spr(((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getTexture());
 				spr.setPosition((float)currentXOffset, spr.getPosition().y);
-				vpRenderWindow->draw(spr);
+				renderWindow->draw(spr);
 
 				x1 = currentXOffset - 9;
 				x2 = currentXOffset + imageSize.x - 8;
 				y2 = imageSize.y - 8;
 				imageLimitSprite.setPosition(x1, y1);
-				vpRenderWindow->draw(imageLimitSprite, &invertShader);
+				renderWindow->draw(imageLimitSprite, &invertShader);
 				imageLimitSprite.setPosition(x1, y2);
-				vpRenderWindow->draw(imageLimitSprite, &invertShader);
+				renderWindow->draw(imageLimitSprite, &invertShader);
 				imageLimitSprite.setPosition(x2, y1);
-				vpRenderWindow->draw(imageLimitSprite, &invertShader);
+				renderWindow->draw(imageLimitSprite, &invertShader);
 				imageLimitSprite.setPosition(x2, y2);
-				vpRenderWindow->draw(imageLimitSprite, &invertShader);
+				renderWindow->draw(imageLimitSprite, &invertShader);
 
 				currentXOffset += imageSize.x;
 				currentXOffset += IMAGE_MARGIN;
@@ -365,11 +372,11 @@ void uiViewport::draw()
 			}
 		}
 
-		vpRenderWindow->setView(staticView);
-		vpRenderWindow->draw(bottomBarRectangle);
-		vpRenderWindow->draw(bottomBarText);
-		vpRenderWindow->draw(zoomPercentageText);
+		renderWindow->setView(staticView);
+		renderWindow->draw(bottomBarRectangle);
+		renderWindow->draw(bottomBarText);
+		renderWindow->draw(zoomPercentageText);
 	}
-	vpRenderWindow->setView(theView);
-	viewportSelectionBox.draw(*vpRenderWindow, mouseWorldPos);
+	renderWindow->setView(theView);
+	saveSelectionBox.draw(*renderWindow, mouseWorldPos);
 }

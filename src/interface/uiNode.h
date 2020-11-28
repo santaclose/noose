@@ -4,7 +4,6 @@
 #include <vector>
 #include "uiSelectionBox.h"
 #include "uiInputField.h"
-#include "../interface/uiInputField.h"
 #include "../nodeData.h"
 #include "../serializer.h"
 

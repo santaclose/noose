@@ -9,13 +9,20 @@
 #define CONNECTION_LINE_WIDTH 3.0
 #define CONNECTION_LINE_HIDE_COLOR 0x00000000
 
-std::vector<sf::Vertex> lineQuads;
-std::vector<uiLineInfo> linesInfo;
-sf::Shader shader;
+namespace uiConnections {
 
-bool startedOnRightSideNodeB;
+	std::vector<sf::Vertex> lineQuads;
+	std::vector<uiLineInfo> linesInfo;
+	sf::Shader shader;
+	bool startedOnRightSideNodeB;
 
-void updateLineQuads(int lineIndex)
+	void updateLineQuads(int lineIndex);
+	void set(const sf::Vector2f& pinPosA, const sf::Vector2f& pinPosB, int nodeA, int nodeB, int pinA, int pinB, const sf::Color& color, int index);
+	int findSlot();
+	void printArray();
+}
+
+void uiConnections::updateLineQuads(int lineIndex)
 {
 	/*std::cout << "updating line quads for " << lineIndex << std::endl;
 	std::cout << linesInfo[lineIndex].posA.x << ", " << linesInfo[lineIndex].posA.y << std::endl;
@@ -30,7 +37,7 @@ void updateLineQuads(int lineIndex)
 	lineQuads[fvi + 0].position = linesInfo[lineIndex].posA + theRightVector * (CONNECTION_LINE_WIDTH / 2.0);
 }
 
-void set(const sf::Vector2f& pinPosA, const sf::Vector2f& pinPosB, int nodeA, int nodeB, int pinA, int pinB, const sf::Color& color, int index)
+void uiConnections::set(const sf::Vector2f& pinPosA, const sf::Vector2f& pinPosB, int nodeA, int nodeB, int pinA, int pinB, const sf::Color& color, int index)
 {
 	lineQuads[index * 4 + 0].color =
 		lineQuads[index * 4 + 1].color =
@@ -47,7 +54,7 @@ void set(const sf::Vector2f& pinPosA, const sf::Vector2f& pinPosB, int nodeA, in
 	updateLineQuads(index);
 }
 
-int findSlot()
+int uiConnections::findSlot()
 {
 	int i = 1;
 	while (true)
@@ -75,7 +82,7 @@ int findSlot()
 	//std::cout << "[UI] vector size " << linesInfo.size() << std::endl;
 	return i;
 }
-void printArray()
+void uiConnections::printArray()
 {
 	for (int i = 0; i < linesInfo.size(); i++)
 	{

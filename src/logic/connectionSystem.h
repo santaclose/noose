@@ -3,11 +3,10 @@
 #include "connection.h"
 #include "node.h"
 
-class connectionSystem
+namespace connectionSystem
 {
-public:
-	static std::vector<connection> connections;
-	static void connect(int connectionIndex, const std::vector<node*>& nodeList, int nodeA, int nodeB, int pinA, int pinB);
-	static void deleteConnection(int lineIndex);
-	static void clearEverything();
-};
+	extern std::vector<connection> connections;
+	void connect(int connectionIndex, const std::vector<node*>& nodeList, int nodeA, int nodeB, int pinA, int pinB);
+	void deleteConnection(int lineIndex);
+	void clearEverything();
+}

@@ -14,43 +14,51 @@
 #define MAX_ZOOM 5
 #define MIN_ZOOM 20
 
-sf::RenderWindow* nsRenderWindow;
-const sf::Vector2i* nsMouseScreenPosPointer;
-sf::Vector2f nsMouseWorldPos;
-uiSelectionBox nsNodeSelectionBox;
+namespace uiNodeSystem {
 
-uiSelectionBox nsContextSelectionBox;
-std::vector<std::string> nsContextSelectionBoxOptions = { "Load File", "Save File" };
-bool canShowContextSelectionBox = false;
+	sf::RenderWindow* renderWindow;
+	const sf::Vector2i* mouseScreenPosPointer;
+	sf::Vector2f mouseWorldPos;
+	uiSelectionBox nodeSelectionBox;
 
-std::vector<uiNode*> uiNodeList;
-int selectedNodeIndex = -1;
-int draggingNodeIndex = -1;
+	uiSelectionBox contextSelectionBox;
+	std::vector<std::string> contextSelectionBoxOptions = { "Load File", "Save File" };
+	bool canShowContextSelectionBox = false;
 
-bool panning = false;
+	std::vector<uiNode*> uiNodeList;
+	int selectedNodeIndex = -1;
+	int draggingNodeIndex = -1;
 
-bool creatingConnection = false;
-bool connectionStartedOnRightSideNode;
-int connectionTempNode;
-int connectionTempPin;
+	bool panning = false;
 
-bool removingConnections = false;
+	bool creatingConnection = false;
+	bool connectionStartedOnRightSideNode;
+	int connectionTempNode;
+	int connectionTempPin;
 
-sf::Vector2f lastMouseScreenPos;
-sf::Vector2f currentMouseScreenPos;
+	bool removingConnections = false;
 
-sf::View theView; // view with panning and zoom transformations
-sf::Vector2f viewPosition;
-int zoomInt = 10;
-float currentZoom = 1.0f;
+	sf::Vector2f lastMouseScreenPos;
+	sf::Vector2f currentMouseScreenPos;
 
-void (*onNodeSelectedCallback)(int) = nullptr;
-void (*onNodeDeletedCallback)(int) = nullptr;
-void (*onNodeChangedCallback)(int) = nullptr;
+	sf::View theView; // view with panning and zoom transformations
+	sf::Vector2f viewPosition;
+	int zoomInt = 10;
+	float currentZoom = 1.0f;
 
-int boundInputFieldNode = -1;
+	void (*onNodeSelectedCallback)(int) = nullptr;
+	void (*onNodeDeletedCallback)(int) = nullptr;
+	void (*onNodeChangedCallback)(int) = nullptr;
 
-void onInputFieldValueChanged()
+	int boundInputFieldNode = -1;
+
+	void onInputFieldValueChanged();
+	void deleteLine(int lineToDelete);
+	void updateView();
+	int findSlotForNode();
+}
+
+void uiNodeSystem::onInputFieldValueChanged()
 {
 	nodeSystem::onNodeChanged(boundInputFieldNode);
 #ifdef TEST
@@ -59,7 +67,7 @@ void onInputFieldValueChanged()
 	onNodeChangedCallback(boundInputFieldNode);
 }
 
-void deleteLine(int lineToDelete)
+void uiNodeSystem::deleteLine(int lineToDelete)
 {
 	int nA, nB;
 	uiConnections::getNodesForLine(lineToDelete, nA, nB);
@@ -71,21 +79,22 @@ void deleteLine(int lineToDelete)
 	uiConnections::hide(lineToDelete);
 }
 
-inline void updateView()
+void uiNodeSystem::updateView()
 {
-	theView = sf::View(viewPosition, (sf::Vector2f)nsRenderWindow->getSize());
+	theView = sf::View(viewPosition, (sf::Vector2f)renderWindow->getSize());
 	theView.zoom(currentZoom);
 }
+
 
 void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer)
 {
 	uiConnections::initialize(currentZoom);
 	nodeSystem::initialize();
-	nsRenderWindow = &theRenderWindow;
-	nsMouseScreenPosPointer = mouseScreenPosPointer;
+	renderWindow = &theRenderWindow;
+	uiNodeSystem::mouseScreenPosPointer = mouseScreenPosPointer;
 	updateView();
-	nsNodeSelectionBox.initialize();
-	nsContextSelectionBox.initialize();
+	nodeSelectionBox.initialize();
+	contextSelectionBox.initialize();
 }
 
 void uiNodeSystem::terminate()
@@ -95,12 +104,12 @@ void uiNodeSystem::terminate()
 		if (n != nullptr)
 			delete n;
 	}
-	nsContextSelectionBox.terminate();
-	nsNodeSelectionBox.terminate();
+	contextSelectionBox.terminate();
+	nodeSelectionBox.terminate();
 	nodeSystem::terminate();
 }
 
-int findSlotForNode()
+int uiNodeSystem::findSlotForNode()
 {
 	int i = 0;
 	while (true)
@@ -120,17 +129,17 @@ int findSlotForNode()
 
 void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCenterInPosition, sf::Vector2f worldPos)
 {
-	nsRenderWindow->setView(theView);
+	renderWindow->setView(theView);
 	switch (mode)
 	{
 	case PushMode::Centered:
-		worldPos = nsRenderWindow->mapPixelToCoords(
+		worldPos = renderWindow->mapPixelToCoords(
 			sf::Vector2i(
-				nsRenderWindow->getSize().x / 2,
-				nsRenderWindow->getSize().y / 2));
+				renderWindow->getSize().x / 2,
+				renderWindow->getSize().y / 2));
 		break;
 	case PushMode::AtCursorPosition:
-		worldPos = nsRenderWindow->mapPixelToCoords(*nsMouseScreenPosPointer);
+		worldPos = renderWindow->mapPixelToCoords(*mouseScreenPosPointer);
 		break;
 	}
 
@@ -147,7 +156,7 @@ void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCe
 			worldPos,
 			nodeSystem::getDataPointersForNode(newNodeID),
 			onInputFieldValueChanged,
-			&nsNodeSelectionBox);
+			&nodeSelectionBox);
 
 	if (selectedNodeIndex == -1)
 	{
@@ -160,8 +169,8 @@ void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCe
 
 void uiNodeSystem::onPollEvent(const sf::Event& e)
 {
-	nsRenderWindow->setView(theView);
-	nsMouseWorldPos = nsRenderWindow->mapPixelToCoords(*nsMouseScreenPosPointer);
+	renderWindow->setView(theView);
+	mouseWorldPos = renderWindow->mapPixelToCoords(*mouseScreenPosPointer);
 
 	switch (e.type)
 	{
@@ -172,12 +181,12 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 		}
 		case sf::Event::MouseButtonPressed:
 		{
-			nsContextSelectionBox.hide();
+			contextSelectionBox.hide();
 			canShowContextSelectionBox = false;
 			if (e.mouseButton.button == sf::Mouse::Left)
 			{
 				// context menu
-				int selectedContextMenuOption = nsContextSelectionBox.mouseOver(nsMouseWorldPos);
+				int selectedContextMenuOption = contextSelectionBox.mouseOver(mouseWorldPos);
 				switch (selectedContextMenuOption)
 				{
 					case 0: // load
@@ -202,7 +211,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 				}
 				canShowContextSelectionBox = false;
 
-				if (uiInputField::onMouseDown(nsMouseWorldPos))
+				if (uiInputField::onMouseDown(mouseWorldPos))
 					return;
 
 				// collision from top to bottom
@@ -214,7 +223,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					// index stores pin or inputfield index
 					// subindex stores subinputfield index
 					int index, subIndex;
-					uiNode::MousePos mp = uiNodeList[i]->mouseOver(nsMouseWorldPos, index, subIndex);
+					uiNode::MousePos mp = uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
 
 					if (mp == uiNode::MousePos::Outside)
 						continue;
@@ -241,7 +250,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 							// temporary line
 							uiConnections::createTemporary(
 								uiNodeList[i]->getPinPosition(index),
-								nsMouseWorldPos,
+								mouseWorldPos,
 								uiNodeList[i]->getPinColor(index),
 								connectionTempNode,
 								connectionTempPin,
@@ -272,7 +281,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					// index stores pin or inputfield index
 					// subindex stores subinputfield index
 					int index, subIndex;
-					uiNode::MousePos mp = uiNodeList[i]->mouseOver(nsMouseWorldPos, index, subIndex);
+					uiNode::MousePos mp = uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
 
 					if (mp == uiNode::MousePos::Outside)
 						continue;
@@ -338,7 +347,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 							continue;
 
 						int index, subIndex;
-						if (uiNodeList[i]->mouseOver(nsMouseWorldPos, index, subIndex) == uiNode::MousePos::Pin)
+						if (uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex) == uiNode::MousePos::Pin)
 						{
 							if (!uiNodeList[i]->canConnectToPin(index))
 							{
@@ -395,7 +404,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 			else if (e.mouseButton.button == sf::Mouse::Right)
 			{
 				if (canShowContextSelectionBox)
-					nsContextSelectionBox.display(nsMouseWorldPos, nsContextSelectionBoxOptions);
+					contextSelectionBox.display(mouseWorldPos, contextSelectionBoxOptions);
 
 				removingConnections = false;
 			}
@@ -420,7 +429,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 			}
 			else if (removingConnections)
 			{
-				int lineToRemove = uiConnections::onTryingToRemove(nsMouseWorldPos);
+				int lineToRemove = uiConnections::onTryingToRemove(mouseWorldPos);
 				if (lineToRemove > -1) // mouse was over a line and we have to detach it from nodeA and nodeB
 				{
 					canShowContextSelectionBox = false;
@@ -496,17 +505,17 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 
 void uiNodeSystem::draw()
 {
-	nsRenderWindow->setView(theView);
+	renderWindow->setView(theView);
 
 	for (uiNode* n : uiNodeList)
 	{
 		if (n != nullptr)
-			n->draw(*nsRenderWindow);
+			n->draw(*renderWindow);
 	}
 
-	uiConnections::draw(*nsRenderWindow);
-	nsNodeSelectionBox.draw(*nsRenderWindow, nsMouseWorldPos);
-	nsContextSelectionBox.draw(*nsRenderWindow, nsMouseWorldPos);
+	uiConnections::draw(*renderWindow);
+	nodeSelectionBox.draw(*renderWindow, mouseWorldPos);
+	contextSelectionBox.draw(*renderWindow, mouseWorldPos);
 }
 
 void uiNodeSystem::setOnNodeSelectedCallback(void (*functionPointer)(int))

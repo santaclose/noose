@@ -1,7 +1,12 @@
 #include "searcher.h"
 #include "nodeProvider/nodeProvider.h"
 
-std::vector<std::string*> searcher::searchResults;
+namespace searcher {
+
+	std::vector<std::string*> searchResults;
+
+	bool searchCheck(const char* searchBuffer, int bufferSize, std::string& nodeName);
+}
 
 int searcher::search(const char* searchBuffer, int bufferSize, int maxResults)
 {

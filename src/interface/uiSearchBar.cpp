@@ -20,23 +20,31 @@
 #define RESULT_HEIGHT 36
 #define RESULT_FONT_SIZE 14
 
-sf::RenderWindow* sbRenderWindow;
-const sf::Vector2i* sbMouseScreenPosPointer;
 
-bool searching = false;
-sf::RectangleShape searchRectangle;
-sf::Text searchText;
-char searchBuffer[SEARCH_BAR_BUFFER_SIZE];
-int searchBufferCurrentChar = 0;
+namespace uiSearchBar {
 
-int selectedSearchResult = 0;
-sf::VertexArray resultsVA;
-sf::Text resultsTexts[MAX_RESULTS_NUMBER];
-sf::Shader resultBoxShader;
+	sf::RenderWindow* renderWindow;
+	const sf::Vector2i* mouseScreenPosPointer;
 
-int currentResultCount = 0;
+	bool searching = false;
+	sf::RectangleShape searchRectangle;
+	sf::Text searchText;
+	char searchBuffer[SEARCH_BAR_BUFFER_SIZE];
+	int searchBufferCurrentChar = 0;
 
-void performSearch()
+	int selectedSearchResult = 0;
+	sf::VertexArray resultsVA;
+	sf::Text resultsTexts[MAX_RESULTS_NUMBER];
+	sf::Shader resultBoxShader;
+
+	int currentResultCount = 0;
+
+	void performSearch();
+	void clearSearch();
+	void pushSelectedNode();
+}
+
+void uiSearchBar::performSearch()
 {
 	currentResultCount = searcher::search(searchBuffer, SEARCH_BAR_BUFFER_SIZE, MAX_RESULTS_NUMBER);
 	resultsVA[1].position.y = resultsVA[2].position.y = SEARCH_BAR_HEIGHT + currentResultCount * RESULT_HEIGHT;
@@ -49,7 +57,7 @@ void performSearch()
 	resultBoxShader.setUniform("sel", 0.0f);
 }
 
-void clearSearch()
+void uiSearchBar::clearSearch()
 {
 	searching = false;
 	searchBuffer[0] = '\0';
@@ -57,7 +65,7 @@ void clearSearch()
 	searchText.setString(searchBuffer);
 }
 
-void pushSelectedNode()
+void uiSearchBar::pushSelectedNode()
 {
 	const nodeData* nData = searcher::getDataFor(selectedSearchResult);
 	if (nData == nullptr)
@@ -108,8 +116,8 @@ void uiSearchBar::initialize(sf::RenderWindow& window, const sf::Vector2i* mouse
 		resultsTexts[i].setCharacterSize(RESULT_FONT_SIZE);
 	}
 
-	sbRenderWindow = &window;
-	sbMouseScreenPosPointer = mouseScreenPosPointer;
+	renderWindow = &window;
+	mouseScreenPosPointer = mouseScreenPosPointer;
 }
 
 void uiSearchBar::onSpacebarPressed()
@@ -213,7 +221,7 @@ void uiSearchBar::onPollEvent(const sf::Event& e)
 		if (e.mouseButton.button != sf::Mouse::Left || !searching)
 			return;
 
-		if (uiMath::isPointInsideRect((sf::Vector2f) * sbMouseScreenPosPointer, resultsVA[0].position, resultsVA[2].position))
+		if (uiMath::isPointInsideRect((sf::Vector2f) * mouseScreenPosPointer, resultsVA[0].position, resultsVA[2].position))
 			pushSelectedNode();
 		else
 			clearSearch();
@@ -224,14 +232,14 @@ void uiSearchBar::draw()
 {
 	if (searching)
 	{
-		sf::FloatRect visibleArea(0, 0, sbRenderWindow->getSize().x, sbRenderWindow->getSize().y);
-		sbRenderWindow->setView(sf::View(visibleArea));
-		sbRenderWindow->draw(searchRectangle);
-		sbRenderWindow->draw(searchText);
-		sbRenderWindow->draw(resultsVA, &resultBoxShader);
+		sf::FloatRect visibleArea(0, 0, renderWindow->getSize().x, renderWindow->getSize().y);
+		renderWindow->setView(sf::View(visibleArea));
+		renderWindow->draw(searchRectangle);
+		renderWindow->draw(searchText);
+		renderWindow->draw(resultsVA, &resultBoxShader);
 		for (int i = 0; i < currentResultCount; i++)
 		{
-			sbRenderWindow->draw(resultsTexts[i]);
+			renderWindow->draw(resultsTexts[i]);
 		}
 	}
 }

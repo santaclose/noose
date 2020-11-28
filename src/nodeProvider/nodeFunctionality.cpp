@@ -2,28 +2,31 @@
 #include <iostream>
 #include "../utils.h"
 
-sf::Shader imageShader;
-sf::Shader blendShader;
-sf::Shader brightnessContrastShader;
-sf::Shader checkerShader;
-sf::Shader flipShader;
-sf::Shader frameShader;
-sf::Shader invertShader;
-sf::Shader linearGradientShader;
-sf::Shader repeatShader;
-sf::Shader rotate90Shader;
-sf::Shader solidShader;
-sf::Shader maskShader;
-sf::Shader grayscaleShader;
-sf::Shader gammaCorrectionShader;
-sf::Shader separateShader;
-sf::Shader combineShader;
-sf::Shader cropShader;
-sf::Shader extendShader;
-sf::Shader patchShader;
-sf::Shader selectByColorShader;
+namespace nodeFunctionality {
 
-sf::RenderStates rs;
+	sf::Shader imageShader;
+	sf::Shader blendShader;
+	sf::Shader brightnessContrastShader;
+	sf::Shader checkerShader;
+	sf::Shader flipShader;
+	sf::Shader frameShader;
+	sf::Shader invertShader;
+	sf::Shader linearGradientShader;
+	sf::Shader repeatShader;
+	sf::Shader rotate90Shader;
+	sf::Shader solidShader;
+	sf::Shader maskShader;
+	sf::Shader grayscaleShader;
+	sf::Shader gammaCorrectionShader;
+	sf::Shader separateShader;
+	sf::Shader combineShader;
+	sf::Shader cropShader;
+	sf::Shader extendShader;
+	sf::Shader patchShader;
+	sf::Shader selectByColorShader;
+
+	sf::RenderStates rs;
+}
 
 void nodeFunctionality::initialize()
 {

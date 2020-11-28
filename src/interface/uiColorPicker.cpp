@@ -7,37 +7,42 @@
 #define INTENSITY_AND_ALPHA_WIDTH 40.0
 #define MARGIN_WIDTH 2.0
 
-void (*onColorSelectedCallback)(sf::Color*);
-sf::Color* outputPointer = nullptr;
+namespace uiColorPicker {
 
-sf::RenderStates rsOverwrite;
-//sf::RenderStates rsAlphaBlend;
+	void (*onColorSelectedCallback)(sf::Color*);
+	sf::Color* outputPointer = nullptr;
 
-sf::RenderWindow* theWindow = nullptr;
+	sf::RenderStates rsOverwrite;
+	//sf::RenderStates rsAlphaBlend;
 
-sf::RenderTexture renderTexture;
+	sf::RenderWindow* theWindow = nullptr;
 
-sf::Shader colorWheelShader;
-sf::Shader gradientShader;
+	sf::RenderTexture renderTexture;
 
-sf::Image colorWheelImage; // copy to get pixel colors
-sf::Image gradientImage;
+	sf::Shader colorWheelShader;
+	sf::Shader gradientShader;
 
-sf::Vector2i lastColorPos;
-int lastIntensityPos;
-int lastAlphaPos;
+	sf::Image colorWheelImage; // copy to get pixel colors
+	sf::Image gradientImage;
 
-void (*cpOnCloseWindow)() = nullptr;
+	sf::Vector2i lastColorPos;
+	int lastIntensityPos;
+	int lastAlphaPos;
 
-uiColorPicker::SelectionState selectionState = uiColorPicker::SelectionState::None;
-sf::Vector2i mousePos;
+	void (*cpOnCloseWindow)() = nullptr;
+
+	uiColorPicker::SelectionState selectionState = uiColorPicker::SelectionState::None;
+	sf::Vector2i mousePos;
+
+	void setColor();
+}
 
 sf::Color operator*(const sf::Color& c, const float f)
 {
 	return sf::Color(c.r * f, c.g * f, c.b * f, c.a);
 }
 
-void setColor()
+void uiColorPicker::setColor()
 {
 	if (outputPointer == nullptr || onColorSelectedCallback == nullptr)
 		return;
@@ -204,7 +209,6 @@ void uiColorPicker::tick()
 				setColor();
 				break;
 			}
-
 		}
 	}
 
