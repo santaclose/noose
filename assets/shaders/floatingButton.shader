@@ -1,6 +1,6 @@
 uniform float radius;
 
-#define fadeRange 0.05
+#define fadeRange 0.03
 
 void main()
 {
