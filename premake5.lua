@@ -7,12 +7,6 @@ workspace "noose"
 		"Debug",
 		"Release"
 	}
-	system
-	{
-		"Windows",
-		"Unix",
-		"Mac"
-	}
 	
 	flags
 	{
@@ -41,27 +35,15 @@ project "noose"
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS"
-		-- "SFML_STATIC"
+		--"SFML_STATIC"
 	}
 
 	includedirs
 	{
 		"src",
 		"vendor/SFML/include",
-		"vendor/nativefiledialog/src"
+		"vendor/nativefiledialog/src/include"
 	}
-
-	libdirs
-	{
-		"vendor/SFML/lib"
-	}
-
-	-- links
-	-- {
-	-- 	"opengl32",
-	-- 	"freetype",
-	-- 	"winmm"
-	-- }
 
 	filter "system:Windows"
 		system "windows"
@@ -109,6 +91,11 @@ project "noose"
 		defines "NOOSE_DEBUG"
 		runtime "Debug"
 		symbols "on"
+
+		libdirs
+		{
+			"vendor/SFML/lib/Debug"
+		}
 		links
 		{
 			"sfml-graphics-d",
@@ -120,6 +107,11 @@ project "noose"
 		defines "NOOSE_RELEASE"
 		runtime "Release"
 		optimize "on"
+
+		libdirs
+		{
+			"vendor/SFML/lib/Release"
+		}
 		links
 		{
 			"sfml-graphics",
