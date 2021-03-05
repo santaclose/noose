@@ -220,9 +220,12 @@ int uiConnections::onTryingToRemove(const sf::Vector2f& mousePos)
 	return -1;
 }
 
-const std::vector<uiLineInfo>& uiConnections::getLines()
+void uiConnections::getLines(int& count, const uiLineInfo*& lineArray)
 {
-	return linesInfo;
+	// first line is temporary line
+	count = linesInfo.size() - 1;
+	if (count > 0)
+		lineArray = &(linesInfo[1]);
 }
 
 void uiConnections::clearEverything()

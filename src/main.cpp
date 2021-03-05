@@ -86,7 +86,13 @@ int main(int argc, char** argv)
 
 	// load file if opening file
 	if (argc > 1)
-		serializer::LoadFromFile(argv[1]);
+	{
+		std::string fileToOpenPath(argv[1]);
+		if (fileToOpenPath.compare(fileToOpenPath.length() - 3, 3, ".ns") == 0)
+			serializer::LoadFromFile(argv[1]);
+		else
+			serializer::LoadImageFile(argv[1]);
+	}
 
 	// Start the game loop
 	while (windowA.isOpen() || windowB.isOpen())

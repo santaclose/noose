@@ -181,14 +181,15 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 		}
 		case sf::Event::MouseButtonPressed:
 		{
-			contextSelectionBox.hide();
 			canShowContextSelectionBox = false;
 			if (e.mouseButton.button == sf::Mouse::Left)
 			{
 				// context menu
-				int selectedContextMenuOption = contextSelectionBox.mouseOver(mouseWorldPos);
-				switch (selectedContextMenuOption)
+				if (contextSelectionBox.isVisible())
 				{
+					int selectedContextMenuOption = contextSelectionBox.mouseOver(mouseWorldPos);
+					switch (selectedContextMenuOption)
+					{
 					case 0: // load
 					{
 						char* filePath = uiFileSelector::openFileDialog("ns");
@@ -208,6 +209,8 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 						free(filePath);
 						break;
 					}
+					}
+					contextSelectionBox.hide();
 				}
 				canShowContextSelectionBox = false;
 

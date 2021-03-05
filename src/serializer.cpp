@@ -245,8 +245,12 @@ void serializer::SaveIntoFile(const std::string& filePath)
 		newNodeId++;
 	}
 	output << "[connections]\n";
-	for (const uiLineInfo& lineInfo : uiConnections::getLines())
+	int lineCount;
+	const uiLineInfo* lineArray = nullptr;
+	uiConnections::getLines(lineCount, lineArray);
+	for (int i = 0; i < lineCount; i++)
 	{
+		const uiLineInfo& lineInfo = lineArray[i];
 		if (lineInfo.hidden)
 			continue;
 		output << original2NewId[lineInfo.nodeA] << ',' << original2NewId[lineInfo.nodeB] << '\n';
@@ -256,4 +260,32 @@ void serializer::SaveIntoFile(const std::string& filePath)
 	}
 
 	output.close();
+}
+
+void serializer::LoadImageFile(const std::string& filePath)
+{
+	std::vector<uiNode*>& nodes = uiNodeSystem::getUiNodeList();
+	uiNodeSystem::pushNewNode(&nodeProvider::nodeDataList[0], uiNodeSystem::PushMode::Centered, true);
+	// bind to set pin data
+	uiNodeSystem::setBoundInputFieldNode(nodes.size() - 1);
+
+	sf::Texture tx;
+	if (!tx.loadFromFile(filePath))
+	{
+		std::cout << "[Serializer] Failed to open image file\n";
+		return;
+	}
+	nodes.back()->m_inputFields[0].imagePath = filePath;
+	nodes.back()->m_inputFields[0].texts[0].setString(utils::getFileNameFromPath(filePath.c_str()));
+	uiInputField::loadImageShader.setUniform("tx", tx);
+
+	sf::Sprite spr(tx);
+	sf::Vector2u txSize = tx.getSize();
+	sf::RenderTexture* pointer = (sf::RenderTexture*)nodes.back()->m_inputFields[0].dataPointer;
+
+	pointer->create(txSize.x, txSize.y);
+	pointer->draw(spr, &uiInputField::loadImageShader);
+
+	nodes.back()->m_inputFields[0].updateTextPositions();
+	nodes.back()->m_inputFields[0].onValueChanged();
 }

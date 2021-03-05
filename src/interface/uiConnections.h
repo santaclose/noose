@@ -43,7 +43,7 @@ namespace uiConnections
 
 	int onTryingToRemove(const sf::Vector2f& mousePos);
 
-	const std::vector<uiLineInfo>& getLines();
+	void getLines(int& count, const uiLineInfo*& lineArray);
 
 	void clearEverything();
 };
