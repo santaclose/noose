@@ -484,8 +484,9 @@ void nodeFunctionality::Rotate90(node* theNode)
 
 void nodeFunctionality::Scale(node* theNode)
 {
-	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointer(3));
-	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(2));
+	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointer(4));
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(3));
+	int* shouldSmooth = ((int*)theNode->getDataPointer(2));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 	float* factor = ((float*)theNode->getDataPointer(1));
 
@@ -494,6 +495,7 @@ void nodeFunctionality::Scale(node* theNode)
 
 	outputPointer->create(outputSize->x, outputSize->y);
 
+	a->setSmooth(*shouldSmooth % 2 == 1);
 	imageShader.setUniform("tx", a->getTexture());
 
 	sf::Sprite spr(outputPointer->getTexture());
