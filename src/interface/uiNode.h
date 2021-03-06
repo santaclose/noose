@@ -40,6 +40,7 @@ public:
 	~uiNode();
 
 	void setPosition(sf::Vector2f& newPosition);
+	const sf::Vector2f& getPosition() const;
 	void draw(sf::RenderWindow& window);
 
 	MousePos mouseOver(const sf::Vector2f& mousePos, int& index, int& subIndex);

@@ -206,7 +206,7 @@ void serializer::SaveIntoFile(const std::string& filePath)
 		// node type id and editor id
 		output << node->m_nodeTypeId << ',' << newNodeId << '\n';
 		// node position in editor space
-		output << node->m_shapes[0].position.x << ',' << node->m_shapes[0].position.y << '\n';
+		output << node->getPosition().x << ',' << node->getPosition().y << '\n';
 		// stored data
 		for (int i = 0; i < node->m_inputPinCount; i++)
 		{

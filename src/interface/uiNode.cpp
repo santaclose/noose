@@ -153,6 +153,11 @@ void uiNode::setPosition(sf::Vector2f& newPosition)
 	m_title.setPosition(newPosition + sf::Vector2f(TEXT_MARGIN_LEFT, TEXT_MARGIN_TOP));
 }
 
+const sf::Vector2f& uiNode::getPosition() const
+{
+	return m_shapes[3].position;
+}
+
 void uiNode::draw(sf::RenderWindow& window)
 {
 	//std::cout << "drawing node " << m_title.getString().toAnsiString() << std::endl;
