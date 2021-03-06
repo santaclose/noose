@@ -55,6 +55,10 @@ int main(int argc, char** argv)
 	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "node editor");
 	// Create the output window
 	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport", sf::Style::Resize);
+	sf::Image iconImage;
+	iconImage.loadFromFile(utils::getProgramDirectory() + "assets/icon.png");
+	windowA.setIcon(iconImage.getSize().x, iconImage.getSize().y, iconImage.getPixelsPtr());
+	windowB.setIcon(iconImage.getSize().x, iconImage.getSize().y, iconImage.getPixelsPtr());
 
 	// load nodes in memory
 	nodeProvider::initialize();
