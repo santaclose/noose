@@ -31,13 +31,13 @@ void serializer::LoadFromFile(const std::string& filePath)
 	std::string line;
 	while (std::getline(input, line))
 	{
-		if (line.compare("[nodes]") == 0)
+		if (line.compare("-- nodes") == 0)
 		{
 			currentState = LoadState::ReadingNodes;
 			currentSubState = LoadSubState::ReadingIds;
 			continue;
 		}
-		if (line.compare("[connections]") == 0)
+		if (line.compare("-- connections") == 0)
 		{
 			currentState = LoadState::ReadingConnections;
 			currentSubState = LoadSubState::ReadingConnectionNodes;
@@ -55,9 +55,7 @@ void serializer::LoadFromFile(const std::string& filePath)
 		{
 			if (currentSubState == LoadSubState::ReadingIds)
 			{
-				int commaPos = 0;
-				for (; line[commaPos] != ','; commaPos++) {}
-				currentNodeDataId = std::stoi(line.substr(0, commaPos));
+				currentNodeDataId = std::stoi(line);
 				currentSubState = LoadSubState::ReadingNodeCoordinates;
 				continue;
 			}
@@ -188,7 +186,7 @@ void serializer::SaveIntoFile(const std::string& filePath)
 	const std::vector<uiNode*>& nodes = uiNodeSystem::getUiNodeList();
 	std::ofstream output(filePath);
 
-	output << "[nodes]\n";
+	output << "-- nodes\n";
 	unsigned int originalNodeId = 0;
 	unsigned int newNodeId = 0;
 	std::unordered_map<unsigned int, unsigned int> original2NewId;
@@ -201,7 +199,7 @@ void serializer::SaveIntoFile(const std::string& filePath)
 		}
 
 		// node type id and editor id
-		output << node->m_nodeTypeId << ',' << newNodeId << '\n';
+		output << node->m_nodeTypeId << '\n';
 		// node position in editor space
 		output << node->getPosition().x << ',' << node->getPosition().y << '\n';
 		// stored data
@@ -241,7 +239,7 @@ void serializer::SaveIntoFile(const std::string& filePath)
 		originalNodeId++;
 		newNodeId++;
 	}
-	output << "[connections]\n";
+	output << "-- connections\n";
 	int lineCount;
 	const uiLineInfo* lineArray = nullptr;
 	uiConnections::getLines(lineCount, lineArray);
