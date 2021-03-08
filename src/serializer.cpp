@@ -113,10 +113,7 @@ void serializer::LoadFromFile(const std::string& filePath)
 					std::string fullImagePath = folderPath + line;
 					sf::Texture tx;
 					if (!tx.loadFromFile(fullImagePath))
-					{
-						std::cout << "[Serializer] Failed to open image file\n";
-						return;
-					}
+						std::cout << "[Serializer] Failed to open image file: " + fullImagePath + "\n";
 					nodes.back()->m_inputFields[currentPin].imagePath = fullImagePath;
 					nodes.back()->m_inputFields[currentPin].texts[0].setString(utils::getFileNameFromPath(fullImagePath.c_str()));
 					uiInputField::loadImageShader.setUniform("tx", tx);
