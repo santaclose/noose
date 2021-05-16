@@ -20,7 +20,6 @@
 #define RESULT_HEIGHT 36
 #define RESULT_FONT_SIZE 14
 
-
 namespace uiSearchBar {
 
 	sf::RenderWindow* renderWindow;
@@ -117,7 +116,7 @@ void uiSearchBar::initialize(sf::RenderWindow& window, const sf::Vector2i* mouse
 	}
 
 	renderWindow = &window;
-	mouseScreenPosPointer = mouseScreenPosPointer;
+	uiSearchBar::mouseScreenPosPointer = mouseScreenPosPointer;
 }
 
 void uiSearchBar::onSpacebarPressed()
