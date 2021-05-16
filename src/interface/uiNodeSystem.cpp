@@ -22,10 +22,6 @@ namespace uiNodeSystem {
 	sf::Vector2f mouseWorldPos;
 	uiSelectionBox nodeSelectionBox;
 
-	uiSelectionBox contextSelectionBox;
-	std::vector<std::string> contextSelectionBoxOptions = { "Load File", "Save File" };
-	bool canShowContextSelectionBox = false;
-
 	std::vector<uiNode*> uiNodeList;
 	int selectedNodeIndex = -1;
 	int draggingNodeIndex = -1;
@@ -95,7 +91,6 @@ void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow, const sf::Vecto
 	uiNodeSystem::mouseScreenPosPointer = mouseScreenPosPointer;
 	updateView();
 	nodeSelectionBox.initialize();
-	contextSelectionBox.initialize();
 }
 
 void uiNodeSystem::terminate()
@@ -105,7 +100,6 @@ void uiNodeSystem::terminate()
 		if (n != nullptr)
 			delete n;
 	}
-	contextSelectionBox.terminate();
 	nodeSelectionBox.terminate();
 	nodeSystem::terminate();
 }
@@ -192,39 +186,8 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 		}
 		case sf::Event::MouseButtonPressed:
 		{
-			canShowContextSelectionBox = false;
 			if (e.mouseButton.button == sf::Mouse::Left)
 			{
-				// context menu
-				if (contextSelectionBox.isVisible())
-				{
-					int selectedContextMenuOption = contextSelectionBox.mouseOver(mouseWorldPos);
-					switch (selectedContextMenuOption)
-					{
-					case 0: // load
-					{
-						char* filePath = uiFileSelector::openFileDialog("ns");
-						if (filePath == nullptr)
-							break;
-						selectedNodeIndex = -1; // unselect if there is a node selected
-						serializer::LoadFromFile(filePath);
-						free(filePath);
-						break;
-					}
-					case 1: // save
-					{
-						char* filePath = uiFileSelector::saveFileDialog("ns");
-						if (filePath == nullptr)
-							break;
-						serializer::SaveIntoFile(filePath);
-						free(filePath);
-						break;
-					}
-					}
-					contextSelectionBox.hide();
-				}
-				canShowContextSelectionBox = false;
-
 				if (uiInputField::onMouseDown(mouseWorldPos))
 					return;
 
@@ -332,7 +295,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					break;
 				}
 				removingConnections = true;
-				canShowContextSelectionBox = i == -1;
 				lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
 			}
 			else if (e.mouseButton.button == sf::Mouse::Middle)
@@ -417,9 +379,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 			}
 			else if (e.mouseButton.button == sf::Mouse::Right)
 			{
-				if (canShowContextSelectionBox)
-					contextSelectionBox.display(mouseWorldPos, contextSelectionBoxOptions);
-
 				removingConnections = false;
 			}
 			break;
@@ -446,7 +405,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 				int lineToRemove = uiConnections::onTryingToRemove(mouseWorldPos);
 				if (lineToRemove > -1) // mouse was over a line and we have to detach it from nodeA and nodeB
 				{
-					canShowContextSelectionBox = false;
 					deleteLine(lineToRemove);
 
 					int nA, nB, pA, pB;
@@ -541,7 +499,6 @@ void uiNodeSystem::draw()
 
 	uiConnections::draw(*renderWindow);
 	nodeSelectionBox.draw(*renderWindow, mouseWorldPos);
-	contextSelectionBox.draw(*renderWindow, mouseWorldPos);
 }
 
 void uiNodeSystem::setOnNodeSelectedCallback(void (*functionPointer)(int))
@@ -592,4 +549,9 @@ void uiNodeSystem::createConnection(int leftNode, int rightNode, int leftPin, in
 	uiNodeList[leftNode]->attachConnectionPoint(connectionIndex, leftPin);
 
 	nodeSystem::onNodesConnected(leftNode, rightNode, leftPin, rightPin, connectionIndex);
+}
+
+void uiNodeSystem::clearNodeSelection()
+{
+	selectedNodeIndex = -1;
 }

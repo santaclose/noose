@@ -7,6 +7,7 @@
 #include "interface/uiNodeSystem.h"
 #include "interface/uiColorPicker.h"
 
+#include "interface/uiMenu.h"
 #include "interface/uiCategoryPusher.h"
 #include "interface/uiHelp.h"
 #include "interface/uiFloatingButtonLayer.h"
@@ -74,10 +75,12 @@ int main(int argc, char** argv)
 	uiNodeSystem::initialize(windowA, &mousePosWindowA);
 
 	uiSearchBar::initialize(windowA, &mousePosWindowA);
+	uiMenu::initialize(windowA, &mousePosWindowA);
 	uiCategoryPusher::initialize(windowA, &mousePosWindowA);
 
 	uiFloatingButtonLayer::initialize(windowA, &mousePosWindowA);
 	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::BottomRight, "assets/shaders/addFloatingButton.shader");
+	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::TopLeft, "assets/shaders/menuFloatingButton.shader");
 	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::BottomLeft, '?');
 	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::TopRight, "assets/shaders/showViewportButton.shader");
 
@@ -128,6 +131,8 @@ int main(int argc, char** argv)
 			{
 				if (uiSearchBar::isActive())
 					uiSearchBar::onPollEvent(eventWindowA);
+				else if (uiMenu::isActive())
+					uiMenu::onPollEvent(eventWindowA);
 				else if (uiCategoryPusher::isActive())
 					uiCategoryPusher::onPollEvent(eventWindowA);
 				else
@@ -161,6 +166,9 @@ int main(int argc, char** argv)
 						case uiFloatingButtonLayer::ButtonPosition::BottomRight:
 							uiCategoryPusher::onClickFloatingButton(uiFloatingButtonLayer::getButtonCenterCoords(uiFloatingButtonLayer::ButtonPosition::BottomRight));
 							break;
+						case uiFloatingButtonLayer::ButtonPosition::TopLeft:
+							uiMenu::onClickFloatingButton(uiFloatingButtonLayer::getButtonCenterCoords(uiFloatingButtonLayer::ButtonPosition::TopLeft));
+							break;
 						}
 					}
 				}
@@ -186,6 +194,7 @@ int main(int argc, char** argv)
 
 		uiNodeSystem::draw();
 		uiFloatingButtonLayer::draw();
+		uiMenu::draw();
 		uiCategoryPusher::draw();
 		uiSearchBar::draw();
 
@@ -198,6 +207,7 @@ int main(int argc, char** argv)
 		uiColorPicker::tick();
 	}
 
+	uiMenu::terminate();
 	uiCategoryPusher::terminate();
 	uiFloatingButtonLayer::terminate();
 	uiViewport::terminate();

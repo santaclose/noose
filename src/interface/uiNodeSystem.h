@@ -35,4 +35,6 @@ namespace uiNodeSystem
 
 	void clearEverything();
 	void createConnection(int leftNode, int rightNode, int leftPin, int rightPin);
+
+	void clearNodeSelection();
 }
