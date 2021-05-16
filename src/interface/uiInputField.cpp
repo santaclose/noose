@@ -463,23 +463,65 @@ void uiInputField::draw(sf::RenderWindow& window)
 	}
 }
 
-void uiInputField::setValue(const void* value)
+void uiInputField::setValue(const void* data)
 {
-	if (type == NS_TYPE_INT)
+	switch (type)
 	{
-		texts[0].setString(std::to_string(*((int*)value)));
+	case NS_TYPE_INT:
+	{
+		*((int*)(dataPointer)) = *((int*)(data));
+		texts[0].setString(std::to_string(*((int*)data)));
+		break;
 	}
-	else if (type == NS_TYPE_FLOAT)
+	case NS_TYPE_FLOAT:
 	{
-		texts[0].setString(std::to_string(*((float*)value)));
+		*((float*)(dataPointer)) = *((float*)(data));
+		texts[0].setString(std::to_string(*((float*)data)));
+		break;
 	}
-	else if (type == NS_TYPE_VECTOR2I)
+	case NS_TYPE_VECTOR2I:
 	{
-		sf::Vector2f* pointer = (sf::Vector2f*) value;
-
+		*((sf::Vector2f*)(dataPointer)) = *((sf::Vector2f*)(data));
+		sf::Vector2f* pointer = (sf::Vector2f*)data;
 		texts[0].setString(std::to_string(pointer->x));
 		texts[1].setString(std::to_string(pointer->y));
+		break;
 	}
+	case NS_TYPE_COLOR:
+	{
+		*((sf::Color*)(dataPointer)) = *((sf::Color*)(data));
+		shapes[0].color =
+			shapes[1].color =
+			shapes[2].color =
+			shapes[3].color =
+			*((sf::Color*)(dataPointer));
+		break;
+	}
+	case NS_TYPE_IMAGE:
+	{
+		sf::Texture tx;
+		const std::string& filePath = *((const std::string*)data);
+		if (!tx.loadFromFile(filePath))
+		{
+			std::cout << "[UI] Failed to open image file\n";
+			return;
+		}
+		imagePath = std::string(filePath);
+		texts[0].setString(utils::getFileNameFromPath(filePath.c_str()));
+		loadImageShader.setUniform("tx", tx);
+
+		sf::Sprite spr(tx);
+		sf::Vector2u txSize = tx.getSize();
+		sf::RenderTexture* pointer = (sf::RenderTexture*)dataPointer;
+
+		pointer->create(txSize.x, txSize.y);
+		pointer->draw(spr, &loadImageShader);
+		break;
+	}
+	}
+
+	updateTextPositions();
+	onValueChanged();
 }
 
 // the index tells which of the two components of a vector is gonna change
@@ -527,8 +569,8 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 
 			pointer->create(txSize.x, txSize.y);
 			pointer->draw(spr, &loadImageShader);
-			editingInputField->onValueChanged();
 			editingInputField->updateTextPositions();
+			editingInputField->onValueChanged();
 
 			free(filePath);
 		}

@@ -11,11 +11,18 @@ namespace uiNodeSystem
 	void initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer);
 	void terminate();
 
-	void pushNewNode(
+	int pushNewNode(
 		const nodeData* nData,
 		PushMode mode = PushMode::AtCursorPosition,
 		bool nodeCenterInPosition = true,
-		sf::Vector2f worldPos = {0.0, 0.0});
+		sf::Vector2f worldPos = { 0.0, 0.0 });
+
+	int pushImageNodeFromFile(
+		const std::string& filePath,
+		PushMode mode = PushMode::AtCursorPosition,
+		bool nodeCenterInPosition = true,
+		sf::Vector2f worldPos = { 0.0, 0.0 });
+
 	void onPollEvent(const sf::Event& e);
 	void draw();
 

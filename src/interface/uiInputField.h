@@ -42,7 +42,7 @@ public:
 	void create(int theType, void* pinDataPointer, void(onValueChangedFunc)(), const std::vector<std::string>* theEnumOptions, uiSelectionBox* theSelectionBox);
 	void setPosition(const sf::Vector2f& newPosition, float nodeWidth, float height); // top left corner position
 	void draw(sf::RenderWindow& window);
-	void setValue(const void* value);
+	void setValue(const void* data);
 
 	// the index tells which of the two components of a vector is gonna change
 	void bind(int index, InteractionMode interactionMode = InteractionMode::Default);

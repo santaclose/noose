@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 	utils::setProgramDirectory(argv[0]);
 
 	// Create the main window
-	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "node editor");
+	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "node editor", 7U, sf::ContextSettings(), true);
 	// Create the output window
 	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport", sf::Style::Resize);
 	sf::Image iconImage;
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
 		if (fileToOpenPath.compare(fileToOpenPath.length() - 3, 3, ".ns") == 0)
 			serializer::LoadFromFile(argv[1]);
 		else
-			serializer::LoadImageFile(argv[1]);
+			uiNodeSystem::pushImageNodeFromFile(std::string(argv[1]), uiNodeSystem::PushMode::Centered);
 	}
 
 	// Start the game loop

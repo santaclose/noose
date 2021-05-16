@@ -6,6 +6,7 @@
 #include "../type2color.h"
 
 #include "uiFileSelector.h"
+#include "nodeProvider/nodeProvider.h"
 
 #include <iostream>
 #include <vector>
@@ -127,7 +128,7 @@ int uiNodeSystem::findSlotForNode()
 	return i;
 }
 
-void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCenterInPosition, sf::Vector2f worldPos)
+int uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCenterInPosition, sf::Vector2f worldPos)
 {
 	renderWindow->setView(theView);
 	switch (mode)
@@ -165,6 +166,16 @@ void uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCe
 		if (onNodeSelectedCallback != nullptr)
 			onNodeSelectedCallback(newNodeID);
 	}
+	return newNodeID;
+}
+
+int uiNodeSystem::pushImageNodeFromFile(const std::string& filePath, PushMode mode, bool nodeCenterInPosition, sf::Vector2f worldPos)
+{
+	int nodeID = uiNodeSystem::pushNewNode(&nodeProvider::nodeDataList[0], mode, nodeCenterInPosition, worldPos);
+	// bind to set pin data
+	setBoundInputFieldNode(nodeID);
+	uiNodeList[nodeID]->setInput(0, &filePath);
+	return nodeID;
 }
 
 void uiNodeSystem::onPollEvent(const sf::Event& e)
@@ -498,10 +509,22 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					break;
 				}
 			}
+			break;
 		}
 		case sf::Event::TextEntered:
 		{
 			uiInputField::keyboardInput(e.text.unicode);
+			break;
+		}
+		case sf::Event::FilesDropped:
+		{
+			std::cout << "Files dropped:\n";
+			for (const auto& file : e.filesDropped)
+			{
+				std::cout << "    - " << file << std::endl;
+				pushImageNodeFromFile(file, PushMode::AtCursorPosition, true, mouseWorldPos);
+			}
+			break;
 		}
 	}
 }

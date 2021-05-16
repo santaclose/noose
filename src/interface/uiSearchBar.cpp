@@ -40,7 +40,7 @@ namespace uiSearchBar {
 
 	void performSearch();
 	void clearSearch();
-	void pushSelectedNode();
+	void pushSelectedNode(uiNodeSystem::PushMode mode = uiNodeSystem::PushMode::AtCursorPosition);
 }
 
 void uiSearchBar::performSearch()
@@ -64,7 +64,7 @@ void uiSearchBar::clearSearch()
 	searchText.setString(searchBuffer);
 }
 
-void uiSearchBar::pushSelectedNode()
+void uiSearchBar::pushSelectedNode(uiNodeSystem::PushMode mode)
 {
 	const nodeData* nData = searcher::getDataFor(selectedSearchResult);
 	if (nData == nullptr)
@@ -73,7 +73,7 @@ void uiSearchBar::pushSelectedNode()
 		return;
 	}
 
-	uiNodeSystem::pushNewNode(nData, uiNodeSystem::PushMode::AtCursorPosition);
+	uiNodeSystem::pushNewNode(nData, mode);
 
 	clearSearch();
 }
@@ -221,7 +221,7 @@ void uiSearchBar::onPollEvent(const sf::Event& e)
 			return;
 
 		if (uiMath::isPointInsideRect((sf::Vector2f) * mouseScreenPosPointer, resultsVA[0].position, resultsVA[2].position))
-			pushSelectedNode();
+			pushSelectedNode(uiNodeSystem::PushMode::Centered);
 		else
 			clearSearch();
 	}

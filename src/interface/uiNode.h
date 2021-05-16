@@ -40,6 +40,7 @@ public:
 	~uiNode();
 
 	void setPosition(sf::Vector2f& newPosition);
+	void setInput(int inputIndex, const void* data);
 	const sf::Vector2f& getPosition() const;
 	void draw(sf::RenderWindow& window);
 
