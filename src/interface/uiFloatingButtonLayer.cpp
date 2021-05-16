@@ -13,6 +13,8 @@
 
 namespace uiFloatingButtonLayer {
 
+	bool active = true;
+
 	sf::RenderWindow* renderWindow;
 	const sf::Vector2i* mouseScreenPosPointer;
 	sf::Shader genericShader;
@@ -95,6 +97,8 @@ void uiFloatingButtonLayer::addButton(ButtonPosition position, char symbol, cons
 
 void uiFloatingButtonLayer::draw()
 {
+	if (!active)
+		return;
 	sf::FloatRect visibleArea(0, 0, renderWindow->getSize().x, renderWindow->getSize().y);
 	renderWindow->setView(sf::View(visibleArea));
 
@@ -147,7 +151,7 @@ uiFloatingButtonLayer::ButtonPosition uiFloatingButtonLayer::onPollEvent(const s
 			break;
 		case sf::Event::MouseButtonPressed:
 		{
-			if (e.mouseButton.button != sf::Mouse::Left)
+			if (e.mouseButton.button != sf::Mouse::Left || !active)
 				break;
 
 			for (const FloatingButton& fb : buttons)

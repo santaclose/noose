@@ -132,8 +132,18 @@ int main(int argc, char** argv)
 					uiCategoryPusher::onPollEvent(eventWindowA);
 				else
 				{
-					if (eventWindowA.type == sf::Event::KeyPressed && eventWindowA.key.code == sf::Keyboard::Space)
-						uiSearchBar::onSpacebarPressed();
+					if (eventWindowA.type == sf::Event::KeyPressed)
+					{
+						switch (eventWindowA.key.code)
+						{
+						case sf::Keyboard::Space:
+							uiSearchBar::onSpacebarPressed();
+							break;
+						case sf::Keyboard::H:
+							uiFloatingButtonLayer::active = !uiFloatingButtonLayer::active;
+							break;
+						}
+					}
 
 					uiFloatingButtonLayer::ButtonPosition bp = uiFloatingButtonLayer::onPollEvent(eventWindowA);
 					if (bp == uiFloatingButtonLayer::ButtonPosition::None)
