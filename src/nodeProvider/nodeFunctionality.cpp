@@ -88,7 +88,7 @@ void nodeFunctionality::ImageFromFile(node* theNode)
 
 	sf::Sprite spr(a->getTexture());
 	rs.shader = &imageShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 	*outputSize = sf::Vector2i(size.x, size.y);
 }
 
@@ -107,7 +107,7 @@ void nodeFunctionality::Solid(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &solidShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Checker(node* theNode)
@@ -124,7 +124,7 @@ void nodeFunctionality::Checker(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &checkerShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::LinearGradient(node* theNode)
@@ -142,7 +142,7 @@ void nodeFunctionality::LinearGradient(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &linearGradientShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::SeparateChannels(node* theNode)
@@ -166,13 +166,13 @@ void nodeFunctionality::SeparateChannels(node* theNode)
 	sf::Sprite spr(a->getTexture());
 
 	separateShader.setUniform("mode", 0);
-	outputPointerR->draw(spr, rs);
+	outputPointerR->drawWithMipmap(spr, rs);
 	separateShader.setUniform("mode", 1);
-	outputPointerG->draw(spr, rs);
+	outputPointerG->drawWithMipmap(spr, rs);
 	separateShader.setUniform("mode", 2);
-	outputPointerB->draw(spr, rs);
+	outputPointerB->drawWithMipmap(spr, rs);
 	separateShader.setUniform("mode", 3);
-	outputPointerA->draw(spr, rs);
+	outputPointerA->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::CombineChannels(node* theNode)
@@ -194,7 +194,7 @@ void nodeFunctionality::CombineChannels(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &combineShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Blend(node* theNode)
@@ -214,7 +214,7 @@ void nodeFunctionality::Blend(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &blendShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::BrightnessContrast(node* theNode)
@@ -235,7 +235,7 @@ void nodeFunctionality::BrightnessContrast(node* theNode)
 
 	sf::Sprite spr(a->getTexture());
 
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Crop(node* theNode)
@@ -261,7 +261,7 @@ void nodeFunctionality::Crop(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &cropShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Extend(node* theNode)
@@ -293,7 +293,7 @@ void nodeFunctionality::Extend(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &extendShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Patch(node* theNode)
@@ -321,7 +321,7 @@ void nodeFunctionality::Patch(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &patchShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Flip(node* theNode)
@@ -339,7 +339,7 @@ void nodeFunctionality::Flip(node* theNode)
 
 	sf::Sprite spr(a->getTexture());
 	rs.shader = &flipShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Frame(node* theNode)
@@ -372,7 +372,7 @@ void nodeFunctionality::Frame(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &frameShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Grayscale(node* theNode)
@@ -388,7 +388,7 @@ void nodeFunctionality::Grayscale(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &grayscaleShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::GammaCorrection(node* theNode)
@@ -405,7 +405,7 @@ void nodeFunctionality::GammaCorrection(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &gammaCorrectionShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Invert(node* theNode)
@@ -420,7 +420,7 @@ void nodeFunctionality::Invert(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &invertShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Mask(node* theNode)
@@ -438,7 +438,7 @@ void nodeFunctionality::Mask(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &maskShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Repeat(node* theNode)
@@ -457,7 +457,7 @@ void nodeFunctionality::Repeat(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &repeatShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Rotate90(node* theNode)
@@ -479,7 +479,7 @@ void nodeFunctionality::Rotate90(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &rotate90Shader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Scale(node* theNode)
@@ -500,7 +500,7 @@ void nodeFunctionality::Scale(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &imageShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::SelectByColor(node* theNode)
@@ -519,7 +519,7 @@ void nodeFunctionality::SelectByColor(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &selectByColorShader;
-	outputPointer->draw(spr, rs);
+	outputPointer->drawWithMipmap(spr, rs);
 }
 
 void nodeFunctionality::Color(node* theNode)
