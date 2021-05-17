@@ -233,11 +233,11 @@ void uiViewport::onPollEvent(const sf::Event& e)
 			{
 				rightClickedImageIndex = mouseOver(mouseWorldPos);
 				if (rightClickedImageIndex > -1)
-					saveSelectionBox.display(mouseWorldPos, SAVE_CONTEXT_MENU_OPTIONS);
+					saveSelectionBox.display((sf::Vector2f)(*mouseScreenPosPointer), SAVE_CONTEXT_MENU_OPTIONS);
 			}
 			else if (e.mouseButton.button == sf::Mouse::Left)
 			{
-				int index = saveSelectionBox.mouseOver(mouseWorldPos);
+				int index = saveSelectionBox.mouseOver((sf::Vector2f)(*mouseScreenPosPointer));
 				if (index > -1 && saveSelectionBox.isVisible())
 				{
 					std::string fileExtension;
@@ -377,6 +377,6 @@ void uiViewport::draw()
 		renderWindow->draw(bottomBarText);
 		renderWindow->draw(zoomPercentageText);
 	}
-	renderWindow->setView(theView);
-	saveSelectionBox.draw(*renderWindow, mouseWorldPos);
+	renderWindow->setView(staticView);
+	saveSelectionBox.draw(*renderWindow, (sf::Vector2f)(*mouseScreenPosPointer));
 }

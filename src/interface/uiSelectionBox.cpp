@@ -100,17 +100,12 @@ void uiSelectionBox::terminate()
 		delete p;
 }
 
-int uiSelectionBox::getBoxHeight()
+int uiSelectionBox::getBoxHeight() const
 {
 	return BOX_HEIGHT;
 }
 
-int uiSelectionBox::getBoxWidth()
+int uiSelectionBox::getBoxWidth() const
 {
 	return BOX_WIDTH;
-}
-
-bool uiSelectionBox::isVisible()
-{
-	return m_onScreen;
 }

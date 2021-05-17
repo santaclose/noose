@@ -25,7 +25,14 @@ public:
 	void draw(sf::RenderWindow& window, const sf::Vector2f& mousePos);
 	void terminate();
 
-	int getBoxHeight();
-	int getBoxWidth();
-	bool isVisible();
+	int getBoxHeight() const;
+	int getBoxWidth() const;
+	inline const sf::Vector2f& getPosition() const
+	{
+		return m_box[0].position;
+	}
+	inline bool isVisible() const
+	{
+		return m_onScreen;
+	}
 };
