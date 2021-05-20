@@ -4,7 +4,7 @@
 
 #include "../searcher.h"
 #include "../nodeData.h"
-#include "../math/uiMath.h"
+#include "../math/nooseMath.h"
 #include "../utils.h"
 
 #include <iostream>
@@ -209,7 +209,7 @@ void uiSearchBar::onPollEvent(const sf::Event& e)
 	else if (e.type == sf::Event::MouseMoved)
 	{
 		sf::Vector2f mousePos = sf::Vector2f(e.mouseMove.x, e.mouseMove.y);
-		if (uiMath::isPointInsideRect(mousePos, resultsVA[0].position, resultsVA[2].position))
+		if (nooseMath::isPointInsideRect(mousePos, resultsVA[0].position, resultsVA[2].position))
 		{
 			selectedSearchResult = (int)((mousePos - resultsVA[0].position).y / RESULT_HEIGHT);
 			resultBoxShader.setUniform("sel", (float)selectedSearchResult);
@@ -220,7 +220,7 @@ void uiSearchBar::onPollEvent(const sf::Event& e)
 		if (e.mouseButton.button != sf::Mouse::Left || !searching)
 			return;
 
-		if (uiMath::isPointInsideRect((sf::Vector2f) * mouseScreenPosPointer, resultsVA[0].position, resultsVA[2].position))
+		if (nooseMath::isPointInsideRect((sf::Vector2f) * mouseScreenPosPointer, resultsVA[0].position, resultsVA[2].position))
 			pushSelectedNode(uiNodeSystem::PushMode::Centered);
 		else
 			clearSearch();

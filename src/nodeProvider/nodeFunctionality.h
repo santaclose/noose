@@ -32,6 +32,7 @@ namespace nodeFunctionality
 	void Color(node* theNode);
 	void ColorFromRGBAInts(node* theNode);
 	void RGBAIntsFromColor(node* theNode);
+	void ColorFromImage(node* theNode);
 	// int vector operations
 	void Vector2i(node* theNode);
 	void Vector2iFromInts(node* theNode);

@@ -1,6 +1,6 @@
 #include "uiNode.h"
 
-#include "../math/uiMath.h"
+#include "../math/nooseMath.h"
 #include "../interface/uiData.h"
 #include "uiConnections.h"
 
@@ -187,12 +187,12 @@ uiNode::MousePos uiNode::mouseOver(const sf::Vector2f& mousePos, int& index, int
 	sf::FloatRect r(p, sf::Vector2f(NODE_WIDTH, BAR_HEIGHT + m_contentHeight));
 
 	// check if its out
-	if (!uiMath::isPointInsideRect(mousePos, r))
+	if (!nooseMath::isPointInsideRect(mousePos, r))
 		return MousePos::Outside;
 
 	// top bar check
 	r.height = BAR_HEIGHT;
-	if (uiMath::isPointInsideRect(mousePos, r))
+	if (nooseMath::isPointInsideRect(mousePos, r))
 		return MousePos::TopBar;
 
 	// input fields check
@@ -217,7 +217,7 @@ uiNode::MousePos uiNode::mouseOver(const sf::Vector2f& mousePos, int& index, int
 	for (int i = 0; i < m_inputPinCount; i++)
 	{
 		pinCenter.y = p.y + PROPERTY_HEIGHT * (i + 0.5f) + INPUT_FIELD_HEIGHT * i;
-		if (uiMath::distance(pinCenter, mousePos) < PIN_COLLISION_DISTANCE)
+		if (nooseMath::distance(pinCenter, mousePos) < PIN_COLLISION_DISTANCE)
 		{
 			index = i;
 			return MousePos::Pin;
@@ -229,7 +229,7 @@ uiNode::MousePos uiNode::mouseOver(const sf::Vector2f& mousePos, int& index, int
 	for (int i = 0; i < m_outputPinCount; i++)
 	{
 		pinCenter.y = p.y + (PROPERTY_HEIGHT + INPUT_FIELD_HEIGHT) * m_inputPinCount + PROPERTY_HEIGHT * (i + 0.5f);
-		if (uiMath::distance(pinCenter, mousePos) < PIN_COLLISION_DISTANCE)
+		if (nooseMath::distance(pinCenter, mousePos) < PIN_COLLISION_DISTANCE)
 		{
 			index = m_inputPinCount + i;
 			return MousePos::Pin;
@@ -243,7 +243,7 @@ bool uiNode::mouseOverTopBar(const sf::Vector2f& mousePosInWorld)
 {
 	sf::Vector2f p = m_shapes[3].position; // top left corener position
 	sf::FloatRect topBar(p, sf::Vector2f(NODE_WIDTH, BAR_HEIGHT));
-	return uiMath::isPointInsideRect(mousePosInWorld, topBar);
+	return nooseMath::isPointInsideRect(mousePosInWorld, topBar);
 }
 
 void uiNode::paintAsSelected()

@@ -1,7 +1,7 @@
 #include "uiConnections.h"
 #include <iostream>
 #include <vector>
-#include "../math/uiMath.h"
+#include "../math/nooseMath.h"
 #include "../math/vectorOperators.h"
 #include "../utils.h"
 
@@ -28,7 +28,7 @@ void uiConnections::updateLineQuads(int lineIndex)
 	std::cout << linesInfo[lineIndex].posA.x << ", " << linesInfo[lineIndex].posA.y << std::endl;
 	std::cout << linesInfo[lineIndex].posB.x << ", " << linesInfo[lineIndex].posB.y << std::endl;*/
 
-	sf::Vector2f theRightVector = uiMath::normalized(uiMath::rightVector(linesInfo[lineIndex].posB - linesInfo[lineIndex].posA));
+	sf::Vector2f theRightVector = nooseMath::normalized(nooseMath::rightVector(linesInfo[lineIndex].posB - linesInfo[lineIndex].posA));
 
 	int fvi = 4 * lineIndex; // first vertex index
 	lineQuads[fvi + 1].position = linesInfo[lineIndex].posB + theRightVector * (CONNECTION_LINE_WIDTH / 2.0);
@@ -214,7 +214,7 @@ int uiConnections::onTryingToRemove(const sf::Vector2f& mousePos)
 			continue; // skip dead lines
 
 		//std::cout << "trying to remove line index: " << lineIndex << std::endl;
-		if (uiMath::minimumDistance(linesInfo[lineIndex].posA, linesInfo[lineIndex].posB, mousePos) < LINE_DELETE_COLLISION_DISTANCE)
+		if (nooseMath::minimumDistance(linesInfo[lineIndex].posA, linesInfo[lineIndex].posB, mousePos) < LINE_DELETE_COLLISION_DISTANCE)
 			return lineIndex-1;
 	}
 	return -1;

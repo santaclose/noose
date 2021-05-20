@@ -1,6 +1,7 @@
 #include "nodeFunctionality.h"
 #include <iostream>
 #include "../utils.h"
+#include "../math/nooseMath.h"
 
 namespace nodeFunctionality {
 
@@ -545,6 +546,18 @@ void nodeFunctionality::RGBAIntsFromColor(node* theNode)
 	*((int*)theNode->getDataPointer(2)) = inputPointer->g;
 	*((int*)theNode->getDataPointer(3)) = inputPointer->b;
 	*((int*)theNode->getDataPointer(4)) = inputPointer->a;
+}
+
+void nodeFunctionality::ColorFromImage(node* theNode)
+{
+	sf::Color* outputPointer = ((sf::Color*)theNode->getDataPointer(2));
+	sf::RenderTexture* inImage = ((sf::RenderTexture*)theNode->getDataPointer(0));
+	sf::Vector2i* inCoords = ((sf::Vector2i*)(theNode->getDataPointer(1)));
+
+	unsigned int xCoord = nooseMath::mod(inCoords->x, inImage->getSize().x);
+	unsigned int yCoord = nooseMath::mod(inCoords->y, inImage->getSize().y);
+
+	*outputPointer = inImage->getTexture().copyToImage().getPixel(xCoord, yCoord);
 }
 
 void nodeFunctionality::Vector2i(node* theNode)

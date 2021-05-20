@@ -1,7 +1,7 @@
 #include "uiSelectionBox.h"
 #include "uiData.h"
 #include "../math/vectorOperators.h"
-#include "../math/uiMath.h"
+#include "../math/nooseMath.h"
 #include "../utils.h"
 #include <vector>
 #include <iostream>
@@ -69,7 +69,7 @@ void uiSelectionBox::display(const sf::Vector2f& position, const std::vector<std
 
 int uiSelectionBox::mouseOver(const sf::Vector2f& position)
 {
-	if (!uiMath::isPointInsideRect(position, m_box[0].position, m_box[2].position))
+	if (!nooseMath::isPointInsideRect(position, m_box[0].position, m_box[2].position))
 		return -1;
 
 	sf::Vector2f boxSpacePos = position - m_box[0].position;

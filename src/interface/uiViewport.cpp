@@ -1,7 +1,7 @@
 #include "uiViewport.h"
 #include "uiFileSelector.h"
 #include "uiData.h"
-#include "../math/uiMath.h"
+#include "../math/nooseMath.h"
 #include "../types.h"
 #include "../utils.h"
 #include <iostream>
@@ -75,7 +75,7 @@ int uiViewport::mouseOver(sf::Vector2f& mousePos)
 		case NS_TYPE_IMAGE:
 		{
 			const sf::Vector2u& imageSize = ((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getSize();
-			if (uiMath::isPointInsideRect(mousePos, cursor, cursor + (sf::Vector2f) imageSize))
+			if (nooseMath::isPointInsideRect(mousePos, cursor, cursor + (sf::Vector2f) imageSize))
 				return i;
 
 			cursor.x += imageSize.x;

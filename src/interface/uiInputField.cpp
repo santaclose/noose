@@ -3,7 +3,7 @@
 #include "uiSelectionBox.h"
 #include "uiData.h"
 
-#include "../math/uiMath.h"
+#include "../math/nooseMath.h"
 #include "../utils.h"
 #include "../types.h"
 
@@ -331,14 +331,14 @@ bool uiInputField::mouseOver(const sf::Vector2f& mousePosInWorld, int& index)
 	case NS_TYPE_COLOR:
 	case NS_TYPE_FLOAT:
 	case NS_TYPE_INT:
-		return uiMath::isPointInsideRect(mousePosInWorld, shapes[3].position.y, shapes[0].position.y, shapes[0].position.x, shapes[1].position.x);
+		return nooseMath::isPointInsideRect(mousePosInWorld, shapes[3].position.y, shapes[0].position.y, shapes[0].position.x, shapes[1].position.x);
 	case NS_TYPE_VECTOR2I: // edit vectors as separate integers
-		if (uiMath::isPointInsideRect(mousePosInWorld, shapes[3].position.y, shapes[0].position.y, shapes[0].position.x, shapes[1].position.x))
+		if (nooseMath::isPointInsideRect(mousePosInWorld, shapes[3].position.y, shapes[0].position.y, shapes[0].position.x, shapes[1].position.x))
 		{
 			index = 0;
 			return true;
 		}
-		if (uiMath::isPointInsideRect(mousePosInWorld, shapes[7].position.y, shapes[4].position.y, shapes[4].position.x, shapes[5].position.x))
+		if (nooseMath::isPointInsideRect(mousePosInWorld, shapes[7].position.y, shapes[4].position.y, shapes[4].position.x, shapes[5].position.x))
 		{
 			index = 1;
 			return true;

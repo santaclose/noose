@@ -3,7 +3,7 @@
 #include <vector>
 #include <iostream>
 #include "uiData.h"
-#include <math/uiMath.h>
+#include <math/nooseMath.h>
 #include <math/vectorOperators.h>
 
 #define BUTTON_RADIUS 0.46f // uv space
@@ -159,7 +159,7 @@ uiFloatingButtonLayer::ButtonPosition uiFloatingButtonLayer::onPollEvent(const s
 				sf::Vector2f mousePosInUVSpace =
 					(sf::Vector2f(mouseScreenPosPointer->x, mouseScreenPosPointer->y) - fb.va[0].position) /
 					BUTTON_SIZE;
-				if (uiMath::distance(sf::Vector2f(0.5, 0.5), mousePosInUVSpace) < BUTTON_RADIUS)
+				if (nooseMath::distance(sf::Vector2f(0.5, 0.5), mousePosInUVSpace) < BUTTON_RADIUS)
 					return fb.pos;
 			}
 			break;

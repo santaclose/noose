@@ -1,49 +1,57 @@
-#include "uiMath.h"
+#include "nooseMath.h"
 #include <cmath>
 #include "vectorOperators.h"
 
-const float uiMath::DEG2RAD = 0.0174532925;
+const float nooseMath::DEG2RAD = 0.0174532925;
 
-bool uiMath::isPointInsideRect(const sf::Vector2f& point, const sf::Rect<float>& rect)
+int nooseMath::mod(int a, int b)
+{
+	int ret = a % b;
+	if (ret < 0)
+		ret += b;
+	return ret;
+}
+
+bool nooseMath::isPointInsideRect(const sf::Vector2f& point, const sf::Rect<float>& rect)
 {
 	return point.x > rect.left && point.y > rect.top && point.x < rect.left + rect.width && point.y < rect.top + rect.height;
 }
-bool uiMath::isPointInsideRect(const sf::Vector2f& point, float top, float bottom, float left, float right)
+bool nooseMath::isPointInsideRect(const sf::Vector2f& point, float top, float bottom, float left, float right)
 {
 	return point.x < right && point.x > left && point.y > top && point.y < bottom;
 }
-bool uiMath::isPointInsideRect(const sf::Vector2f& point, const sf::Vector2f topLeftCorner, const sf::Vector2f bottomRightCorner)
+bool nooseMath::isPointInsideRect(const sf::Vector2f& point, const sf::Vector2f topLeftCorner, const sf::Vector2f bottomRightCorner)
 {
 	return point.x < bottomRightCorner.x && point.x > topLeftCorner.x && point.y < bottomRightCorner.y && point.y > topLeftCorner.y;
 }
 
-float uiMath::distance(const sf::Vector2f& a, const sf::Vector2f b)
+float nooseMath::distance(const sf::Vector2f& a, const sf::Vector2f b)
 {
 	sf::Vector2f disp = a - b;
 	return sqrt(disp.x * disp.x + disp.y * disp.y);
 }
 
-float uiMath::dot(const sf::Vector2f& a, const sf::Vector2f b)
+float nooseMath::dot(const sf::Vector2f& a, const sf::Vector2f b)
 {
 	return a.x * b.x + a.y * b.y;
 }
-float uiMath::lengthSquared(const sf::Vector2f& v)
+float nooseMath::lengthSquared(const sf::Vector2f& v)
 {
 	return v.x * v.x + v.y * v.y;
 }
 
-sf::Vector2f uiMath::rightVector(const sf::Vector2f& a)
+sf::Vector2f nooseMath::rightVector(const sf::Vector2f& a)
 {
 	return sf::Vector2f(a.y, -a.x);
 }
-sf::Vector2f uiMath::normalized(const sf::Vector2f& a)
+sf::Vector2f nooseMath::normalized(const sf::Vector2f& a)
 {
 	return a / sqrt(a.x * a.x + a.y * a.y);
 }
 
 // Return minimum distance between line segment vw and point p
 // used to delete connections
-float uiMath::minimumDistance(const sf::Vector2f& v, const sf::Vector2f& w, const sf::Vector2f& p)
+float nooseMath::minimumDistance(const sf::Vector2f& v, const sf::Vector2f& w, const sf::Vector2f& p)
 {
 	float l2 = lengthSquared(w - v);  // i.e. |w-v|^2 -  avoid a sqrt
 	if (l2 == 0.0) return distance(p, v);   // v == w case

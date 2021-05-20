@@ -2,9 +2,11 @@
 
 #include <SFML/Graphics.hpp>
 
-namespace uiMath
+namespace nooseMath
 {
 	extern const float DEG2RAD;
+
+	int mod(int a, int b);
 
 	bool isPointInsideRect(const sf::Vector2f& point, const sf::Rect<float>& rect);
 	bool isPointInsideRect(const sf::Vector2f& point, float top, float bottom, float left, float right);

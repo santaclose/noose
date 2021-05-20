@@ -196,17 +196,25 @@ Color from RGBA ints
 		Integer: b[255]
 		Integer: a[255]
 	out:
-		Color: color
+		Color: out
 ]
 RGBA ints from Color
 [
 	in:
-		Color: color
+		Color: out
 	out:
 		Integer: r
 		Integer: g
 		Integer: b
 		Integer: a
+]
+Color from image
+[
+	in:
+		Image: image
+		Vector2i: coordinates
+	out:
+		Color: out
 ]
 -- Int vector operations
 Int vector

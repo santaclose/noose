@@ -1,7 +1,7 @@
 #include "uiColorPicker.h"
 #include <iostream>
 #include <cstdint>
-#include "../math/uiMath.h"
+#include "../math/nooseMath.h"
 #include "../utils.h"
 
 #define COLOR_WHEEL_SIZE 220.0
@@ -168,7 +168,7 @@ void uiColorPicker::updatePositionsFromColor()
 	utils::rgb2hsv(*outputPointer, h, s, v);
 	lastIntensityPos = (COLOR_WHEEL_SIZE) - v * (COLOR_WHEEL_SIZE);
 	lastAlphaPos = (COLOR_WHEEL_SIZE) - outputPointer->a * (COLOR_WHEEL_SIZE) / 255.0f;
-	float angle = h * uiMath::DEG2RAD;
+	float angle = h * nooseMath::DEG2RAD;
 	lastColorPos.x = (COLOR_WHEEL_SIZE / 2.0f) + cos(angle) * s * COLOR_WHEEL_RADIUS * (COLOR_WHEEL_SIZE);
 	lastColorPos.y = (COLOR_WHEEL_SIZE / 2.0f) - sin(angle) * s * COLOR_WHEEL_RADIUS * (COLOR_WHEEL_SIZE);
 }
