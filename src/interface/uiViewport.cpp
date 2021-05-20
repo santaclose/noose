@@ -22,7 +22,7 @@
 
 namespace uiViewport {
 
-	const std::vector<std::string> SAVE_CONTEXT_MENU_OPTIONS = { "Save as png", "Save as jpg", "Save as bmp", "Save as tga"/* TODO: "Copy to clipboard" */ };
+	const std::vector<std::string> SAVE_CONTEXT_MENU_OPTIONS = { "Save as png", "Save as jpg", "Save as bmp", "Save as tga", "Copy to clipboard" };
 	int rightClickedImageIndex;
 	sf::Vector2f mouseWorldPos;
 	::uiSelectionBox saveSelectionBox;
@@ -238,7 +238,12 @@ void uiViewport::onPollEvent(const sf::Event& e)
 			else if (e.mouseButton.button == sf::Mouse::Left)
 			{
 				int index = saveSelectionBox.mouseOver((sf::Vector2f)(*mouseScreenPosPointer));
-				if (index > -1 && saveSelectionBox.isVisible())
+				if (index == 4)
+				{
+					sf::Image imageToCopy = ((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage();
+					sf::Clipboard::setImage(imageToCopy.getSize().x, imageToCopy.getSize().y, imageToCopy.getPixelsPtr());
+				}
+				else if (index > -1 && saveSelectionBox.isVisible())
 				{
 					std::string fileExtension;
 					switch (index)
