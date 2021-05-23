@@ -42,6 +42,10 @@ public:
 	void setPosition(sf::Vector2f& newPosition);
 	void setInput(int inputIndex, const void* data);
 	const sf::Vector2f& getPosition() const;
+	inline sf::Vector2f getCenterPosition() const
+	{
+		return (m_shapes[3].position + m_shapes[5].position) / 2.0f;
+	}
 	void draw(sf::RenderWindow& window);
 
 	MousePos mouseOver(const sf::Vector2f& mousePos, int& index, int& subIndex);

@@ -466,6 +466,26 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					selectedNodeIndex = -1;
 					break;
 				}
+				case sf::Keyboard::F:
+				{
+					sf::Vector2f boundingBoxMax = { -INFINITY , -INFINITY };
+					sf::Vector2f boundingBoxMin = {  INFINITY ,  INFINITY };
+					int numberOfNodes = 0;
+					for (const uiNode* node : uiNodeList)
+					{
+						if (node == nullptr)
+							continue;
+						sf::Vector2f nodeCenter = node->getCenterPosition();
+						boundingBoxMax.x = boundingBoxMax.x < nodeCenter.x ? nodeCenter.x : boundingBoxMax.x;
+						boundingBoxMax.y = boundingBoxMax.y < nodeCenter.y ? nodeCenter.y : boundingBoxMax.y;
+						boundingBoxMin.x = boundingBoxMin.x > nodeCenter.x ? nodeCenter.x : boundingBoxMin.x;
+						boundingBoxMin.y = boundingBoxMin.y > nodeCenter.y ? nodeCenter.y : boundingBoxMin.y;
+						numberOfNodes++;
+					}
+					viewPosition = (boundingBoxMax + boundingBoxMin) / 2.0f;
+					updateView();
+					break;
+				}
 			}
 			break;
 		}

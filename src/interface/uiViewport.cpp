@@ -311,6 +311,15 @@ void uiViewport::onPollEvent(const sf::Event& e)
 			updateView();
 			break;
 		}
+		case sf::Event::KeyPressed:
+		{
+			if (e.key.code == sf::Keyboard::F)
+			{
+				viewPosition = { 0.0f, 0.0f };
+				updateView();
+			}
+			break;
+		}
 	}
 }
 
