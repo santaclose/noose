@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include "types.h"
 
-enum class LoadState { ReadingNodes = 0, ReadingConnections = 1 };
+enum class LoadState { ReadingNodes = 0, ReadingConnections = 1, ReadingSelectedNode = 2 };
 enum class LoadSubState { ReadingIds = 0, ReadingNodeCoordinates = 1, ReadingPinData = 2, ReadingConnectionNodes = 3, ReadingConnectionPins = 4 };
 
 void serializer::LoadFromFile(const std::string& filePath)
@@ -26,7 +26,7 @@ void serializer::LoadFromFile(const std::string& filePath)
 
 	int currentConnectionLeftNode, currentConnectionRightNode;
 
-	std::vector<uiNode*>& nodes = uiNodeSystem::getUiNodeList();
+	std::vector<uiNode*>& nodes = uiNodeSystem::getNodeList();
 
 	std::string line;
 	while (std::getline(input, line))
@@ -41,6 +41,11 @@ void serializer::LoadFromFile(const std::string& filePath)
 		{
 			currentState = LoadState::ReadingConnections;
 			currentSubState = LoadSubState::ReadingConnectionNodes;
+			continue;
+		}
+		if (line.compare("-- selected node") == 0)
+		{
+			currentState = LoadState::ReadingSelectedNode;
 			continue;
 		}
 		if (line[0] == '=')
@@ -152,7 +157,7 @@ void serializer::LoadFromFile(const std::string& filePath)
 				currentPin++;
 			}
 		}
-		else // currentState == LoadState::ReadingConnections
+		else if (currentState == LoadState::ReadingConnections)
 		{
 			if (currentSubState == LoadSubState::ReadingConnectionNodes)
 			{
@@ -178,12 +183,16 @@ void serializer::LoadFromFile(const std::string& filePath)
 				);
 			}
 		}
+		else // currentState == LoadState::ReadingSelectedNode
+		{
+			uiNodeSystem::setSelectedNode(std::stoi(line));
+		}
 	}
 }
 
 void serializer::SaveIntoFile(const std::string& filePath)
 {
-	const std::vector<uiNode*>& nodes = uiNodeSystem::getUiNodeList();
+	const std::vector<uiNode*>& nodes = uiNodeSystem::getNodeList();
 	std::ofstream output(filePath);
 
 	output << "-- nodes\n";
@@ -239,6 +248,7 @@ void serializer::SaveIntoFile(const std::string& filePath)
 		originalNodeId++;
 		newNodeId++;
 	}
+
 	output << "-- connections\n";
 	int lineCount;
 	const uiLineInfo* lineArray = nullptr;
@@ -253,6 +263,10 @@ void serializer::SaveIntoFile(const std::string& filePath)
 		// separator
 		output << "=\n";
 	}
+
+	output << "-- selected node\n";
+	int selectedNode = uiNodeSystem::getSelectedNode();
+	output << (selectedNode < 0 ? -1 : (int)original2NewId[selectedNode]) << '\n';
 
 	output.close();
 }

@@ -43,6 +43,7 @@ namespace uiNodeSystem {
 	int zoomInt = 10;
 	float currentZoom = 1.0f;
 
+	// do not call these with invalid node index
 	void (*onNodeSelectedCallback)(int) = nullptr;
 	void (*onNodeDeletedCallback)(int) = nullptr;
 	void (*onNodeChangedCallback)(int) = nullptr;
@@ -288,7 +289,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 						selectedNodeIndex = i;
 
 						if (onNodeSelectedCallback != nullptr)
-							onNodeSelectedCallback(i);
+							onNodeSelectedCallback(selectedNodeIndex);
 						return;
 					}
 					}
@@ -535,9 +536,28 @@ void uiNodeSystem::setOnNodeChangedCallback(void(*functionPointer)(int))
 	onNodeChangedCallback = functionPointer;
 }
 
-std::vector<uiNode*>& uiNodeSystem::getUiNodeList()
+std::vector<uiNode*>& uiNodeSystem::getNodeList()
 {
 	return uiNodeList;
+}
+
+int uiNodeSystem::getSelectedNode()
+{
+	return selectedNodeIndex;
+}
+
+void uiNodeSystem::setSelectedNode(int nodeIndex)
+{
+	if (selectedNodeIndex > -1)
+		uiNodeList[selectedNodeIndex]->paintAsUnselected();
+
+	selectedNodeIndex = nodeIndex;
+	if (selectedNodeIndex > -1)
+	{
+		uiNodeList[selectedNodeIndex]->paintAsSelected();
+		if (onNodeSelectedCallback != nullptr)
+			onNodeSelectedCallback(selectedNodeIndex);
+	}
 }
 
 void uiNodeSystem::setBoundInputFieldNode(int node)

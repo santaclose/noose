@@ -30,7 +30,10 @@ namespace uiNodeSystem
 	void setOnNodeDeletedCallback(void (*functionPointer)(int)); // called just before deleting the node
 	void setOnNodeChangedCallback(void (*functionPointer)(int));
 
-	std::vector<uiNode*>& getUiNodeList();
+	std::vector<uiNode*>& getNodeList();
+	int getSelectedNode();
+	void setSelectedNode(int nodeIndex);
+
 	void setBoundInputFieldNode(int node);
 
 	void clearEverything();
