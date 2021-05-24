@@ -67,7 +67,9 @@ int uiViewport::mouseOver(sf::Vector2f& mousePos)
 		return -1;
 
 	sf::Vector2f cursor(0.0f, 0.0f);
-	int c = selectedNodeDataPointers->size(); // count
+	
+	// iterate through all output pins
+	int c = selectedNodeDataPointers->size();
 	for (int i = c - selectedNodeOutputPinCount; i < c; i++)
 	{
 		switch (selectedNodePinTypes[i])
@@ -315,8 +317,34 @@ void uiViewport::onPollEvent(const sf::Event& e)
 		{
 			if (e.key.code == sf::Keyboard::F)
 			{
-				viewPosition = { 0.0f, 0.0f };
-				updateView();
+				sf::Vector2f boundingBoxMax = { 0.0f , 0.0f };
+				int imageCount = 0;
+
+				// iterate through all output pins
+				int c = selectedNodeDataPointers->size();
+				for (int i = c - selectedNodeOutputPinCount; i < c; i++)
+				{
+					switch (selectedNodePinTypes[i])
+					{
+					case NS_TYPE_IMAGE:
+					{
+						const sf::Vector2u& imageSize = ((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getSize();
+						boundingBoxMax.x += imageSize.x;
+						boundingBoxMax.y = imageSize.y > boundingBoxMax.y ? imageSize.y : boundingBoxMax.y;
+						imageCount++;
+						break;
+					}
+					default:
+						break;
+					}
+				}
+
+				if (imageCount > 0)
+				{
+					boundingBoxMax.x += (imageCount - 1) * IMAGE_MARGIN;
+					viewPosition = boundingBoxMax / 2.0f;
+					updateView();
+				}
 			}
 			break;
 		}
