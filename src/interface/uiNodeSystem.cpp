@@ -79,6 +79,7 @@ void uiNodeSystem::deleteLine(int lineToDelete)
 
 void uiNodeSystem::updateView()
 {
+	currentZoom = zoomInt / 10.0f;
 	theView = sf::View(viewPosition, (sf::Vector2f)renderWindow->getSize());
 	theView.zoom(currentZoom);
 }
@@ -428,7 +429,6 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 
 			//clamp from min to max zoom
 			if (zoomInt < MAX_ZOOM) zoomInt = MAX_ZOOM; else if (zoomInt > MIN_ZOOM) zoomInt = MIN_ZOOM;
-			currentZoom = zoomInt / 10.0f;
 			updateView();
 
 			uiConnections::updateShaderUniform(currentZoom);
@@ -558,6 +558,19 @@ void uiNodeSystem::setSelectedNode(int nodeIndex)
 		if (onNodeSelectedCallback != nullptr)
 			onNodeSelectedCallback(selectedNodeIndex);
 	}
+}
+
+void uiNodeSystem::getView(int& zoom, sf::Vector2f& position)
+{
+	zoom = zoomInt;
+	position = viewPosition;
+}
+
+void uiNodeSystem::setView(int zoom, const sf::Vector2f& position)
+{
+	zoomInt = zoom;
+	viewPosition = position;
+	updateView();
 }
 
 void uiNodeSystem::setBoundInputFieldNode(int node)

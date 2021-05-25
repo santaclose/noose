@@ -1,13 +1,14 @@
 #include "serializer.h"
 #include <nodeProvider/nodeProvider.h>
 #include <interface/uiNodeSystem.h>
+#include <interface/uiViewport.h>
 #include <interface/uiConnections.h>
 #include <utils.h>
 #include <fstream>
 #include <unordered_map>
 #include "types.h"
 
-enum class LoadState { ReadingNodes = 0, ReadingConnections = 1, ReadingSelectedNode = 2 };
+enum class LoadState { ReadingNodes = 0, ReadingConnections = 1, ReadingSelectedNode = 2, ReadingViews = 3 };
 enum class LoadSubState { ReadingIds = 0, ReadingNodeCoordinates = 1, ReadingPinData = 2, ReadingConnectionNodes = 3, ReadingConnectionPins = 4 };
 
 void serializer::LoadFromFile(const std::string& filePath)
@@ -46,6 +47,11 @@ void serializer::LoadFromFile(const std::string& filePath)
 		if (line.compare("-- selected node") == 0)
 		{
 			currentState = LoadState::ReadingSelectedNode;
+			continue;
+		}
+		if (line.compare("-- views") == 0)
+		{
+			currentState = LoadState::ReadingViews;
 			continue;
 		}
 		if (line[0] == '=')
@@ -183,9 +189,31 @@ void serializer::LoadFromFile(const std::string& filePath)
 				);
 			}
 		}
-		else // currentState == LoadState::ReadingSelectedNode
+		else if (currentState == LoadState::ReadingSelectedNode)
 		{
 			uiNodeSystem::setSelectedNode(std::stoi(line));
+		}
+		else // currentState == LoadState::ReadingViews
+		{
+			int nodeEditorZoom, viewportZoom;
+			sf::Vector2f nodeEditorViewPosition, viewportViewPosition;
+
+			int q = 0, p = 0;
+			for (; line[p] != ','; p++) {}
+			nodeEditorZoom = std::stoi(line.substr(q, p - q));
+			q = p = p + 1; for (; line[p] != ','; p++) {}
+			nodeEditorViewPosition.x = std::stof(line.substr(q, p - q));
+			q = p = p + 1; for (; line[p] != ','; p++) {}
+			nodeEditorViewPosition.y = std::stof(line.substr(q, p - q));
+			q = p = p + 1; for (; line[p] != ','; p++) {}
+			viewportZoom = std::stoi(line.substr(q, p - q));
+			q = p = p + 1; for (; line[p] != ','; p++) {}
+			viewportViewPosition.x = std::stof(line.substr(q, p - q));
+			q = p = p + 1;
+			viewportViewPosition.y = std::stof(line.substr(q, line.length() - q));
+
+			uiNodeSystem::setView(nodeEditorZoom, nodeEditorViewPosition);
+			uiViewport::setView(viewportZoom, viewportViewPosition);
 		}
 	}
 }
@@ -267,6 +295,13 @@ void serializer::SaveIntoFile(const std::string& filePath)
 	output << "-- selected node\n";
 	int selectedNode = uiNodeSystem::getSelectedNode();
 	output << (selectedNode < 0 ? -1 : (int)original2NewId[selectedNode]) << '\n';
+
+	int nodeEditorZoom, viewportZoom;
+	sf::Vector2f nodeEditorViewPosition, viewportViewPosition;
+	uiNodeSystem::getView(nodeEditorZoom, nodeEditorViewPosition);
+	uiViewport::getView(viewportZoom, viewportViewPosition);
+	output << "-- views\n";
+	output << nodeEditorZoom << ',' << nodeEditorViewPosition.x << ',' << nodeEditorViewPosition.y << ',' << viewportZoom << ',' << viewportViewPosition.x << ',' << viewportViewPosition.y << '\n';
 
 	output.close();
 }

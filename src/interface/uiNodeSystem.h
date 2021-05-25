@@ -33,6 +33,8 @@ namespace uiNodeSystem
 	std::vector<uiNode*>& getNodeList();
 	int getSelectedNode();
 	void setSelectedNode(int nodeIndex);
+	void getView(int& zoom, sf::Vector2f& position);
+	void setView(int zoom, const sf::Vector2f& position);
 
 	void setBoundInputFieldNode(int node);
 

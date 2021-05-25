@@ -57,6 +57,15 @@ namespace uiViewport {
 
 void uiViewport::updateView()
 {
+	currentZoom = zoomInt / 10.0f;
+	std::stringstream percentageStream;
+	percentageStream << (1.0f / currentZoom) * 100.0f << '%';
+	zoomPercentageText.setString(percentageStream.str());
+	zoomPercentageText.setPosition(sf::Vector2f(
+		-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
+		PERCENTAGE_TEXT_MARGIN
+	));
+
 	theView = sf::View(viewPosition, (sf::Vector2f)renderWindow->getSize());
 	theView.zoom(currentZoom);
 }
@@ -302,14 +311,6 @@ void uiViewport::onPollEvent(const sf::Event& e)
 
 			//clamp from min to max zoom
 			if (zoomInt < MAX_ZOOM) zoomInt = MAX_ZOOM; else if (zoomInt > MIN_ZOOM) zoomInt = MIN_ZOOM;
-			currentZoom = zoomInt / 10.0f;
-			std::stringstream percentageStream;
-			percentageStream << (1.0f / currentZoom) * 100.0f << '%';
-			zoomPercentageText.setString(percentageStream.str());
-			zoomPercentageText.setPosition(sf::Vector2f(
-				-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
-				PERCENTAGE_TEXT_MARGIN
-			));
 			updateView();
 			break;
 		}
@@ -421,4 +422,17 @@ void uiViewport::draw()
 	}
 	renderWindow->setView(staticView);
 	saveSelectionBox.draw(*renderWindow, (sf::Vector2f)(*mouseScreenPosPointer));
+}
+
+void uiViewport::getView(int& zoom, sf::Vector2f& position)
+{
+	zoom = zoomInt;
+	position = viewPosition;
+}
+
+void uiViewport::setView(int zoom, const sf::Vector2f& position)
+{
+	zoomInt = zoom;
+	viewPosition = position;
+	updateView();
 }

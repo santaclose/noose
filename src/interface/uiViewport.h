@@ -14,5 +14,8 @@ namespace uiViewport
 	void onNodeChanged(int theNode);
 	void onNodeDeleted(int theNode);
 	void draw();
+
+	void getView(int& zoom, sf::Vector2f& position);
+	void setView(int zoom, const sf::Vector2f& position);
 };
 
