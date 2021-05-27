@@ -126,6 +126,7 @@ int main(int argc, char** argv)
 				uiFloatingButtonLayer::onPollEvent(eventWindowA);
 				uiCategoryPusher::updateButtonCenterCoordinates(uiFloatingButtonLayer::getButtonCenterCoords(uiFloatingButtonLayer::ButtonPosition::BottomRight));
 				uiCategoryPusher::onPollEvent(eventWindowA);
+				uiMenu::onPollEvent(eventWindowA);
 			}
 			else
 			{
