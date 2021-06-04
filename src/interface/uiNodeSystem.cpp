@@ -8,6 +8,8 @@
 #include "uiFileSelector.h"
 #include "nodeProvider/nodeProvider.h"
 
+#include "uiViewport.h"
+
 #include <iostream>
 #include <vector>
 #include <math.h>
@@ -241,7 +243,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					case uiNode::MousePos::InputField: // mouse is over an input field
 					{
 						boundInputFieldNode = i;
-						uiNodeList[i]->bindInputField(index, subIndex);
+						uiNodeList[i]->bindInputField(index, subIndex, subIndex == 2 ? uiInputField::PickPosition : uiInputField::Default);
 						return;
 					}
 					}
@@ -325,7 +327,8 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 							continue;
 
 						int index, subIndex;
-						if (uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex) == uiNode::MousePos::Pin)
+						uiNode::MousePos mouseOverValue = uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
+						if (mouseOverValue == uiNode::MousePos::Pin)
 						{
 							if (!uiNodeList[i]->canConnectToPin(index))
 							{

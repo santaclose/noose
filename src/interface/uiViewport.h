@@ -6,7 +6,7 @@
 
 namespace uiViewport
 {
-	void initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer);
+	void initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer, void (*updateSelectedPositionFunction)(const sf::Vector2i& vec));
 	void setNodeData(int theSelectedNode, const std::vector<void*>* pointers, const int* pinTypes, int outputPinCount);
 	void terminate();
 	void hideSelectionBox();

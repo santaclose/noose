@@ -15,8 +15,10 @@
 #define INT_EDITING_SENSITIVITY 0.1
 #define FLOAT_EDITING_SENSITIVITY 0.001
 #define FONT_SIZE 12
+#define TEXT_OFFSET_Y 3
 
 const sf::Color INPUT_FIELD_COLOR = sf::Color(0x4b4b4bbb);
+const sf::Color INPUT_FIELD_HIGHLIGHTED_COLOR = sf::Color(0x5e5e5ebb);
 
 // static //
 static uiInputField* editingInputField = nullptr;
@@ -44,15 +46,25 @@ void uiInputField::updateTextPositions()
 	case NS_TYPE_FLOAT:
 	case NS_TYPE_IMAGE:
 	case NS_TYPE_INT:
-		texts[0].setPosition((shapes[0].position + shapes[2].position) / 2.0f - sf::Vector2f(texts[0].getLocalBounds().width, texts[0].getLocalBounds().height) / 2.0f);
+		texts[0].setPosition((shapes[0].position + shapes[2].position) / 2.0f - sf::Vector2f(texts[0].getLocalBounds().width, texts[0].getLocalBounds().height) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y));
 		break;
 	case NS_TYPE_VECTOR2I:
-		texts[0].setPosition((shapes[0].position + shapes[2].position) / 2.0f - sf::Vector2f(texts[0].getLocalBounds().width, texts[0].getLocalBounds().height) / 2.0f);
-		texts[1].setPosition((shapes[4].position + shapes[6].position) / 2.0f - sf::Vector2f(texts[1].getLocalBounds().width, texts[1].getLocalBounds().height) / 2.0f);
+		texts[0].setPosition((shapes[0].position + shapes[2].position) / 2.0f - sf::Vector2f(texts[0].getLocalBounds().width, texts[0].getLocalBounds().height) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y));
+		texts[1].setPosition((shapes[4].position + shapes[6].position) / 2.0f - sf::Vector2f(texts[1].getLocalBounds().width, texts[1].getLocalBounds().height) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y));
+		texts[2].setPosition((shapes[8].position + shapes[10].position) / 2.0f - sf::Vector2f(texts[2].getLocalBounds().width, texts[2].getLocalBounds().height) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y-1));
 		break;
 	case NS_TYPE_COLOR:
 		break;
 	}
+}
+
+void uiInputField::paintQuad(bool isHighlighted, int quadIndex)
+{
+	int base = quadIndex * 4;
+	shapes[base + 0].color =
+		shapes[base + 1].color =
+		shapes[base + 2].color =
+		shapes[base + 3].color = isHighlighted ? INPUT_FIELD_HIGHLIGHTED_COLOR : INPUT_FIELD_COLOR;
 }
 
 void onColorPickerSetColor(sf::Color* newColor)
@@ -71,12 +83,36 @@ void onColorPickerSetColor(sf::Color* newColor)
 
 void uiInputField::unbind()
 {
+	if (editingInputField->type == NS_TYPE_VECTOR2I)
+	{
+		editingInputField->paintQuad(false, 0);
+		editingInputField->paintQuad(false, 1);
+		editingInputField->paintQuad(false, 2);
+	}
+	else if (editingInputField->type == NS_TYPE_INT ||
+			editingInputField->type == NS_TYPE_FLOAT)
+	{
+		editingInputField->paintQuad(false, 0);
+	}
+
 	editingInputField = nullptr;
 }
 
 bool uiInputField::isBound()
 {
 	return editingInputField != nullptr;
+}
+
+void uiInputField::setVectorData(const sf::Vector2i& vec)
+{
+	if (editingInputField != nullptr && editingInputField->type == NS_TYPE_VECTOR2I)
+	{
+		*((sf::Vector2i*)editingInputField->dataPointer) = vec;
+		editingInputField->texts[0].setString(std::to_string(vec.x));
+		editingInputField->texts[1].setString(std::to_string(vec.y));
+		editingInputField->onValueChanged();
+		editingInputField->updateTextPositions();
+	}
 }
 
 void uiInputField::onMouseMoved(sf::Vector2f& displacement)
@@ -104,6 +140,8 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 		}
 		break;
 	case NS_TYPE_VECTOR2I:
+		if (currentInteractionMode != Default)
+			break;
 		editingInputFieldHelper += displacement.x * INT_EDITING_SENSITIVITY;
 		if (editingVectorComponent == 'x')
 		{
@@ -117,13 +155,13 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 		}
 		else
 		{
-		newValueAux = (int)editingInputFieldHelper;
-		if (newValueAux != ((sf::Vector2i*)(editingInputField->dataPointer))->y)
-		{
-			((sf::Vector2i*)(editingInputField->dataPointer))->y = (int)editingInputFieldHelper;
-			editingInputField->texts[1].setString(std::to_string((int)editingInputFieldHelper));
-			editingInputField->onValueChanged();
-		}
+			newValueAux = (int)editingInputFieldHelper;
+			if (newValueAux != ((sf::Vector2i*)(editingInputField->dataPointer))->y)
+			{
+				((sf::Vector2i*)(editingInputField->dataPointer))->y = (int)editingInputFieldHelper;
+				editingInputField->texts[1].setString(std::to_string((int)editingInputFieldHelper));
+				editingInputField->onValueChanged();
+			}
 		}
 		break;
 	}
@@ -135,20 +173,33 @@ bool uiInputField::onMouseDown(sf::Vector2f& mousePos)
 	if (editingInputField == nullptr)
 		return false;
 
-	if (editingInputField->type == NS_TYPE_INT &&
-		editingInputField->enumOptions->size() > 0) // selection box type
+	switch (editingInputField->type)
 	{
-		int index = selectionBox->mouseOver(mousePos);
-		if (index > -1)
+	case NS_TYPE_INT:
+	{
+		if (editingInputField->enumOptions->size() > 0) // selection box type
 		{
-			*((int*)(editingInputField->dataPointer)) = index;
-			editingInputField->texts[0].setString((*(editingInputField->enumOptions))[index]);
-			editingInputField->onValueChanged();
+			int index = selectionBox->mouseOver(mousePos);
+			if (index > -1)
+			{
+				*((int*)(editingInputField->dataPointer)) = index;
+				editingInputField->texts[0].setString((*(editingInputField->enumOptions))[index]);
+				editingInputField->onValueChanged();
+			}
+			selectionBox->hide();
+			editingInputField->updateTextPositions();
+			unbind();
+			return true;
 		}
-		selectionBox->hide();
-		editingInputField->updateTextPositions();
-		unbind();
-		return true;
+		break;
+	}
+	case NS_TYPE_VECTOR2I:
+		if (nooseMath::isPointInsideRect(mousePos, editingInputField->shapes[11].position, editingInputField->shapes[9].position))
+		{
+			unbind();
+			return true;
+		}
+		break;
 	}
 	return false;
 }
@@ -161,11 +212,15 @@ void uiInputField::onMouseUp()
 	switch (editingInputField->type)
 	{
 	case NS_TYPE_VECTOR2I:
+		if (currentInteractionMode == Default)
+			unbind();
+		break;
 	case NS_TYPE_FLOAT:
-		unbind();
+		if (currentInteractionMode == Default)
+			unbind();
 		break;
 	case NS_TYPE_INT:
-		if (editingInputField->enumOptions->size() == 0) // int without selection box
+		if (currentInteractionMode == Default && editingInputField->enumOptions->size() == 0) // int without selection box
 			unbind();
 		break;
 	default:
@@ -185,12 +240,16 @@ void uiInputField::keyboardInput(sf::Uint32 unicode)
 		{
 			if (editingVectorComponent == 'x')
 			{
+				editingInputField->paintQuad(false, 0);
+				editingInputField->paintQuad(true, 1);
 				editingVectorComponent = 'y';
 				editingInputField->texts[1].setString("");
 				((sf::Vector2i*)(editingInputField->dataPointer))->y = 0;
 			}
 			else
 			{
+				editingInputField->paintQuad(true, 0);
+				editingInputField->paintQuad(false, 1);
 				editingVectorComponent = 'x';
 				editingInputField->texts[0].setString("");
 				((sf::Vector2i*)(editingInputField->dataPointer))->x = 0;
@@ -331,16 +390,21 @@ bool uiInputField::mouseOver(const sf::Vector2f& mousePosInWorld, int& index)
 	case NS_TYPE_COLOR:
 	case NS_TYPE_FLOAT:
 	case NS_TYPE_INT:
-		return nooseMath::isPointInsideRect(mousePosInWorld, shapes[3].position.y, shapes[0].position.y, shapes[0].position.x, shapes[1].position.x);
-	case NS_TYPE_VECTOR2I: // edit vectors as separate integers
-		if (nooseMath::isPointInsideRect(mousePosInWorld, shapes[3].position.y, shapes[0].position.y, shapes[0].position.x, shapes[1].position.x))
+		return nooseMath::isPointInsideRect(mousePosInWorld, shapes[3].position, shapes[1].position);
+	case NS_TYPE_VECTOR2I:
+		if (nooseMath::isPointInsideRect(mousePosInWorld, shapes[3].position, shapes[1].position))
 		{
 			index = 0;
 			return true;
 		}
-		if (nooseMath::isPointInsideRect(mousePosInWorld, shapes[7].position.y, shapes[4].position.y, shapes[4].position.x, shapes[5].position.x))
+		if (nooseMath::isPointInsideRect(mousePosInWorld, shapes[7].position, shapes[5].position))
 		{
 			index = 1;
+			return true;
+		}
+		if (nooseMath::isPointInsideRect(mousePosInWorld, shapes[11].position, shapes[9].position))
+		{
+			index = 2;
 			return true;
 		}
 		return false;
@@ -380,15 +444,20 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 		texts[0].setString(std::to_string(*((float*)pinDataPointer)));
 		break;
 	case NS_TYPE_VECTOR2I:
-		shapes = new sf::Vertex[8];
-		texts = new sf::Text[2];
+		shapes = new sf::Vertex[12];
+		texts = new sf::Text[3];
 		texts[0].setFont(uiData::font);
 		texts[1].setFont(uiData::font);
+		texts[2].setFont(uiData::font);
 		texts[0].setCharacterSize(FONT_SIZE);
 		texts[1].setCharacterSize(FONT_SIZE);
+		texts[2].setCharacterSize(FONT_SIZE);
 		texts[0].setString(std::to_string(((sf::Vector2i*)pinDataPointer)->x));
 		texts[1].setString(std::to_string(((sf::Vector2i*)pinDataPointer)->y));
-		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = shapes[4].color = shapes[5].color = shapes[6].color = shapes[7].color = INPUT_FIELD_COLOR;
+		texts[2].setString("×");
+		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color =
+			shapes[4].color = shapes[5].color = shapes[6].color = shapes[7].color =
+			shapes[8].color = shapes[9].color = shapes[10].color = shapes[11].color = INPUT_FIELD_COLOR;
 		break;
 	case NS_TYPE_COLOR:
 		shapes = new sf::Vertex[4];
@@ -412,7 +481,6 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 	}
 }
 
-
 void uiInputField::setPosition(const sf::Vector2f& newPosition, float nodeWidth, float height)
 {
 	float margin = nodeWidth / 10.0f;
@@ -429,14 +497,19 @@ void uiInputField::setPosition(const sf::Vector2f& newPosition, float nodeWidth,
 		shapes[2].position.y = shapes[3].position.y = newPosition.y;
 		break;
 	case NS_TYPE_VECTOR2I:
-		shapes[0].position.x = shapes[3].position.x = newPosition.x + margin;
-		shapes[1].position.x = shapes[2].position.x = newPosition.x + nodeWidth / 2.0f - margin / 2.0f;
+		float numberBoxWidth = nodeWidth * 0.3;
+		shapes[0].position.x = shapes[3].position.x = newPosition.x + nodeWidth - margin * 1.25f - numberBoxWidth * 2.0f;
+		shapes[1].position.x = shapes[2].position.x = newPosition.x + nodeWidth - margin * 1.25f - numberBoxWidth;
 		shapes[0].position.y = shapes[1].position.y = newPosition.y + height;
 		shapes[2].position.y = shapes[3].position.y = newPosition.y;
-		shapes[4].position.x = shapes[7].position.x = newPosition.x + nodeWidth / 2.0f + margin / 2.0f;
+		shapes[4].position.x = shapes[7].position.x = newPosition.x + nodeWidth - margin - numberBoxWidth;
 		shapes[5].position.x = shapes[6].position.x = newPosition.x + nodeWidth - margin;
 		shapes[4].position.y = shapes[5].position.y = newPosition.y + height;
 		shapes[6].position.y = shapes[7].position.y = newPosition.y;
+		shapes[8].position.x = shapes[11].position.x = newPosition.x + margin;
+		shapes[9].position.x = shapes[10].position.x = newPosition.x + margin + height;
+		shapes[8].position.y = shapes[9].position.y = newPosition.y + height;
+		shapes[10].position.y = shapes[11].position.y = newPosition.y;
 		break;
 	}
 	updateTextPositions();
@@ -453,9 +526,10 @@ void uiInputField::draw(sf::RenderWindow& window)
 		window.draw(texts[0]);
 		break;
 	case NS_TYPE_VECTOR2I:
-		window.draw(shapes, 8, sf::Quads);
+		window.draw(shapes, 12, sf::Quads);
 		window.draw(texts[0]);
 		window.draw(texts[1]);
+		window.draw(texts[2]);
 		break;
 	case NS_TYPE_COLOR:
 		window.draw(shapes, 4, sf::Quads);
@@ -527,6 +601,9 @@ void uiInputField::setValue(const void* data)
 // the index tells which of the two components of a vector is gonna change
 void uiInputField::bind(int index, InteractionMode interactionMode)
 {
+	if (editingInputField != nullptr)
+		unbind();
+
 	if (type != NS_TYPE_COLOR)
 		uiColorPicker::hide();
 
@@ -575,7 +652,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 			free(filePath);
 		}
 
-		editingInputField = nullptr;
+		unbind();
 		return;
 	}
 	case NS_TYPE_COLOR:
@@ -590,6 +667,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 	}
 	case NS_TYPE_FLOAT:
 	{
+		paintQuad(true, 0);
 		if (currentInteractionMode == InteractionMode::Typing)
 		{
 			this->texts[0].setString("");
@@ -599,6 +677,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 	}
 	case NS_TYPE_INT:
 	{
+		paintQuad(true, 0);
 		if (currentInteractionMode == InteractionMode::Typing)
 		{
 			this->texts[0].setString("");
@@ -620,6 +699,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 	{
 		if (index == 0)
 		{
+			paintQuad(true, 0);
 			editingInputFieldHelper = (float)((sf::Vector2i*)(editingInputField->dataPointer))->x;
 			editingVectorComponent = 'x';
 			if (currentInteractionMode == InteractionMode::Typing)
@@ -630,6 +710,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 		}
 		else if (index == 1)
 		{
+			paintQuad(true, 1);
 			editingInputFieldHelper = (float)((sf::Vector2i*)(editingInputField->dataPointer))->y;
 			editingVectorComponent = 'y';
 			if (currentInteractionMode == InteractionMode::Typing)
@@ -637,6 +718,10 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 				this->texts[1].setString("");
 				((sf::Vector2i*)(this->dataPointer))->y = 0;
 			}
+		}
+		else if (index == 2)
+		{
+			paintQuad(true, 2);
 		}
 		return;
 	}

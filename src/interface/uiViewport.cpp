@@ -37,6 +37,7 @@ namespace uiViewport {
 	float currentZoom = 1.0f;
 	sf::RenderWindow* renderWindow;
 	const sf::Vector2i* mouseScreenPosPointer;
+	void (*updateSelectedPositionFunction)(const sf::Vector2i& vec) = nullptr;
 
 	bool panning = false;
 	sf::Vector2f lastMouseScreenPos;
@@ -49,6 +50,8 @@ namespace uiViewport {
 	sf::Text bottomBarText;
 	sf::RectangleShape bottomBarRectangle;
 	sf::Shader invertShader;
+
+	bool pickingPosition = false;
 
 	void updateView();
 	int mouseOver(sf::Vector2f& mousePos);
@@ -144,8 +147,9 @@ void uiViewport::updateBottomBarText()
 	bottomBarText.setString(newBottomBarText.str());
 }
 
-void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer)
+void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer, void (*updateSelectedPositionFunction)(const sf::Vector2i& vec))
 {
+	uiViewport::updateSelectedPositionFunction = updateSelectedPositionFunction;
 	uiViewport::mouseScreenPosPointer = mouseScreenPosPointer;
 	renderWindow = &theRenderWindow;
 	updateView();
@@ -249,47 +253,63 @@ void uiViewport::onPollEvent(const sf::Event& e)
 			else if (e.mouseButton.button == sf::Mouse::Left)
 			{
 				int index = saveSelectionBox.mouseOver((sf::Vector2f)(*mouseScreenPosPointer));
-				if (index == 4)
+				if (saveSelectionBox.isVisible())
 				{
-					sf::Image imageToCopy = ((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage();
-					sf::Clipboard::setImage(imageToCopy.getSize().x, imageToCopy.getSize().y, imageToCopy.getPixelsPtr());
+					if (index == 4)
+					{
+						sf::Image imageToCopy = ((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage();
+						sf::Clipboard::setImage(imageToCopy.getSize().x, imageToCopy.getSize().y, imageToCopy.getPixelsPtr());
+					}
+					else if (index > -1)
+					{
+						std::string fileExtension;
+						switch (index)
+						{
+						default:
+						case 0:
+							fileExtension = "png";
+							break;
+						case 1:
+							fileExtension = "jpg";
+							break;
+						case 2:
+							fileExtension = "bmp";
+							break;
+						case 3:
+							fileExtension = "tga";
+							break;
+						}
+						char* filePath = uiFileSelector::saveFileDialog(fileExtension);
+						if (filePath != nullptr)
+						{
+							if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(filePath))
+								std::cout << "[UI] Image saved\n";
+							else
+								std::cout << "[UI] Could not save image\n";
+							free(filePath);
+						}
+					}
+					saveSelectionBox.hide();
 				}
-				else if (index > -1 && saveSelectionBox.isVisible())
+				else
 				{
-					std::string fileExtension;
-					switch (index)
-					{
-					default:
-					case 0:
-						fileExtension = "png";
-						break;
-					case 1:
-						fileExtension = "jpg";
-						break;
-					case 2:
-						fileExtension = "bmp";
-						break;
-					case 3:
-						fileExtension = "tga";
-						break;
-					}
-					char* filePath = uiFileSelector::saveFileDialog(fileExtension);
-					if (filePath != nullptr)
-					{
-						if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(filePath))
-							std::cout << "[UI] Image saved\n";
-						else
-							std::cout << "[UI] Could not save image\n";
-						free(filePath);
-					}
+					pickingPosition = true;
+					updateSelectedPositionFunction((sf::Vector2i)mouseWorldPos);
 				}
-				saveSelectionBox.hide();
 			}
 			break;
 		}
 		case sf::Event::MouseButtonReleased:
 		{
-			panning = false;
+
+			if (e.mouseButton.button == sf::Mouse::Middle)
+			{
+				panning = false;
+			}
+			else if (e.mouseButton.button == sf::Mouse::Left)
+			{
+				pickingPosition = false;
+			}
 			break;
 		}
 		case sf::Event::MouseMoved:
@@ -300,6 +320,11 @@ void uiViewport::onPollEvent(const sf::Event& e)
 			{
 				viewPosition -= displacement * currentZoom;
 				updateView();
+			}
+
+			if (pickingPosition)
+			{
+				updateSelectedPositionFunction((sf::Vector2i)mouseWorldPos);
 			}
 
 			lastMouseScreenPos = currentMouseScreenPos;

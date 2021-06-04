@@ -22,12 +22,13 @@ private:
 	static sf::Shader loadImageShader;
 
 	void updateTextPositions();
+	void paintQuad(bool isHighlighted, int quadIndex);
 	void* dataPointer;
 	void (*onValueChanged)() = nullptr;
 
 public:
 
-	enum InteractionMode { Default = 0, Typing = 1 };
+	enum InteractionMode { Default = 0, Typing = 1, PickPosition = 2 };
 
 	static void onMouseMoved(sf::Vector2f& displacement);
 	// returns true if there was a collision
@@ -36,6 +37,7 @@ public:
 	static void keyboardInput(sf::Uint32 unicode);
 	static void unbind();
 	static bool isBound();
+	static void setVectorData(const sf::Vector2i& vec);
 
 	~uiInputField();
 	bool mouseOver(const sf::Vector2f& mousePosInWorld, int& index);

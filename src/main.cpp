@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::BottomLeft, '?');
 	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::TopRight, "assets/shaders/showViewportButton.shader");
 
-	uiViewport::initialize(windowB, &mousePosWindowB);
+	uiViewport::initialize(windowB, &mousePosWindowB, uiInputField::setVectorData);
 
 	// node system callbacks
 	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
