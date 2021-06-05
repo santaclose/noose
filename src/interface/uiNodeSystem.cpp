@@ -515,13 +515,12 @@ void uiNodeSystem::draw()
 {
 	renderWindow->setView(theView);
 
+	uiConnections::draw(*renderWindow);
 	for (uiNode* n : uiNodeList)
 	{
 		if (n != nullptr)
 			n->draw(*renderWindow);
 	}
-
-	uiConnections::draw(*renderWindow);
 	nodeSelectionBox.draw(*renderWindow, mouseWorldPos);
 }
 
