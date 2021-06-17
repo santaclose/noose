@@ -7,8 +7,8 @@
 #include "../utils.h"
 #include "../types.h"
 
-#include "uiFileSelector.h"
 #include <iostream>
+#include <portable-file-dialogs.h>
 
 
 #define COLOR_EDITING_SENSITIVITY 0.01
@@ -627,17 +627,16 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 			return;
 		}
 
-		char* filePath = uiFileSelector::openFileDialog();
-		if (filePath != nullptr)
+		std::vector<std::string> selection = pfd::open_file("Open image", "", { "Image Files", "*.png *.jpg *.jpeg *.bmp *.tga *.gif *.psd *.hdr *.pic" }).result();
+		if (selection.size() != 0)
 		{
 			sf::Texture tx;
-			if (!tx.loadFromFile(filePath))
+			if (!tx.loadFromFile(selection[0]))
 			{
 				std::cout << "[UI] Failed to open image file\n";
 				return;
 			}
-			imagePath = std::string(filePath);
-			texts[0].setString(utils::getFileNameFromPath(filePath));
+			texts[0].setString(utils::getFileNameFromPath(selection[0].c_str()));
 			loadImageShader.setUniform("tx", tx);
 
 			sf::Sprite spr(tx);
@@ -648,8 +647,6 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 			pointer->draw(spr, &loadImageShader);
 			editingInputField->updateTextPositions();
 			editingInputField->onValueChanged();
-
-			free(filePath);
 		}
 
 		unbind();

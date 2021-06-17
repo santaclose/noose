@@ -5,7 +5,6 @@
 #include "../logic/nodeSystem.h"
 #include "../type2color.h"
 
-#include "uiFileSelector.h"
 #include "nodeProvider/nodeProvider.h"
 
 #include "uiViewport.h"
@@ -609,4 +608,14 @@ void uiNodeSystem::createConnection(int leftNode, int rightNode, int leftPin, in
 void uiNodeSystem::clearNodeSelection()
 {
 	selectedNodeIndex = -1;
+}
+
+bool uiNodeSystem::isEmpty()
+{
+	for (uiNode* n : uiNodeList)
+	{
+		if (n != nullptr)
+			return false;
+	}
+	return true;
 }

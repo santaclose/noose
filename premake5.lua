@@ -27,9 +27,7 @@ project "noose"
 	files
 	{
 		"src/**.h",
-		"src/**.cpp",
-		"vendor/nativefiledialog/src/nfd_common.c",
-		"vendor/nativefiledialog/src/**.h"
+		"src/**.cpp"
 	}
 
 	defines
@@ -42,7 +40,7 @@ project "noose"
 	{
 		"src",
 		"vendor/SFML/include",
-		"vendor/nativefiledialog/src/include"
+		"vendor/portable-file-dialogs"
 	}
 
 	filter "system:Windows"
@@ -51,7 +49,6 @@ project "noose"
 
 		files
 		{
-			"vendor/nativefiledialog/src/nfd_win.cpp"
 		}
 
 		defines
@@ -65,7 +62,6 @@ project "noose"
 
 		files
 		{
-			"vendor/nativefiledialog/src/nfd_gtk.c"
 		}
 
 		defines
@@ -79,7 +75,6 @@ project "noose"
 
 		files
 		{
-			"vendor/nativefiledialog/src/nfd_cocoa.m"
 		}
 
 		defines

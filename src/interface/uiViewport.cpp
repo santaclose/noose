@@ -1,11 +1,11 @@
 #include "uiViewport.h"
-#include "uiFileSelector.h"
 #include "uiData.h"
 #include "../math/nooseMath.h"
 #include "../types.h"
 #include "../utils.h"
 #include <iostream>
 #include <sstream>
+#include <portable-file-dialogs.h>
 
 #define INITIAL_VIEWPORT_SIZE 500
 
@@ -259,6 +259,7 @@ void uiViewport::onPollEvent(const sf::Event& e)
 					{
 						sf::Image imageToCopy = ((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage();
 						sf::Clipboard::setImage(imageToCopy.getSize().x, imageToCopy.getSize().y, imageToCopy.getPixelsPtr());
+						pfd::notify("", "Image copied to clipboard");
 					}
 					else if (index > -1)
 					{
@@ -279,15 +280,18 @@ void uiViewport::onPollEvent(const sf::Event& e)
 							fileExtension = "tga";
 							break;
 						}
-						char* filePath = uiFileSelector::saveFileDialog(fileExtension);
-						if (filePath != nullptr)
+
+						std::string destination = pfd::save_file("Save file", "", { fileExtension, "*." + fileExtension }).result();
+						if (destination.length() == 0)
 						{
-							if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(filePath))
-								std::cout << "[UI] Image saved\n";
-							else
-								std::cout << "[UI] Could not save image\n";
-							free(filePath);
+							std::cout << "[UI] Image not saved\n";
+							break;
 						}
+						destination = destination + (utils::fileHasExtension(destination.c_str(), fileExtension.c_str()) ? "" : '.' + fileExtension);
+						if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(destination))
+							std::cout << "[UI] Image saved\n";
+						else
+							std::cout << "[UI] Could not save image\n";
 					}
 					saveSelectionBox.hide();
 				}
