@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include <cmath>
+
 std::string programDirectory;
 
 void utils::setProgramDirectory(const std::string& executableFilePath)
@@ -65,8 +67,8 @@ std::string utils::getFolderPath(const std::string& filePath)
     return filePath.substr(0, i+1);
 }
 
-#define min_f(a, b, c)  (fminf(a, fminf(b, c)))
-#define max_f(a, b, c)  (fmaxf(a, fmaxf(b, c)))
+#define min_f(a, b, c)  (std::fminf(a, std::fminf(b, c)))
+#define max_f(a, b, c)  (std::fmaxf(a, std::fmaxf(b, c)))
 void utils::rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v)
 {
     float r = rgbColor.r / 255.0f;

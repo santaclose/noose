@@ -636,6 +636,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 				std::cout << "[UI] Failed to open image file\n";
 				return;
 			}
+			imagePath = selection[0];
 			texts[0].setString(utils::getFileNameFromPath(selection[0].c_str()));
 			loadImageShader.setUniform("tx", tx);
 

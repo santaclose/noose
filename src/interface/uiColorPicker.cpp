@@ -1,6 +1,7 @@
 #include "uiColorPicker.h"
 #include <iostream>
 #include <cstdint>
+#include <cmath>
 #include "../math/nooseMath.h"
 #include "../utils.h"
 
@@ -169,8 +170,8 @@ void uiColorPicker::updatePositionsFromColor()
 	lastIntensityPos = (COLOR_WHEEL_SIZE) - v * (COLOR_WHEEL_SIZE);
 	lastAlphaPos = (COLOR_WHEEL_SIZE) - outputPointer->a * (COLOR_WHEEL_SIZE) / 255.0f;
 	float angle = h * nooseMath::DEG2RAD;
-	lastColorPos.x = (COLOR_WHEEL_SIZE / 2.0f) + cos(angle) * s * COLOR_WHEEL_RADIUS * (COLOR_WHEEL_SIZE);
-	lastColorPos.y = (COLOR_WHEEL_SIZE / 2.0f) - sin(angle) * s * COLOR_WHEEL_RADIUS * (COLOR_WHEEL_SIZE);
+	lastColorPos.x = (COLOR_WHEEL_SIZE / 2.0f) + std::cos(angle) * s * COLOR_WHEEL_RADIUS * (COLOR_WHEEL_SIZE);
+	lastColorPos.y = (COLOR_WHEEL_SIZE / 2.0f) - std::sin(angle) * s * COLOR_WHEEL_RADIUS * (COLOR_WHEEL_SIZE);
 }
 
 void uiColorPicker::hide()
