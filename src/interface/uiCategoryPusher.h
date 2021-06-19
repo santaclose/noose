@@ -12,7 +12,7 @@ namespace uiCategoryPusher
 	void showCategorySelectionBox();
 	void showNodeSelectionBox(int index);
 
-	void updateButtonCenterCoordinates(const sf::Vector2f newPos);
+	void updateButtonCenterCoordinates(const sf::Vector2f& newPos);
 
 	void onClickFloatingButton(const sf::Vector2f& buttonPos);
 	void draw();

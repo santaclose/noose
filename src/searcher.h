@@ -5,7 +5,7 @@
 
 namespace searcher
 {
-	extern std::vector<std::string*> searchResults;
+	extern std::vector<const std::string*> searchResults;
 	int search(const char* searchBuffer, int bufferSize, int maxResults);
 	const nodeData* getDataFor(int searchResultIndex);
 }

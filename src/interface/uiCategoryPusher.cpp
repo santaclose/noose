@@ -22,13 +22,13 @@ void uiCategoryPusher::showNodeSelectionBox(int index)
 {
 	nodeSelectionBox.display(
 		buttonCenterPos -
-		sf::Vector2f(categorySelectionBox.getBoxWidth(), categorySelectionBox.getBoxHeight() * (nodeProvider::categoryNames.size() - index - 1)),
-		nodeProvider::nodeNamesByCategory[index],
+		sf::Vector2f(categorySelectionBox.getBoxWidth(), categorySelectionBox.getBoxHeight() * (nodeProvider::getCategories().size() - index - 1)),
+		*nodeProvider::getNodesForCategory(nodeProvider::getCategories()[index]),
 		uiSelectionBox::DisplayMode::BottomRightCorner
 	);
 }
 
-void uiCategoryPusher::updateButtonCenterCoordinates(const sf::Vector2f newPos)
+void uiCategoryPusher::updateButtonCenterCoordinates(const sf::Vector2f& newPos)
 {
 	buttonCenterPos = newPos;
 }
@@ -37,7 +37,7 @@ void uiCategoryPusher::showCategorySelectionBox()
 {
 	categorySelectionBox.display(
 		buttonCenterPos,
-		nodeProvider::categoryNames,
+		nodeProvider::getCategories(),
 		uiSelectionBox::DisplayMode::BottomRightCorner
 	);
 }
@@ -79,8 +79,9 @@ void uiCategoryPusher::onPollEvent(const sf::Event& e)
 					int mouseOverIndexSub = nodeSelectionBox.mouseOver((sf::Vector2f) * mouseScreenPosPointer);
 					if (mouseOverIndexSub > -1)
 					{
+						const nodeData* nodeToAdd = nodeProvider::getNodeDataByName((*nodeProvider::getNodesForCategory(nodeProvider::getCategories()[selectedCategory]))[mouseOverIndexSub]);
 						uiNodeSystem::pushNewNode(
-							&(nodeProvider::nodeDataList[nodeProvider::categoryStartIndex[selectedCategory] + mouseOverIndexSub]),
+							nodeToAdd,
 							uiNodeSystem::PushMode::Centered);
 					}
 				}
@@ -90,7 +91,7 @@ void uiCategoryPusher::onPollEvent(const sf::Event& e)
 			else
 			{
 				selectedCategory = mouseOverIndex;
-				showNodeSelectionBox(mouseOverIndex);
+				showNodeSelectionBox(selectedCategory);
 			}
 		}
 	}

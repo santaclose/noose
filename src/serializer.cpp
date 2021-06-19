@@ -22,7 +22,7 @@ void serializer::LoadFromFile(const std::string& filePath)
 
 	LoadState currentState;
 	LoadSubState currentSubState;
-	unsigned int currentNodeDataId;
+	std::string currentNodeName;
 	unsigned int currentPin;
 
 	int currentConnectionLeftNode, currentConnectionRightNode;
@@ -32,24 +32,24 @@ void serializer::LoadFromFile(const std::string& filePath)
 	std::string line;
 	while (std::getline(input, line))
 	{
-		if (line.compare("-- nodes") == 0)
+		if (line.compare("| nodes") == 0)
 		{
 			currentState = LoadState::ReadingNodes;
 			currentSubState = LoadSubState::ReadingIds;
 			continue;
 		}
-		if (line.compare("-- connections") == 0)
+		if (line.compare("| connections") == 0)
 		{
 			currentState = LoadState::ReadingConnections;
 			currentSubState = LoadSubState::ReadingConnectionNodes;
 			continue;
 		}
-		if (line.compare("-- selected node") == 0)
+		if (line.compare("| selected node") == 0)
 		{
 			currentState = LoadState::ReadingSelectedNode;
 			continue;
 		}
-		if (line.compare("-- views") == 0)
+		if (line.compare("| views") == 0)
 		{
 			currentState = LoadState::ReadingViews;
 			continue;
@@ -66,7 +66,7 @@ void serializer::LoadFromFile(const std::string& filePath)
 		{
 			if (currentSubState == LoadSubState::ReadingIds)
 			{
-				currentNodeDataId = std::stoi(line);
+				currentNodeName = line;
 				currentSubState = LoadSubState::ReadingNodeCoordinates;
 				continue;
 			}
@@ -77,8 +77,14 @@ void serializer::LoadFromFile(const std::string& filePath)
 				sf::Vector2f nodeCoordinates;
 				nodeCoordinates.x = std::stof(line.substr(0, commaPos));
 				nodeCoordinates.y = std::stof(line.substr(commaPos + 1, line.size() - commaPos - 1));
+				const nodeData* nodeDataToAdd = nodeProvider::getNodeDataByName(currentNodeName);
+				if (nodeDataToAdd == nullptr)
+				{
+					std::cout << "[Serializer] Node not found for name: " + currentNodeName + "\n";
+					continue;
+				}
 				uiNodeSystem::pushNewNode(
-					&(nodeProvider::nodeDataList[currentNodeDataId]),
+					nodeDataToAdd,
 					uiNodeSystem::PushMode::AtPosition,
 					false,
 					nodeCoordinates
@@ -91,7 +97,7 @@ void serializer::LoadFromFile(const std::string& filePath)
 			}
 			if (currentSubState == LoadSubState::ReadingPinData)
 			{
-				switch (nodeProvider::nodeDataList[currentNodeDataId].pinTypes[currentPin])
+				switch (nodeProvider::getNodeDataByName(currentNodeName)->pinTypes[currentPin])
 				{
 				case NS_TYPE_COLOR:
 				{
@@ -138,10 +144,10 @@ void serializer::LoadFromFile(const std::string& filePath)
 				case NS_TYPE_INT:
 				{
 					int intValue = ((int*)nodes.back()->m_inputFields[currentPin].getDataPointer())[0] = std::stoi(line);
-					if (nodeProvider::nodeDataList[currentNodeDataId].pinEnumOptions[currentPin].size() == 0)
+					if (nodeProvider::getNodeDataByName(currentNodeName)->pinEnumOptions[currentPin].size() == 0)
 						nodes.back()->m_inputFields[currentPin].texts[0].setString(line);
 					else // enum options
-						nodes.back()->m_inputFields[currentPin].texts[0].setString(nodeProvider::nodeDataList[currentNodeDataId].pinEnumOptions[currentPin][intValue]);
+						nodes.back()->m_inputFields[currentPin].texts[0].setString(nodeProvider::getNodeDataByName(currentNodeName)->pinEnumOptions[currentPin][intValue]);
 					break;
 				}
 				case NS_TYPE_VECTOR2I:
@@ -223,7 +229,7 @@ void serializer::SaveIntoFile(const std::string& filePath)
 	const std::vector<uiNode*>& nodes = uiNodeSystem::getNodeList();
 	std::ofstream output(filePath);
 
-	output << "-- nodes\n";
+	output << "| nodes\n";
 	unsigned int originalNodeId = 0;
 	unsigned int newNodeId = 0;
 	std::unordered_map<unsigned int, unsigned int> original2NewId;
@@ -235,14 +241,14 @@ void serializer::SaveIntoFile(const std::string& filePath)
 			continue;
 		}
 
-		// node type id and editor id
-		output << node->m_nodeTypeId << '\n';
+		// node unique name (works as id)
+		output << node->m_nodeName << '\n';
 		// node position in editor space
 		output << node->getPosition().x << ',' << node->getPosition().y << '\n';
 		// stored data
 		for (int i = 0; i < node->m_inputPinCount; i++)
 		{
-			switch (nodeProvider::nodeDataList[node->m_nodeTypeId].pinTypes[i])
+			switch (nodeProvider::getNodeDataByName(node->m_nodeName)->pinTypes[i])
 			{
 				case NS_TYPE_COLOR:
 				{
@@ -277,7 +283,7 @@ void serializer::SaveIntoFile(const std::string& filePath)
 		newNodeId++;
 	}
 
-	output << "-- connections\n";
+	output << "| connections\n";
 	int lineCount;
 	const uiLineInfo* lineArray = nullptr;
 	uiConnections::getLines(lineCount, lineArray);
@@ -292,7 +298,7 @@ void serializer::SaveIntoFile(const std::string& filePath)
 		output << "=\n";
 	}
 
-	output << "-- selected node\n";
+	output << "| selected node\n";
 	int selectedNode = uiNodeSystem::getSelectedNode();
 	output << (selectedNode < 0 ? -1 : (int)original2NewId[selectedNode]) << '\n';
 
@@ -300,7 +306,7 @@ void serializer::SaveIntoFile(const std::string& filePath)
 	sf::Vector2f nodeEditorViewPosition, viewportViewPosition;
 	uiNodeSystem::getView(nodeEditorZoom, nodeEditorViewPosition);
 	uiViewport::getView(viewportZoom, viewportViewPosition);
-	output << "-- views\n";
+	output << "| views\n";
 	output << nodeEditorZoom << ',' << nodeEditorViewPosition.x << ',' << nodeEditorViewPosition.y << ',' << viewportZoom << ',' << viewportViewPosition.x << ',' << viewportViewPosition.y << '\n';
 
 	output.close();

@@ -52,7 +52,7 @@ uiNode::uiNode(
 	void(onValueChangedFunc)(),
 	uiSelectionBox* selectionBox)
 {
-	m_nodeTypeId = data->nodeId;
+	m_nodeName = data->nodeName;
  	m_inputPinCount = data->inputPinCount;
 	m_outputPinCount = data->outputPinCount;
 

@@ -1,103 +1,72 @@
 #include "nodeProvider.h"
 #include <fstream>
+#include <unordered_map>
+#include <vector>
+#include <utility>
 #include "../utils.h"
 
 namespace nodeProvider {
 
 	std::vector<nodeData> nodeDataList;
-	std::vector<int> sortedByLength;
-	std::vector<std::string> categoryNames;
-	std::vector<int> categoryStartIndex;
-	std::vector<std::vector<std::string>> nodeNamesByCategory;
+	std::unordered_map<std::string, int> nodeName2data;
+	std::vector<std::string> categories;
+	std::unordered_map<std::string, std::vector<std::string>> nodesByCategory;
+	std::vector<std::string> nodeNamesSortedByLength;
+	std::unordered_map<std::string, void*> name2func =
+	{
+		{"Int", (void*)nodeFunctionality::Integer},
+		{"Float", (void*)nodeFunctionality::Float},
+		{"Int vector", (void*)nodeFunctionality::Vector2i},
+		{"Color", (void*)nodeFunctionality::Color},
+		{"Image", (void*)nodeFunctionality::ImageFromFile},
+		{"Solid", (void*)nodeFunctionality::Solid},
+		{"Checker", (void*)nodeFunctionality::Checker},
+		{"Linear Gradient", (void*)nodeFunctionality::LinearGradient},
+		{"Separate channels", (void*)nodeFunctionality::SeparateChannels},
+		{"Combine channels", (void*)nodeFunctionality::CombineChannels},
+		{"Blend", (void*)nodeFunctionality::Blend},
+		{"Brightness and contrast", (void*)nodeFunctionality::BrightnessContrast},
+		{"Crop", (void*)nodeFunctionality::Crop},
+		{"Extend", (void*)nodeFunctionality::Extend},
+		{"Patch", (void*)nodeFunctionality::Patch},
+		{"Flip", (void*)nodeFunctionality::Flip},
+		{"Frame", (void*)nodeFunctionality::Frame},
+		{"Grayscale", (void*)nodeFunctionality::Grayscale},
+		{"Gamma Correction", (void*)nodeFunctionality::GammaCorrection},
+		{"Invert", (void*)nodeFunctionality::Invert},
+		{"Mask", (void*)nodeFunctionality::Mask},
+		{"Repeat", (void*)nodeFunctionality::Repeat},
+		{"Rotate 90", (void*)nodeFunctionality::Rotate90},
+		{"Scale", (void*)nodeFunctionality::Scale},
+		{"Select by color", (void*)nodeFunctionality::SelectByColor},
+		{"Make color", (void*)nodeFunctionality::ColorFromRGBAInts},
+		{"Break color", (void*)nodeFunctionality::RGBAIntsFromColor},
+		{"Color from image", (void*)nodeFunctionality::ColorFromImage},
+		{"Make int vector", (void*)nodeFunctionality::Vector2iFromInts},
+		{"Break int vector", (void*)nodeFunctionality::SeparateVector2i},
+		{"Add int vectors", (void*)nodeFunctionality::Vector2iAddition},
+		{"Subtract int vectors", (void*)nodeFunctionality::Vector2iSubtraction},
+		{"Int vector times int", (void*)nodeFunctionality::Vector2iTimesInt},
+		{"Add ints", (void*)nodeFunctionality::IntegerAddition},
+		{"Subtract ints", (void*)nodeFunctionality::IntegerSubtraction},
+		{"Multiply ints", (void*)nodeFunctionality::IntegerProduct},
+		{"Divide ints", (void*)nodeFunctionality::IntegerDivision},
+		{"Add floats", (void*)nodeFunctionality::FloatAddition},
+		{"Subtract floats", (void*)nodeFunctionality::FloatSubtraction},
+		{"Multiply floats", (void*)nodeFunctionality::FloatProduct},
+		{"Divide floats", (void*)nodeFunctionality::FloatDivision}
+	};
 
 	void insertSorted();
 	void parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions);
-	inline void* getFunctionalityFromIndex(int index)
+	inline void* getFunctionalityFromName(const std::string& name)
 	{
-		if (index == 0)
-			return (void*)nodeFunctionality::ImageFromFile;
-		if (index == 1)
-			return (void*)nodeFunctionality::Solid;
-		if (index == 2)
-			return (void*)nodeFunctionality::Checker;
-		if (index == 3)
-			return (void*)nodeFunctionality::LinearGradient;
-		if (index == 4)
-			return (void*)nodeFunctionality::SeparateChannels;
-		if (index == 5)
-			return (void*)nodeFunctionality::CombineChannels;
-		if (index == 6)
-			return (void*)nodeFunctionality::Blend;
-		if (index == 7)
-			return (void*)nodeFunctionality::BrightnessContrast;
-		if (index == 8)
-			return (void*)nodeFunctionality::Crop;
-		if (index == 9)
-			return (void*)nodeFunctionality::Extend;
-		if (index == 10)
-			return (void*)nodeFunctionality::Patch;
-		if (index == 11)
-			return (void*)nodeFunctionality::Flip;
-		if (index == 12)
-			return (void*)nodeFunctionality::Frame;
-		if (index == 13)
-			return (void*)nodeFunctionality::Grayscale;
-		if (index == 14)
-			return (void*)nodeFunctionality::GammaCorrection;
-		if (index == 15)
-			return (void*)nodeFunctionality::Invert;
-		if (index == 16)
-			return (void*)nodeFunctionality::Mask;
-		if (index == 17)
-			return (void*)nodeFunctionality::Repeat;
-		if (index == 18)
-			return (void*)nodeFunctionality::Rotate90;
-		if (index == 19)
-			return (void*)nodeFunctionality::Scale;
-		if (index == 20)
-			return (void*)nodeFunctionality::SelectByColor;
-		if (index == 21)
-			return (void*)nodeFunctionality::Color;
-		if (index == 22)
-			return (void*)nodeFunctionality::ColorFromRGBAInts;
-		if (index == 23)
-			return (void*)nodeFunctionality::RGBAIntsFromColor;
-		if (index == 24)
-			return (void*)nodeFunctionality::ColorFromImage;
-		if (index == 25)
-			return (void*)nodeFunctionality::Vector2i;
-		if (index == 26)
-			return (void*)nodeFunctionality::Vector2iFromInts;
-		if (index == 27)
-			return (void*)nodeFunctionality::SeparateVector2i;
-		if (index == 28)
-			return (void*)nodeFunctionality::Vector2iAddition;
-		if (index == 29)
-			return (void*)nodeFunctionality::Vector2iSubtraction;
-		if (index == 30)
-			return (void*)nodeFunctionality::Vector2iTimesInt;
-		if (index == 31)
-			return (void*)nodeFunctionality::Integer;
-		if (index == 32)
-			return (void*)nodeFunctionality::IntegerAddition;
-		if (index == 33)
-			return (void*)nodeFunctionality::IntegerSubtraction;
-		if (index == 34)
-			return (void*)nodeFunctionality::IntegerProduct;
-		if (index == 35)
-			return (void*)nodeFunctionality::IntegerDivision;
-		if (index == 36)
-			return (void*)nodeFunctionality::Float;
-		if (index == 37)
-			return (void*)nodeFunctionality::FloatAddition;
-		if (index == 38)
-			return (void*)nodeFunctionality::FloatSubtraction;
-		if (index == 39)
-			return (void*)nodeFunctionality::FloatProduct;
-		if (index == 40)
-			return (void*)nodeFunctionality::FloatDivision;
-		std::cout << "[Node provider] COULD NOT GET FUNCTIONALITY FOR INDEX " << index << std::endl;
-		return nullptr;
+		if (name2func.find(name) == name2func.end())
+		{
+			std::cout << "[Node provider] COULD NOT GET FUNCTIONALITY FOR NODE " << name << std::endl;
+			return nullptr;
+		}
+		return name2func[name];
 	}
 	inline int typeFromString(const std::string& s)
 	{
@@ -122,8 +91,6 @@ void nodeProvider::initialize()
 	bool insideDataSection = false;
 	bool inSection = true;
 
-	unsigned int currentCategory = 0;
-
 	ifstream inputStream(utils::getProgramDirectory() + "assets/nodes.dat");
 	string line;
 
@@ -132,15 +99,6 @@ void nodeProvider::initialize()
 
 	while (getline(inputStream, line))
 	{
-		if (line[0] == '-' && line[1] == '-' && line[2] == ' ')
-		{
-			categoryNames.emplace_back(line.substr(3, line.length() - 3));
-			categoryStartIndex.push_back(nodeDataList.size());
-			nodeNamesByCategory.emplace_back();
-			currentCategory++;
-			continue;
-		}
-
 		if (line[0] == '[')
 		{
 			insideDataSection = true;
@@ -153,18 +111,33 @@ void nodeProvider::initialize()
 		}
 		if (!insideDataSection)
 		{
-			nodeNamesByCategory[currentCategory - 1u].push_back(line);
 			nodeDataList.emplace_back();
-			nodeDataList.back().nodeId = nodeDataList.size() - 1;
 			nodeDataList.back().nodeName = line;
 			nodeDataList.back().outputPinCount = nodeDataList.back().inputPinCount = 0;
-			nodeDataList.back().nodeFunctionality = getFunctionalityFromIndex(nodeDataList.size() - 1);
+			nodeDataList.back().nodeFunctionality = getFunctionalityFromName(line);
+			nodeName2data[line] = nodeDataList.size() - 1;
 
 			insertSorted();
 		}
 		else
 		{
-			if (line.find("\tin") != string::npos)
+			if (line.find("\tcategory: ") != string::npos)
+			{
+				std::string parsedCat = line.substr(11);
+				nodesByCategory[parsedCat].push_back(nodeDataList.back().nodeName);
+				bool needToAdd = true;
+				for (const std::string& cat : categories)
+				{
+					if (cat == parsedCat)
+					{
+						needToAdd = false;
+						break;
+					}
+				}
+				if (needToAdd)
+					categories.push_back(parsedCat);
+			}
+			else if (line.find("\tin:") != string::npos)
 				inSection = true;
 			else if (line.find("\tout:") != string::npos)
 				inSection = false;
@@ -226,17 +199,37 @@ void nodeProvider::terminate()
 		}
 	}
 }
+const nodeData* nodeProvider::getNodeDataByName(const std::string& name)
+{
+	if (nodeName2data.find(name) == nodeName2data.end())
+		return nullptr; // not found
+	return &nodeDataList[nodeName2data[name]];
+}
+const std::vector<std::string>& nodeProvider::getNodeNamesSortedByLength()
+{
+	return nodeNamesSortedByLength;
+}
+const std::vector<std::string>& nodeProvider::getCategories()
+{
+	return categories;
+}
+const std::vector<std::string>* nodeProvider::getNodesForCategory(const std::string& name)
+{
+	if (nodesByCategory.find(name) == nodesByCategory.end())
+		return nullptr; // not found
+	return &nodesByCategory[name];
+}
 
 void nodeProvider::insertSorted()
 {
 	int i = 0;
-	for (int item : sortedByLength)
+	for (const std::string& item : nodeNamesSortedByLength)
 	{
-		if (nodeDataList[item].nodeName.length() > nodeDataList.back().nodeName.length())
+		if (item.length() > nodeDataList.back().nodeName.length())
 			break;
 		i++;
 	}
-	sortedByLength.insert(sortedByLength.begin() + i, nodeDataList.size() - 1);
+	nodeNamesSortedByLength.insert(nodeNamesSortedByLength.begin() + i, nodeDataList.back().nodeName);
 }
 
 void nodeProvider::parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions)

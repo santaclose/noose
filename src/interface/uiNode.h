@@ -11,7 +11,7 @@ class uiNode
 {
 	friend serializer;
 private:
-	unsigned int m_nodeTypeId; // id for nodedata
+	std::string m_nodeName; // node name works as id
 	int m_inputPinCount;
 	int m_outputPinCount;
 

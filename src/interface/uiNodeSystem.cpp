@@ -168,7 +168,7 @@ int uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCen
 
 int uiNodeSystem::pushImageNodeFromFile(const std::string& filePath, PushMode mode, bool nodeCenterInPosition, sf::Vector2f worldPos)
 {
-	int nodeID = uiNodeSystem::pushNewNode(&nodeProvider::nodeDataList[0], mode, nodeCenterInPosition, worldPos);
+	int nodeID = uiNodeSystem::pushNewNode(nodeProvider::getNodeDataByName("Image"), mode, nodeCenterInPosition, worldPos);
 	// bind to set pin data
 	setBoundInputFieldNode(nodeID);
 	uiNodeList[nodeID]->setInput(0, &filePath);

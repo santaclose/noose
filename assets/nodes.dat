@@ -1,6 +1,38 @@
--- Insert image
-Image from file
+Int
 [
+	category: Types
+	in:
+		Integer: in
+	out:
+		Integer: out
+]
+Float
+[
+	category: Types
+	in:
+		Float: in
+	out:
+		Float: out
+]
+Int vector
+[
+	category: Types
+	in:
+		Vector2i: in
+	out:
+		Vector2i: out
+]
+Color
+[
+	category: Types
+	in:
+		Color: in
+	out:
+		Color: out
+]
+Image
+[
+	category: Types
 	in:
 		Image: in
 	out:
@@ -9,6 +41,7 @@ Image from file
 ]
 Solid
 [
+	category: Procedural
 	in:
 		Color: color
 		Vector2i: image size
@@ -17,6 +50,7 @@ Solid
 ]
 Checker
 [
+	category: Procedural
 	in:
 		Integer: square size[20]
 		Vector2i: image size
@@ -25,15 +59,16 @@ Checker
 ]
 Linear Gradient
 [
+	category: Procedural
 	in:
 		Vector2i: image size
 		Integer: mode{Horizontal, Vertical}
 	out:
 		Image: result
 ]
--- Image processing
 Separate channels
 [
+	category: Image processing
 	in:
 		Image: in
 	out:
@@ -44,6 +79,7 @@ Separate channels
 ]
 Combine channels
 [
+	category: Image processing
 	in:
 		Image: r
 		Image: g
@@ -54,6 +90,7 @@ Combine channels
 ]
 Blend
 [
+	category: Image processing
 	in:
 		Image: source
 		Image: destination
@@ -63,6 +100,7 @@ Blend
 ]
 Brightness and contrast
 [
+	category: Image processing
 	in:
 		Image: in
 		Float: brightness[0.0]
@@ -72,6 +110,7 @@ Brightness and contrast
 ]
 Crop
 [
+	category: Image processing
 	in:
 		Image: in
 		Vector2i: frame position
@@ -81,6 +120,7 @@ Crop
 ]
 Extend
 [
+	category: Image processing
 	in:
 		Image: in
 		Integer: side{Top,Right,Bottom,Left}
@@ -91,6 +131,7 @@ Extend
 ]
 Patch
 [
+	category: Image processing
 	in:
 		Image: image
 		Image: patch
@@ -100,6 +141,7 @@ Patch
 ]
 Flip
 [
+	category: Image processing
 	in:
 		Image: in
 		Integer: mode{Horizontally, Vertically}
@@ -108,6 +150,7 @@ Flip
 ]
 Frame
 [
+	category: Image processing
 	in:
 		Image: in
 		Integer: frame[10]
@@ -117,6 +160,7 @@ Frame
 ]
 Grayscale
 [
+	category: Image processing
 	in:
 		Image: in
 	out:
@@ -124,6 +168,7 @@ Grayscale
 ]
 Gamma Correction
 [
+	category: Image processing
 	in:
 		Image: in
 		Float: gamma[0.45454545454]
@@ -132,6 +177,7 @@ Gamma Correction
 ]
 Invert
 [
+	category: Image processing
 	in:
 		Image: in
 	out:
@@ -139,6 +185,7 @@ Invert
 ]
 Mask
 [
+	category: Image processing
 	in:
 		Image: image
 		Image: mask
@@ -147,6 +194,7 @@ Mask
 ]
 Repeat
 [
+	category: Image processing
 	in:
 		Image: image
 		Vector2i: image size
@@ -155,6 +203,7 @@ Repeat
 ]
 Rotate 90
 [
+	category: Image processing
 	in:
 		Image: image
 		Integer: times[1]
@@ -163,6 +212,7 @@ Rotate 90
 ]
 Scale
 [
+	category: Image processing
 	in:
 		Image: image
 		Float: factor[1.0]
@@ -173,6 +223,7 @@ Scale
 ]
 Select by color
 [
+	category: Image processing
 	in:
 		Image: in
 		Color: color
@@ -180,16 +231,9 @@ Select by color
 	out:
 		Image: out
 ]
--- Color operations
-Color
+Make color
 [
-	in:
-		Color: in
-	out:
-		Color: out
-]
-Color from RGBA ints
-[
+	category: Color operations
 	in:
 		Integer: r[255]
 		Integer: g[0]
@@ -198,8 +242,9 @@ Color from RGBA ints
 	out:
 		Color: out
 ]
-RGBA ints from Color
+Break color
 [
+	category: Color operations
 	in:
 		Color: out
 	out:
@@ -210,38 +255,34 @@ RGBA ints from Color
 ]
 Color from image
 [
+	category: Color operations
 	in:
 		Image: image
 		Vector2i: coordinates
 	out:
 		Color: out
 ]
--- Int vector operations
-Int vector
+Make int vector
 [
-	in:
-		Vector2i: in
-	out:
-		Vector2i: out
-]
-Int vector from ints
-[
-	in:
-		Integer: x
-		Integer: y
-	out:
-		Vector2i: vector
-]
-Separate int vector
-[
+	category: Int vector operations
 	in:
 		Vector2i: vector
 	out:
 		Integer: x
 		Integer: y
+]
+Break int vector
+[
+	category: Int vector operations
+	in:
+		Integer: x
+		Integer: y
+	out:
+		Vector2i: vector
 ]
 Add int vectors
 [
+	category: Int vector operations
 	in:
 		Vector2i: a
 		Vector2i: b
@@ -250,6 +291,7 @@ Add int vectors
 ]
 Subtract int vectors
 [
+	category: Int vector operations
 	in:
 		Vector2i: a
 		Vector2i: b
@@ -258,22 +300,16 @@ Subtract int vectors
 ]
 Int vector times int
 [
+	category: Int vector operations
 	in:
 		Vector2i: a
 		Integer: b
 	out:
 		Vector2i: out
 ]
--- Integer operations
-Int
-[
-	in:
-		Integer: in
-	out:
-		Integer: out
-]
 Add ints
 [
+	category: Integer operations
 	in:
 		Integer: a
 		Integer: b
@@ -282,6 +318,7 @@ Add ints
 ]
 Subtract ints
 [
+	category: Integer operations
 	in:
 		Integer: a
 		Integer: b
@@ -290,6 +327,7 @@ Subtract ints
 ]
 Multiply ints
 [
+	category: Integer operations
 	in:
 		Integer: a
 		Integer: b
@@ -298,22 +336,16 @@ Multiply ints
 ]
 Divide ints
 [
+	category: Integer operations
 	in:
 		Integer: a
 		Integer: b
 	out:
 		Integer: out
 ]
--- Float operations
-Float
-[
-	in:
-		Float: in
-	out:
-		Float: out
-]
 Add floats
 [
+	category: Float operations
 	in:
 		Float: a
 		Float: b
@@ -322,6 +354,7 @@ Add floats
 ]
 Subtract floats
 [
+	category: Float operations
 	in:
 		Float: a
 		Float: b
@@ -330,6 +363,7 @@ Subtract floats
 ]
 Multiply floats
 [
+	category: Float operations
 	in:
 		Float: a
 		Float: b
@@ -338,6 +372,7 @@ Multiply floats
 ]
 Divide floats
 [
+	category: Float operations
 	in:
 		Float: a
 		Float: b

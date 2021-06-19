@@ -3,19 +3,19 @@
 
 namespace searcher {
 
-	std::vector<std::string*> searchResults;
+	std::vector<const std::string*> searchResults;
 
-	bool searchCheck(const char* searchBuffer, int bufferSize, std::string& nodeName);
+	bool searchCheck(const char* searchBuffer, int bufferSize, const std::string& nodeName);
 }
 
 int searcher::search(const char* searchBuffer, int bufferSize, int maxResults)
 {
 	searchResults.clear();
-	for (int order : nodeProvider::sortedByLength)
+	for (const std::string& nodeName : nodeProvider::getNodeNamesSortedByLength())
 	{
-		if (searchCheck(searchBuffer, bufferSize, nodeProvider::nodeDataList[order].nodeName))
+		if (searchCheck(searchBuffer, bufferSize, nodeName))
 		{
-			searchResults.push_back(&(nodeProvider::nodeDataList[order].nodeName));
+			searchResults.push_back(&nodeName);
 			if (searchResults.size() == maxResults)
 				return maxResults;
 		}
@@ -25,17 +25,10 @@ int searcher::search(const char* searchBuffer, int bufferSize, int maxResults)
 
 const nodeData* searcher::getDataFor(int searchResultIndex)
 {
-	for (nodeData& n : nodeProvider::nodeDataList)
-	{
-		if (&(n.nodeName) == searchResults[searchResultIndex])
-		{
-			return &n;
-		}
-	}
-	return nullptr;
+	return nodeProvider::getNodeDataByName(*searchResults[searchResultIndex]);
 }
 
-bool searcher::searchCheck(const char* searchBuffer, int bufferSize, std::string& nodeName)
+bool searcher::searchCheck(const char* searchBuffer, int bufferSize, const std::string& nodeName)
 {
 	if (searchBuffer[0] == '\0')
 		return true;
