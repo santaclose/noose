@@ -25,6 +25,7 @@ namespace nodeFunctionality
 	void Invert(node* theNode);
 	void Mask(node* theNode);
 	void Repeat(node* theNode);
+	void Rotate(node* theNode);
 	void Rotate90(node* theNode);
 	void Scale(node* theNode);
 	void SelectByColor(node* theNode);

@@ -1,5 +1,6 @@
 #include "nodeFunctionality.h"
 #include <iostream>
+#include <cmath>
 #include "../utils.h"
 #include "../math/nooseMath.h"
 
@@ -14,6 +15,7 @@ namespace nodeFunctionality {
 	sf::Shader invertShader;
 	sf::Shader linearGradientShader;
 	sf::Shader repeatShader;
+	sf::Shader rotateShader;
 	sf::Shader rotate90Shader;
 	sf::Shader solidShader;
 	sf::Shader maskShader;
@@ -51,6 +53,8 @@ void nodeFunctionality::initialize()
 		std::cout << "[Node provider] Failed to load linearGradient shader\n";
 	if (!repeatShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/repeat.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load repeat shader\n";
+	if (!rotateShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/rotate.shader", sf::Shader::Fragment))
+		std::cout << "[Node provider] Failed to load rotate shader\n";
 	if (!rotate90Shader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/rotate90.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load rotate90 shader\n";
 	if (!solidShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/solid.shader", sf::Shader::Fragment))
@@ -458,6 +462,31 @@ void nodeFunctionality::Repeat(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &repeatShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::Rotate(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(2));
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
+	float radians = *((float*) theNode->getDataPointer(1));
+
+	a->generateMipmap(); // generate mipmap for better minification
+
+	sf::Vector2u aSize = a->getSize();
+	sf::Vector2f originalSize(aSize.x, aSize.y);
+	float diagonal = std::ceilf(nooseMath::length(originalSize));
+	sf::Vector2f newSize(diagonal, diagonal);
+	outputPointer->create(newSize.x, newSize.y);
+
+	a->setSmooth(true);
+	rotateShader.setUniform("tex", a->getTexture());
+	rotateShader.setUniform("angle", radians);
+	rotateShader.setUniform("originalSize", sf::Glsl::Vec2(originalSize));
+	rotateShader.setUniform("newSize", sf::Glsl::Vec2(newSize.x, newSize.y));
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &rotateShader;
 	outputPointer->draw(spr, rs);
 }
 

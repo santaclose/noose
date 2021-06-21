@@ -201,6 +201,15 @@ Repeat
 	out:
 		Image: result
 ]
+Rotate
+[
+	category: Image processing
+	in:
+		Image: image
+		Float: radians
+	out:
+		Image: result
+]
 Rotate 90
 [
 	category: Image processing

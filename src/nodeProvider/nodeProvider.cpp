@@ -36,6 +36,7 @@ namespace nodeProvider {
 		{"Invert", (void*)nodeFunctionality::Invert},
 		{"Mask", (void*)nodeFunctionality::Mask},
 		{"Repeat", (void*)nodeFunctionality::Repeat},
+		{"Rotate", (void*)nodeFunctionality::Rotate},
 		{"Rotate 90", (void*)nodeFunctionality::Rotate90},
 		{"Scale", (void*)nodeFunctionality::Scale},
 		{"Select by color", (void*)nodeFunctionality::SelectByColor},

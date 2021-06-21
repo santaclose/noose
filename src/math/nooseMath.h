@@ -13,6 +13,7 @@ namespace nooseMath
 	bool isPointInsideRect(const sf::Vector2f& point, const sf::Vector2f topLeftCorner, const sf::Vector2f bottomRightCorner);
 	float distance(const sf::Vector2f& a, const sf::Vector2f b);
 	float dot(const sf::Vector2f& a, const sf::Vector2f b);
+	float length(const sf::Vector2f& v);
 	float lengthSquared(const sf::Vector2f& v);
 
 	sf::Vector2f rightVector(const sf::Vector2f& a);

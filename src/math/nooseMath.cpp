@@ -35,6 +35,10 @@ float nooseMath::dot(const sf::Vector2f& a, const sf::Vector2f b)
 {
 	return a.x * b.x + a.y * b.y;
 }
+float nooseMath::length(const sf::Vector2f& v)
+{
+	return std::sqrtf(v.x * v.x + v.y * v.y);
+}
 float nooseMath::lengthSquared(const sf::Vector2f& v)
 {
 	return v.x * v.x + v.y * v.y;
