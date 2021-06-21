@@ -246,7 +246,7 @@ Break color
 [
 	category: Color operations
 	in:
-		Color: out
+		Color: color
 	out:
 		Integer: r
 		Integer: g
@@ -262,7 +262,7 @@ Color from image
 	out:
 		Color: out
 ]
-Make int vector
+Break int vector
 [
 	category: Int vector operations
 	in:
@@ -271,7 +271,7 @@ Make int vector
 		Integer: x
 		Integer: y
 ]
-Break int vector
+Make int vector
 [
 	category: Int vector operations
 	in:
