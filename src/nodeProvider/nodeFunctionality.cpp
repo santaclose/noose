@@ -583,6 +583,9 @@ void nodeFunctionality::ColorFromImage(node* theNode)
 	sf::RenderTexture* inImage = ((sf::RenderTexture*)theNode->getDataPointer(0));
 	sf::Vector2i* inCoords = ((sf::Vector2i*)(theNode->getDataPointer(1)));
 
+	if (inImage->getSize().x < 1 || inImage->getSize().y < 1)
+		return;
+
 	unsigned int xCoord = nooseMath::mod(inCoords->x, inImage->getSize().x);
 	unsigned int yCoord = nooseMath::mod(inCoords->y, inImage->getSize().y);
 
