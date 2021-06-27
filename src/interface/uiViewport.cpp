@@ -105,6 +105,12 @@ int uiViewport::mouseOver(sf::Vector2f& mousePos)
 
 void uiViewport::updateBottomBarText()
 {
+	if (selectedNode == -1)
+	{
+		bottomBarText.setString("");
+		return;
+	}
+
 	std::stringstream newBottomBarText;
 	bool firstPrinted = false;
 	int c = selectedNodeDataPointers->size(); // count
