@@ -15,7 +15,7 @@
 #define MIN_ZOOM 30
 
 #define IMAGE_MARGIN 24
-#define BOTTOM_BAR_COLOR 0x222222ff
+#define BOTTOM_BAR_COLOR 0x222222a0
 #define BOTTOM_BAR_HEIGHT 24
 #define FONT_SIZE 14
 #define BOTTOM_BAR_TEXT_MARGIN 4
@@ -381,12 +381,10 @@ void uiViewport::onPollEvent(const sf::Event& e)
 	}
 }
 
+// executed after all node computations are done in the entire graph
 void uiViewport::onNodeChanged(int theNode)
 {
-	if (theNode == selectedNode)
-	{
-		updateBottomBarText();
-	}
+	updateBottomBarText();
 }
 
 void uiViewport::onNodeDeleted(int theNode)
