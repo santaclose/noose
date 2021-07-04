@@ -66,6 +66,15 @@ Linear Gradient
 	out:
 		Image: result
 ]
+Uniform Noise
+[
+	category: Procedural
+	in:
+		Vector2i: image size
+		Integer: seed
+	out:
+		Image: result
+]
 Separate channels
 [
 	category: Image processing
@@ -218,6 +227,16 @@ Rotate 90
 		Integer: times[1]
 	out:
 		Image: image
+]
+Flat Blur
+[
+	category: Image processing
+	in:
+		Image: image
+		Float: radius[32]
+		Integer: samples[256]
+	out:
+		Image: out
 ]
 Scale
 [

@@ -10,6 +10,7 @@ namespace nodeFunctionality
 	void Solid(node* theNode);
 	void Checker(node* theNode);
 	void LinearGradient(node* theNode);
+	void UniformNoise(node* theNode);
 	// image processing
 	void SeparateChannels(node* theNode);
 	void CombineChannels(node* theNode);
@@ -29,6 +30,7 @@ namespace nodeFunctionality
 	void Rotate90(node* theNode);
 	void Scale(node* theNode);
 	void SelectByColor(node* theNode);
+	void FlatBlur(node* theNode);
 	// color operations
 	void Color(node* theNode);
 	void ColorFromRGBAInts(node* theNode);
