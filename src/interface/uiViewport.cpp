@@ -3,6 +3,7 @@
 #include "../math/nooseMath.h"
 #include "../types.h"
 #include "../utils.h"
+#include "../pathUtils.h"
 #include <iostream>
 #include <sstream>
 #include <portable-file-dialogs.h>
@@ -181,15 +182,15 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2
 
 	bottomBarRectangle.setFillColor(sf::Color(BOTTOM_BAR_COLOR));
 
-	imageLimitTexture.loadFromFile(utils::getProgramDirectory() + "assets/images/imageLimit.png");
+	imageLimitTexture.loadFromFile(pathUtils::getAssetsDirectory() + "images/imageLimit.png");
 	imageLimitSprite = sf::Sprite(imageLimitTexture);
 
 	// checker background
-	if (!checkerShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/checker.shader", sf::Shader::Fragment))
+	if (!checkerShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/checker.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load alpha background shader\n";
 
 	// dark mode
-	if (!invertShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/invert.shader", sf::Shader::Fragment))
+	if (!invertShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/invert.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load dark mode shader\n";
 
 	saveSelectionBox.initialize();
@@ -293,7 +294,7 @@ void uiViewport::onPollEvent(const sf::Event& e)
 							std::cout << "[UI] Image not saved\n";
 							break;
 						}
-						destination = destination + (utils::fileHasExtension(destination.c_str(), fileExtension.c_str()) ? "" : '.' + fileExtension);
+						destination = destination + (pathUtils::fileHasExtension(destination.c_str(), fileExtension.c_str()) ? "" : '.' + fileExtension);
 						if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(destination))
 							std::cout << "[UI] Image saved\n";
 						else

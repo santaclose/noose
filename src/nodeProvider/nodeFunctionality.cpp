@@ -1,7 +1,7 @@
 #include "nodeFunctionality.h"
 #include <iostream>
 #include <cmath>
-#include "../utils.h"
+#include "../pathUtils.h"
 #include "../math/nooseMath.h"
 
 namespace nodeFunctionality {
@@ -37,51 +37,51 @@ void nodeFunctionality::initialize()
 {
 	rs.blendMode = sf::BlendNone;
 
-	if (!imageShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/loadImage.shader", sf::Shader::Fragment))
+	if (!imageShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/loadImage.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load image shader\n";
-	if (!blendShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/blend.shader", sf::Shader::Fragment))
+	if (!blendShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/blend.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load blend shader\n";
-	if (!brightnessContrastShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/brightness-contrast.shader", sf::Shader::Fragment))
+	if (!brightnessContrastShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/brightness-contrast.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load brightness-contrast shader\n";
-	if (!checkerShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/checker.shader", sf::Shader::Fragment))
+	if (!checkerShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/checker.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load checker shader\n";
-	if (!flipShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/flip.shader", sf::Shader::Fragment))
+	if (!flipShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/flip.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load flip shader\n";
-	if (!frameShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/frame.shader", sf::Shader::Fragment))
+	if (!frameShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/frame.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load frame shader\n";
-	if (!invertShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/invert.shader", sf::Shader::Fragment))
+	if (!invertShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/invert.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load invert shader\n";
-	if (!linearGradientShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/linearGradient.shader", sf::Shader::Fragment))
+	if (!linearGradientShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/linearGradient.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load linearGradient shader\n";
-	if (!noiseShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/uniformNoise.shader", sf::Shader::Fragment))
+	if (!noiseShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/uniformNoise.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load uniform noise shader\n";
-	if (!repeatShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/repeat.shader", sf::Shader::Fragment))
+	if (!repeatShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/repeat.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load repeat shader\n";
-	if (!rotateShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/rotate.shader", sf::Shader::Fragment))
+	if (!rotateShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/rotate.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load rotate shader\n";
-	if (!rotate90Shader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/rotate90.shader", sf::Shader::Fragment))
+	if (!rotate90Shader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/rotate90.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load rotate90 shader\n";
-	if (!blurShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/flatBlur.shader", sf::Shader::Fragment))
+	if (!blurShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/flatBlur.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load flat blur shader\n";
-	if (!solidShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/solid.shader", sf::Shader::Fragment))
+	if (!solidShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/solid.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load solidShader shader\n";
-	if (!maskShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/mask.shader", sf::Shader::Fragment))
+	if (!maskShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/mask.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load mix shader\n";
-	if (!grayscaleShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/grayscale.shader", sf::Shader::Fragment))
+	if (!grayscaleShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/grayscale.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load grayscale shader\n";
-	if (!gammaCorrectionShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/gammaCorrection.shader", sf::Shader::Fragment))
+	if (!gammaCorrectionShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/gammaCorrection.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load gammaCorrection shader\n";
-	if (!separateShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/separate.shader", sf::Shader::Fragment))
+	if (!separateShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/separate.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load separate shader\n";
-	if (!combineShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/combine.shader", sf::Shader::Fragment))
+	if (!combineShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/combine.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load combine shader\n";
-	if (!cropShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/crop.shader", sf::Shader::Fragment))
+	if (!cropShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/crop.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load crop shader\n";
-	if (!extendShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/extend.shader", sf::Shader::Fragment))
+	if (!extendShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/extend.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load extend shader\n";
-	if (!patchShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/patch.shader", sf::Shader::Fragment))
+	if (!patchShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/patch.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load patch shader\n";
-	if (!selectByColorShader.loadFromFile(utils::getProgramDirectory() + "assets/nodeShaders/selectByColor.shader", sf::Shader::Fragment))
+	if (!selectByColorShader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/selectByColor.shader", sf::Shader::Fragment))
 		std::cout << "[Node provider] Failed to load selectByColor shader\n";
 }
 

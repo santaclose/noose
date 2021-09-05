@@ -4,6 +4,7 @@
 #include <cmath>
 #include "../math/nooseMath.h"
 #include "../utils.h"
+#include "../pathUtils.h"
 
 #define COLOR_WHEEL_SIZE 220.0
 #define COLOR_WHEEL_RADIUS 0.45
@@ -79,12 +80,12 @@ void uiColorPicker::initialize()
 {
 	rsOverwrite.blendMode = sf::BlendNone;
 
-	marker.loadFromFile(utils::getProgramDirectory() + "assets/images/imageLimit.png");
+	marker.loadFromFile(pathUtils::getAssetsDirectory() + "images/imageLimit.png");
 	markerSprite = sf::Sprite(marker);
 
-	if (!colorWheelShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/colorwheel.shader", sf::Shader::Fragment))
+	if (!colorWheelShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/colorwheel.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load colorwheel shader\n";
-	if (!gradientShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/gradient.shader", sf::Shader::Fragment))
+	if (!gradientShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/gradient.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load gradient shader\n";
 
 	// get colorwheel image in ram

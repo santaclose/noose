@@ -5,7 +5,7 @@
 #include "../searcher.h"
 #include "../nodeData.h"
 #include "../math/nooseMath.h"
-#include "../utils.h"
+#include "../pathUtils.h"
 
 #include <iostream>
 
@@ -80,7 +80,7 @@ void uiSearchBar::pushSelectedNode(uiNodeSystem::PushMode mode)
 
 void uiSearchBar::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer)
 {
-	if (!resultBoxShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/searchResults.shader", sf::Shader::Fragment))
+	if (!resultBoxShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/searchResults.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load search results shader\n";
 
 	searchRectangle = sf::RectangleShape(sf::Vector2f(SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT));

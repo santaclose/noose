@@ -1,5 +1,5 @@
 #include "uiFloatingButtonLayer.h"
-#include <utils.h>
+#include <pathUtils.h>
 #include <vector>
 #include <iostream>
 #include "uiData.h"
@@ -56,7 +56,7 @@ void uiFloatingButtonLayer::initialize(sf::RenderWindow& window, const sf::Vecto
 {
 	renderWindow = &window;
 	uiFloatingButtonLayer::mouseScreenPosPointer = mouseScreenPosPointer;
-	if (!genericShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/floatingButton.shader", sf::Shader::Fragment))
+	if (!genericShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/floatingButton.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load floating button shader\n";
 	genericShader.setUniform("radius", BUTTON_RADIUS);
 }
@@ -79,7 +79,7 @@ void uiFloatingButtonLayer::addButton(ButtonPosition position, char symbol, cons
 	{
 		buttons.back().text = nullptr;
 		buttons.back().customShader = new sf::Shader();
-		if (!buttons.back().customShader->loadFromFile(utils::getProgramDirectory() + *customShaderPath, sf::Shader::Fragment))
+		if (!buttons.back().customShader->loadFromFile(pathUtils::getAssetsDirectory() + *customShaderPath, sf::Shader::Fragment))
 			std::cout << "[UI] Failed to load floating button shader\n";
 		buttons.back().customShader->setUniform("radius", BUTTON_RADIUS);
 	}

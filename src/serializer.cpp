@@ -3,7 +3,7 @@
 #include <interface/uiNodeSystem.h>
 #include <interface/uiViewport.h>
 #include <interface/uiConnections.h>
-#include <utils.h>
+#include <pathUtils.h>
 #include <fstream>
 #include <unordered_map>
 #include "types.h"
@@ -13,7 +13,7 @@ enum class LoadSubState { ReadingIds = 0, ReadingNodeCoordinates = 1, ReadingPin
 
 void serializer::LoadFromFile(const std::string& filePath)
 {
-	std::string folderPath = utils::getFolderPath(filePath);
+	std::string folderPath = pathUtils::getFolderPath(filePath);
 
 	// clear all nodes and connections before loading file
 	uiNodeSystem::clearEverything();
@@ -130,7 +130,7 @@ void serializer::LoadFromFile(const std::string& filePath)
 					if (!tx.loadFromFile(fullImagePath))
 						std::cout << "[Serializer] Failed to open image file: " + fullImagePath + "\n";
 					nodes.back()->m_inputFields[currentPin].imagePath = fullImagePath;
-					nodes.back()->m_inputFields[currentPin].texts[0].setString(utils::getFileNameFromPath(fullImagePath.c_str()));
+					nodes.back()->m_inputFields[currentPin].texts[0].setString(pathUtils::getFileNameFromPath(fullImagePath.c_str()));
 					uiInputField::loadImageShader.setUniform("tx", tx);
 
 					sf::Sprite spr(tx);
@@ -261,7 +261,7 @@ void serializer::SaveIntoFile(const std::string& filePath)
 					break;
 				case NS_TYPE_IMAGE:
 					output << (node->m_inputFields[i].imagePath.length() > 0 ?
-						utils::getRelativePath(filePath, node->m_inputFields[i].imagePath) :
+						pathUtils::getRelativePath(filePath, node->m_inputFields[i].imagePath) :
 						"None") << '\n';
 					break;
 				case NS_TYPE_INT:

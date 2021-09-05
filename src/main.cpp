@@ -17,7 +17,7 @@
 
 #include "nodeProvider/nodeProvider.h"
 #include "logic/nodeSystem.h"
-#include "utils.h"
+#include "pathUtils.h"
 
 static const sf::Color BACKGROUND_COLOR(0x222222ff);
 
@@ -50,14 +50,14 @@ void onNodeChanged(int theNode)
 
 int main(int argc, char** argv)
 {
-	utils::setProgramDirectory(argv[0]);
+	pathUtils::setProgramDirectory(argv[0]);
 
 	// Create the main window
 	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "node editor", 7U, sf::ContextSettings(), true);
 	// Create the output window
 	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport", sf::Style::Resize);
 	sf::Image iconImage;
-	iconImage.loadFromFile(utils::getProgramDirectory() + "assets/icon.png");
+	iconImage.loadFromFile(pathUtils::getAssetsDirectory() + "icon.png");
 	windowA.setIcon(iconImage.getSize().x, iconImage.getSize().y, iconImage.getPixelsPtr());
 	windowB.setIcon(iconImage.getSize().x, iconImage.getSize().y, iconImage.getPixelsPtr());
 
@@ -79,10 +79,10 @@ int main(int argc, char** argv)
 	uiCategoryPusher::initialize(windowA, &mousePosWindowA);
 
 	uiFloatingButtonLayer::initialize(windowA, &mousePosWindowA);
-	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::BottomRight, "assets/shaders/addFloatingButton.shader");
-	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::TopLeft, "assets/shaders/menuFloatingButton.shader");
+	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::BottomRight, "shaders/addFloatingButton.shader");
+	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::TopLeft, "shaders/menuFloatingButton.shader");
 	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::BottomLeft, '?');
-	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::TopRight, "assets/shaders/showViewportButton.shader");
+	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::TopRight, "shaders/showViewportButton.shader");
 
 	uiViewport::initialize(windowB, &mousePosWindowB, uiInputField::setVectorData);
 

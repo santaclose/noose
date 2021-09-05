@@ -4,7 +4,7 @@
 #include "uiNodeSystem.h"
 
 #include "../serializer.h"
-#include "../utils.h"
+#include "../pathUtils.h"
 
 #include <iostream>
 #include <portable-file-dialogs.h>
@@ -74,7 +74,7 @@ void uiMenu::onPollEvent(const sf::Event& e)
 					std::cout << "[UI] File not saved\n";
 					break;
 				}
-				destination = destination + (utils::fileHasExtension(destination.c_str(), "ns") ? "" : ".ns");
+				destination = destination + (pathUtils::fileHasExtension(destination.c_str(), "ns") ? "" : ".ns");
 				serializer::SaveIntoFile(destination);
 				break;
 			}

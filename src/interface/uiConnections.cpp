@@ -3,7 +3,7 @@
 #include <vector>
 #include "../math/nooseMath.h"
 #include "../math/vectorOperators.h"
-#include "../utils.h"
+#include "../pathUtils.h"
 
 #define LINE_DELETE_COLLISION_DISTANCE 6.0f
 #define CONNECTION_LINE_WIDTH 3.0
@@ -93,7 +93,7 @@ void uiConnections::printArray()
 
 void uiConnections::initialize(float zoom)
 {
-	if (!shader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/connection.shader", sf::Shader::Fragment))
+	if (!shader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/connection.shader", sf::Shader::Fragment))
 		std::cout << "[UI] Failed to load line shader\n";
 	//shader.setUniform("ratio", 0.6f);//shaderFadeRatio);
 	shader.setUniform("zoom", zoom);

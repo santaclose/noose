@@ -4,7 +4,7 @@
 #include "uiData.h"
 
 #include "../math/nooseMath.h"
-#include "../utils.h"
+#include "../pathUtils.h"
 #include "../types.h"
 
 #include <iostream>
@@ -475,7 +475,7 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 
 	if (!loadImageShaderLoaded)
 	{
-		if (!loadImageShader.loadFromFile(utils::getProgramDirectory() + "assets/shaders/loadImage.shader", sf::Shader::Fragment))
+		if (!loadImageShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/loadImage.shader", sf::Shader::Fragment))
 			std::cout << "[UI] Failed to load image loading shader\n";
 		loadImageShaderLoaded = true;
 	}
@@ -581,7 +581,7 @@ void uiInputField::setValue(const void* data)
 			return;
 		}
 		imagePath = std::string(filePath);
-		texts[0].setString(utils::getFileNameFromPath(filePath.c_str()));
+		texts[0].setString(pathUtils::getFileNameFromPath(filePath.c_str()));
 		loadImageShader.setUniform("tx", tx);
 
 		sf::Sprite spr(tx);
@@ -637,7 +637,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 				return;
 			}
 			imagePath = selection[0];
-			texts[0].setString(utils::getFileNameFromPath(selection[0].c_str()));
+			texts[0].setString(pathUtils::getFileNameFromPath(selection[0].c_str()));
 			loadImageShader.setUniform("tx", tx);
 
 			sf::Sprite spr(tx);

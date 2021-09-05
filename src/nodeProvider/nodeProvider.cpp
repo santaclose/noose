@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <vector>
 #include <utility>
-#include "../utils.h"
+#include "../pathUtils.h"
 
 namespace nodeProvider {
 
@@ -94,7 +94,7 @@ void nodeProvider::initialize()
 	bool insideDataSection = false;
 	bool inSection = true;
 
-	ifstream inputStream(utils::getProgramDirectory() + "assets/nodes.dat");
+	ifstream inputStream(pathUtils::getAssetsDirectory() + "nodes.dat");
 	string line;
 
 	string type, name, defaultData;
