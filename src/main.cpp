@@ -206,8 +206,9 @@ int main(int argc, char** argv)
 		windowB.display();
 
 		uiColorPicker::tick();
-	}
 
+		sf::sleepUntilEvent();
+	}
 	uiMenu::terminate();
 	uiCategoryPusher::terminate();
 	uiFloatingButtonLayer::terminate();
