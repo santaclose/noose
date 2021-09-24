@@ -1,5 +1,5 @@
 uniform sampler2D tx;
-uniform sampler2D patch;
+uniform sampler2D patchTx;
 uniform vec2 topLeft;
 uniform vec2 ratio;
 
@@ -10,7 +10,7 @@ void main()
 	if (uv.x > topLeft.x && uv.x < topLeft.x + ratio.x && uv.y > topLeft.y && uv.y < topLeft.y + ratio.y)
 	{
 		vec2 newCoords = vec2((uv.x - topLeft.x) / ratio.x, (uv.y - topLeft.y) / ratio.y);
-		gl_FragColor = texture2D(patch, newCoords);
+		gl_FragColor = texture2D(patchTx, newCoords);
 	}
 	else
 	{

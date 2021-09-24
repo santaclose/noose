@@ -344,7 +344,7 @@ void nodeFunctionality::Patch(node* theNode)
 	float ratioY = (float) patchSize.y / (float) imageSize.y;
 
 	patchShader.setUniform("tx", image->getTexture());
-	patchShader.setUniform("patch", patch->getTexture());
+	patchShader.setUniform("patchTx", patch->getTexture());
 	patchShader.setUniform("topLeft", sf::Glsl::Vec2(left, top));
 	patchShader.setUniform("ratio", sf::Glsl::Vec2(ratioX, ratioY));
 
