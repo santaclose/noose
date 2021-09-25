@@ -12,6 +12,7 @@ void main()
 	float ratioY = newSize.y / originalSize.y;
 	float borderX = ratioX - 1.0;
 	float borderY = ratioY - 1.0;
+	float aspectRatio = originalSize.x / originalSize.y;
 
 	vec2 uv = vec2(gl_TexCoord[0].s * ratioX, (1.0 - gl_TexCoord[0].t) * ratioY);
 
@@ -19,11 +20,15 @@ void main()
 	uv.x -= borderX * 0.5 + 0.5;
 	uv.y -= borderY * 0.5 + 0.5;
 
+	uv.y /= aspectRatio; 
+
 	// rotate
 	float newX = uv.x * cos(angle) - uv.y * sin(angle);
 	float newY = uv.x * sin(angle) + uv.y * cos(angle);
 	uv.x = newX;
 	uv.y = newY;
+
+	uv.y *= aspectRatio; 
 
 	// translate and center
 	uv.x += /*borderX * 0.5*/ + 0.5;
