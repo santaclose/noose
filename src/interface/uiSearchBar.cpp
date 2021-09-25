@@ -164,6 +164,14 @@ void uiSearchBar::onPollEvent(const sf::Event& e)
 		}
 		switch (e.text.unicode)
 		{
+		case 127: // ctrl backspace
+		{
+			int i = searchBufferCurrentChar > 0 ? searchBufferCurrentChar - 1 : 0;
+			for (; i > 0 && searchBuffer[i - 1] != ' '; i--);
+			searchBuffer[i] = '\0';
+			searchBufferCurrentChar = i;
+			break;
+		}
 		case '\r':
 			return;
 		case '\b':
