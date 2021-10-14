@@ -39,6 +39,22 @@ Image
 		Image: out
 		Vector2i: size
 ]
+String
+[
+	category: Types
+	in:
+		String: in
+	out:
+		String: out
+]
+Font
+[
+	category: Types
+	in:
+		Font: in
+	out:
+		Font: out
+]
 Solid
 [
 	category: Procedural
@@ -72,6 +88,17 @@ Uniform Noise
 	in:
 		Vector2i: image size
 		Integer: seed
+	out:
+		Image: result
+]
+Image from text
+[
+	category: Procedural
+	in:
+		Font: font
+		Integer: size[100]
+		Color: color[ffffffff]
+		String: text[text]
 	out:
 		Image: result
 ]

@@ -43,6 +43,8 @@ void uiInputField::updateTextPositions()
 {
 	switch (type)
 	{
+	case NS_TYPE_STRING:
+	case NS_TYPE_FONT:
 	case NS_TYPE_FLOAT:
 	case NS_TYPE_IMAGE:
 	case NS_TYPE_INT:
@@ -90,7 +92,8 @@ void uiInputField::unbind()
 		editingInputField->paintQuad(false, 2);
 	}
 	else if (editingInputField->type == NS_TYPE_INT ||
-			editingInputField->type == NS_TYPE_FLOAT)
+			editingInputField->type == NS_TYPE_FLOAT ||
+			editingInputField->type == NS_TYPE_STRING)
 	{
 		editingInputField->paintQuad(false, 0);
 	}
@@ -101,6 +104,11 @@ void uiInputField::unbind()
 bool uiInputField::isBound()
 {
 	return editingInputField != nullptr;
+}
+
+bool uiInputField::typingInteractionOngoing()
+{
+	return isBound() && currentInteractionMode == InteractionMode::Typing;
 }
 
 void uiInputField::setVectorData(const sf::Vector2i& vec)
@@ -299,7 +307,33 @@ void uiInputField::keyboardInput(sf::Uint32 unicode)
 		return;
 	}
 
-	if (editingInputField->type == NS_TYPE_FLOAT)
+	if (editingInputField->type == NS_TYPE_STRING)
+	{
+		if (unicode == '\b')
+		{
+			if (keyboardInputString.length() > 0)
+				keyboardInputString.resize(keyboardInputString.length() - 1);
+			else
+				return;
+		}
+		else if (unicode == 127) // ctrl backspace
+		{
+			if (keyboardInputString.length() > 0)
+			{
+				int i = keyboardInputString.length() - 1;
+				for (; i > 0 && keyboardInputString[i - 1] != ' '; i--);
+				keyboardInputString = keyboardInputString.substr(0, i);
+			}
+		}
+		else
+			keyboardInputString += unicode;
+
+		*((std::string*)(editingInputField->dataPointer)) = keyboardInputString;
+
+		editingInputField->texts[0].setString(keyboardInputString);
+		editingInputField->updateTextPositions();
+	}
+	else if (editingInputField->type == NS_TYPE_FLOAT)
 	{
 		if (unicode == '\b')
 		{
@@ -386,6 +420,8 @@ bool uiInputField::mouseOver(const sf::Vector2f& mousePosInWorld, int& index)
 {
 	switch (type)
 	{
+	case NS_TYPE_STRING:
+	case NS_TYPE_FONT:
 	case NS_TYPE_IMAGE:
 	case NS_TYPE_COLOR:
 	case NS_TYPE_FLOAT:
@@ -443,6 +479,14 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 		texts[0].setCharacterSize(FONT_SIZE);
 		texts[0].setString(std::to_string(*((float*)pinDataPointer)));
 		break;
+	case NS_TYPE_STRING:
+		shapes = new sf::Vertex[4];
+		texts = new sf::Text[1];
+		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = INPUT_FIELD_COLOR;
+		texts[0].setFont(uiData::font);
+		texts[0].setCharacterSize(FONT_SIZE);
+		texts[0].setString(*((std::string*)pinDataPointer));
+		break;
 	case NS_TYPE_VECTOR2I:
 		shapes = new sf::Vertex[12];
 		texts = new sf::Text[3];
@@ -461,8 +505,9 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 		break;
 	case NS_TYPE_COLOR:
 		shapes = new sf::Vertex[4];
-		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = sf::Color::Magenta;
+		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = *((sf::Color*)pinDataPointer);
 		break;
+	case NS_TYPE_FONT:
 	case NS_TYPE_IMAGE:
 		shapes = new sf::Vertex[4];
 		texts = new sf::Text[1];
@@ -487,6 +532,8 @@ void uiInputField::setPosition(const sf::Vector2f& newPosition, float nodeWidth,
 
 	switch (type)
 	{
+	case NS_TYPE_STRING:
+	case NS_TYPE_FONT:
 	case NS_TYPE_FLOAT:
 	case NS_TYPE_IMAGE:
 	case NS_TYPE_INT:
@@ -519,6 +566,8 @@ void uiInputField::draw(sf::RenderWindow& window)
 {
 	switch (type)
 	{
+	case NS_TYPE_STRING:
+	case NS_TYPE_FONT:
 	case NS_TYPE_INT:
 	case NS_TYPE_FLOAT:
 	case NS_TYPE_IMAGE:
@@ -571,6 +620,12 @@ void uiInputField::setValue(const void* data)
 			*((sf::Color*)(dataPointer));
 		break;
 	}
+	case NS_TYPE_STRING:
+	{
+		*((std::string*)(dataPointer)) = *((std::string*)(data));
+		texts[0].setString(*((std::string*)data));
+		break;
+	}
 	case NS_TYPE_IMAGE:
 	{
 		sf::Texture tx;
@@ -590,6 +645,19 @@ void uiInputField::setValue(const void* data)
 
 		pointer->create(txSize.x, txSize.y);
 		pointer->draw(spr, &loadImageShader);
+		break;
+	}
+	case NS_TYPE_FONT:
+	{
+		sf::Font* pointer = (sf::Font*)dataPointer;
+		const std::string& filePath = *((const std::string*)data);
+		if (!pointer->loadFromFile(filePath))
+		{
+			std::cout << "[UI] Failed to open font file\n";
+			return;
+		}
+		fontPath = std::string(filePath);
+		texts[0].setString(pathUtils::getFileNameFromPath(filePath.c_str()));
 		break;
 	}
 	}
@@ -618,6 +686,34 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 
 	switch (type)
 	{
+	case NS_TYPE_FONT:
+	{
+		if (currentInteractionMode == InteractionMode::Typing)
+		{
+			// no typing interaction to load fonts
+			editingInputField = nullptr;
+			return;
+		}
+
+		std::vector<std::string> selection = pfd::open_file("Open font", "", { "Font Files", "*.ttf *.otf" }).result();
+		if (selection.size() != 0)
+		{
+			sf::Font* pointer = (sf::Font*)dataPointer;
+			if (!pointer->loadFromFile(selection[0]))
+			{
+				std::cout << "[UI] Failed to open font file\n";
+				return;
+			}
+			fontPath = selection[0];
+			texts[0].setString(pathUtils::getFileNameFromPath(selection[0].c_str()));
+
+			editingInputField->updateTextPositions();
+			editingInputField->onValueChanged();
+		}
+
+		unbind();
+		return;
+	}
 	case NS_TYPE_IMAGE:
 	{
 		if (currentInteractionMode == InteractionMode::Typing)
@@ -671,6 +767,19 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 			this->texts[0].setString("");
 			*((float*)(this->dataPointer)) = 0;
 		}
+		return;
+	}
+	case NS_TYPE_STRING:
+	{
+		if (currentInteractionMode == InteractionMode::Typing)
+		{
+			paintQuad(true, 0);
+			keyboardInputString = *((std::string*)(this->dataPointer));
+			//this->texts[0].setString("");
+			//*((std::string*)(this->dataPointer)) = "";
+		}
+		else
+			unbind();
 		return;
 	}
 	case NS_TYPE_INT:

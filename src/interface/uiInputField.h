@@ -16,6 +16,7 @@ private:
 	sf::Vertex* shapes = nullptr;
 	sf::Text* texts = nullptr;
 	std::string imagePath;
+	std::string fontPath;
 	const std::vector<std::string>* enumOptions;
 	static uiSelectionBox* selectionBox;
 	
@@ -37,6 +38,7 @@ public:
 	static void keyboardInput(sf::Uint32 unicode);
 	static void unbind();
 	static bool isBound();
+	static bool typingInteractionOngoing();
 	static void setVectorData(const sf::Vector2i& vec);
 
 	~uiInputField();

@@ -121,6 +121,10 @@ void serializer::LoadFromFile(const std::string& filePath)
 					((float*)nodes.back()->m_inputFields[currentPin].getDataPointer())[0] = std::stof(line);
 					nodes.back()->m_inputFields[currentPin].texts[0].setString(line);
 					break;
+				case NS_TYPE_STRING:
+					((std::string*)nodes.back()->m_inputFields[currentPin].getDataPointer())[0] = line;
+					nodes.back()->m_inputFields[currentPin].texts[0].setString(line);
+					break;
 				case NS_TYPE_IMAGE:
 				{
 					if (line.compare("None") == 0)
@@ -139,6 +143,18 @@ void serializer::LoadFromFile(const std::string& filePath)
 
 					pointer->create(txSize.x, txSize.y);
 					pointer->draw(spr, &uiInputField::loadImageShader);
+					break;
+				}
+				case NS_TYPE_FONT:
+				{
+					if (line.compare("None") == 0)
+						break;
+					std::string fullFontPath = folderPath + line;
+					sf::Font* pointer = (sf::Font*)nodes.back()->m_inputFields[currentPin].dataPointer;
+					if (!pointer->loadFromFile(fullFontPath))
+						std::cout << "[Serializer] Failed to open font file: " + fullFontPath + "\n";
+					nodes.back()->m_inputFields[currentPin].fontPath = fullFontPath;
+					nodes.back()->m_inputFields[currentPin].texts[0].setString(pathUtils::getFileNameFromPath(fullFontPath.c_str()));
 					break;
 				}
 				case NS_TYPE_INT:
@@ -263,6 +279,14 @@ void serializer::SaveIntoFile(const std::string& filePath)
 					output << (node->m_inputFields[i].imagePath.length() > 0 ?
 						pathUtils::getRelativePath(filePath, node->m_inputFields[i].imagePath) :
 						"None") << '\n';
+					break;
+				case NS_TYPE_FONT:
+					output << (node->m_inputFields[i].fontPath.length() > 0 ?
+						pathUtils::getRelativePath(filePath, node->m_inputFields[i].fontPath) :
+						"None") << '\n';
+					break;
+				case NS_TYPE_STRING:
+					output << *(std::string*)node->m_inputFields[i].getDataPointer() << '\n';
 					break;
 				case NS_TYPE_INT:
 					output << *(int*)node->m_inputFields[i].getDataPointer() << '\n';

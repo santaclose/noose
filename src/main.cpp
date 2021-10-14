@@ -138,7 +138,7 @@ int main(int argc, char** argv)
 					uiCategoryPusher::onPollEvent(eventWindowA);
 				else
 				{
-					if (eventWindowA.type == sf::Event::KeyPressed)
+					if (eventWindowA.type == sf::Event::KeyPressed && !uiInputField::typingInteractionOngoing())
 					{
 						switch (eventWindowA.key.code)
 						{

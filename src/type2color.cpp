@@ -10,7 +10,9 @@ namespace type2color {
 		{NS_TYPE_FLOAT, 0xee1133ff},
 		{NS_TYPE_VECTOR2I, 0x56957aff},
 		{NS_TYPE_COLOR, 0xaa7700ff},
-		{NS_TYPE_IMAGE, 0x00bc44ff}
+		{NS_TYPE_IMAGE, 0x00bc44ff},
+		{NS_TYPE_STRING, 0xbc007aff},
+		{NS_TYPE_FONT, 0x7d7d7dff}
 	};
 }
 

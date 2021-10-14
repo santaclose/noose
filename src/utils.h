@@ -5,6 +5,7 @@
 namespace utils
 {
 	void rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v);
+	sf::Color colorFromHexString(const std::string& hexString);
 
 	template <typename T>
 	std::string intToHex(T i)

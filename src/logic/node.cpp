@@ -31,9 +31,19 @@ void* reserveDataForPin(int type, void* defaultValue)
 			return new sf::Color(255, 0, 255, 255);
 		else
 			return new sf::Color(*((sf::Color*)defaultValue));
+	case NS_TYPE_STRING:
+		if (defaultValue == nullptr)
+			return new std::string("");
+		else
+			return new std::string(*((std::string*)defaultValue));
 	case NS_TYPE_IMAGE:
 		if (defaultValue == nullptr)
 			return new sf::RenderTexture();
+		break; // can't set default from nodes.dat
+	case NS_TYPE_FONT:
+		if (defaultValue == nullptr)
+			return new sf::Font();
+		break; // can't set default from nodes.dat
 	}
 	std::cout << "[Node system] COULD NOT RESERVE DATA FOR PIN\n";
 	return nullptr;
@@ -41,7 +51,6 @@ void* reserveDataForPin(int type, void* defaultValue)
 
 void deletePinData(int type, void* pointer)
 {
-
 	switch (type)
 	{
 	case NS_TYPE_INT:
@@ -56,8 +65,14 @@ void deletePinData(int type, void* pointer)
 	case NS_TYPE_COLOR:
 		delete (sf::Color*) pointer;
 		break;
+	case NS_TYPE_STRING:
+		delete (std::string*)pointer;
+		break;
 	case NS_TYPE_IMAGE:
 		delete (sf::RenderTexture*) pointer;
+		break;
+	case NS_TYPE_FONT:
+		delete (sf::Font*)pointer;
 		break;
 	}
 }

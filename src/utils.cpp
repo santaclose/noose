@@ -41,3 +41,16 @@ void utils::rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v)
 
     if (h < 0) h += 360.0f;
 }
+
+sf::Color utils::colorFromHexString(const std::string& hexString)
+{
+    uint8_t res_arr[4];
+    for (int i = 0; i < 4; i++)
+    {
+        char a = hexString[i * 2 + 0] > '9' ? hexString[i * 2 + 0] - 'a' + 10 : hexString[i * 2 + 0] - '0';
+        char b = hexString[i * 2 + 1] > '9' ? hexString[i * 2 + 1] - 'a' + 10 : hexString[i * 2 + 1] - '0';
+        res_arr[i] = a * 16 + b;
+    }
+
+    return sf::Color(res_arr[0], res_arr[1], res_arr[2], res_arr[3]);
+}

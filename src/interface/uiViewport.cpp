@@ -149,6 +149,18 @@ void uiViewport::updateBottomBarText()
 			newBottomBarText << "#" << utils::intToHex(((sf::Color*) (*selectedNodeDataPointers)[i])->toInteger());
 			break;
 		}
+		case NS_TYPE_FONT:
+		{
+			sf::Font* data = (sf::Font*)(*selectedNodeDataPointers)[i];
+			newBottomBarText << data->getInfo().family;
+			break;
+		}
+		case NS_TYPE_STRING:
+		{
+			std::string* data = (std::string*)(*selectedNodeDataPointers)[i];
+			newBottomBarText << *data;
+			break;
+		}
 		}
 	}
 	bottomBarText.setString(newBottomBarText.str());

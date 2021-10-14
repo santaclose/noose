@@ -55,5 +55,9 @@ namespace nodeFunctionality
 	void FloatSubtraction(node* theNode);
 	void FloatProduct(node* theNode);
 	void FloatDivision(node* theNode);
+	// font and text
+	void String(node* theNode);
+	void Font(node* theNode);
+	void ImageFromText(node* theNode);
 };
 

@@ -96,6 +96,7 @@ void nodeFunctionality::ImageFromFile(node* theNode)
 	outputPointer->create(size.x, size.y);
 
 	imageShader.setUniform("tx", a->getTexture());
+	imageShader.setUniform("flip", 0);
 
 	sf::Sprite spr(a->getTexture());
 	rs.shader = &imageShader;
@@ -553,6 +554,7 @@ void nodeFunctionality::Scale(node* theNode)
 
 	a->setSmooth(*shouldSmooth % 2 == 1);
 	imageShader.setUniform("tx", a->getTexture());
+	imageShader.setUniform("flip", 0);
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &imageShader;
@@ -752,4 +754,50 @@ void nodeFunctionality::FloatDivision(node* theNode)
 	*((float*)theNode->getDataPointer(2)) =
 		*((float*)theNode->getDataPointer(0)) /
 		*((float*)theNode->getDataPointer(1));
+}
+
+void nodeFunctionality::String(node* theNode)
+{
+	*((std::string*)theNode->getDataPointer(1)) = *((std::string*)theNode->getDataPointer(0));
+}
+
+void nodeFunctionality::Font(node* theNode)
+{
+	*((sf::Font*)theNode->getDataPointer(1)) = *((sf::Font*)theNode->getDataPointer(0));
+}
+
+void nodeFunctionality::ImageFromText(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*)theNode->getDataPointer(4));
+	sf::Font* inFontPointer = ((sf::Font*)theNode->getDataPointer(0));
+	int* inSizePointer = ((int*)theNode->getDataPointer(1));
+	sf::Color* inColorPointer = ((sf::Color*)theNode->getDataPointer(2));
+	std::string* inStringPointer = ((std::string*)theNode->getDataPointer(3));
+
+	sf::Text tempText;
+	tempText.setFont(*inFontPointer);
+	tempText.setCharacterSize(*inSizePointer);
+	tempText.setStyle(sf::Text::Regular);
+	tempText.setColor(*inColorPointer);
+	tempText.setString(*inStringPointer);
+
+	sf::FloatRect bounds = tempText.getGlobalBounds();
+	int outputWidth = ((int)(bounds.width + bounds.left)) + 1;
+	int outputHeight = ((int)(bounds.height + bounds.top)) + 1;
+
+	sf::RenderTexture tempTexture;
+	outputPointer->create(outputWidth, outputHeight);
+	tempTexture.create(outputWidth, outputHeight);
+	sf::Color clearColor = sf::Color::Transparent;
+	clearColor.r = inColorPointer->r;
+	clearColor.g = inColorPointer->g;
+	clearColor.b = inColorPointer->b;
+	tempTexture.clear(clearColor);
+	tempTexture.draw(tempText);
+
+	sf::Sprite spr(tempTexture.getTexture());
+	imageShader.setUniform("flip", 1);
+	imageShader.setUniform("tx", tempTexture.getTexture());
+	rs.shader = &imageShader;
+	outputPointer->draw(spr, rs);
 }

@@ -4,6 +4,7 @@
 #include <vector>
 #include <utility>
 #include "../pathUtils.h"
+#include "../utils.h"
 
 namespace nodeProvider {
 
@@ -19,10 +20,13 @@ namespace nodeProvider {
 		{"Int vector", (void*)nodeFunctionality::Vector2i},
 		{"Color", (void*)nodeFunctionality::Color},
 		{"Image", (void*)nodeFunctionality::ImageFromFile},
+		{"String", (void*)nodeFunctionality::String},
+		{"Font", (void*)nodeFunctionality::Font},
 		{"Solid", (void*)nodeFunctionality::Solid},
 		{"Checker", (void*)nodeFunctionality::Checker},
 		{"Linear Gradient", (void*)nodeFunctionality::LinearGradient},
 		{"Uniform Noise", (void*)nodeFunctionality::UniformNoise},
+		{"Image from text", (void*)nodeFunctionality::ImageFromText},
 		{"Separate channels", (void*)nodeFunctionality::SeparateChannels},
 		{"Combine channels", (void*)nodeFunctionality::CombineChannels},
 		{"Blend", (void*)nodeFunctionality::Blend},
@@ -83,6 +87,10 @@ namespace nodeProvider {
 			return NS_TYPE_IMAGE;
 		else if (s == "Color")
 			return NS_TYPE_COLOR;
+		else if (s == "String")
+			return NS_TYPE_STRING;
+		else if (s == "Font")
+			return NS_TYPE_FONT;
 		std::cout << "[Node provider] ERROR WHEN PARSING PIN TYPE \"" << s << "\"\n";
 		return -1;
 	}
@@ -161,6 +169,12 @@ void nodeProvider::initialize()
 						break;
 					case NS_TYPE_INT:
 						nodeDataList.back().pinDefaultData.back() = new int(std::stoi(defaultData));
+						break;
+					case NS_TYPE_STRING:
+						nodeDataList.back().pinDefaultData.back() = new std::string(defaultData);
+						break;
+					case NS_TYPE_COLOR:
+						nodeDataList.back().pinDefaultData.back() = new sf::Color(utils::colorFromHexString(defaultData));
 						break;
 					}
 				}

@@ -438,13 +438,15 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 		}
 		case sf::Event::KeyPressed:
 		{
+			if (uiInputField::typingInteractionOngoing())
+				return;
 			switch (e.key.code)
 			{
 				case sf::Keyboard::BackSpace:
 				case sf::Keyboard::Delete:
 				{
 					// can't delete if node is not selected or any node being moved
-					if (selectedNodeIndex < 0 || draggingNodeIndex > -1 || uiInputField::isBound())
+					if (selectedNodeIndex < 0 || draggingNodeIndex > -1)
 						return;
 
 					// a copy is needed
