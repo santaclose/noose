@@ -496,8 +496,6 @@ void nodeFunctionality::Rotate(node* theNode)
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 	float radians = *((float*) theNode->getDataPointer(1));
 
-	a->generateMipmap(); // generate mipmap for better minification
-
 	sf::Vector2u aSize = a->getSize();
 	sf::Vector2f originalSize(aSize.x, aSize.y);
 	float diagonal = std::ceilf(nooseMath::length(originalSize));
@@ -513,6 +511,7 @@ void nodeFunctionality::Rotate(node* theNode)
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &rotateShader;
 	outputPointer->draw(spr, rs);
+	a->setSmooth(false);
 }
 
 void nodeFunctionality::Rotate90(node* theNode)
@@ -539,9 +538,8 @@ void nodeFunctionality::Rotate90(node* theNode)
 
 void nodeFunctionality::Scale(node* theNode)
 {
-	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointer(4));
-	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(3));
-	int* shouldSmooth = ((int*)theNode->getDataPointer(2));
+	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointer(3));
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(2));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 	float* factor = ((float*)theNode->getDataPointer(1));
 
@@ -552,13 +550,14 @@ void nodeFunctionality::Scale(node* theNode)
 
 	outputPointer->create(outputSize->x, outputSize->y);
 
-	a->setSmooth(*shouldSmooth % 2 == 1);
+	a->setSmooth(true);
 	imageShader.setUniform("tx", a->getTexture());
 	imageShader.setUniform("flip", 0);
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &imageShader;
 	outputPointer->draw(spr, rs);
+	a->setSmooth(false);
 }
 
 void nodeFunctionality::SelectByColor(node* theNode)
