@@ -19,6 +19,8 @@
 #include "logic/nodeSystem.h"
 #include "pathUtils.h"
 
+#define REDRAW_COUNT 5
+
 static const sf::Color BACKGROUND_COLOR(0x222222ff);
 
 void onNodeSelected(int theNode)
@@ -50,6 +52,7 @@ void onNodeChanged(int theNode)
 
 int main(int argc, char** argv)
 {
+	int redrawCounter = REDRAW_COUNT;
 	pathUtils::setProgramDirectory(argv[0]);
 
 	// Create the main window
@@ -207,7 +210,13 @@ int main(int argc, char** argv)
 
 		uiColorPicker::tick();
 
-		sf::sleepUntilEvent();
+		if (redrawCounter == 0)
+		{
+			sf::sleepUntilEvent();
+			redrawCounter = REDRAW_COUNT;
+		}
+		else
+			redrawCounter--;
 	}
 	uiMenu::terminate();
 	uiCategoryPusher::terminate();
