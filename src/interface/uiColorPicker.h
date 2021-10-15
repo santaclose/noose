@@ -7,7 +7,7 @@ namespace uiColorPicker
 		None, Color, Intensity, Alpha
 	};
 
-	void initialize();
+	void initialize(const sf::Image& iconImage);
 	void setOnColorSelectCallback(void (*onSetColor)(sf::Color*));
 	void tick();
 	void terminate();

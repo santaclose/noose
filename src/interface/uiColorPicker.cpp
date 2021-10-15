@@ -40,6 +40,8 @@ namespace uiColorPicker {
 	uiColorPicker::SelectionState selectionState = uiColorPicker::SelectionState::None;
 	sf::Vector2i mousePos;
 
+	const sf::Image* iconImage;
+
 	void setColor();
 }
 
@@ -76,8 +78,9 @@ void uiColorPicker::setColor()
 	onColorSelectedCallback(outputPointer);
 }
 
-void uiColorPicker::initialize()
+void uiColorPicker::initialize(const sf::Image& iconImage)
 {
+	uiColorPicker::iconImage = &iconImage;
 	rsOverwrite.blendMode = sf::BlendNone;
 
 	marker.loadFromFile(pathUtils::getAssetsDirectory() + "images/imageLimit.png");
@@ -160,6 +163,7 @@ void uiColorPicker::show(sf::Color* newPointer, void (*onCloseWindow)())
 				COLOR_WHEEL_SIZE),
 			"color picker",
 			sf::Style::Close);
+		theWindow->setIcon(iconImage->getSize().x, iconImage->getSize().y, iconImage->getPixelsPtr());
 	}
 	outputPointer = newPointer;
 }

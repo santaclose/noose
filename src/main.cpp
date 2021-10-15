@@ -67,8 +67,8 @@ int main(int argc, char** argv)
 
 	// initialize interface components
 	uiData::load();
-	uiColorPicker::initialize();
-	
+	uiColorPicker::initialize(iconImage);
+
 	sf::Vector2i mousePosWindowA;
 	sf::Vector2i mousePosWindowB;
 
