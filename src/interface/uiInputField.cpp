@@ -774,9 +774,9 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 		if (currentInteractionMode == InteractionMode::Typing)
 		{
 			paintQuad(true, 0);
-			keyboardInputString = *((std::string*)(this->dataPointer));
-			//this->texts[0].setString("");
-			//*((std::string*)(this->dataPointer)) = "";
+			keyboardInputString = "";
+			this->texts[0].setString("");
+			*((std::string*)(this->dataPointer)) = "";
 		}
 		else
 			unbind();
