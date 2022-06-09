@@ -142,7 +142,10 @@ void serializer::LoadFromFile(const std::string& filePath)
 					sf::RenderTexture* pointer = (sf::RenderTexture*) nodes.back()->m_inputFields[currentPin].dataPointer;
 
 					pointer->create(txSize.x, txSize.y);
-					pointer->draw(spr, &uiInputField::loadImageShader);
+					sf::RenderStates rs;
+					rs.shader = &uiInputField::loadImageShader;
+					rs.blendMode = sf::BlendNone;
+					pointer->draw(spr, rs);
 					break;
 				}
 				case NS_TYPE_FONT:

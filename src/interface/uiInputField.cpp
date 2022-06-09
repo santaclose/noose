@@ -644,7 +644,10 @@ void uiInputField::setValue(const void* data)
 		sf::RenderTexture* pointer = (sf::RenderTexture*)dataPointer;
 
 		pointer->create(txSize.x, txSize.y);
-		pointer->draw(spr, &loadImageShader);
+		sf::RenderStates rs;
+		rs.shader = &loadImageShader;
+		rs.blendMode = sf::BlendNone;
+		pointer->draw(spr, rs);
 		break;
 	}
 	case NS_TYPE_FONT:
@@ -741,7 +744,11 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 			sf::RenderTexture* pointer = (sf::RenderTexture*) dataPointer;
 
 			pointer->create(txSize.x, txSize.y);
-			pointer->draw(spr, &loadImageShader);
+			sf::RenderStates rs;
+			rs.shader = &loadImageShader;
+			rs.blendMode = sf::BlendNone;
+			pointer->draw(spr, rs);
+
 			editingInputField->updateTextPositions();
 			editingInputField->onValueChanged();
 		}
