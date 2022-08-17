@@ -1,5 +1,5 @@
 uniform sampler2D tx;
-uniform int flip = false;
+uniform int flip = 0;
 
 void main()
 {
