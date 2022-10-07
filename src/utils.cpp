@@ -54,3 +54,11 @@ sf::Color utils::colorFromHexString(const std::string& hexString)
 
     return sf::Color(res_arr[0], res_arr[1], res_arr[2], res_arr[3]);
 }
+
+void utils::drawQuads(sf::RenderTarget& renderTarget, const sf::Vertex* vertices, size_t vertexCount, const sf::RenderStates& renderStates)
+{
+    for (int i = 0; i < vertexCount; i += 4)
+    {
+        renderTarget.draw(&(vertices[i]), 4, sf::PrimitiveType::TriangleFan, renderStates);
+    }
+}

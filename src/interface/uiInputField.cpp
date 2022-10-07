@@ -6,6 +6,7 @@
 #include "../math/nooseMath.h"
 #include "../pathUtils.h"
 #include "../types.h"
+#include "../utils.h"
 
 #include <iostream>
 #include <portable-file-dialogs.h>
@@ -236,7 +237,7 @@ void uiInputField::onMouseUp()
 	}
 }
 
-void uiInputField::keyboardInput(sf::Uint32 unicode)
+void uiInputField::keyboardInput(std::uint32_t unicode)
 {
 	if (editingInputField == nullptr || currentInteractionMode == Default)
 		return;
@@ -571,17 +572,17 @@ void uiInputField::draw(sf::RenderWindow& window)
 	case NS_TYPE_INT:
 	case NS_TYPE_FLOAT:
 	case NS_TYPE_IMAGE:
-		window.draw(shapes, 4, sf::Quads);
+		utils::drawQuads(window, shapes, 4);
 		window.draw(texts[0]);
 		break;
 	case NS_TYPE_VECTOR2I:
-		window.draw(shapes, 12, sf::Quads);
+		utils::drawQuads(window, shapes, 12);
 		window.draw(texts[0]);
 		window.draw(texts[1]);
 		window.draw(texts[2]);
 		break;
 	case NS_TYPE_COLOR:
-		window.draw(shapes, 4, sf::Quads);
+		utils::drawQuads(window, shapes, 4);
 		break;
 	}
 }
@@ -643,7 +644,7 @@ void uiInputField::setValue(const void* data)
 		sf::Vector2u txSize = tx.getSize();
 		sf::RenderTexture* pointer = (sf::RenderTexture*)dataPointer;
 
-		pointer->create(txSize.x, txSize.y);
+		pointer->create(txSize);
 		sf::RenderStates rs;
 		rs.shader = &loadImageShader;
 		rs.blendMode = sf::BlendNone;
@@ -743,7 +744,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 			sf::Vector2u txSize = tx.getSize();
 			sf::RenderTexture* pointer = (sf::RenderTexture*) dataPointer;
 
-			pointer->create(txSize.x, txSize.y);
+			pointer->create(txSize);
 			sf::RenderStates rs;
 			rs.shader = &loadImageShader;
 			rs.blendMode = sf::BlendNone;

@@ -109,7 +109,7 @@ void uiMenu::onClickFloatingButton(const sf::Vector2f& buttonPos)
 
 void uiMenu::draw()
 {
-	sf::FloatRect visibleArea(0, 0, renderWindow->getSize().x, renderWindow->getSize().y);
+	sf::FloatRect visibleArea({ 0.0f, 0.0f }, { (float)renderWindow->getSize().x, (float)renderWindow->getSize().y });
 	renderWindow->setView(sf::View(visibleArea));
 	sf::Vector2f mousePos = (sf::Vector2f)*mouseScreenPosPointer;
 	selectionBox.draw(*renderWindow, mousePos);

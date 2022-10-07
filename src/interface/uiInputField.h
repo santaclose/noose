@@ -35,7 +35,7 @@ public:
 	// returns true if there was a collision
 	static bool onMouseDown(sf::Vector2f& mousePos);
 	static void onMouseUp();
-	static void keyboardInput(sf::Uint32 unicode);
+	static void keyboardInput(std::uint32_t unicode);
 	static void unbind();
 	static bool isBound();
 	static bool typingInteractionOngoing();

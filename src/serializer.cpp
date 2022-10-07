@@ -141,7 +141,7 @@ void serializer::LoadFromFile(const std::string& filePath)
 					sf::Vector2u txSize = tx.getSize();
 					sf::RenderTexture* pointer = (sf::RenderTexture*) nodes.back()->m_inputFields[currentPin].dataPointer;
 
-					pointer->create(txSize.x, txSize.y);
+					pointer->create({ txSize.x, txSize.y });
 					sf::RenderStates rs;
 					rs.shader = &uiInputField::loadImageShader;
 					rs.blendMode = sf::BlendNone;

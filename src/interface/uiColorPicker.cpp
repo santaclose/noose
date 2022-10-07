@@ -73,8 +73,10 @@ void uiColorPicker::setColor()
 		break;
 	}
 
-	*outputPointer = colorWheelImage.getPixel(lastColorPos.x, lastColorPos.y) * (gradientImage.getPixel(0, lastIntensityPos).r / 255.0f);
-	outputPointer->a = gradientImage.getPixel(0, lastAlphaPos).r;
+	*outputPointer = colorWheelImage.getPixel({
+		(unsigned int)lastColorPos.x, (unsigned int)lastColorPos.y }) *
+		(gradientImage.getPixel({ (unsigned int)0, (unsigned int)lastIntensityPos }).r / 255.0f);
+	outputPointer->a = gradientImage.getPixel({ (unsigned int)0, (unsigned int)lastAlphaPos }).r;
 	onColorSelectedCallback(outputPointer);
 }
 
@@ -92,13 +94,13 @@ void uiColorPicker::initialize(const sf::Image& iconImage)
 		std::cout << "[UI] Failed to load gradient shader\n";
 
 	// get colorwheel image in ram
-	sf::VertexArray cva(sf::Quads, 4);
+	sf::VertexArray cva(sf::PrimitiveType::TriangleFan, 4);
 	cva[0].position.x = cva[0].position.y = cva[1].position.x = cva[3].position.y = 0.0;
 	cva[2].position.x = cva[1].position.y = cva[3].position.x = cva[2].position.y = COLOR_WHEEL_SIZE;
 	cva[0].texCoords.x = cva[0].texCoords.y = cva[1].texCoords.x = cva[3].texCoords.y = 0.0;
 	cva[2].texCoords.x = cva[1].texCoords.y = cva[3].texCoords.x = cva[2].texCoords.y = 1.0;
 
-	renderTexture.create(COLOR_WHEEL_SIZE, COLOR_WHEEL_SIZE);
+	renderTexture.create({ (unsigned int)COLOR_WHEEL_SIZE, (unsigned int)COLOR_WHEEL_SIZE });
 	colorWheelShader.setUniform("circleRadius", (float)COLOR_WHEEL_RADIUS);
 	colorWheelShader.setUniform("limit", 0.0f);
 	rsOverwrite.shader = &colorWheelShader;
@@ -106,20 +108,20 @@ void uiColorPicker::initialize(const sf::Image& iconImage)
 	colorWheelImage = renderTexture.getTexture().copyToImage();
 
 	// get intensity/alpha image in ram
-	sf::VertexArray gva(sf::Quads, 4);
+	sf::VertexArray gva(sf::PrimitiveType::TriangleFan, 4);
 	gva[0].position.x = gva[1].position.x = gva[0].position.y = gva[3].position.y = 0.0;
 	gva[2].position.x = gva[3].position.x = INTENSITY_AND_ALPHA_WIDTH;
 	gva[1].position.y = gva[2].position.y = COLOR_WHEEL_SIZE;
 	gva[0].texCoords.y = gva[3].texCoords.y = 0.0;
 	gva[1].texCoords.y = gva[2].texCoords.y = 1.0;
 
-	renderTexture.create(1, COLOR_WHEEL_SIZE);
+	renderTexture.create({ (unsigned int)1, (unsigned int)COLOR_WHEEL_SIZE });
 	rsOverwrite.shader = &gradientShader;
 	renderTexture.draw(gva, rsOverwrite);
 	gradientImage = renderTexture.getTexture().copyToImage();
 
 	// get final render texture to display
-	renderTexture.create(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 2 + MARGIN_WIDTH * 2, COLOR_WHEEL_SIZE);
+	renderTexture.create({ (unsigned int)(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 2 + MARGIN_WIDTH * 2), (unsigned int)COLOR_WHEEL_SIZE });
 	renderTexture.clear(sf::Color::Black); // margin color
 
 	// draw colorwheel
@@ -159,11 +161,11 @@ void uiColorPicker::show(sf::Color* newPointer, void (*onCloseWindow)())
 	else // initial case
 	{
 		theWindow = new sf::RenderWindow(sf::VideoMode(
-				COLOR_WHEEL_SIZE + MARGIN_WIDTH * 2 + INTENSITY_AND_ALPHA_WIDTH * 2,
-				COLOR_WHEEL_SIZE),
+			{ (unsigned int)(COLOR_WHEEL_SIZE + MARGIN_WIDTH * 2 + INTENSITY_AND_ALPHA_WIDTH * 2),
+				(unsigned int)COLOR_WHEEL_SIZE }),
 			"color picker",
 			sf::Style::Close);
-		theWindow->setIcon(iconImage->getSize().x, iconImage->getSize().y, iconImage->getPixelsPtr());
+		theWindow->setIcon({ iconImage->getSize().x, iconImage->getSize().y }, iconImage->getPixelsPtr());
 	}
 	outputPointer = newPointer;
 }
@@ -245,19 +247,19 @@ void uiColorPicker::tick()
 	else
 	{
 		sf::Sprite sprt(renderTexture.getTexture());
-		sprt.setPosition(0.0, 0.0);
+		sprt.setPosition({ 0.0, 0.0 });
 		theWindow->draw(sprt);
 
 		// colorwheel marker
-		markerSprite.setPosition(lastColorPos.x - 8, lastColorPos.y - 8);
+		markerSprite.setPosition({ (float)(lastColorPos.x - 8), (float)(lastColorPos.y - 8) });
 		theWindow->draw(markerSprite);
 
 		// intensity marker
-		markerSprite.setPosition(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 0.5f - 8, lastIntensityPos - 8);
+		markerSprite.setPosition({ (float)(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 0.5f - 8), (float)(lastIntensityPos - 8) });
 		theWindow->draw(markerSprite);
 
 		// alpha marker
-		markerSprite.setPosition(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 1.5f + MARGIN_WIDTH - 8, lastAlphaPos - 8);
+		markerSprite.setPosition({ (float)(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 1.5f + MARGIN_WIDTH - 8), (float)(lastAlphaPos - 8) });
 		theWindow->draw(markerSprite);
 
 		theWindow->display();

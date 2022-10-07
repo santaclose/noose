@@ -10,6 +10,7 @@
 #include "../nodeData.h"
 #include "../types.h"
 #include "../type2color.h"
+#include "../utils.h"
 
 #define TEXT_COLOR 0xf0f0f0ff
 #define BAR_COLOR 0x424242bb
@@ -167,7 +168,7 @@ void uiNode::draw(sf::RenderWindow& window)
 {
 	//std::cout << "drawing node " << m_title.getString().toAnsiString() << std::endl;
 
-	window.draw(&m_shapes[0], m_shapes.size(), sf::Quads);
+	utils::drawQuads(window, &m_shapes[0], m_shapes.size());
 	window.draw(m_title);
 	for (int i = 0; i < m_inputPinCount + m_outputPinCount; i++)
 	{

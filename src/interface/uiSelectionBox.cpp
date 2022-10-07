@@ -87,7 +87,7 @@ void uiSelectionBox::draw(sf::RenderWindow& window, const sf::Vector2f& mousePos
 		return;
 
 	m_mouseOverShader.setUniform("mousePos", sf::Glsl::Vec2((mousePos - m_box[0].position) / (m_box[2].position - m_box[0].position)));
-	window.draw(&m_box[0], m_box.size(), sf::Quads, &m_mouseOverShader);
+	window.draw(&m_box[0], m_box.size(), sf::PrimitiveType::TriangleFan, &m_mouseOverShader);
 	for (int i = 0; i < m_currentOptionCount; i++)
 	{
 		window.draw(*m_optionTexts[i]);

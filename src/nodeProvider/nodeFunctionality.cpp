@@ -93,7 +93,7 @@ void nodeFunctionality::ImageFromFile(node* theNode)
 
 	sf::Vector2u size = a->getSize();
 
-	outputPointer->create(size.x, size.y);
+	outputPointer->create({ size.x, size.y });
 
 	imageShader.setUniform("tx", a->getTexture());
 	imageShader.setUniform("flip", 0);
@@ -112,7 +112,7 @@ void nodeFunctionality::Solid(node* theNode)
 	if (imageSize->x < 1 || imageSize->y < 1)
 		return;
 
-	outputPointer->create(imageSize->x, imageSize->y);
+	outputPointer->create({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
 
 	sf::Glsl::Vec4 inColor(*((sf::Color*)(theNode->getDataPointer(0))));
 	solidShader.setUniform("color", inColor);
@@ -130,7 +130,7 @@ void nodeFunctionality::Checker(node* theNode)
 	if (imageSize->x < 1 || imageSize->y < 1)
 		return;
 
-	outputPointer->create(imageSize->x, imageSize->y);
+	outputPointer->create({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
 
 	checkerShader.setUniform("squareSize", (float)(*((int*)theNode->getDataPointer(0))));
 
@@ -148,7 +148,7 @@ void nodeFunctionality::LinearGradient(node* theNode)
 	if (imageSize->x < 1 || imageSize->y < 1)
 		return;
 
-	outputPointer->create(imageSize->x, imageSize->y);
+	outputPointer->create({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
 
 	linearGradientShader.setUniform("vertical", (float) vertical);
 
@@ -166,7 +166,7 @@ void nodeFunctionality::UniformNoise(node* theNode)
 	if (imageSize->x < 1 || imageSize->y < 1)
 		return;
 
-	outputPointer->create(imageSize->x, imageSize->y);
+	outputPointer->create({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
 
 	noiseShader.setUniform("seed", seed);
 
@@ -185,10 +185,10 @@ void nodeFunctionality::SeparateChannels(node* theNode)
 
 	sf::Vector2u size = a->getSize();
 
-	outputPointerR->create(size.x, size.y);
-	outputPointerG->create(size.x, size.y);
-	outputPointerB->create(size.x, size.y);
-	outputPointerA->create(size.x, size.y);
+	outputPointerR->create({ size.x, size.y });
+	outputPointerG->create({ size.x, size.y });
+	outputPointerB->create({ size.x, size.y });
+	outputPointerA->create({ size.x, size.y });
 
 	rs.shader = &separateShader;
 	separateShader.setUniform("tx", a->getTexture());
@@ -215,7 +215,7 @@ void nodeFunctionality::CombineChannels(node* theNode)
 
 	sf::Vector2u size = red->getSize();
 
-	outputPointer->create(size.x, size.y);
+	outputPointer->create({size.x, size.y});
 
 	combineShader.setUniform("r", red->getTexture());
 	combineShader.setUniform("g", green->getTexture());
@@ -236,7 +236,7 @@ void nodeFunctionality::Blend(node* theNode)
 
 	sf::Vector2u size = a->getSize();
 
-	outputPointer->create(size.x, size.y);
+	outputPointer->create({size.x, size.y});
 
 	blendShader.setUniform("tex0", a->getTexture());
 	blendShader.setUniform("tex1", b->getTexture());
@@ -256,7 +256,7 @@ void nodeFunctionality::BrightnessContrast(node* theNode)
 
 	sf::Vector2u size = a->getSize();
 
-	outputPointer->create(size.x, size.y);
+	outputPointer->create({size.x, size.y});
 
 	rs.shader = &brightnessContrastShader;
 	brightnessContrastShader.setUniform("tex", a->getTexture());
@@ -279,7 +279,7 @@ void nodeFunctionality::Crop(node* theNode)
 
 	sf::Vector2u size = a->getSize();
 
-	outputPointer->create(outputSize->x, outputSize->y);
+	outputPointer->create({ (unsigned int)outputSize->x, (unsigned int)outputSize->y});
 	float top = topleft->y / ((float)size.y);
 	float left = topleft->x / ((float)size.x);
 
@@ -307,12 +307,12 @@ void nodeFunctionality::Extend(node* theNode)
 	float ratio;
 	if (side == 1 || side == 3)
 	{
-		outputPointer->create(size.x + pixels, size.y);
+		outputPointer->create({size.x + pixels, size.y});
 		ratio = (float)pixels / (float)size.x;
 	}
 	else
 	{
-		outputPointer->create(size.x, size.y + pixels);
+		outputPointer->create({size.x, size.y + pixels});
 		ratio = (float)pixels / (float)size.y;
 	}
 
@@ -336,7 +336,7 @@ void nodeFunctionality::Patch(node* theNode)
 	sf::Vector2u imageSize = image->getSize();
 	sf::Vector2u patchSize = patch->getSize();
 
-	outputPointer->create(imageSize.x, imageSize.y);
+	outputPointer->create({imageSize.x, imageSize.y});
 
 	float top = (float) position->y / (float) imageSize.y;
 	float left = (float) position->x / (float) imageSize.x;
@@ -362,7 +362,7 @@ void nodeFunctionality::Flip(node* theNode)
 
 	sf::Vector2u size = a->getSize();
 
-	outputPointer->create(size.x, size.y);
+	outputPointer->create({size.x, size.y});
 
 	flipShader.setUniform("tx", a->getTexture());
 	flipShader.setUniform("vertically", (float) vertically);
@@ -383,13 +383,13 @@ void nodeFunctionality::Frame(node* theNode)
 	sf::Vector2f fFrame;
 	if (*frame < 0)
 	{
-		outputPointer->create(size.x - *frame * 2, size.y - *frame * 2);
+		outputPointer->create({size.x - *frame * 2, size.y - *frame * 2});
 		fFrame.x = (float)*frame / (float)size.x * -1.0f;
 		fFrame.y = (float)*frame / (float)size.y * -1.0f;
 	}
 	else if (*frame > 0)
 	{
-		outputPointer->create(size.x + *frame * 2, size.y + *frame * 2);
+		outputPointer->create({size.x + *frame * 2, size.y + *frame * 2});
 		fFrame.x = (float)*frame / (float)size.x;
 		fFrame.y = (float)*frame / (float)size.y;
 	}
@@ -412,7 +412,7 @@ void nodeFunctionality::Grayscale(node* theNode)
 
 	sf::Vector2u size = a->getSize();
 
-	outputPointer->create(size.x, size.y);
+	outputPointer->create({size.x, size.y});
 
 	grayscaleShader.setUniform("tex", a->getTexture());
 
@@ -428,7 +428,7 @@ void nodeFunctionality::GammaCorrection(node* theNode)
 
 	sf::Vector2u size = a->getSize();
 
-	outputPointer->create(size.x, size.y);
+	outputPointer->create({size.x, size.y});
 
 	gammaCorrectionShader.setUniform("tex", a->getTexture());
 	gammaCorrectionShader.setUniform("gamma", *((float*) theNode->getDataPointer(1)));
@@ -444,7 +444,7 @@ void nodeFunctionality::Invert(node* theNode)
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 
 	sf::Vector2u size = a->getSize();
-	outputPointer->create(size.x, size.y);
+	outputPointer->create({size.x, size.y});
 
 	invertShader.setUniform("tex", a->getTexture());
 
@@ -461,7 +461,7 @@ void nodeFunctionality::Mask(node* theNode)
 
 	sf::Vector2u size = a->getSize();
 
-	outputPointer->create(size.x, size.y);
+	outputPointer->create({size.x, size.y});
 
 	maskShader.setUniform("tex0", a->getTexture());
 	maskShader.setUniform("fac", fac->getTexture());
@@ -479,7 +479,7 @@ void nodeFunctionality::Repeat(node* theNode)
 
 	sf::Vector2u aSize = a->getSize();
 	sf::Vector2f originalSize(aSize.x, aSize.y);
-	outputPointer->create(newSize->x, newSize->y);
+	outputPointer->create({ (unsigned int)newSize->x, (unsigned int)newSize->y});
 
 	repeatShader.setUniform("tex", a->getTexture());
 	repeatShader.setUniform("originalSize", sf::Glsl::Vec2(originalSize));
@@ -500,7 +500,7 @@ void nodeFunctionality::Rotate(node* theNode)
 	sf::Vector2f originalSize(aSize.x, aSize.y);
 	float diagonal = std::ceilf(nooseMath::length(originalSize));
 	sf::Vector2f newSize(diagonal, diagonal);
-	outputPointer->create(newSize.x, newSize.y);
+	outputPointer->create({ (unsigned int)newSize.x, (unsigned int)newSize.y});
 
 	a->setSmooth(true);
 	rotateShader.setUniform("tex", a->getTexture());
@@ -524,9 +524,9 @@ void nodeFunctionality::Rotate90(node* theNode)
 	sf::Vector2u size = a->getSize();
 
 	if (fixed % 2 == 1)
-		outputPointer->create(size.y, size.x);
+		outputPointer->create({size.y, size.x});
 	else
-		outputPointer->create(size.x, size.y);
+		outputPointer->create({size.x, size.y});
 
 	rotate90Shader.setUniform("tx", a->getTexture());
 	rotate90Shader.setUniform("times", (float)fixed);
@@ -548,7 +548,7 @@ void nodeFunctionality::Scale(node* theNode)
 	outputSize->x = a->getSize().x * *factor;
 	outputSize->y = a->getSize().y * *factor;
 
-	outputPointer->create(outputSize->x, outputSize->y);
+	outputPointer->create({ (unsigned int)outputSize->x, (unsigned int)outputSize->y});
 
 	a->setSmooth(true);
 	imageShader.setUniform("tx", a->getTexture());
@@ -568,7 +568,7 @@ void nodeFunctionality::SelectByColor(node* theNode)
 	float* inTolerance = ((float*) theNode->getDataPointer(2));
 
 	sf::Vector2u size = inImage->getSize();
-	outputPointer->create(size.x, size.y);
+	outputPointer->create({size.x, size.y});
 
 	selectByColorShader.setUniform("tx", inImage->getTexture());
 	selectByColorShader.setUniform("color", inColor);
@@ -587,7 +587,7 @@ void nodeFunctionality::FlatBlur(node* theNode)
 	int inSamples = *((int*) theNode->getDataPointer(2));
 
 	sf::Vector2u size = inImage->getSize();
-	outputPointer->create(size.x, size.y);
+	outputPointer->create({size.x, size.y});
 
 	blurShader.setUniform("tx", inImage->getTexture());
 	blurShader.setUniform("radius", inRadius);
@@ -634,7 +634,7 @@ void nodeFunctionality::ColorFromImage(node* theNode)
 	unsigned int xCoord = nooseMath::mod(inCoords->x, inImage->getSize().x);
 	unsigned int yCoord = nooseMath::mod(inCoords->y, inImage->getSize().y);
 
-	*outputPointer = inImage->getTexture().copyToImage().getPixel(xCoord, yCoord);
+	*outputPointer = inImage->getTexture().copyToImage().getPixel({ xCoord, yCoord });
 }
 
 void nodeFunctionality::Vector2i(node* theNode)
@@ -777,7 +777,7 @@ void nodeFunctionality::ImageFromText(node* theNode)
 	tempText.setFont(*inFontPointer);
 	tempText.setCharacterSize(*inSizePointer);
 	tempText.setStyle(sf::Text::Regular);
-	tempText.setColor(*inColorPointer);
+	tempText.setFillColor(*inColorPointer);
 	tempText.setString(*inStringPointer);
 
 	sf::FloatRect bounds = tempText.getGlobalBounds();
@@ -785,8 +785,8 @@ void nodeFunctionality::ImageFromText(node* theNode)
 	int outputHeight = ((int)(bounds.height + bounds.top)) + 1;
 
 	sf::RenderTexture tempTexture;
-	outputPointer->create(outputWidth, outputHeight);
-	tempTexture.create(outputWidth, outputHeight);
+	outputPointer->create({ (unsigned int)outputWidth, (unsigned int)outputHeight});
+	tempTexture.create({ (unsigned int)outputWidth, (unsigned int)outputHeight });
 	sf::Color clearColor = sf::Color::Transparent;
 	clearColor.r = inColorPointer->r;
 	clearColor.g = inColorPointer->g;

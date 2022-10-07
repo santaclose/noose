@@ -437,19 +437,19 @@ void uiViewport::draw()
 			{
 				const sf::Vector2u& imageSize = ((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getSize();
 				sf::Sprite spr(((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getTexture());
-				spr.setPosition((float)currentXOffset, spr.getPosition().y);
+				spr.setPosition({ (float)currentXOffset, spr.getPosition().y });
 				renderWindow->draw(spr);
 
 				x1 = currentXOffset - 9;
 				x2 = currentXOffset + imageSize.x - 8;
 				y2 = imageSize.y - 8;
-				imageLimitSprite.setPosition(x1, y1);
+				imageLimitSprite.setPosition({ (float)x1, (float)y1 });
 				renderWindow->draw(imageLimitSprite, &invertShader);
-				imageLimitSprite.setPosition(x1, y2);
+				imageLimitSprite.setPosition({ (float)x1, (float)y2 });
 				renderWindow->draw(imageLimitSprite, &invertShader);
-				imageLimitSprite.setPosition(x2, y1);
+				imageLimitSprite.setPosition({ (float)x2, (float)y1 });
 				renderWindow->draw(imageLimitSprite, &invertShader);
-				imageLimitSprite.setPosition(x2, y2);
+				imageLimitSprite.setPosition({ (float)x2, (float)y2 });
 				renderWindow->draw(imageLimitSprite, &invertShader);
 
 				currentXOffset += imageSize.x;

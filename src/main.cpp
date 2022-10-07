@@ -56,13 +56,13 @@ int main(int argc, char** argv)
 	pathUtils::setProgramDirectory(argv[0]);
 
 	// Create the main window
-	sf::RenderWindow windowA(sf::VideoMode(1200, 800), "node editor", 7U, sf::ContextSettings(), true);
+	sf::RenderWindow windowA(sf::VideoMode({ 1200, 800 }), "node editor", 7U, sf::ContextSettings(), true);
 	// Create the output window
-	sf::RenderWindow windowB(sf::VideoMode(500, 500), "viewport", sf::Style::Resize);
+	sf::RenderWindow windowB(sf::VideoMode({ 500, 500 }), "viewport", sf::Style::Resize);
 	sf::Image iconImage;
 	iconImage.loadFromFile(pathUtils::getAssetsDirectory() + "icon.png");
-	windowA.setIcon(iconImage.getSize().x, iconImage.getSize().y, iconImage.getPixelsPtr());
-	windowB.setIcon(iconImage.getSize().x, iconImage.getSize().y, iconImage.getPixelsPtr());
+	windowA.setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
+	windowB.setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
 
 	// load nodes in memory
 	nodeProvider::initialize();

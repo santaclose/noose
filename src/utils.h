@@ -16,4 +16,6 @@ namespace utils
 			<< std::hex << i;
 		return stream.str();
 	}
+
+	void drawQuads(sf::RenderTarget& renderTarget, const sf::Vertex* vertices, size_t vertexCount, const sf::RenderStates& renderStates = sf::RenderStates::Default);
 }

@@ -47,9 +47,9 @@ void uiFloatingButtonLayer::updatButtonElementPositions(FloatingButton& fb)
 	}
 
 	if (fb.text != nullptr)
-		fb.text->setPosition(
-			MARGIN + BUTTON_SIZE / 2.0 - fb.text->getLocalBounds().width / 2.0,
-			renderWindow->getSize().y - MARGIN - BUTTON_SIZE / 2.0 - fb.text->getLocalBounds().height / 1.2);
+		fb.text->setPosition({
+			(float)(MARGIN + BUTTON_SIZE / 2.0 - fb.text->getLocalBounds().width / 2.0),
+			(float)(renderWindow->getSize().y - MARGIN - BUTTON_SIZE / 2.0 - fb.text->getLocalBounds().height / 1.2 )});
 }
 
 void uiFloatingButtonLayer::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer)
@@ -84,7 +84,7 @@ void uiFloatingButtonLayer::addButton(ButtonPosition position, char symbol, cons
 		buttons.back().customShader->setUniform("radius", BUTTON_RADIUS);
 	}
 
-	buttons.back().va = sf::VertexArray(sf::Quads, 4);
+	buttons.back().va = sf::VertexArray(sf::PrimitiveType::TriangleFan, 4);
 	// set vertex colors
 	buttons.back().va[0].color = buttons.back().va[1].color = buttons.back().va[2].color = buttons.back().va[3].color = sf::Color(BUTTON_COLOR);
 
@@ -99,7 +99,7 @@ void uiFloatingButtonLayer::draw()
 {
 	if (!active)
 		return;
-	sf::FloatRect visibleArea(0, 0, renderWindow->getSize().x, renderWindow->getSize().y);
+	sf::FloatRect visibleArea({ 0, 0 }, { (float)renderWindow->getSize().x, (float)renderWindow->getSize().y });
 	renderWindow->setView(sf::View(visibleArea));
 
 	for (const FloatingButton& fb : buttons)

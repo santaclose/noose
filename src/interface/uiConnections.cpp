@@ -4,6 +4,7 @@
 #include "../math/nooseMath.h"
 #include "../math/vectorOperators.h"
 #include "../pathUtils.h"
+#include "../utils.h"
 
 #define LINE_DELETE_COLLISION_DISTANCE 6.0f
 #define CONNECTION_LINE_WIDTH 3.0
@@ -191,7 +192,7 @@ void uiConnections::updateShaderUniform(float zoom)
 
 void uiConnections::draw(sf::RenderWindow& window)
 {
-	window.draw(&lineQuads[0], lineQuads.size(), sf::Quads, &shader);
+	utils::drawQuads(window, &lineQuads[0], lineQuads.size(), &shader);
 }
 
 void uiConnections::getNodesForLine(int line, int& nodeA, int& nodeB)

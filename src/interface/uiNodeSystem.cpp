@@ -442,7 +442,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 				return;
 			switch (e.key.code)
 			{
-				case sf::Keyboard::BackSpace:
+				case sf::Keyboard::Backspace:
 				case sf::Keyboard::Delete:
 				{
 					// can't delete if node is not selected or any node being moved

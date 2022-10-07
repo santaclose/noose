@@ -84,10 +84,10 @@ void uiSearchBar::initialize(sf::RenderWindow& window, const sf::Vector2i* mouse
 		std::cout << "[UI] Failed to load search results shader\n";
 
 	searchRectangle = sf::RectangleShape(sf::Vector2f(SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT));
-	searchRectangle.setPosition(window.getSize().x / 2.0 - SEARCH_BAR_WIDTH / 2.0, 0);
+	searchRectangle.setPosition({ window.getSize().x / 2.0f - SEARCH_BAR_WIDTH / 2.0f, 0.0f });
 	searchRectangle.setFillColor(sf::Color(SEARCH_BAR_COLOR));
 
-	resultsVA = sf::VertexArray(sf::Quads, 4);
+	resultsVA = sf::VertexArray(sf::PrimitiveType::TriangleFan, 4);
 	resultsVA[0].color = resultsVA[1].color = resultsVA[2].color = resultsVA[3].color = sf::Color(RESULTS_BAR_COLOR);
 	resultsVA[0].position.x = resultsVA[1].position.x = window.getSize().x / 2.0 - SEARCH_BAR_WIDTH / 2.0;
 	resultsVA[2].position.x = resultsVA[3].position.x = window.getSize().x / 2.0 + SEARCH_BAR_WIDTH / 2.0;
@@ -98,9 +98,9 @@ void uiSearchBar::initialize(sf::RenderWindow& window, const sf::Vector2i* mouse
 
 	searchText.setFillColor(sf::Color::White);
 	searchText.setFont(uiData::font);
-	searchText.setPosition(
-		window.getSize().x / 2 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN,
-		SEARCH_BAR_TEXT_MARGIN);
+	searchText.setPosition({
+		(float)(window.getSize().x / 2.0f - SEARCH_BAR_WIDTH / 2.0f + SEARCH_BAR_TEXT_MARGIN),
+		(float)SEARCH_BAR_TEXT_MARGIN });
 	searchText.setCharacterSize(SEARCH_BAR_FONT_SIZE);
 	searchBuffer[0] = '\0';
 
@@ -109,9 +109,9 @@ void uiSearchBar::initialize(sf::RenderWindow& window, const sf::Vector2i* mouse
 	{
 		resultsTexts[i].setFillColor(sf::Color::White);
 		resultsTexts[i].setFont(uiData::font);
-		resultsTexts[i].setPosition(
-			window.getSize().x / 2 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN,
-			SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i);
+		resultsTexts[i].setPosition({
+			(float)(window.getSize().x / 2.0f - SEARCH_BAR_WIDTH / 2.0f + SEARCH_BAR_TEXT_MARGIN),
+			(float)(SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i) });
 		resultsTexts[i].setCharacterSize(RESULT_FONT_SIZE);
 	}
 
@@ -199,19 +199,19 @@ void uiSearchBar::onPollEvent(const sf::Event& e)
 	}
 	else if (e.type == sf::Event::Resized)
 	{
-		searchRectangle.setPosition(e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0, 0);
-		searchText.setPosition(
-			e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN,
-			SEARCH_BAR_TEXT_MARGIN);
+		searchRectangle.setPosition({ e.size.width / 2.0f - SEARCH_BAR_WIDTH / 2.0f, 0.0f });
+		searchText.setPosition({
+			(float)(e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN),
+			(float)SEARCH_BAR_TEXT_MARGIN });
 
 		resultsVA[0].position.x = resultsVA[1].position.x = e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0;
 		resultsVA[2].position.x = resultsVA[3].position.x = e.size.width / 2.0 + SEARCH_BAR_WIDTH / 2.0;
 
 		for (int i = 0; i < MAX_RESULTS_NUMBER; i++)
 		{
-			resultsTexts[i].setPosition(
-				e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN,
-				SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i);
+			resultsTexts[i].setPosition({
+				(float)(e.size.width / 2.0 - SEARCH_BAR_WIDTH / 2.0 + SEARCH_BAR_TEXT_MARGIN),
+				(float)(SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i) });
 		}
 	}
 	else if (e.type == sf::Event::MouseMoved)
@@ -239,7 +239,7 @@ void uiSearchBar::draw()
 {
 	if (searching)
 	{
-		sf::FloatRect visibleArea(0, 0, renderWindow->getSize().x, renderWindow->getSize().y);
+		sf::FloatRect visibleArea({ 0.0f, 0.0f }, { (float)renderWindow->getSize().x, (float)renderWindow->getSize().y });
 		renderWindow->setView(sf::View(visibleArea));
 		renderWindow->draw(searchRectangle);
 		renderWindow->draw(searchText);
