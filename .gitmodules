@@ -1,3 +1,6 @@
 [submodule "vendor/SFML"]
 	path = vendor/SFML
 	url = https://github.com/SFML/SFML.git
+[submodule "vendor/TinyTIFF"]
+	path = vendor/TinyTIFF
+	url = https://github.com/jkriege2/TinyTIFF.git

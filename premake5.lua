@@ -27,7 +27,8 @@ project "noose"
 	files
 	{
 		"src/**.h",
-		"src/**.cpp"
+		"src/**.cpp",
+		"vendor/TinyTIFF/src/tinytiffreader.c"
 	}
 
 	defines
@@ -40,7 +41,8 @@ project "noose"
 	{
 		"src",
 		"vendor/SFML/include",
-		"vendor/portable-file-dialogs"
+		"vendor/portable-file-dialogs",
+		"vendor/TinyTIFF/src"
 	}
 
 	filter "system:Windows"

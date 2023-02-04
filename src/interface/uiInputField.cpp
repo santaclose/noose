@@ -727,7 +727,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 			return;
 		}
 
-		std::vector<std::string> selection = pfd::open_file("Open image", "", { "Image Files", "*.png *.jpg *.jpeg *.bmp *.tga *.gif *.psd *.hdr *.pic" }).result();
+		std::vector<std::string> selection = pfd::open_file("Open image", "", { "Image Files", "*.png *.jpg *.jpeg *.bmp *.tga *.gif *.psd *.hdr *.pic *.tif *.tiff" }).result();
 		if (selection.size() != 0)
 		{
 			sf::Texture tx;
