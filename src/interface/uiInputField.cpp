@@ -326,6 +326,11 @@ void uiInputField::keyboardInput(std::uint32_t unicode)
 				keyboardInputString = keyboardInputString.substr(0, i);
 			}
 		}
+		else if (unicode == 22) // ctrl + v
+		{
+			for (std::uint32_t c : sf::Clipboard::getString())
+				keyboardInputString += c;
+		}
 		else
 			keyboardInputString += unicode;
 
