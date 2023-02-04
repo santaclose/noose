@@ -4,6 +4,13 @@
 
 #define min_f(a, b, c)  (std::fminf(a, std::fminf(b, c)))
 #define max_f(a, b, c)  (std::fmaxf(a, std::fmaxf(b, c)))
+
+char utils::lower(char in)
+{
+    if (in <= 'Z' && in >= 'A')
+        return in - ('Z' - 'z');
+    return in;
+}
 void utils::rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v)
 {
     float r = rgbColor.r / 255.0f;
@@ -42,17 +49,48 @@ void utils::rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v)
     if (h < 0) h += 360.0f;
 }
 
-sf::Color utils::colorFromHexString(const std::string& hexString)
+bool utils::colorFromHexString(const std::string& hexString, sf::Color& outColor)
 {
     uint8_t res_arr[4];
-    for (int i = 0; i < 4; i++)
+
+    if (hexString.length() == 8 || hexString.length() == 6)
     {
-        char a = hexString[i * 2 + 0] > '9' ? hexString[i * 2 + 0] - 'a' + 10 : hexString[i * 2 + 0] - '0';
-        char b = hexString[i * 2 + 1] > '9' ? hexString[i * 2 + 1] - 'a' + 10 : hexString[i * 2 + 1] - '0';
-        res_arr[i] = a * 16 + b;
+        for (int i = 0; i < 3; i++)
+        {
+            char a = lower(hexString[i * 2 + 0]) > '9' ? lower(hexString[i * 2 + 0]) - 'a' + 10 : lower(hexString[i * 2 + 0]) - '0';
+            char b = lower(hexString[i * 2 + 1]) > '9' ? lower(hexString[i * 2 + 1]) - 'a' + 10 : lower(hexString[i * 2 + 1]) - '0';
+            res_arr[i] = a * 16 + b;
+        }
+        if (hexString.length() == 8)
+        {
+            char a = lower(hexString[3 * 2 + 0]) > '9' ? lower(hexString[3 * 2 + 0]) - 'a' + 10 : lower(hexString[3 * 2 + 0]) - '0';
+            char b = lower(hexString[3 * 2 + 1]) > '9' ? lower(hexString[3 * 2 + 1]) - 'a' + 10 : lower(hexString[3 * 2 + 1]) - '0';
+            res_arr[3] = a * 16 + b;
+        }
+        else
+            res_arr[3] = 255;
+        outColor = sf::Color(res_arr[0], res_arr[1], res_arr[2], res_arr[3]);
+        return true;
+    }
+    else if (hexString.length() == 4 || hexString.length() == 3)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            char a = lower(hexString[i]) > '9' ? lower(hexString[i]) - 'a' + 10 : lower(hexString[i]) - '0';
+            res_arr[i] = a * 16 + a;
+        }
+        if (hexString.length() == 4)
+        {
+            char a = lower(hexString[3]) > '9' ? lower(hexString[3]) - 'a' + 10 : lower(hexString[3]) - '0';
+            res_arr[3] = a * 16 + a;
+        }
+        else
+            res_arr[3] = 255;
+        outColor = sf::Color(res_arr[0], res_arr[1], res_arr[2], res_arr[3]);
+        return true;
     }
 
-    return sf::Color(res_arr[0], res_arr[1], res_arr[2], res_arr[3]);
+    return false;
 }
 
 void utils::drawQuads(sf::RenderTarget& renderTarget, const sf::Vertex* vertices, size_t vertexCount, const sf::RenderStates& renderStates)

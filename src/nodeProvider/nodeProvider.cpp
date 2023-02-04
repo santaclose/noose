@@ -49,6 +49,7 @@ namespace nodeProvider {
 		{"Make color", (void*)nodeFunctionality::ColorFromRGBAInts},
 		{"Break color", (void*)nodeFunctionality::RGBAIntsFromColor},
 		{"Color from image", (void*)nodeFunctionality::ColorFromImage},
+		{"Color from string", (void*)nodeFunctionality::ColorFromString},
 		{"Make int vector", (void*)nodeFunctionality::Vector2iFromInts},
 		{"Break int vector", (void*)nodeFunctionality::SeparateVector2i},
 		{"Add int vectors", (void*)nodeFunctionality::Vector2iAddition},
@@ -174,7 +175,8 @@ void nodeProvider::initialize()
 						nodeDataList.back().pinDefaultData.back() = new std::string(defaultData);
 						break;
 					case NS_TYPE_COLOR:
-						nodeDataList.back().pinDefaultData.back() = new sf::Color(utils::colorFromHexString(defaultData));
+						nodeDataList.back().pinDefaultData.back() = new sf::Color();
+						utils::colorFromHexString(defaultData, *((sf::Color*)nodeDataList.back().pinDefaultData.back()));
 						break;
 					}
 				}

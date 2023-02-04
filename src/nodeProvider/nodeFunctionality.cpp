@@ -3,6 +3,7 @@
 #include <cmath>
 #include "../pathUtils.h"
 #include "../math/nooseMath.h"
+#include "../utils.h"
 
 namespace nodeFunctionality {
 
@@ -620,6 +621,13 @@ void nodeFunctionality::RGBAIntsFromColor(node* theNode)
 	*((int*)theNode->getDataPointer(2)) = inputPointer->g;
 	*((int*)theNode->getDataPointer(3)) = inputPointer->b;
 	*((int*)theNode->getDataPointer(4)) = inputPointer->a;
+}
+
+void nodeFunctionality::ColorFromString(node* theNode)
+{
+	std::string* inStringPointer = ((std::string*)theNode->getDataPointer(0));
+	sf::Color* outColorPointer = ((sf::Color*)theNode->getDataPointer(1));
+	utils::colorFromHexString(*inStringPointer, *outColorPointer);
 }
 
 void nodeFunctionality::ColorFromImage(node* theNode)

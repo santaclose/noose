@@ -307,6 +307,14 @@ Break color
 		Integer: b
 		Integer: a
 ]
+Color from string
+[
+	category: Color operations
+	in:
+		String: hex[F0F]
+	out:
+		Color: color
+]
 Color from image
 [
 	category: Color operations

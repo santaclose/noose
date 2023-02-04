@@ -4,8 +4,9 @@
 
 namespace utils
 {
+	char lower(char in);
 	void rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v);
-	sf::Color colorFromHexString(const std::string& hexString);
+	bool colorFromHexString(const std::string& hexString, sf::Color& outColor);
 
 	template <typename T>
 	std::string intToHex(T i)
