@@ -18,5 +18,6 @@ namespace utils
 		return stream.str();
 	}
 
+	// need drawQuads function since SFML removed Quad draw mode
 	void drawQuads(sf::RenderTarget& renderTarget, const sf::Vertex* vertices, size_t vertexCount, const sf::RenderStates& renderStates = sf::RenderStates::Default);
 }
