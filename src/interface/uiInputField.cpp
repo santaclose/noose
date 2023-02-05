@@ -9,7 +9,6 @@
 #include "../utils.h"
 
 #include <iostream>
-#include <portable-file-dialogs.h>
 
 
 #define COLOR_EDITING_SENSITIVITY 0.01
@@ -719,7 +718,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 			return;
 		}
 
-		std::vector<std::string> selection = pfd::open_file("Open font", "", { "Font Files", "*.ttf *.otf" }).result();
+		std::vector<std::string> selection = utils::osOpenFileDialog("Open font", "Font Files", "*.ttf *.otf");
 		if (selection.size() != 0)
 		{
 			sf::Font* pointer = (sf::Font*)dataPointer;
@@ -747,7 +746,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 			return;
 		}
 
-		std::vector<std::string> selection = pfd::open_file("Open image", "", { "Image Files", "*.png *.jpg *.jpeg *.bmp *.tga *.gif *.psd *.hdr *.pic" }).result();
+		std::vector<std::string> selection = utils::osOpenFileDialog("Open image", "Image Files", "*.png *.jpg *.jpeg *.bmp *.tga *.gif *.psd *.hdr *.pic");
 		if (selection.size() != 0)
 			this->setValue(&(selection[0]));
 

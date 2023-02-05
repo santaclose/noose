@@ -6,7 +6,6 @@
 #include "../pathUtils.h"
 #include <iostream>
 #include <sstream>
-#include <portable-file-dialogs.h>
 
 #define INITIAL_VIEWPORT_SIZE 500
 
@@ -280,7 +279,7 @@ void uiViewport::onPollEvent(const sf::Event& e)
 						if (!utils::imageToClipboard(imageToCopy))
 							std::cout << "[UI] Failed to copy image to clipboard\n";
 						else
-							pfd::notify("", "Image copied to clipboard");
+							utils::osShowNotification("Image copied to clipboard");
 					}
 					else if (index > -1)
 					{
@@ -302,7 +301,7 @@ void uiViewport::onPollEvent(const sf::Event& e)
 							break;
 						}
 
-						std::string destination = pfd::save_file("Save file", "", { fileExtension, "*." + fileExtension }).result();
+						std::string destination = utils::osSaveFileDialog("Save file", fileExtension, "*." + fileExtension);
 						if (destination.length() == 0)
 						{
 							std::cout << "[UI] Image not saved\n";

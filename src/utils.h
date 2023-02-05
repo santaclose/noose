@@ -25,4 +25,10 @@ namespace utils
 
 	// need drawQuads function since SFML removed Quad draw mode
 	void drawQuads(sf::RenderTarget& renderTarget, const sf::Vertex* vertices, size_t vertexCount, const sf::RenderStates& renderStates = sf::RenderStates::Default);
+
+	enum class osChoice { Cancel = -1, Ok, Yes, No, Abort, Retry, Ignore };
+	void osShowNotification(const std::string& text);
+	std::string osSaveFileDialog(const std::string& title, const std::string& extensionDropDownTitle, const std::string& extension);
+	std::vector<std::string> osOpenFileDialog(const std::string& title, const std::string& extensionDropDownTitle, const std::string& extensions);
+	osChoice osYesNoMessageBox(const std::string& title, const std::string& message);
 }

@@ -5,9 +5,9 @@
 
 #include "../serializer.h"
 #include "../pathUtils.h"
+#include "../utils.h"
 
 #include <iostream>
-#include <portable-file-dialogs.h>
 
 namespace uiMenu {
 
@@ -51,11 +51,11 @@ void uiMenu::onPollEvent(const sf::Event& e)
 			{
 				if (!uiNodeSystem::isEmpty())
 				{
-					pfd::button choice = pfd::message(continueMessageBoxTitle, continueMessageBoxMessage, pfd::choice::yes_no, pfd::icon::warning).result();
-					if (choice == pfd::button::no)
+					utils::osChoice choice = utils::osYesNoMessageBox(continueMessageBoxTitle, continueMessageBoxMessage);
+					if (choice == utils::osChoice::No)
 						break;
 				}
-				std::vector<std::string> selection = pfd::open_file("Open file", "", { "Noose file (.ns)", "*.ns" }).result();
+				std::vector<std::string> selection = utils::osOpenFileDialog("Open file", "Noose file (.ns)", "*.ns");
 				if (selection.size() == 0)
 				{
 					std::cout << "[UI] File not loaded\n";
@@ -68,7 +68,7 @@ void uiMenu::onPollEvent(const sf::Event& e)
 			}
 			case 1: // save
 			{
-				std::string destination = pfd::save_file("Save file", "", { "Noose file (.ns)", "*.ns" }).result();
+				std::string destination = utils::osSaveFileDialog("Save file", "Noose file (.ns)", "*.ns");
 				if (destination.length() == 0)
 				{
 					std::cout << "[UI] File not saved\n";
@@ -82,8 +82,8 @@ void uiMenu::onPollEvent(const sf::Event& e)
 			{
 				if (!uiNodeSystem::isEmpty())
 				{
-					pfd::button choice = pfd::message(continueMessageBoxTitle, continueMessageBoxMessage, pfd::choice::yes_no, pfd::icon::warning).result();
-					if (choice == pfd::button::no)
+					utils::osChoice choice = utils::osYesNoMessageBox(continueMessageBoxTitle, continueMessageBoxMessage);
+					if (choice == utils::osChoice::No)
 						break;
 				}
 

@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <clip.h>
+#include <portable-file-dialogs.h>
 
 #define min_f(a, b, c)  (std::fminf(a, std::fminf(b, c)))
 #define max_f(a, b, c)  (std::fmaxf(a, std::fmaxf(b, c)))
@@ -185,4 +186,25 @@ void utils::drawQuads(sf::RenderTarget& renderTarget, const sf::Vertex* vertices
     {
         renderTarget.draw(&(vertices[i]), 4, sf::PrimitiveType::TriangleFan, renderStates);
     }
+}
+
+void utils::osShowNotification(const std::string& text)
+{
+    pfd::notify("", text);
+}
+
+std::string utils::osSaveFileDialog(const std::string& title, const std::string& extensionDropDownTitle, const std::string& extension)
+{
+    return pfd::save_file(title, "", { extensionDropDownTitle, extension }).result();
+}
+
+std::vector<std::string> utils::osOpenFileDialog(const std::string& title, const std::string& extensionDropDownTitle, const std::string& extensions)
+{
+    return pfd::open_file(title, "", { extensionDropDownTitle, extensions }).result();
+}
+
+utils::osChoice utils::osYesNoMessageBox(const std::string& title, const std::string& message)
+{
+    pfd::button choice = pfd::message(title, message, pfd::choice::yes_no, pfd::icon::warning).result();
+    return (osChoice)choice;
 }
