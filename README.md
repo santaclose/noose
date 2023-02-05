@@ -11,6 +11,8 @@ SFML: https://www.sfml-dev.org/
 
 portable-file-dialogs: https://github.com/samhocevar/portable-file-dialogs
 
+clip: https://github.com/dacap/clip
+
 ### How to build for windows
 
 - Clone the repository with: `git clone --recursive https://github.com/santaclose/noose.git`.
