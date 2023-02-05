@@ -412,6 +412,8 @@ bool uiInputField::keyboardInput(std::uint32_t unicode)
 
 		editingInputField->updateTextPositions();
 	}
+
+	return true;
 }
 
 // non static //
