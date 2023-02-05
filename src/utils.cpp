@@ -1,6 +1,7 @@
 #include "utils.h"
 
 #include <cmath>
+#include <clip.h>
 
 #define min_f(a, b, c)  (std::fminf(a, std::fminf(b, c)))
 #define max_f(a, b, c)  (std::fmaxf(a, std::fmaxf(b, c)))
@@ -91,6 +92,91 @@ bool utils::colorFromHexString(const std::string& hexString, sf::Color& outColor
     }
 
     return false;
+}
+
+bool utils::imageFromClipboard(sf::Image& outImage)
+{
+    clip::image clipboardImage;
+    if (!clip::get_image(clipboardImage) || !clipboardImage.is_valid())
+        return false;
+    clip::image_spec spec = clipboardImage.spec();
+    outImage.create({ spec.width, spec.height }, sf::Color(255u, 255u, 255u, 255u));
+    for (unsigned long y = 0; y < spec.height; ++y)
+    {
+        char* p = clipboardImage.data() + spec.bytes_per_row * y;
+        for (unsigned long x = 0; x < spec.width; ++x)
+        {
+            sf::Color pixelColor;
+            pixelColor.a = 255;
+            for (unsigned long byte = 0; byte < spec.bits_per_pixel / 8; ++byte, ++p)
+            {
+                uint8_t* pixelPointer = (uint8_t*)p;
+                if (byte == spec.red_shift / 8)
+                    pixelColor.r = *pixelPointer;
+                else if (byte == spec.green_shift / 8)
+                    pixelColor.g = *pixelPointer;
+                else if (byte == spec.blue_shift / 8)
+                    pixelColor.b = *pixelPointer;
+                else if (byte == spec.alpha_shift / 8)
+                    pixelColor.a = *pixelPointer;
+            }
+            outImage.setPixel(sf::Vector2u(x, y), pixelColor);
+        }
+    }
+    return true;
+}
+
+bool utils::imageToClipboard(const sf::Image& image)
+{
+    clip::image_spec spec;
+    spec.width = image.getSize().x;
+    spec.height = image.getSize().y;
+    spec.bits_per_pixel = 32;
+    spec.bytes_per_row = 4 * image.getSize().x;
+    spec.red_mask = 0xff;
+    spec.green_mask = 0xff00;
+    spec.blue_mask = 0xff0000;
+    spec.alpha_mask = 0xff000000;
+    spec.red_shift = 0;
+    spec.green_shift = 8;
+    spec.blue_shift = 16;
+    spec.alpha_shift = 24;
+    char* clipboardImageBuffer = (char*)malloc(sizeof(char) * image.getSize().x * image.getSize().y * 4); // RGBA
+    for (unsigned long y = 0; y < spec.height; ++y)
+    {
+        char* p = clipboardImageBuffer + spec.bytes_per_row * y;
+        for (unsigned long x = 0; x < spec.width; ++x)
+        {
+            sf::Color pixelColor = image.getPixel({ x, y });
+            for (unsigned long byte = 0; byte < spec.bits_per_pixel / 8; ++byte, ++p)
+            {
+                char* pixelPointer = (char*)p;
+                if (byte == spec.red_shift / 8)
+                    *pixelPointer = pixelColor.r;
+                else if (byte == spec.green_shift / 8)
+                    *pixelPointer = pixelColor.g;
+                else if (byte == spec.blue_shift / 8)
+                    *pixelPointer = pixelColor.b;
+                else if (byte == spec.alpha_shift / 8)
+                    *pixelPointer = pixelColor.a;
+            }
+        }
+    }
+
+    clip::image clipboardImage = clip::image(clipboardImageBuffer, spec);
+    bool returnValue = clip::set_image(clipboardImage);
+    free(clipboardImageBuffer);
+    return returnValue;
+}
+
+bool utils::textFromClipboard(std::string& outString)
+{
+    return clip::get_text(outString);
+}
+
+bool utils::textToClipboard(const std::string& string)
+{
+    return clip::set_text(string);
 }
 
 void utils::drawQuads(sf::RenderTarget& renderTarget, const sf::Vertex* vertices, size_t vertexCount, const sf::RenderStates& renderStates)

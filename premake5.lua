@@ -27,7 +27,12 @@ project "noose"
 	files
 	{
 		"src/**.h",
-		"src/**.cpp"
+		"src/**.cpp",
+		"vendor/clip/**.h",
+		"vendor/clip/clip.cpp",
+		"vendor/clip/clip_win.cpp",
+		"vendor/clip/image.cpp",
+		"vendor/base64/base64.cpp"
 	}
 
 	defines
@@ -40,7 +45,9 @@ project "noose"
 	{
 		"src",
 		"vendor/SFML/include",
-		"vendor/portable-file-dialogs"
+		"vendor/portable-file-dialogs",
+		"vendor/clip",
+		"vendor/base64"
 	}
 
 	filter "system:Windows"
@@ -95,7 +102,8 @@ project "noose"
 		{
 			"sfml-graphics-d",
 			"sfml-window-d",
-			"sfml-system-d"
+			"sfml-system-d",
+			"shlwapi"
 		}
 
 	filter "configurations:Release"
@@ -111,5 +119,6 @@ project "noose"
 		{
 			"sfml-graphics",
 			"sfml-window",
-			"sfml-system"
+			"sfml-system",
+			"shlwapi"
 		}

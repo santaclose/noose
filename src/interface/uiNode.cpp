@@ -154,9 +154,9 @@ void uiNode::setPosition(sf::Vector2f& newPosition)
 	m_title.setPosition(newPosition + sf::Vector2f(TEXT_MARGIN_LEFT, TEXT_MARGIN_TOP));
 }
 
-void uiNode::setInput(int inputIndex, const void* data)
+void uiNode::setInput(int inputIndex, const void* data, int flags)
 {
-	m_inputFields[inputIndex].setValue(data);
+	m_inputFields[inputIndex].setValue(data, flags);
 }
 
 const sf::Vector2f& uiNode::getPosition() const

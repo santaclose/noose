@@ -277,8 +277,10 @@ void uiViewport::onPollEvent(const sf::Event& e)
 					if (index == 4)
 					{
 						sf::Image imageToCopy = ((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage();
-						sf::Clipboard::setImage(imageToCopy.getSize().x, imageToCopy.getSize().y, imageToCopy.getPixelsPtr());
-						pfd::notify("", "Image copied to clipboard");
+						if (!utils::imageToClipboard(imageToCopy))
+							std::cout << "[UI] Failed to copy image to clipboard\n";
+						else
+							pfd::notify("", "Image copied to clipboard");
 					}
 					else if (index > -1)
 					{

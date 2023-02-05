@@ -8,6 +8,11 @@ namespace utils
 	void rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v);
 	bool colorFromHexString(const std::string& hexString, sf::Color& outColor);
 
+	bool imageFromClipboard(sf::Image& outImage);
+	bool imageToClipboard(const sf::Image& image);
+	bool textFromClipboard(std::string& outString);
+	bool textToClipboard(const std::string& string);
+
 	template <typename T>
 	std::string intToHex(T i)
 	{

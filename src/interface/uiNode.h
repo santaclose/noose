@@ -40,7 +40,7 @@ public:
 	~uiNode();
 
 	void setPosition(sf::Vector2f& newPosition);
-	void setInput(int inputIndex, const void* data);
+	void setInput(int inputIndex, const void* data, int flags = 0);
 	const sf::Vector2f& getPosition() const;
 	inline sf::Vector2f getCenterPosition() const
 	{

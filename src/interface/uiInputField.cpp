@@ -237,10 +237,10 @@ void uiInputField::onMouseUp()
 	}
 }
 
-void uiInputField::keyboardInput(std::uint32_t unicode)
+bool uiInputField::keyboardInput(std::uint32_t unicode)
 {
 	if (editingInputField == nullptr || currentInteractionMode == Default)
-		return;
+		return false;
 
 	if (unicode == '\t')
 	{
@@ -266,7 +266,7 @@ void uiInputField::keyboardInput(std::uint32_t unicode)
 			keyboardInputString = "";
 			incorrectKeyboardInput = true;
 		}
-		return;
+		return true;
 	}
 
 	if (unicode == '\r' || unicode == '\n')
@@ -305,7 +305,7 @@ void uiInputField::keyboardInput(std::uint32_t unicode)
 		}
 		editingInputField->onValueChanged();
 		unbind();
-		return;
+		return true;
 	}
 
 	if (editingInputField->type == NS_TYPE_STRING)
@@ -315,7 +315,7 @@ void uiInputField::keyboardInput(std::uint32_t unicode)
 			if (keyboardInputString.length() > 0)
 				keyboardInputString.resize(keyboardInputString.length() - 1);
 			else
-				return;
+				return true;
 		}
 		else if (unicode == 127) // ctrl backspace
 		{
@@ -328,8 +328,10 @@ void uiInputField::keyboardInput(std::uint32_t unicode)
 		}
 		else if (unicode == 22) // ctrl + v
 		{
-			for (std::uint32_t c : sf::Clipboard::getString())
-				keyboardInputString += c;
+			std::string clipboardText;
+			if (utils::textFromClipboard(clipboardText))
+				for (std::uint32_t c : clipboardText)
+					keyboardInputString += c;
 		}
 		else
 			keyboardInputString += unicode;
@@ -346,14 +348,14 @@ void uiInputField::keyboardInput(std::uint32_t unicode)
 			if (keyboardInputString.length() > 0)
 				keyboardInputString.resize(keyboardInputString.length() - 1);
 			else
-				return;
+				return true;
 		}
 		else if (
 			unicode <= '9' && unicode >= '0' || unicode == '-' && keyboardInputString.length() == 0 ||
 			unicode == '.' && keyboardInputString.find('.') == -1)
 			keyboardInputString += unicode;
 		else
-			return;
+			return true;
 
 		try
 		{
@@ -378,12 +380,12 @@ void uiInputField::keyboardInput(std::uint32_t unicode)
 			if (keyboardInputString.length() > 0)
 				keyboardInputString.resize(keyboardInputString.length() - 1);
 			else
-				return;
+				return true;
 		}
 		else if (unicode <= '9' && unicode >= '0' || unicode == '-' && keyboardInputString.length() == 0)
 			keyboardInputString += unicode;
 		else
-			return;
+			return true;
 
 		try
 		{
@@ -592,7 +594,7 @@ void uiInputField::draw(sf::RenderWindow& window)
 	}
 }
 
-void uiInputField::setValue(const void* data)
+void uiInputField::setValue(const void* data, int flags)
 {
 	switch (type)
 	{
@@ -635,14 +637,25 @@ void uiInputField::setValue(const void* data)
 	case NS_TYPE_IMAGE:
 	{
 		sf::Texture tx;
-		const std::string& filePath = *((const std::string*)data);
-		if (!tx.loadFromFile(filePath))
+		if (flags == 0) // data is a file path
 		{
-			std::cout << "[UI] Failed to open image file\n";
-			return;
+			const std::string& filePath = *((const std::string*)data);
+			if (!tx.loadFromFile(filePath))
+			{
+				std::cout << "[UI] Failed to open image file\n";
+				return;
+			}
+			imagePath = std::string(filePath);
+			texts[0].setString(pathUtils::getFileNameFromPath(filePath.c_str()));
+			imageContent = ImageFieldContent::FromFile;
 		}
-		imagePath = std::string(filePath);
-		texts[0].setString(pathUtils::getFileNameFromPath(filePath.c_str()));
+		else // data is image in memory
+		{
+			tx.loadFromImage(*((sf::Image*)data));
+			texts[0].setString("from memory");
+			imageContent = ImageFieldContent::FromMemory;
+		}
+
 		loadImageShader.setUniform("tx", tx);
 
 		sf::Sprite spr(tx);
@@ -734,30 +747,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 
 		std::vector<std::string> selection = pfd::open_file("Open image", "", { "Image Files", "*.png *.jpg *.jpeg *.bmp *.tga *.gif *.psd *.hdr *.pic" }).result();
 		if (selection.size() != 0)
-		{
-			sf::Texture tx;
-			if (!tx.loadFromFile(selection[0]))
-			{
-				std::cout << "[UI] Failed to open image file\n";
-				return;
-			}
-			imagePath = selection[0];
-			texts[0].setString(pathUtils::getFileNameFromPath(selection[0].c_str()));
-			loadImageShader.setUniform("tx", tx);
-
-			sf::Sprite spr(tx);
-			sf::Vector2u txSize = tx.getSize();
-			sf::RenderTexture* pointer = (sf::RenderTexture*) dataPointer;
-
-			pointer->create(txSize);
-			sf::RenderStates rs;
-			rs.shader = &loadImageShader;
-			rs.blendMode = sf::BlendNone;
-			pointer->draw(spr, rs);
-
-			editingInputField->updateTextPositions();
-			editingInputField->onValueChanged();
-		}
+			this->setValue(&(selection[0]));
 
 		unbind();
 		return;

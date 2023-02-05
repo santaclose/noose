@@ -10,13 +10,16 @@ class uiInputField
 	friend void onColorPickerSetColor(sf::Color* newColor);
 	friend serializer;
 
+	enum class ImageFieldContent { None = 0, FromFile = 1, FromMemory = 2 };
+
 private:
 	bool enabled = true;
 	int type;
 	sf::Vertex* shapes = nullptr;
 	sf::Text* texts = nullptr;
-	std::string imagePath;
-	std::string fontPath;
+	std::string imagePath = "";
+	ImageFieldContent imageContent = ImageFieldContent::None;
+	std::string fontPath = "";
 	const std::vector<std::string>* enumOptions;
 	static uiSelectionBox* selectionBox;
 	
@@ -35,7 +38,7 @@ public:
 	// returns true if there was a collision
 	static bool onMouseDown(sf::Vector2f& mousePos);
 	static void onMouseUp();
-	static void keyboardInput(std::uint32_t unicode);
+	static bool keyboardInput(std::uint32_t unicode);
 	static void unbind();
 	static bool isBound();
 	static bool typingInteractionOngoing();
@@ -46,7 +49,7 @@ public:
 	void create(int theType, void* pinDataPointer, void(onValueChangedFunc)(), const std::vector<std::string>* theEnumOptions, uiSelectionBox* theSelectionBox);
 	void setPosition(const sf::Vector2f& newPosition, float nodeWidth, float height); // top left corner position
 	void draw(sf::RenderWindow& window);
-	void setValue(const void* data);
+	void setValue(const void* data, int flags = 0);
 
 	// the index tells which of the two components of a vector is gonna change
 	void bind(int index, InteractionMode interactionMode = InteractionMode::Default);

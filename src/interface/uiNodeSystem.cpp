@@ -4,6 +4,7 @@
 #include "uiSelectionBox.h"
 #include "../logic/nodeSystem.h"
 #include "../type2color.h"
+#include "../utils.h"
 
 #include "nodeProvider/nodeProvider.h"
 
@@ -496,7 +497,24 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 		}
 		case sf::Event::TextEntered:
 		{
-			uiInputField::keyboardInput(e.text.unicode);
+			if (uiInputField::keyboardInput(e.text.unicode)) // input field handling keyboard input
+				break;
+
+			if (e.text.unicode == 22) // ctrl v
+			{
+				sf::Image image;
+				if (!utils::imageFromClipboard(image))
+				{
+					std::cout << "Failed to paste image from clipboard\n";
+					break;
+				}
+
+				int nodeID = uiNodeSystem::pushNewNode(nodeProvider::getNodeDataByName("Image"));
+				// bind to set pin data
+				setBoundInputFieldNode(nodeID);
+				uiNodeList[nodeID]->setInput(0, &image, 1); // flag to let it know it's not a file path
+			}
+
 			break;
 		}
 		case sf::Event::FilesDropped:

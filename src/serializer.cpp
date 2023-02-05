@@ -6,9 +6,10 @@
 #include <pathUtils.h>
 #include <fstream>
 #include <unordered_map>
+#include <base64.h>
 #include "types.h"
 
-enum class LoadState { ReadingNodes = 0, ReadingConnections = 1, ReadingSelectedNode = 2, ReadingViews = 3 };
+enum class LoadState { ReadingNodes = 0, ReadingConnections = 1, ReadingSelectedNode = 2, ReadingViews = 3, ReadingEmbeddedImages = 4 };
 enum class LoadSubState { ReadingIds = 0, ReadingNodeCoordinates = 1, ReadingPinData = 2, ReadingConnectionNodes = 3, ReadingConnectionPins = 4 };
 
 void serializer::LoadFromFile(const std::string& filePath)
@@ -28,6 +29,10 @@ void serializer::LoadFromFile(const std::string& filePath)
 	int currentConnectionLeftNode, currentConnectionRightNode;
 
 	std::vector<uiNode*>& nodes = uiNodeSystem::getNodeList();
+
+	std::vector<uiInputField*> embeddedImageInputFields;
+	std::vector<int> embeddedImageNodes;
+	int embeddedImagesLoaded = 0;
 
 	std::string line;
 	while (std::getline(input, line))
@@ -52,6 +57,11 @@ void serializer::LoadFromFile(const std::string& filePath)
 		if (line.compare("| views") == 0)
 		{
 			currentState = LoadState::ReadingViews;
+			continue;
+		}
+		if (line.compare("| embedded images") == 0)
+		{
+			currentState = LoadState::ReadingEmbeddedImages;
 			continue;
 		}
 		if (line[0] == '=')
@@ -127,25 +137,26 @@ void serializer::LoadFromFile(const std::string& filePath)
 					break;
 				case NS_TYPE_IMAGE:
 				{
-					if (line.compare("None") == 0)
+					uiInputField::ImageFieldContent imageContentType = (uiInputField::ImageFieldContent)(line[0] - '0'); // char to int/enum
+					switch (imageContentType)
+					{
+					case uiInputField::ImageFieldContent::None:
+					{
 						break;
-					std::string fullImagePath = folderPath + line;
-					sf::Texture tx;
-					if (!tx.loadFromFile(fullImagePath))
-						std::cout << "[Serializer] Failed to open image file: " + fullImagePath + "\n";
-					nodes.back()->m_inputFields[currentPin].imagePath = fullImagePath;
-					nodes.back()->m_inputFields[currentPin].texts[0].setString(pathUtils::getFileNameFromPath(fullImagePath.c_str()));
-					uiInputField::loadImageShader.setUniform("tx", tx);
-
-					sf::Sprite spr(tx);
-					sf::Vector2u txSize = tx.getSize();
-					sf::RenderTexture* pointer = (sf::RenderTexture*) nodes.back()->m_inputFields[currentPin].dataPointer;
-
-					pointer->create({ txSize.x, txSize.y });
-					sf::RenderStates rs;
-					rs.shader = &uiInputField::loadImageShader;
-					rs.blendMode = sf::BlendNone;
-					pointer->draw(spr, rs);
+					}
+					case uiInputField::ImageFieldContent::FromFile:
+					{
+						std::string fullImagePath = folderPath + line.substr(2);
+						nodes.back()->m_inputFields[currentPin].setValue(&fullImagePath);
+						break;
+					}
+					case uiInputField::ImageFieldContent::FromMemory:
+					{
+						embeddedImageNodes.push_back(nodes.size() - 1);
+						embeddedImageInputFields.push_back(& (nodes.back()->m_inputFields[currentPin]));
+						break;
+					}
+					}
 					break;
 				}
 				case NS_TYPE_FONT:
@@ -218,7 +229,7 @@ void serializer::LoadFromFile(const std::string& filePath)
 		{
 			uiNodeSystem::setSelectedNode(std::stoi(line));
 		}
-		else // currentState == LoadState::ReadingViews
+		else if (currentState == LoadState::ReadingViews)
 		{
 			int nodeEditorZoom, viewportZoom;
 			sf::Vector2f nodeEditorViewPosition, viewportViewPosition;
@@ -240,6 +251,23 @@ void serializer::LoadFromFile(const std::string& filePath)
 			uiNodeSystem::setView(nodeEditorZoom, nodeEditorViewPosition);
 			uiViewport::setView(viewportZoom, viewportViewPosition);
 		}
+		else if (currentState == LoadState::ReadingEmbeddedImages)
+		{
+			if (line.length() > 0)
+			{
+				std::string pngBytes = base64::decode(line);
+				sf::Image embeddedImage;
+				embeddedImage.loadFromMemory(&(pngBytes[0]), pngBytes.length());
+				embeddedImageInputFields[embeddedImagesLoaded]->setValue(&embeddedImage, 1); // flag to let it know it's not a file path
+
+				// execute the nodes
+				uiNodeSystem::setBoundInputFieldNode(embeddedImageNodes[embeddedImagesLoaded]);
+				embeddedImageInputFields[embeddedImagesLoaded]->updateTextPositions();
+				embeddedImageInputFields[embeddedImagesLoaded]->onValueChanged();
+
+				embeddedImagesLoaded++;
+			}
+		}
 	}
 }
 
@@ -247,6 +275,8 @@ void serializer::SaveIntoFile(const std::string& filePath)
 {
 	const std::vector<uiNode*>& nodes = uiNodeSystem::getNodeList();
 	std::ofstream output(filePath);
+
+	std::vector<sf::Image> embeddedImages;
 
 	output << "| nodes\n";
 	unsigned int originalNodeId = 0;
@@ -279,9 +309,12 @@ void serializer::SaveIntoFile(const std::string& filePath)
 					output << *(float*)node->m_inputFields[i].getDataPointer() << '\n';
 					break;
 				case NS_TYPE_IMAGE:
-					output << (node->m_inputFields[i].imagePath.length() > 0 ?
-						pathUtils::getRelativePath(filePath, node->m_inputFields[i].imagePath) :
-						"None") << '\n';
+					output << (int)node->m_inputFields[i].imageContent << ' ';
+					if (node->m_inputFields[i].imageContent == uiInputField::ImageFieldContent::FromFile)
+						output << pathUtils::getRelativePath(filePath, node->m_inputFields[i].imagePath);
+					else if (node->m_inputFields[i].imageContent == uiInputField::ImageFieldContent::FromMemory)
+						embeddedImages.push_back(((sf::RenderTexture*)(node->m_inputFields[i].dataPointer))->getTexture().copyToImage());
+					output << '\n';
 					break;
 				case NS_TYPE_FONT:
 					output << (node->m_inputFields[i].fontPath.length() > 0 ?
@@ -335,6 +368,25 @@ void serializer::SaveIntoFile(const std::string& filePath)
 	uiViewport::getView(viewportZoom, viewportViewPosition);
 	output << "| views\n";
 	output << nodeEditorZoom << ',' << nodeEditorViewPosition.x << ',' << nodeEditorViewPosition.y << ',' << viewportZoom << ',' << viewportViewPosition.x << ',' << viewportViewPosition.y << '\n';
+
+	if (embeddedImages.size() > 0)
+	{
+		output << "| embedded images\n";
+		for (int i = 0; i < embeddedImages.size(); i++)
+		{
+			std::vector<uint8_t> pngImage;
+			// allocate max we would need for assert not to show up in debug mode
+			// https://stackoverflow.com/questions/35310117/debug-assertion-failed-expression-acrt-first-block-header
+			pngImage.reserve(embeddedImages[i].getSize().x * embeddedImages[i].getSize().y * 4);
+			if (!embeddedImages[i].saveToMemory(pngImage, "png"))
+				std::cout << "[Serializer] Failed to save embedded image to memory\n";
+			else
+			{
+				std::string base64Encoded = base64::encode(&(pngImage[0]), pngImage.size());
+				output << base64Encoded << '\n';
+			}
+		}
+	}
 
 	output.close();
 }
