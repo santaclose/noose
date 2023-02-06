@@ -12,6 +12,7 @@ void pathUtils::setProgramDirectory(const std::string& executableFilePath)
     assetsDirectory = programDirectory + "assets/";
     if (!std::filesystem::exists(assetsDirectory))
     {
+        // asset directory is different when launching from visual studio
         std::string parent = getFolderPath(executableFilePath.substr(0, executableFilePath.length() - 1));
         parent = getFolderPath(parent.substr(0, parent.length() - 1));
         parent = getFolderPath(parent.substr(0, parent.length() - 1));
