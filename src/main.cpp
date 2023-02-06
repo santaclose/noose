@@ -55,6 +55,8 @@ int main(int argc, char** argv)
 	int redrawCounter = REDRAW_COUNT;
 	pathUtils::setProgramDirectory(argv[0]);
 
+	utils::checkForUpdatesAsync();
+
 	// Create the main window
 	sf::RenderWindow windowA(sf::VideoMode({ 1200, 800 }), "node editor", 7U, sf::ContextSettings(), true);
 	// Create the output window

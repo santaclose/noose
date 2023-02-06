@@ -31,4 +31,9 @@ namespace utils
 	std::string osSaveFileDialog(const std::string& title, const std::string& extensionDropDownTitle, const std::string& extension);
 	std::vector<std::string> osOpenFileDialog(const std::string& title, const std::string& extensionDropDownTitle, const std::string& extensions);
 	osChoice osYesNoMessageBox(const std::string& title, const std::string& message);
+
+	std::string runCommand(const char* cmd);
+	void installUpdate(const std::string& updateUrl);
+	void checkForUpdates();
+	void checkForUpdatesAsync();
 }

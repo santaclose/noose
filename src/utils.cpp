@@ -1,8 +1,20 @@
 #include "utils.h"
 
 #include <cmath>
+#include <cstdio>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
+#include <regex>
+#include <fstream>
+#include <sstream>
+#include <thread>
+
 #include <clip.h>
 #include <portable-file-dialogs.h>
+#include "pathUtils.h"
 
 #define min_f(a, b, c)  (std::fminf(a, std::fminf(b, c)))
 #define max_f(a, b, c)  (std::fmaxf(a, std::fmaxf(b, c)))
@@ -207,4 +219,89 @@ utils::osChoice utils::osYesNoMessageBox(const std::string& title, const std::st
 {
     pfd::button choice = pfd::message(title, message, pfd::choice::yes_no, pfd::icon::warning).result();
     return (osChoice)choice;
+}
+
+std::string utils::runCommand(const char* cmd)
+{
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(cmd, "r"), _pclose);
+
+    if (!pipe)
+        throw std::runtime_error("popen() failed!");
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+        result += buffer.data();
+
+    return result;
+}
+
+void utils::installUpdate(const std::string& updateUrl)
+{
+    std::cout << "[Utils] Installing update from " + updateUrl;
+
+    std::string powerShellCommand = "powershell -Command \""
+        "Get-Process 'noose' | Stop-Process ; "
+        "Start-Sleep -Milliseconds 500 ; "
+        "Get-ChildItem -Path '" + pathUtils::getProgramDirectory() + "' *.* -File -Recurse | foreach { $_.Delete()} ; "
+        "Invoke-Webrequest -URI " + updateUrl + " -OutFile " + pathUtils::getProgramDirectory() + "update.zip ; "
+        "Expand-Archive -Force '" + pathUtils::getProgramDirectory() + "update.zip' ./ ; "
+        "Remove-Item '" + pathUtils::getProgramDirectory() + "update.zip' ; "
+        "Start-Process -FilePath '" + pathUtils::getProgramDirectory() + "noose.exe'"
+        "\"";
+    system(powerShellCommand.c_str());
+}
+
+void utils::checkForUpdates()
+{
+    std::string latestVersion;
+    float latestVersionF = -1.0f;
+    std::string installedVersion;
+    float installedVersionF;
+
+    // get current version
+    std::ifstream versiondat(pathUtils::getAssetsDirectory() + "version.dat");
+    if (!versiondat.good())
+    {
+        std::cout << "[Utils] Version file not found, skipping update check\n";
+        return;
+    }
+    std::stringstream buffer;
+    buffer << versiondat.rdbuf();
+    installedVersion = buffer.str();
+    installedVersionF = std::stof(installedVersion);
+
+    // get latest version
+    std::string html = runCommand("curl https://github.com/santaclose/noose/releases");
+    std::regex re("release.*>(\\d+\\.\\d+)<");
+    for (std::sregex_iterator it{ html.begin(), html.end(), re }, end{}; it != end; it++) {
+        std::smatch result = *it;
+        if (result.size() < 2)
+        {
+            std::cout << "[Utils] Failed to read latest revision\n";
+            return;
+        }
+        latestVersion = result[1];
+        latestVersionF = std::stof(latestVersion);
+        break;
+    }
+    if (latestVersionF == -1.0f)
+    {
+        std::cout << "[Utils] Failed to fetch latest revision\n";
+        return;
+    }
+
+    // show dialog
+    if (installedVersionF < latestVersionF)
+    {
+        utils::osChoice choice = osYesNoMessageBox("Update available",
+            "Currently installed version: " + installedVersion +
+            "\nLatest version: " + latestVersion + "\nDo you want to update?");
+        if (choice == utils::osChoice::Yes)
+            std::thread* t = new std::thread(installUpdate, "https://github.com/santaclose/noose/releases/download/" + latestVersion + "/noose_windows_x64.zip");
+    }
+}
+
+void utils::checkForUpdatesAsync()
+{
+    std::thread* t = new std::thread(checkForUpdates);
 }
