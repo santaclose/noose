@@ -6,7 +6,7 @@
 
 namespace uiHelp
 {
-	const std::string helpUrl = "http://sntcls.ml/noose/help";
+	const std::string helpUrl = "http://sntcls.xyz/noose/help";
 	inline void displayHelp()
 	{
 		std::cout << "[UI] Opening help url\n";
