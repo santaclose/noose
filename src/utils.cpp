@@ -259,7 +259,7 @@ void utils::checkForUpdates()
     float installedVersionF;
 
     // get current version
-    std::ifstream versiondat(pathUtils::getAssetsDirectory() + "version.dat");
+    std::ifstream versiondat(pathUtils::getProgramDirectory() + "version.dat");
     if (!versiondat.good())
     {
         std::cout << "[Utils] Version file not found, skipping update check\n";
