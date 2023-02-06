@@ -721,7 +721,7 @@ void nodeFunctionality::IntegerDivision(node* theNode)
 {
 	if (*((int*)theNode->getDataPointer(1)) == 0)
 	{
-		std::cout << "[Node functionality] Cannot divide by zero\n";
+		std::cout << "[Node provider] Cannot divide by zero\n";
 		return;
 	}
 

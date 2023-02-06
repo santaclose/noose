@@ -505,7 +505,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 				sf::Image image;
 				if (!utils::imageFromClipboard(image))
 				{
-					std::cout << "Failed to paste image from clipboard\n";
+					std::cout << "[UI] Failed to paste image from clipboard\n";
 					break;
 				}
 
@@ -519,10 +519,10 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 		}
 		case sf::Event::FilesDropped:
 		{
-			std::cout << "Files dropped:\n";
+			std::cout << "[UI] Files dropped:\n";
 			for (const auto& file : e.filesDropped)
 			{
-				std::cout << "    - " << file << std::endl;
+				std::cout << "[UI]     - " << file << std::endl;
 				pushImageNodeFromFile(file, PushMode::AtCursorPosition, true, mouseWorldPos);
 			}
 			break;

@@ -69,7 +69,7 @@ void uiSearchBar::pushSelectedNode(uiNodeSystem::PushMode mode)
 	const nodeData* nData = searcher::getDataFor(selectedSearchResult);
 	if (nData == nullptr)
 	{
-		std::cout << "[Search Bar] Failed to get node data\n";
+		std::cout << "[UI] Failed to get node data\n";
 		return;
 	}
 
