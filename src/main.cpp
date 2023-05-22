@@ -23,6 +23,11 @@
 
 static const sf::Color BACKGROUND_COLOR(0x222222ff);
 
+#ifdef NOOSE_PLATFORM_WINDOWS
+#include <windows.h>
+#include <atlstr.h>
+#endif
+
 void onNodeSelected(int theNode)
 {
 	std::cout << "[Main] Node " << theNode << " selected\n";
@@ -50,10 +55,25 @@ void onNodeChanged(int theNode)
 	uiViewport::onNodeChanged(theNode);
 }
 
+#ifdef NOOSE_PLATFORM_WINDOWS
+int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+{
+	LPWSTR* szArglist;
+	int argc;
+	szArglist = CommandLineToArgvW(GetCommandLine(), &argc);
+	std::string firstArgument = CW2A(szArglist[0]);
+	std::string secondArgument;
+	if (argc > 1) secondArgument = CW2A(szArglist[1]);
+#else
 int main(int argc, char** argv)
 {
+	std::string firstArgument(argv[0]);
+	std::string secondArgument;
+	if (argc > 1) secondArgument = std::string(argv[1]);
+#endif
+
 	int redrawCounter = REDRAW_COUNT;
-	pathUtils::setProgramDirectory(argv[0]);
+	pathUtils::setProgramDirectory(firstArgument);
 
 	utils::checkForUpdatesAsync();
 
@@ -99,11 +119,11 @@ int main(int argc, char** argv)
 	// load file if opening file
 	if (argc > 1)
 	{
-		std::string fileToOpenPath(argv[1]);
+		std::string fileToOpenPath(secondArgument);
 		if (fileToOpenPath.compare(fileToOpenPath.length() - 3, 3, ".ns") == 0)
-			serializer::LoadFromFile(argv[1]);
+			serializer::LoadFromFile(secondArgument);
 		else
-			uiNodeSystem::pushImageNodeFromFile(std::string(argv[1]), uiNodeSystem::PushMode::Centered);
+			uiNodeSystem::pushImageNodeFromFile(secondArgument, uiNodeSystem::PushMode::Centered);
 	}
 
 	// Start the game loop

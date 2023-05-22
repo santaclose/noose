@@ -16,7 +16,7 @@ workspace "noose"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 project "noose"
-	kind "ConsoleApp"
+	kind "WindowedApp"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
