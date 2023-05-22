@@ -14,6 +14,10 @@
 
 #include <clip.h>
 #include <portable-file-dialogs.h>
+#ifdef NOOSE_PLATFORM_WINDOWS
+#include <windows.h>
+#endif
+
 #include "pathUtils.h"
 
 #define min_f(a, b, c)  (std::fminf(a, std::fminf(b, c)))
@@ -223,6 +227,77 @@ utils::osChoice utils::osYesNoMessageBox(const std::string& title, const std::st
 
 std::string utils::runCommand(const char* cmd)
 {
+#ifdef NOOSE_PLATFORM_WINDOWS
+    // from https://stackoverflow.com/questions/7063859/c-popen-command-without-console, needed to hide the console
+    wchar_t wtext[128];
+    mbstowcs(wtext, cmd, strlen(cmd) + 1);//Plus null
+    LPWSTR wcmd = wtext;
+    std::string out = "";
+    HANDLE g_hChildStd_OUT_Rd = NULL;
+    HANDLE g_hChildStd_OUT_Wr = NULL;
+    HANDLE g_hChildStd_ERR_Rd = NULL;
+    HANDLE g_hChildStd_ERR_Wr = NULL;
+
+    SECURITY_ATTRIBUTES sa;
+    // Set the bInheritHandle flag so pipe handles are inherited.
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+    sa.bInheritHandle = TRUE;
+    sa.lpSecurityDescriptor = NULL;
+    if (!CreatePipe(&g_hChildStd_ERR_Rd, &g_hChildStd_ERR_Wr, &sa, 0)) { return out; } // Create a pipe for the child process's STDERR.
+    if (!SetHandleInformation(g_hChildStd_ERR_Rd, HANDLE_FLAG_INHERIT, 0)) { return out; } // Ensure the read handle to the pipe for STDERR is not inherited.
+    if (!CreatePipe(&g_hChildStd_OUT_Rd, &g_hChildStd_OUT_Wr, &sa, 0)) { return out; } // Create a pipe for the child process's STDOUT.
+    if (!SetHandleInformation(g_hChildStd_OUT_Rd, HANDLE_FLAG_INHERIT, 0)) { return out; } // Ensure the read handle to the pipe for STDOUT is not inherited
+
+    PROCESS_INFORMATION piProcInfo;
+    STARTUPINFO siStartInfo;
+    bool bSuccess = FALSE;
+
+    // Set up members of the PROCESS_INFORMATION structure.
+    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+
+    // Set up members of the STARTUPINFO structure.
+    // This structure specifies the STDERR and STDOUT handles for redirection.
+    ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
+    siStartInfo.cb = sizeof(STARTUPINFO);
+    siStartInfo.hStdError = g_hChildStd_ERR_Wr;
+    siStartInfo.hStdOutput = g_hChildStd_OUT_Wr;
+    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+    // Create the child process.
+    bSuccess = CreateProcess(
+        NULL,             // program name
+        wcmd,             // command line
+        NULL,             // process security attributes
+        NULL,             // primary thread security attributes
+        TRUE,             // handles are inherited
+        CREATE_NO_WINDOW, // creation flags (this is what hides the window)
+        NULL,             // use parent's environment
+        NULL,             // use parent's current directory
+        &siStartInfo,     // STARTUPINFO pointer
+        &piProcInfo       // receives PROCESS_INFORMATION
+    );
+
+    CloseHandle(g_hChildStd_ERR_Wr);
+    CloseHandle(g_hChildStd_OUT_Wr);
+
+    DWORD dwRead;
+    CHAR chBuf[4096];
+    bool bSuccess2 = FALSE;
+    for (;;) { // read stdout
+        bSuccess2 = ReadFile(g_hChildStd_OUT_Rd, chBuf, 4096, &dwRead, NULL);
+        if (!bSuccess2 || dwRead == 0) break;
+        std::string s(chBuf, dwRead);
+        out += s;
+    }
+    dwRead = 0;
+    for (;;) { // read stderr
+        bSuccess2 = ReadFile(g_hChildStd_ERR_Rd, chBuf, 4096, &dwRead, NULL);
+        if (!bSuccess2 || dwRead == 0) break;
+        std::string s(chBuf, dwRead);
+        out += s;
+    }
+    return out;
+#else
     std::array<char, 128> buffer;
     std::string result;
     std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(cmd, "r"), _pclose);
@@ -233,6 +308,7 @@ std::string utils::runCommand(const char* cmd)
         result += buffer.data();
 
     return result;
+#endif
 }
 
 void utils::installUpdate(const std::string& updateUrl)
