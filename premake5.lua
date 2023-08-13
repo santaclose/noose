@@ -47,7 +47,8 @@ project "noose"
 		"vendor/SFML/include",
 		"vendor/portable-file-dialogs",
 		"vendor/clip",
-		"vendor/base64"
+		"vendor/base64",
+		"vendor/cpp-subprocess"
 	}
 
 	filter "system:Windows"

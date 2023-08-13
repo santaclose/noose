@@ -20,7 +20,6 @@ namespace uiHelp
 #ifdef NOOSE_PLATFORM_WINDOWS
 		command = "explorer ";
 #endif
-		command += "\"" + helpUrl + "\"";
-		system(command.c_str());
+		utils::pcall({ command, helpUrl });
 	}
 }
