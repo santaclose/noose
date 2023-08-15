@@ -1,5 +1,7 @@
 rem Requires ResourceHacker directory in PATH
 
+set /P version=Enter version: 
+
 if not exist "%~dp0release" mkdir "%~dp0release"
 if not exist "%~dp0release/assets" mkdir "%~dp0release/assets"
 
@@ -15,7 +17,6 @@ move /y "%~dp0assets\shaders" "%~dp0release\assets\shaders"
 move /y "%~dp0assets\icon.png" "%~dp0release\assets\icon.png"
 move /y "%~dp0assets\nodes.dat" "%~dp0release\assets\nodes.dat"
 
-set /P version=Enter version: 
 echo|set /p=%version% > "%~dp0release\version.dat"
 
 ResourceHacker -open "%~dp0release\noose.exe" -save "%~dp0release\noosei.exe" -action addskip -res "%~dp0assets\noose.ico" -mask ICONGROUP,MAINICON,
