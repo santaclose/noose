@@ -126,10 +126,10 @@ void serializer::LoadFromFileJson(const std::string& filePath)
 			}
 			case NS_TYPE_VECTOR2I:
 			{
-				nodes.back()->m_inputFields[currentPin].texts[0].setString(((std::string)pinItem["x"]));
-				((sf::Vector2i*)nodes.back()->m_inputFields[currentPin].getDataPointer())->x = std::stoi(((std::string)pinItem["x"]));
-				nodes.back()->m_inputFields[currentPin].texts[1].setString(((std::string)pinItem["y"]));
-				((sf::Vector2i*)nodes.back()->m_inputFields[currentPin].getDataPointer())->y = std::stoi(((std::string)pinItem["y"]));
+				nodes.back()->m_inputFields[currentPin].texts[0].setString(std::to_string((int)pinItem["x"]));
+				((sf::Vector2i*)nodes.back()->m_inputFields[currentPin].getDataPointer())->x = (int)pinItem["x"];
+				nodes.back()->m_inputFields[currentPin].texts[1].setString(std::to_string((int)pinItem["y"]));
+				((sf::Vector2i*)nodes.back()->m_inputFields[currentPin].getDataPointer())->y = (int)pinItem["y"];
 				break;
 			}
 			}
