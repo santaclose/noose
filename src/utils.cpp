@@ -5,7 +5,6 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <array>
 #include <regex>
 #include <fstream>
@@ -107,6 +106,12 @@ bool utils::colorFromHexString(const std::string& hexString, sf::Color& outColor
     }
 
     return false;
+}
+
+std::string utils::hexStringFromColor(const sf::Color& color)
+{
+    uint32_t colorInt = color.toInteger();
+    return intToHex(colorInt);
 }
 
 bool utils::imageFromClipboard(sf::Image& outImage)

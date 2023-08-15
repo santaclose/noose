@@ -15,7 +15,7 @@ namespace uiMenu {
 	const sf::Vector2i* mouseScreenPosPointer;
 
 	uiSelectionBox selectionBox;
-	std::vector<std::string> selectionBoxOptions = { "Open project", "Save project", "Clear project" };
+	std::vector<std::string> selectionBoxOptions = { "Open project", "Save project", "Save project as json", "Clear project" };
 
 	sf::Vector2f buttonCenterPos;
 
@@ -55,7 +55,7 @@ void uiMenu::onPollEvent(const sf::Event& e)
 					if (choice == utils::osChoice::No)
 						break;
 				}
-				std::vector<std::string> selection = utils::osOpenFileDialog("Open file", "Noose file (.ns)", "*.ns");
+				std::vector<std::string> selection = utils::osOpenFileDialog("Open file", "Noose file (.ns .nsj)", "*.ns *.nsj");
 				if (selection.size() == 0)
 				{
 					std::cout << "[UI] File not loaded\n";
@@ -63,7 +63,10 @@ void uiMenu::onPollEvent(const sf::Event& e)
 				}
 
 				uiNodeSystem::clearNodeSelection(); // unselect if there is a node selected
-				serializer::LoadFromFile(selection[0]);
+				if (utils::endsWith(selection[0], ".nsj"))
+					serializer::LoadFromFileJson(selection[0]);
+				else
+					serializer::LoadFromFile(selection[0]);
 				break;
 			}
 			case 1: // save
@@ -78,7 +81,19 @@ void uiMenu::onPollEvent(const sf::Event& e)
 				serializer::SaveIntoFile(destination);
 				break;
 			}
-			case 2: // clear
+			case 2: // save json
+			{
+				std::string destination = utils::osSaveFileDialog("Save file", "Noose json file (.nsj)", "*.nsj");
+				if (destination.length() == 0)
+				{
+					std::cout << "[UI] File not saved\n";
+					break;
+				}
+				destination = destination + (pathUtils::fileHasExtension(destination.c_str(), "nsj") ? "" : ".nsj");
+				serializer::SaveIntoFileJson(destination);
+				break;
+			}
+			case 3: // clear
 			{
 				if (!uiNodeSystem::isEmpty())
 				{

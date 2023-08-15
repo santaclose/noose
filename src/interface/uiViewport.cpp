@@ -145,7 +145,7 @@ void uiViewport::updateBottomBarText()
 			break;
 		case NS_TYPE_COLOR:
 		{
-			newBottomBarText << "#" << utils::intToHex(((sf::Color*) (*selectedNodeDataPointers)[i])->toInteger());
+			newBottomBarText << "#" << utils::hexStringFromColor(*((sf::Color*) (*selectedNodeDataPointers)[i]));
 			break;
 		}
 		case NS_TYPE_FONT:

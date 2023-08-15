@@ -1,5 +1,6 @@
 #pragma once
 #include <iomanip>
+#include <string>
 #include <SFML/Graphics.hpp>
 
 namespace utils
@@ -7,6 +8,7 @@ namespace utils
 	char lower(char in);
 	void rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v);
 	bool colorFromHexString(const std::string& hexString, sf::Color& outColor);
+	std::string hexStringFromColor(const sf::Color& color);
 
 	bool imageFromClipboard(sf::Image& outImage);
 	bool imageToClipboard(const sf::Image& image);
@@ -38,4 +40,14 @@ namespace utils
 	void installUpdate(const std::string& updateUrl);
 	void checkForUpdates();
 	void checkForUpdatesAsync();
+
+	inline bool endsWith(const std::string& str, const std::string& suffix)
+	{
+		return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
+	}
+
+	inline bool startsWith(const std::string& str, const std::string& prefix)
+	{
+		return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
+	}
 }

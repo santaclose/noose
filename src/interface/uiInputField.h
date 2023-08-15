@@ -10,28 +10,8 @@ class uiInputField
 	friend void onColorPickerSetColor(sf::Color* newColor);
 	friend serializer;
 
-	enum class ImageFieldContent { None = 0, FromFile = 1, FromMemory = 2 };
-
-private:
-	bool enabled = true;
-	int type;
-	sf::Vertex* shapes = nullptr;
-	sf::Text* texts = nullptr;
-	std::string imagePath = "";
-	ImageFieldContent imageContent = ImageFieldContent::None;
-	std::string fontPath = "";
-	const std::vector<std::string>* enumOptions;
-	static uiSelectionBox* selectionBox;
-	
-	static sf::Shader loadImageShader;
-
-	void updateTextPositions();
-	void paintQuad(bool isHighlighted, int quadIndex);
-	void* dataPointer;
-	void (*onValueChanged)() = nullptr;
-
 public:
-
+	enum class ImageFieldContent { None = 0, FromFile = 1, FromMemory = 2 };
 	enum InteractionMode { Default = 0, Typing = 1, PickPosition = 2 };
 
 	static void onMouseMoved(sf::Vector2f& displacement);
@@ -59,4 +39,22 @@ public:
 	void disable();
 	void enable();
 	bool isEnabled();
+
+private:
+	bool enabled = true;
+	int type;
+	sf::Vertex* shapes = nullptr;
+	sf::Text* texts = nullptr;
+	std::string imagePath = "";
+	ImageFieldContent imageContent = ImageFieldContent::None;
+	std::string fontPath = "";
+	const std::vector<std::string>* enumOptions;
+	static uiSelectionBox* selectionBox;
+
+	static sf::Shader loadImageShader;
+
+	void updateTextPositions();
+	void paintQuad(bool isHighlighted, int quadIndex);
+	void* dataPointer;
+	void (*onValueChanged)() = nullptr;
 };

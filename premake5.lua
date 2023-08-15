@@ -48,7 +48,8 @@ project "noose"
 		"vendor/portable-file-dialogs",
 		"vendor/clip",
 		"vendor/base64",
-		"vendor/cpp-subprocess"
+		"vendor/cpp-subprocess",
+		"vendor/json"
 	}
 
 	filter "system:Windows"
