@@ -419,6 +419,8 @@ bool uiInputField::keyboardInput(std::uint32_t unicode)
 
 uiInputField::~uiInputField()
 {
+	if (editingInputField == this)
+		editingInputField = nullptr;
 	if (texts != nullptr)
 		delete[] texts;
 	if (shapes != nullptr)
