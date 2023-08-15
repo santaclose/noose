@@ -6,3 +6,6 @@
 **.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
+
+noose_windows_x64.zip
+noose_windows_x64/**
