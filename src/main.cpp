@@ -18,6 +18,7 @@
 #include "nodeProvider/nodeProvider.h"
 #include "logic/nodeSystem.h"
 #include "pathUtils.h"
+#include "utils.h"
 
 #define REDRAW_COUNT 5
 
@@ -119,10 +120,11 @@ int main(int argc, char** argv)
 	// load file if opening file
 	if (argc > 1)
 	{
-		std::string fileToOpenPath(secondArgument);
-		if (fileToOpenPath.compare(fileToOpenPath.length() - 3, 3, ".ns") == 0)
+		if (utils::endsWith(secondArgument, ".nsj"))
+			serializer::LoadFromFileJson(secondArgument);
+		else if (utils::endsWith(secondArgument, ".ns"))
 			serializer::LoadFromFile(secondArgument);
-		else
+		else // assume it's an image file
 			uiNodeSystem::pushImageNodeFromFile(secondArgument, uiNodeSystem::PushMode::Centered);
 	}
 
