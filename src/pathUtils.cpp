@@ -3,13 +3,19 @@
 #include <filesystem>
 #include <iostream>
 
+#ifdef NOOSE_PLATFORM_WINDOWS
+#define PATH_SEP '\\'
+#else
+#define PATH_SEP '/'
+#endif
+
 std::string programDirectory;
 std::string assetsDirectory;
 
 void pathUtils::setProgramDirectory(const std::string& executableFilePath)
 {
     programDirectory = getFolderPath(executableFilePath);
-    assetsDirectory = programDirectory + "assets/";
+    assetsDirectory = programDirectory + "assets" + PATH_SEP;
     if (!std::filesystem::exists(assetsDirectory))
     {
         // asset directory is different when launching from visual studio
@@ -18,7 +24,7 @@ void pathUtils::setProgramDirectory(const std::string& executableFilePath)
         parent = getFolderPath(parent.substr(0, parent.length() - 1));
         parent = getFolderPath(parent.substr(0, parent.length() - 1));
 
-        assetsDirectory = parent + "assets/";
+        assetsDirectory = parent + "assets" + PATH_SEP;
     }
     if (!std::filesystem::exists(assetsDirectory))
         std::cout << "[Path utils] Warning, could not locate assets folder\n";

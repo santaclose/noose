@@ -245,7 +245,9 @@ std::string utils::pcheck_output(const std::vector<std::string>& cmd)
 void utils::installUpdate(const std::string& updateUrl)
 {
     std::cout << "[Utils] Installing update from " + updateUrl;
-    utils::pcall({ pathUtils::getAssetsDirectory() + "autoUpdate/win32.bat", pathUtils::getProgramDirectory(), updateUrl });
+#ifdef NOOSE_PLATFORM_WINDOWS
+    utils::pcall({ pathUtils::getAssetsDirectory() + "autoUpdate\\win32.bat", pathUtils::getProgramDirectory(), updateUrl });
+#endif // NOOSE_PLATFORM_WINDOWS
 }
 
 void utils::checkForUpdates()
