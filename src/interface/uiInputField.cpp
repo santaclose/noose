@@ -72,13 +72,7 @@ void uiInputField::paintQuad(bool isHighlighted, int quadIndex)
 void onColorPickerSetColor(sf::Color* newColor)
 {
 	if (editingInputField != nullptr && editingInputField->type == NS_TYPE_COLOR)
-	{
-		editingInputField->shapes[0].color = editingInputField->shapes[1].color =
-			editingInputField->shapes[2].color = editingInputField->shapes[3].color =
-			*((sf::Color*)(editingInputField->dataPointer));
-
-		editingInputField->onValueChanged();
-	}
+		editingInputField->setValue(newColor);
 }
 
 // static
@@ -726,19 +720,7 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 
 		std::vector<std::string> selection = utils::osOpenFileDialog("Open font", "Font Files", "*.ttf *.otf");
 		if (selection.size() != 0)
-		{
-			sf::Font* pointer = (sf::Font*)dataPointer;
-			if (!pointer->loadFromFile(selection[0]))
-			{
-				std::cout << "[UI] Failed to open font file\n";
-				return;
-			}
-			fontPath = selection[0];
-			texts[0].setString(pathUtils::getFileNameFromPath(selection[0].c_str()));
-
-			editingInputField->updateTextPositions();
-			editingInputField->onValueChanged();
-		}
+			this->setValue(&(selection[0]));
 
 		unbind();
 		return;
