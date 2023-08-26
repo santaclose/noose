@@ -5,6 +5,7 @@
 
 namespace utils
 {
+	int mod(int a, int b);
 	char lower(char in);
 	void rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v);
 	bool colorFromHexString(const std::string& hexString, sf::Color& outColor);

@@ -20,6 +20,14 @@
 #define min_f(a, b, c)  (std::fminf(a, std::fminf(b, c)))
 #define max_f(a, b, c)  (std::fmaxf(a, std::fmaxf(b, c)))
 
+int utils::mod(int a, int b)
+{
+	int ret = a % b;
+	if (ret < 0)
+		ret += b;
+	return ret;
+}
+
 char utils::lower(char in)
 {
     if (in <= 'Z' && in >= 'A')

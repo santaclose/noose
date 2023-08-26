@@ -463,6 +463,7 @@ bool uiInputField::mouseOver(const sf::Vector2f& mousePosInWorld, int& index)
 // TODO: think of a better way for getting the selection box pointer
 void uiInputField::create(int theType, void* pinDataPointer, void(onValueChangedFunc)(), const std::vector<std::string>* theEnumOptions, uiSelectionBox* theSelectionBox)
 {
+	assert(theEnumOptions != nullptr);
 	selectionBox = theSelectionBox;
 	enumOptions = theEnumOptions;
 	onValueChanged = onValueChangedFunc;
@@ -604,7 +605,10 @@ void uiInputField::setValue(const void* data, int flags)
 	case NS_TYPE_INT:
 	{
 		*((int*)(dataPointer)) = *((int*)(data));
-		texts[0].setString(std::to_string(*((int*)data)));
+		if (enumOptions->size() == 0)
+			texts[0].setString(std::to_string(*((int*)data)));
+		else
+			texts[0].setString((*enumOptions)[utils::mod(*((int*)data), enumOptions->size())]);
 		break;
 	}
 	case NS_TYPE_FLOAT:
