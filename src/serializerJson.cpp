@@ -12,49 +12,25 @@
 #include <json.hpp>
 #include "types.h"
 
-static std::unordered_map<std::string, uiInputField::ImageFieldContent> IMAGE_CONTENT_TYPE_SERIALIZER = {
-	{"memory", uiInputField::ImageFieldContent::FromMemory },
-	{"file", uiInputField::ImageFieldContent::FromFile },
-	{"none", uiInputField::ImageFieldContent::None }
-};
-
-void serializer::LoadFromFileJson(const std::string& filePath)
+void serializer::LoadFromFileJson(const std::string& filePath, const ParsingCallbacks& callbacks)
 {
+	callbacks.OnStart();
 	std::string folderPath = pathUtils::getFolderPath(filePath);
 
-	// clear all nodes and connections before loading file
-	uiNodeSystem::clearEverything();
 
 	using json = nlohmann::ordered_json;
 	std::ifstream input(filePath);
 	json jsonObject = json::parse(input);
 
-	unsigned int currentPin;
 	int currentConnectionLeftNode, currentConnectionRightNode;
-	std::vector<uiNode*>& nodes = uiNodeSystem::getNodeList();
-	std::vector<uiInputField*> embeddedImageInputFields;
 	std::vector<int> embeddedImageNodes;
+	std::vector<int> embeddedImagePins;
 
+	int currentNode = 0;
 	for (const auto& nodeItem : jsonObject["nodes"])
 	{
 		std::string currentNodeName = nodeItem["name"];
-		sf::Vector2f nodeCoordinates;
-		nodeCoordinates.x = nodeItem["posX"];
-		nodeCoordinates.y = nodeItem["posY"];
-		const nodeData* nodeDataToAdd = nodeProvider::getNodeDataByName(currentNodeName);
-		if (nodeDataToAdd == nullptr)
-		{
-			std::cout << "[Serializer] Node not found for name: " + currentNodeName + "\n";
-			continue;
-		}
-		uiNodeSystem::pushNewNode(
-			nodeDataToAdd,
-			uiNodeSystem::PushMode::AtPosition,
-			false,
-			nodeCoordinates
-		);
-		// bind to set pin data
-		uiNodeSystem::setBoundInputFieldNode(nodes.size() - 1);
+		callbacks.OnAddNode(currentNodeName, (float)nodeItem["posX"], (float)nodeItem["posY"]);
 
 		int currentPin = 0;
 		for (const auto& pinItem : nodeItem["pinData"])
@@ -66,105 +42,81 @@ void serializer::LoadFromFileJson(const std::string& filePath)
 				sf::Color pinColor;
 				if (!utils::colorFromHexString((std::string)pinItem["value"], pinColor))
 					std::cout << "[Serializer] Failed to parse color\n";
-				((sf::Color*)nodes.back()->m_inputFields[currentPin].getDataPointer())[0] = pinColor;
-				nodes.back()->m_inputFields[currentPin].shapes[0].color = nodes.back()->m_inputFields[currentPin].shapes[1].color =
-					nodes.back()->m_inputFields[currentPin].shapes[2].color = nodes.back()->m_inputFields[currentPin].shapes[3].color = pinColor;
+				callbacks.OnSetNodeInput(-1, currentPin, &pinColor, 0);
 				break;
 			}
 			case NS_TYPE_FLOAT:
-				((float*)nodes.back()->m_inputFields[currentPin].getDataPointer())[0] = (float)pinItem["value"];
-				nodes.back()->m_inputFields[currentPin].texts[0].setString(std::to_string((float)pinItem["value"]));
+			{
+				float pinFloat = (float)pinItem["value"];
+				callbacks.OnSetNodeInput(-1, currentPin, &pinFloat, 0);
 				break;
+			}
 			case NS_TYPE_STRING:
-				((std::string*)nodes.back()->m_inputFields[currentPin].getDataPointer())[0] = (std::string)pinItem["value"];
-				nodes.back()->m_inputFields[currentPin].texts[0].setString((std::string)pinItem["value"]);
+			{
+				std::string pinString = (std::string)pinItem["value"];
+				callbacks.OnSetNodeInput(-1, currentPin, &pinString, 0);
 				break;
+			}
 			case NS_TYPE_IMAGE:
 			{
-				uiInputField::ImageFieldContent imageContentType = IMAGE_CONTENT_TYPE_SERIALIZER[(std::string)(pinItem["content"])];
-				switch (imageContentType)
+				std::string imageContentType = (std::string)(pinItem["content"]);
+				if (imageContentType.compare("memory") == 0)
 				{
-				case uiInputField::ImageFieldContent::None:
+					embeddedImageNodes.push_back(currentNode);
+					embeddedImagePins.push_back(currentPin);
+				}
+				else if (imageContentType.compare("file") == 0)
 				{
-					break;
+					std::string pinImagePath = folderPath + (std::string)pinItem["path"];
+					callbacks.OnSetNodeInput(-1, currentPin, &pinImagePath, 0);
 				}
-				case uiInputField::ImageFieldContent::FromFile:
-				{
-					std::string fullImagePath = folderPath + (std::string)pinItem["path"];
-					nodes.back()->m_inputFields[currentPin].setValue(&fullImagePath);
-					break;
-				}
-				case uiInputField::ImageFieldContent::FromMemory:
-				{
-					embeddedImageNodes.push_back(nodes.size() - 1);
-					embeddedImageInputFields.push_back(&(nodes.back()->m_inputFields[currentPin]));
-					break;
-				}
-				}
+				// do nothing for "none"
 				break;
 			}
 			case NS_TYPE_FONT:
 			{
 				if (((std::string)pinItem["path"]).compare("none") == 0)
 					break;
-				std::string fullFontPath = folderPath + (std::string)pinItem["path"];
-				sf::Font* pointer = (sf::Font*)nodes.back()->m_inputFields[currentPin].dataPointer;
-				if (!pointer->loadFromFile(fullFontPath))
-					std::cout << "[Serializer] Failed to open font file: " + fullFontPath + "\n";
-				nodes.back()->m_inputFields[currentPin].fontPath = fullFontPath;
-				nodes.back()->m_inputFields[currentPin].texts[0].setString(pathUtils::getFileNameFromPath(fullFontPath.c_str()));
+				std::string pinFontPath = folderPath + (std::string)pinItem["path"];
+				callbacks.OnSetNodeInput(-1, currentPin, &pinFontPath, 0);
 				break;
 			}
 			case NS_TYPE_INT:
 			{
-				int intValue = ((int*)nodes.back()->m_inputFields[currentPin].getDataPointer())[0] = (int)pinItem["value"];
-				if (nodeProvider::getNodeDataByName(currentNodeName)->pinEnumOptions[currentPin].size() == 0)
-					nodes.back()->m_inputFields[currentPin].texts[0].setString(std::to_string((int)pinItem["value"]));
-				else // enum options
-					nodes.back()->m_inputFields[currentPin].texts[0].setString(nodeProvider::getNodeDataByName(currentNodeName)->pinEnumOptions[currentPin][intValue]);
+				int pinInt = (int)pinItem["value"];
+				callbacks.OnSetNodeInput(-1, currentPin, &pinInt, 0);
 				break;
 			}
 			case NS_TYPE_VECTOR2I:
 			{
-				nodes.back()->m_inputFields[currentPin].texts[0].setString(std::to_string((int)pinItem["x"]));
-				((sf::Vector2i*)nodes.back()->m_inputFields[currentPin].getDataPointer())->x = (int)pinItem["x"];
-				nodes.back()->m_inputFields[currentPin].texts[1].setString(std::to_string((int)pinItem["y"]));
-				((sf::Vector2i*)nodes.back()->m_inputFields[currentPin].getDataPointer())->y = (int)pinItem["y"];
+				sf::Vector2i pinVectori((int)pinItem["x"], (int)pinItem["y"]);
+				callbacks.OnSetNodeInput(-1, currentPin, &pinVectori, 0);
 				break;
 			}
 			}
-			nodes.back()->m_inputFields[currentPin].updateTextPositions();
-			nodes.back()->m_inputFields[currentPin].onValueChanged();
 			currentPin++;
 		}
+		currentNode++;
 	}
 
 	for (const auto& connectionItem : jsonObject["connections"])
-	{
-		uiNodeSystem::createConnection(
-			(int)connectionItem["nodeA"],
-			(int)connectionItem["nodeB"],
-			(int)connectionItem["pinA"],
-			(int)connectionItem["pinB"]
+		callbacks.OnAddConnection(
+			(int)connectionItem["nodeA"], (int)connectionItem["pinA"],
+			(int)connectionItem["nodeB"], (int)connectionItem["pinB"]
 		);
-	}
 
-	uiNodeSystem::setSelectedNode((int)jsonObject["selectedNode"]);
-	uiNodeSystem::setView((int)jsonObject["views"]["nodeEditorZoom"], { (float)jsonObject["views"]["nodeEditorViewPositionX"], (float)jsonObject["views"]["nodeEditorViewPositionY"] });
-	uiViewport::setView((int)jsonObject["views"]["viewportZoom"], { (float)jsonObject["views"]["viewportViewPositionX"], (float)jsonObject["views"]["viewportViewPositionY"] });
+	callbacks.OnSetNodeEditorState((int)jsonObject["selectedNode"], (int)jsonObject["views"]["nodeEditorZoom"],
+		(float)jsonObject["views"]["nodeEditorViewPositionX"], (float)jsonObject["views"]["nodeEditorViewPositionY"]);
+	callbacks.OnSetViewportState((int)jsonObject["views"]["viewportZoom"],
+		(float)jsonObject["views"]["viewportViewPositionX"], (float)jsonObject["views"]["viewportViewPositionY"]);
 
 	int embeddedImagesLoaded = 0;
 	for (const std::string& embeddedImageItem : jsonObject["embeddedImages"])
 	{
 		std::string pngBytes = base64::decode(embeddedImageItem);
-		sf::Image embeddedImage;
-		embeddedImage.loadFromMemory(&(pngBytes[0]), pngBytes.length());
-		embeddedImageInputFields[embeddedImagesLoaded]->setValue(&embeddedImage, 1); // flag to let it know it's not a file path
-
-		// execute the nodes
-		uiNodeSystem::setBoundInputFieldNode(embeddedImageNodes[embeddedImagesLoaded]);
-		embeddedImageInputFields[embeddedImagesLoaded]->updateTextPositions();
-		embeddedImageInputFields[embeddedImagesLoaded]->onValueChanged();
+		sf::Image pinImage;
+		pinImage.loadFromMemory(&(pngBytes[0]), pngBytes.length());
+		callbacks.OnSetNodeInput(embeddedImageNodes[embeddedImagesLoaded], embeddedImagePins[embeddedImagesLoaded], &pinImage, 1);
 
 		embeddedImagesLoaded++;
 	}

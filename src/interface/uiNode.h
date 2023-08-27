@@ -9,7 +9,7 @@
 
 class uiNode
 {
-	friend serializer;
+	friend serializer;// this is too hacky
 private:
 	std::string m_nodeName; // node name works as id
 	int m_inputPinCount;

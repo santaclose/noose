@@ -639,3 +639,48 @@ bool uiNodeSystem::isEmpty()
 	}
 	return true;
 }
+
+// project file loading
+
+void uiNodeSystem::onProjectFileLoadingStart()
+{
+	clearNodeSelection(); // unselect if there is a node selected
+	clearEverything(); // remove all nodes and connections
+}
+
+void uiNodeSystem::onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY)
+{
+	const nodeData* dataForNewNode = nodeProvider::getNodeDataByName(nodeName);
+	if (dataForNewNode == nullptr)
+	{
+		std::cout << "[UI] Node not found for name: " + nodeName + "\n";
+		return;
+	}
+	pushNewNode(
+		dataForNewNode,
+		PushMode::AtPosition,
+		false,
+		{ coordinatesX , coordinatesY }
+	);
+}
+
+void uiNodeSystem::onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, void* data, int flags)
+{
+	std::vector<uiNode*>& nodes = getNodeList();
+	int targetNodeIndex = nodeIndex < 0 ? (nodes.size() + nodeIndex) : nodeIndex;
+	setBoundInputFieldNode(targetNodeIndex);
+	uiNode* targetNode = nodes[targetNodeIndex];
+	targetNode->setInput(pinIndex, data, flags);
+}
+
+void uiNodeSystem::onProjectFileLoadingAddConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex)
+{
+	createConnection(nodeAIndex, nodeBIndex, pinAIndex, pinBIndex);
+}
+
+void uiNodeSystem::onProjectFileLoadingSetEditorState(int selectedNode, int nodeEditorZoom,
+			float nodeEditorViewPositionX, float nodeEditorViewPositionY)
+{
+	uiNodeSystem::setSelectedNode(selectedNode);
+	uiNodeSystem::setView(nodeEditorZoom, { nodeEditorViewPositionX, nodeEditorViewPositionY });
+}

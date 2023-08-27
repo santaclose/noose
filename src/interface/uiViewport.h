@@ -17,5 +17,9 @@ namespace uiViewport
 
 	void getView(int& zoom, sf::Vector2f& position);
 	void setView(int zoom, const sf::Vector2f& position);
+
+	// project file loading
+	void onProjectFileLoadingSetViewportState(int viewportZoom,
+		float viewportViewPositionX, float viewportViewPositionY);
 };
 

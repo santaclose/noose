@@ -43,4 +43,12 @@ namespace uiNodeSystem
 
 	void clearNodeSelection();
 	bool isEmpty();
+
+	// project file loading
+	void onProjectFileLoadingStart();
+	void onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY);
+	void onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, void* data, int flags = 0);
+	void onProjectFileLoadingAddConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex);
+	void onProjectFileLoadingSetEditorState(int selectedNode, int nodeEditorZoom,
+			float nodeEditorViewPositionX, float nodeEditorViewPositionY);
 }

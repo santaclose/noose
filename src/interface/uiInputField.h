@@ -8,7 +8,7 @@
 class uiInputField
 {
 	friend void onColorPickerSetColor(sf::Color* newColor);
-	friend serializer;
+	friend serializer;// this is too hacky
 
 public:
 	enum class ImageFieldContent { None = 0, FromFile = 1, FromMemory = 2 };

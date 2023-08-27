@@ -483,3 +483,10 @@ void uiViewport::setView(int zoom, const sf::Vector2f& position)
 	viewPosition = position;
 	updateView();
 }
+
+// project file loading
+
+void uiViewport::onProjectFileLoadingSetViewportState(int viewportZoom, float viewportViewPositionX, float viewportViewPositionY)
+{
+	setView(viewportZoom, { viewportViewPositionX, viewportViewPositionY });
+}

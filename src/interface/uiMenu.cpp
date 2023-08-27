@@ -2,6 +2,7 @@
 
 #include "uiSelectionBox.h"
 #include "uiNodeSystem.h"
+#include "uiViewport.h"
 
 #include "../serializer.h"
 #include "../pathUtils.h"
@@ -62,11 +63,17 @@ void uiMenu::onPollEvent(const sf::Event& e)
 					break;
 				}
 
-				uiNodeSystem::clearNodeSelection(); // unselect if there is a node selected
+				serializer::ParsingCallbacks parsingCallbacks;
+				parsingCallbacks.OnAddConnection = uiNodeSystem::onProjectFileLoadingAddConnection;
+				parsingCallbacks.OnAddNode = uiNodeSystem::onProjectFileLoadingAddNode;
+				parsingCallbacks.OnSetNodeInput = uiNodeSystem::onProjectFileLoadingSetNodeInput;
+				parsingCallbacks.OnSetNodeEditorState = uiNodeSystem::onProjectFileLoadingSetEditorState;
+				parsingCallbacks.OnStart = uiNodeSystem::onProjectFileLoadingStart;
+				parsingCallbacks.OnSetViewportState = uiViewport::onProjectFileLoadingSetViewportState;
 				if (utils::endsWith(selection[0], ".nsj"))
-					serializer::LoadFromFileJson(selection[0]);
+					serializer::LoadFromFileJson(selection[0], parsingCallbacks);
 				else
-					serializer::LoadFromFile(selection[0]);
+					serializer::LoadFromFile(selection[0], parsingCallbacks);
 				break;
 			}
 			case 1: // save

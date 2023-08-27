@@ -12,26 +12,27 @@
 enum class LoadState { ReadingNodes = 0, ReadingConnections = 1, ReadingSelectedNode = 2, ReadingViews = 3, ReadingEmbeddedImages = 4 };
 enum class LoadSubState { ReadingIds = 0, ReadingNodeCoordinates = 1, ReadingPinData = 2, ReadingConnectionNodes = 3, ReadingConnectionPins = 4 };
 
-void serializer::LoadFromFile(const std::string& filePath)
+void serializer::LoadFromFile(const std::string& filePath, const ParsingCallbacks& callbacks)
 {
+	callbacks.OnStart();
 	std::string folderPath = pathUtils::getFolderPath(filePath);
-
-	// clear all nodes and connections before loading file
-	uiNodeSystem::clearEverything();
 
 	std::ifstream input(filePath);
 
 	LoadState currentState;
 	LoadSubState currentSubState;
 	std::string currentNodeName;
-	unsigned int currentPin;
+	int currentPin;
+	int currentNode;
 
 	int currentConnectionLeftNode, currentConnectionRightNode;
 
-	std::vector<uiNode*>& nodes = uiNodeSystem::getNodeList();
+	int selectedNode;
+	int nodeEditorZoom, viewportZoom;
+	sf::Vector2f nodeEditorViewPosition, viewportViewPosition;
 
-	std::vector<uiInputField*> embeddedImageInputFields;
 	std::vector<int> embeddedImageNodes;
+	std::vector<int> embeddedImagePins;
 	int embeddedImagesLoaded = 0;
 
 	std::string line;
@@ -41,6 +42,7 @@ void serializer::LoadFromFile(const std::string& filePath)
 		{
 			currentState = LoadState::ReadingNodes;
 			currentSubState = LoadSubState::ReadingIds;
+			currentNode = 0;
 			continue;
 		}
 		if (line.compare("| connections") == 0)
@@ -66,10 +68,13 @@ void serializer::LoadFromFile(const std::string& filePath)
 		}
 		if (line[0] == '=')
 		{
-			currentSubState =
-				currentState == LoadState::ReadingNodes ?
-				LoadSubState::ReadingIds :
-				LoadSubState::ReadingConnectionNodes;
+			if (currentState == LoadState::ReadingNodes)
+			{
+				currentNode++;
+				currentSubState = LoadSubState::ReadingIds;
+			}
+			else
+				currentSubState = LoadSubState::ReadingConnectionNodes;
 			continue;
 		}
 		if (currentState == LoadState::ReadingNodes)
@@ -84,23 +89,9 @@ void serializer::LoadFromFile(const std::string& filePath)
 			{
 				int commaPos = 0;
 				for (; line[commaPos] != ','; commaPos++) {}
-				sf::Vector2f nodeCoordinates;
-				nodeCoordinates.x = std::stof(line.substr(0, commaPos));
-				nodeCoordinates.y = std::stof(line.substr(commaPos + 1, line.size() - commaPos - 1));
-				const nodeData* nodeDataToAdd = nodeProvider::getNodeDataByName(currentNodeName);
-				if (nodeDataToAdd == nullptr)
-				{
-					std::cout << "[Serializer] Node not found for name: " + currentNodeName + "\n";
-					continue;
-				}
-				uiNodeSystem::pushNewNode(
-					nodeDataToAdd,
-					uiNodeSystem::PushMode::AtPosition,
-					false,
-					nodeCoordinates
-					);
-				// bind to set pin data
-				uiNodeSystem::setBoundInputFieldNode(nodes.size() - 1);
+				float coordsX = std::stof(line.substr(0, commaPos));
+				float coordsY = std::stof(line.substr(commaPos + 1, line.size() - commaPos - 1));
+				callbacks.OnAddNode(currentNodeName, coordsX, coordsY);
 				currentSubState = LoadSubState::ReadingPinData;
 				currentPin = 0;
 				continue;
@@ -111,91 +102,71 @@ void serializer::LoadFromFile(const std::string& filePath)
 				{
 				case NS_TYPE_COLOR:
 				{
+					sf::Color pinColor;
 					int commaPos = 0;
 					for (; line[commaPos] != ','; commaPos++) {}
-					((sf::Color*)nodes.back()->m_inputFields[currentPin].getDataPointer())->r = std::stoi(line.substr(0, commaPos));
+					pinColor.r = std::stoi(line.substr(0, commaPos));
 					int afterPrevComma = ++commaPos;
 					for (; line[commaPos] != ','; commaPos++) {}
-					((sf::Color*)nodes.back()->m_inputFields[currentPin].getDataPointer())->g = std::stoi(line.substr(afterPrevComma, commaPos - afterPrevComma));
+					pinColor.g = std::stoi(line.substr(afterPrevComma, commaPos - afterPrevComma));
 					afterPrevComma = ++commaPos;
 					for (; line[commaPos] != ','; commaPos++) {}
-					((sf::Color*)nodes.back()->m_inputFields[currentPin].getDataPointer())->b = std::stoi(line.substr(afterPrevComma, commaPos - afterPrevComma));
+					pinColor.b = std::stoi(line.substr(afterPrevComma, commaPos - afterPrevComma));
 					afterPrevComma = ++commaPos;
-					((sf::Color*)nodes.back()->m_inputFields[currentPin].getDataPointer())->a = std::stoi(line.substr(afterPrevComma, line.length() - afterPrevComma));
-					nodes.back()->m_inputFields[currentPin].shapes[0].color = nodes.back()->m_inputFields[currentPin].shapes[1].color =
-						nodes.back()->m_inputFields[currentPin].shapes[2].color = nodes.back()->m_inputFields[currentPin].shapes[3].color =
-						*((sf::Color*)(nodes.back()->m_inputFields[currentPin].dataPointer));
+					pinColor.a = std::stoi(line.substr(afterPrevComma, line.length() - afterPrevComma));
+					callbacks.OnSetNodeInput(-1, currentPin, &pinColor, 0);
 					break;
 				}
 				case NS_TYPE_FLOAT:
-					((float*)nodes.back()->m_inputFields[currentPin].getDataPointer())[0] = std::stof(line);
-					nodes.back()->m_inputFields[currentPin].texts[0].setString(line);
+				{
+					float pinFloat = std::stof(line);
+					callbacks.OnSetNodeInput(-1, currentPin, &pinFloat, 0);
 					break;
+				}
 				case NS_TYPE_STRING:
-					((std::string*)nodes.back()->m_inputFields[currentPin].getDataPointer())[0] = line;
-					nodes.back()->m_inputFields[currentPin].texts[0].setString(line);
+					callbacks.OnSetNodeInput(-1, currentPin, &line, 0);
 					break;
 				case NS_TYPE_IMAGE:
 				{
-					uiInputField::ImageFieldContent imageContentType = (uiInputField::ImageFieldContent)(line[0] - '0'); // char to int/enum
-					switch (imageContentType)
+					if (line[0] == '1') // file path
 					{
-					case uiInputField::ImageFieldContent::None:
+						std::string pinImagePath = folderPath + line.substr(2);
+						callbacks.OnSetNodeInput(-1, currentPin, &pinImagePath, 0);
+					}
+					else if (line[0] == '2') // memory
 					{
-						break;
+						embeddedImageNodes.push_back(currentNode);
+						embeddedImagePins.push_back(currentPin);
 					}
-					case uiInputField::ImageFieldContent::FromFile:
-					{
-						std::string fullImagePath = folderPath + line.substr(2);
-						nodes.back()->m_inputFields[currentPin].setValue(&fullImagePath);
-						break;
-					}
-					case uiInputField::ImageFieldContent::FromMemory:
-					{
-						embeddedImageNodes.push_back(nodes.size() - 1);
-						embeddedImageInputFields.push_back(& (nodes.back()->m_inputFields[currentPin]));
-						break;
-					}
-					}
+					// do nothing for none
 					break;
 				}
 				case NS_TYPE_FONT:
 				{
 					if (line.compare("None") == 0)
 						break;
-					std::string fullFontPath = folderPath + line;
-					sf::Font* pointer = (sf::Font*)nodes.back()->m_inputFields[currentPin].dataPointer;
-					if (!pointer->loadFromFile(fullFontPath))
-						std::cout << "[Serializer] Failed to open font file: " + fullFontPath + "\n";
-					nodes.back()->m_inputFields[currentPin].fontPath = fullFontPath;
-					nodes.back()->m_inputFields[currentPin].texts[0].setString(pathUtils::getFileNameFromPath(fullFontPath.c_str()));
+					std::string pinFontPath = folderPath + line;
+					callbacks.OnSetNodeInput(-1, currentPin, &pinFontPath, 0);
 					break;
 				}
 				case NS_TYPE_INT:
 				{
-					int intValue = ((int*)nodes.back()->m_inputFields[currentPin].getDataPointer())[0] = std::stoi(line);
-					if (nodeProvider::getNodeDataByName(currentNodeName)->pinEnumOptions[currentPin].size() == 0)
-						nodes.back()->m_inputFields[currentPin].texts[0].setString(line);
-					else // enum options
-						nodes.back()->m_inputFields[currentPin].texts[0].setString(nodeProvider::getNodeDataByName(currentNodeName)->pinEnumOptions[currentPin][intValue]);
+					int pinInt = std::stoi(line);
+					callbacks.OnSetNodeInput(-1, currentPin, &pinInt, 0);
 					break;
 				}
 				case NS_TYPE_VECTOR2I:
 				{
+					sf::Vector2i pinVector2i;
 					int commaPos = 0;
 					for (; line[commaPos] != ','; commaPos++) {}
-					std::string xString = line.substr(0, commaPos);
-					nodes.back()->m_inputFields[currentPin].texts[0].setString(xString);
-					((sf::Vector2i*)nodes.back()->m_inputFields[currentPin].getDataPointer())->x = std::stoi(xString);
+					pinVector2i.x = std::stoi(line.substr(0, commaPos));
 					commaPos++;
-					std::string yString = line.substr(commaPos, line.length() - commaPos);
-					nodes.back()->m_inputFields[currentPin].texts[1].setString(yString);
-					((sf::Vector2i*)nodes.back()->m_inputFields[currentPin].getDataPointer())->y = std::stoi(yString);
+					pinVector2i.y = std::stoi(line.substr(commaPos, line.length() - commaPos));
+					callbacks.OnSetNodeInput(-1, currentPin, &pinVector2i, 0);
 					break;
 				}
 				}
-				nodes.back()->m_inputFields[currentPin].updateTextPositions();
-				nodes.back()->m_inputFields[currentPin].onValueChanged();
 				currentPin++;
 			}
 		}
@@ -217,23 +188,16 @@ void serializer::LoadFromFile(const std::string& filePath)
 				int leftPin = std::stoi(line.substr(0, commaPos));
 				int rightPin = std::stoi(line.substr(commaPos + 1, line.length() - 1 - commaPos));
 				
-				uiNodeSystem::createConnection(
-					currentConnectionLeftNode,
-					currentConnectionRightNode,
-					leftPin,
-					rightPin
-				);
+				callbacks.OnAddConnection(currentConnectionLeftNode, leftPin,
+					currentConnectionRightNode, rightPin);
 			}
 		}
 		else if (currentState == LoadState::ReadingSelectedNode)
 		{
-			uiNodeSystem::setSelectedNode(std::stoi(line));
+			selectedNode = std::stoi(line);
 		}
 		else if (currentState == LoadState::ReadingViews)
 		{
-			int nodeEditorZoom, viewportZoom;
-			sf::Vector2f nodeEditorViewPosition, viewportViewPosition;
-
 			int q = 0, p = 0;
 			for (; line[p] != ','; p++) {}
 			nodeEditorZoom = std::stoi(line.substr(q, p - q));
@@ -248,22 +212,17 @@ void serializer::LoadFromFile(const std::string& filePath)
 			q = p = p + 1;
 			viewportViewPosition.y = std::stof(line.substr(q, line.length() - q));
 
-			uiNodeSystem::setView(nodeEditorZoom, nodeEditorViewPosition);
-			uiViewport::setView(viewportZoom, viewportViewPosition);
+			callbacks.OnSetNodeEditorState(selectedNode, nodeEditorZoom, nodeEditorViewPosition.x, nodeEditorViewPosition.y);
+			callbacks.OnSetViewportState(viewportZoom, viewportViewPosition.x, viewportViewPosition.y);
 		}
 		else if (currentState == LoadState::ReadingEmbeddedImages)
 		{
 			if (line.length() > 0)
 			{
 				std::string pngBytes = base64::decode(line);
-				sf::Image embeddedImage;
-				embeddedImage.loadFromMemory(&(pngBytes[0]), pngBytes.length());
-				embeddedImageInputFields[embeddedImagesLoaded]->setValue(&embeddedImage, 1); // flag to let it know it's not a file path
-
-				// execute the nodes
-				uiNodeSystem::setBoundInputFieldNode(embeddedImageNodes[embeddedImagesLoaded]);
-				embeddedImageInputFields[embeddedImagesLoaded]->updateTextPositions();
-				embeddedImageInputFields[embeddedImagesLoaded]->onValueChanged();
+				sf::Image pinImage;
+				pinImage.loadFromMemory(&(pngBytes[0]), pngBytes.length());
+				callbacks.OnSetNodeInput(embeddedImageNodes[embeddedImagesLoaded], embeddedImagePins[embeddedImagesLoaded], &pinImage, 1);
 
 				embeddedImagesLoaded++;
 			}

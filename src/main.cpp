@@ -120,10 +120,17 @@ int main(int argc, char** argv)
 	// load file if opening file
 	if (argc > 1)
 	{
+		serializer::ParsingCallbacks parsingCallbacks;
+		parsingCallbacks.OnAddConnection = uiNodeSystem::onProjectFileLoadingAddConnection;
+		parsingCallbacks.OnAddNode = uiNodeSystem::onProjectFileLoadingAddNode;
+		parsingCallbacks.OnSetNodeInput = uiNodeSystem::onProjectFileLoadingSetNodeInput;
+		parsingCallbacks.OnSetNodeEditorState = uiNodeSystem::onProjectFileLoadingSetEditorState;
+		parsingCallbacks.OnStart = uiNodeSystem::onProjectFileLoadingStart;
+		parsingCallbacks.OnSetViewportState = uiViewport::onProjectFileLoadingSetViewportState;
 		if (utils::endsWith(secondArgument, ".nsj"))
-			serializer::LoadFromFileJson(secondArgument);
+			serializer::LoadFromFileJson(secondArgument, parsingCallbacks);
 		else if (utils::endsWith(secondArgument, ".ns"))
-			serializer::LoadFromFile(secondArgument);
+			serializer::LoadFromFile(secondArgument, parsingCallbacks);
 		else // assume it's an image file
 			uiNodeSystem::pushImageNodeFromFile(secondArgument, uiNodeSystem::PushMode::Centered);
 	}
