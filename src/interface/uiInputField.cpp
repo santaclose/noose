@@ -613,8 +613,8 @@ void uiInputField::setValue(const void* data, int flags)
 	}
 	case NS_TYPE_VECTOR2I:
 	{
-		*((sf::Vector2f*)(dataPointer)) = *((sf::Vector2f*)(data));
-		sf::Vector2f* pointer = (sf::Vector2f*)data;
+		*((sf::Vector2i*)(dataPointer)) = *((sf::Vector2i*)(data));
+		sf::Vector2i* pointer = (sf::Vector2i*)data;
 		texts[0].setString(std::to_string(pointer->x));
 		texts[1].setString(std::to_string(pointer->y));
 		break;
