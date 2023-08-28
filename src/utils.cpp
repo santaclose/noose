@@ -122,6 +122,53 @@ std::string utils::hexStringFromColor(const sf::Color& color)
     return intToHex(colorInt);
 }
 
+static sf::Shader loadImageShader;
+static bool loadImageShaderLoaded = false;
+bool utils::drawImageToRenderTexture(const sf::Texture& image, sf::RenderTexture& renderTexture)
+{
+    if (!loadImageShaderLoaded)
+    {
+        if (!loadImageShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/loadImage.shader", sf::Shader::Fragment))
+            std::cout << "[Utils] Failed to load image loading shader\n";
+        loadImageShaderLoaded = true;
+    }
+    loadImageShader.setUniform("tx", image);
+    sf::Sprite spr(image);
+    sf::Vector2u txSize = image.getSize();
+    if (!renderTexture.create(txSize))
+    {
+        std::cout << "[Utils] Failed to create render texture\n";
+        return false;
+    }
+    sf::RenderStates rs;
+    rs.shader = &loadImageShader;
+    rs.blendMode = sf::BlendNone;
+    renderTexture.draw(spr, rs);
+    return true;
+}
+
+bool utils::drawImageToRenderTexture(const sf::Image& image, sf::RenderTexture& renderTexture)
+{
+    sf::Texture tx;
+    if (!tx.loadFromImage(image))
+    {
+        std::cout << "[Utils] Failed to create texture from image\n";
+        return false;
+    }
+    return drawImageToRenderTexture(tx, renderTexture);
+}
+
+bool utils::drawImageToRenderTexture(const std::string& imageFilePath, sf::RenderTexture& renderTexture)
+{
+    sf::Texture tx;
+    if (!tx.loadFromFile(imageFilePath))
+    {
+        std::cout << "[Utils] Failed to open image file\n";
+        return false;
+    }
+    return drawImageToRenderTexture(tx, renderTexture);
+}
+
 bool utils::imageFromClipboard(sf::Image& outImage)
 {
     clip::image clipboardImage;

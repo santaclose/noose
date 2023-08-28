@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <SFML/Graphics.hpp>
 
 #include "interface/uiSelectionBox.h"
@@ -64,17 +65,98 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	szArglist = CommandLineToArgvW(GetCommandLine(), &argc);
 	std::string firstArgument = CW2A(szArglist[0]);
 	std::string secondArgument;
+	std::string thirdArgument;
 	if (argc > 1) secondArgument = CW2A(szArglist[1]);
+	if (argc > 2) thirdArgument = CW2A(szArglist[2]);
 #else
 int main(int argc, char** argv)
 {
 	std::string firstArgument(argv[0]);
 	std::string secondArgument;
+	std::string thirdArgument;
 	if (argc > 1) secondArgument = std::string(argv[1]);
+	if (argc > 2) thirdArgument = std::string(argv[2]);
 #endif
 
-	int redrawCounter = REDRAW_COUNT;
 	pathUtils::setProgramDirectory(firstArgument);
+	// load nodes in memory
+	nodeProvider::initialize();
+	//nodeProvider::print();
+
+	if (argc > 2) // command line mode
+	{
+		serializer::ParsingCallbacks parsingCallbacks;
+		parsingCallbacks.OnStart = nodeSystem::onProjectFileLoadingStart;
+		parsingCallbacks.OnAddNode = nodeSystem::onProjectFileLoadingAddNode;
+		parsingCallbacks.OnSetNodeInput = nodeSystem::onProjectFileLoadingSetNodeInput;
+		parsingCallbacks.OnAddConnection = nodeSystem::onProjectFileLoadingAddConnection;
+		if (utils::endsWith(secondArgument, ".nsj"))
+			serializer::LoadFromFileJson(secondArgument, parsingCallbacks);
+		else if (utils::endsWith(secondArgument, ".ns"))
+			serializer::LoadFromFile(secondArgument, parsingCallbacks);
+		else
+		{
+			std::cout << "[Main] Unknown file extension for file '" + secondArgument + "'\n";
+			return EXIT_FAILURE;
+		}
+		std::ofstream outFile("out.txt");
+		int a = 0, b = 0, c = 0;
+		for (int i = 0; i <= thirdArgument.length(); i++)
+		{
+			if (i == thirdArgument.length() || thirdArgument[i] == ',')
+			{
+				c = i;
+				{
+					int nodeIndex = std::stoi(thirdArgument.substr(a, b - a));
+					b++;
+					int pinIndex = std::stoi(thirdArgument.substr(b, c - b));
+					int dataType;
+					const void* data = nodeSystem::getData(nodeIndex, pinIndex, dataType);
+					switch (dataType)
+					{
+					case NS_TYPE_COLOR:
+						outFile << utils::hexStringFromColor(*((sf::Color*)data)) << std::endl;
+						break;
+					case NS_TYPE_FLOAT:
+						outFile << *((float*)data) << std::endl;
+						break;
+					case NS_TYPE_FONT:
+						break;
+					case NS_TYPE_IMAGE:
+					{
+						sf::RenderTexture* renderTexture = (sf::RenderTexture*)data;
+						sf::Image outImage = renderTexture->getTexture().copyToImage();
+						std::string outImageFileName = std::to_string(nodeIndex) + "_" + std::to_string(pinIndex) + ".png";
+						if (outImage.saveToFile(outImageFileName))
+							outFile << outImageFileName << std::endl;
+						else
+							std::cout << "[Main] Failed to save image file\n";
+						break;
+					}
+					case NS_TYPE_INT:
+						outFile << *((int*)data) << std::endl;
+						break;
+					case NS_TYPE_STRING:
+						outFile << *((std::string*)data) << std::endl;
+						break;
+					case NS_TYPE_VECTOR2I:
+					{
+						sf::Vector2i* vector2i = (sf::Vector2i*)data;
+						outFile << vector2i->x << ',' << vector2i->y << std::endl;
+						break;
+					}
+					}
+				}
+				a = i + 1;
+			}
+			else if (thirdArgument[i] == ':')
+				b = i;
+		}
+
+		return EXIT_SUCCESS;
+	}
+
+	int redrawCounter = REDRAW_COUNT;
 
 	utils::checkForUpdatesAsync();
 
@@ -86,10 +168,6 @@ int main(int argc, char** argv)
 	iconImage.loadFromFile(pathUtils::getAssetsDirectory() + "icon.png");
 	windowA.setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
 	windowB.setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
-
-	// load nodes in memory
-	nodeProvider::initialize();
-	//nodeProvider::print();
 
 	// initialize interface components
 	uiData::load();

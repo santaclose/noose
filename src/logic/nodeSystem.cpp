@@ -2,7 +2,9 @@
 #include "connectionSystem.h"
 #include "node.h"
 #include "graphOperations.h"
+#include "../utils.h"
 #include "../nodeData.h"
+#include "../nodeProvider/nodeProvider.h"
 #include <iostream>
 
 namespace nodeSystem {
@@ -135,3 +137,90 @@ void* nodeSystem::getNodeList()
 	return &nodeList;
 }
 #endif
+
+const void* nodeSystem::getData(int n, int p, int& type)
+{
+	int targetNodeIndex = n < 0 ? (nodeList.size() + n) : n;
+	type = nodeList[targetNodeIndex]->getPinType(p);
+	return nodeList[targetNodeIndex]->getDataPointer(p, false);
+}
+
+// project loading
+static int projectLoadingNodeCounter;
+static int projectLoadingConnectionCounter;
+void nodeSystem::onProjectFileLoadingStart()
+{
+	projectLoadingNodeCounter = 0;
+	projectLoadingConnectionCounter = 0;
+}
+void nodeSystem::onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY)
+{
+	const nodeData* dataForNewNode = nodeProvider::getNodeDataByName(nodeName);
+	if (dataForNewNode == nullptr)
+	{
+		std::cout << "[Node system] Node not found for name: " + nodeName + "\n";
+		return;
+	}
+	onNodeCreated(projectLoadingNodeCounter, dataForNewNode);
+	projectLoadingNodeCounter++;
+}
+void nodeSystem::onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, void* data, int flags)
+{
+	int targetNodeIndex = nodeIndex < 0 ? (nodeList.size() + nodeIndex) : nodeIndex;
+	switch (nodeList[targetNodeIndex]->getPinType(pinIndex))
+	{
+	case NS_TYPE_COLOR:
+	{
+		sf::Color* targetPointer = (sf::Color*)nodeList[targetNodeIndex]->getDataPointer(pinIndex, false);
+		*targetPointer = *((sf::Color*)data);
+		break;
+	}
+	case NS_TYPE_FLOAT:
+	{
+		float* targetPointer = (float*)nodeList[targetNodeIndex]->getDataPointer(pinIndex, false);
+		*targetPointer = *((float*)data);
+		break;
+	}
+	case NS_TYPE_FONT:
+	{
+		sf::Font* targetPointer = (sf::Font*)nodeList[targetNodeIndex]->getDataPointer(pinIndex, false);
+		const std::string& filePath = *((const std::string*)data);
+		if (!targetPointer->loadFromFile(filePath))
+			std::cout << "[Node system] Failed to open font file\n";
+		break;
+	}
+	case NS_TYPE_IMAGE:
+	{
+		sf::RenderTexture* targetPointer = (sf::RenderTexture*)nodeList[targetNodeIndex]->getDataPointer(pinIndex, false);
+		if (flags == 0) // file path
+			utils::drawImageToRenderTexture(*((std::string*)data), *targetPointer);
+		else // in memory
+			utils::drawImageToRenderTexture(*((sf::Image*)data), *targetPointer);
+		break;
+	}
+	case NS_TYPE_INT:
+	{
+		int* targetPointer = (int*)nodeList[targetNodeIndex]->getDataPointer(pinIndex, false);
+		*targetPointer = *((int*)data);
+		break;
+	}
+	case NS_TYPE_STRING:
+	{
+		std::string* targetPointer = (std::string*)nodeList[targetNodeIndex]->getDataPointer(pinIndex, false);
+		*targetPointer = *((std::string*)data);
+		break;
+	}
+	case NS_TYPE_VECTOR2I:
+	{
+		sf::Vector2i* targetPointer = (sf::Vector2i*)nodeList[targetNodeIndex]->getDataPointer(pinIndex, false);
+		*targetPointer = *((sf::Vector2i*)data);
+		break;
+	}
+	}
+	nodeList[targetNodeIndex]->activate();
+}
+void nodeSystem::onProjectFileLoadingAddConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex)
+{
+	onNodesConnected(nodeAIndex, nodeBIndex, pinAIndex, pinBIndex, projectLoadingConnectionCounter);
+	projectLoadingConnectionCounter++;
+}

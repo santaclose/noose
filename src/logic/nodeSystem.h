@@ -26,4 +26,12 @@ namespace nodeSystem
 #ifdef TEST
 	void* getNodeList();
 #endif
+
+	const void* getData(int n, int p, int& type);
+
+	// project loading
+	void onProjectFileLoadingStart();
+	void onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY);
+	void onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, void* data, int flags);
+	void onProjectFileLoadingAddConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex);
 };

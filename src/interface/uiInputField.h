@@ -51,8 +51,6 @@ private:
 	const std::vector<std::string>* enumOptions;
 	static uiSelectionBox* selectionBox;
 
-	static sf::Shader loadImageShader;
-
 	void updateTextPositions();
 	void paintQuad(bool isHighlighted, int quadIndex);
 	void* dataPointer;

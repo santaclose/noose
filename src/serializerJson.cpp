@@ -14,7 +14,7 @@
 
 void serializer::LoadFromFileJson(const std::string& filePath, const ParsingCallbacks& callbacks)
 {
-	callbacks.OnStart();
+	if (callbacks.OnStart != nullptr) callbacks.OnStart();
 	std::string folderPath = pathUtils::getFolderPath(filePath);
 
 
@@ -30,7 +30,7 @@ void serializer::LoadFromFileJson(const std::string& filePath, const ParsingCall
 	for (const auto& nodeItem : jsonObject["nodes"])
 	{
 		std::string currentNodeName = nodeItem["name"];
-		callbacks.OnAddNode(currentNodeName, (float)nodeItem["posX"], (float)nodeItem["posY"]);
+		if (callbacks.OnAddNode != nullptr) callbacks.OnAddNode(currentNodeName, (float)nodeItem["posX"], (float)nodeItem["posY"]);
 
 		int currentPin = 0;
 		for (const auto& pinItem : nodeItem["pinData"])
@@ -42,19 +42,19 @@ void serializer::LoadFromFileJson(const std::string& filePath, const ParsingCall
 				sf::Color pinColor;
 				if (!utils::colorFromHexString((std::string)pinItem["value"], pinColor))
 					std::cout << "[Serializer] Failed to parse color\n";
-				callbacks.OnSetNodeInput(-1, currentPin, &pinColor, 0);
+				if (callbacks.OnSetNodeInput != nullptr) callbacks.OnSetNodeInput(-1, currentPin, &pinColor, 0);
 				break;
 			}
 			case NS_TYPE_FLOAT:
 			{
 				float pinFloat = (float)pinItem["value"];
-				callbacks.OnSetNodeInput(-1, currentPin, &pinFloat, 0);
+				if (callbacks.OnSetNodeInput != nullptr) callbacks.OnSetNodeInput(-1, currentPin, &pinFloat, 0);
 				break;
 			}
 			case NS_TYPE_STRING:
 			{
 				std::string pinString = (std::string)pinItem["value"];
-				callbacks.OnSetNodeInput(-1, currentPin, &pinString, 0);
+				if (callbacks.OnSetNodeInput != nullptr) callbacks.OnSetNodeInput(-1, currentPin, &pinString, 0);
 				break;
 			}
 			case NS_TYPE_IMAGE:
@@ -68,7 +68,7 @@ void serializer::LoadFromFileJson(const std::string& filePath, const ParsingCall
 				else if (imageContentType.compare("file") == 0)
 				{
 					std::string pinImagePath = folderPath + (std::string)pinItem["path"];
-					callbacks.OnSetNodeInput(-1, currentPin, &pinImagePath, 0);
+					if (callbacks.OnSetNodeInput != nullptr) callbacks.OnSetNodeInput(-1, currentPin, &pinImagePath, 0);
 				}
 				// do nothing for "none"
 				break;
@@ -78,19 +78,19 @@ void serializer::LoadFromFileJson(const std::string& filePath, const ParsingCall
 				if (((std::string)pinItem["path"]).compare("none") == 0)
 					break;
 				std::string pinFontPath = folderPath + (std::string)pinItem["path"];
-				callbacks.OnSetNodeInput(-1, currentPin, &pinFontPath, 0);
+				if (callbacks.OnSetNodeInput != nullptr) callbacks.OnSetNodeInput(-1, currentPin, &pinFontPath, 0);
 				break;
 			}
 			case NS_TYPE_INT:
 			{
 				int pinInt = (int)pinItem["value"];
-				callbacks.OnSetNodeInput(-1, currentPin, &pinInt, 0);
+				if (callbacks.OnSetNodeInput != nullptr) callbacks.OnSetNodeInput(-1, currentPin, &pinInt, 0);
 				break;
 			}
 			case NS_TYPE_VECTOR2I:
 			{
 				sf::Vector2i pinVectori((int)pinItem["x"], (int)pinItem["y"]);
-				callbacks.OnSetNodeInput(-1, currentPin, &pinVectori, 0);
+				if (callbacks.OnSetNodeInput != nullptr) callbacks.OnSetNodeInput(-1, currentPin, &pinVectori, 0);
 				break;
 			}
 			}
@@ -100,14 +100,14 @@ void serializer::LoadFromFileJson(const std::string& filePath, const ParsingCall
 	}
 
 	for (const auto& connectionItem : jsonObject["connections"])
-		callbacks.OnAddConnection(
+		if (callbacks.OnAddConnection != nullptr) callbacks.OnAddConnection(
 			(int)connectionItem["nodeA"], (int)connectionItem["pinA"],
 			(int)connectionItem["nodeB"], (int)connectionItem["pinB"]
 		);
 
-	callbacks.OnSetNodeEditorState((int)jsonObject["selectedNode"], (int)jsonObject["views"]["nodeEditorZoom"],
+	if (callbacks.OnSetNodeEditorState != nullptr) callbacks.OnSetNodeEditorState((int)jsonObject["selectedNode"], (int)jsonObject["views"]["nodeEditorZoom"],
 		(float)jsonObject["views"]["nodeEditorViewPositionX"], (float)jsonObject["views"]["nodeEditorViewPositionY"]);
-	callbacks.OnSetViewportState((int)jsonObject["views"]["viewportZoom"],
+	if (callbacks.OnSetViewportState != nullptr) callbacks.OnSetViewportState((int)jsonObject["views"]["viewportZoom"],
 		(float)jsonObject["views"]["viewportViewPositionX"], (float)jsonObject["views"]["viewportViewPositionY"]);
 
 	int embeddedImagesLoaded = 0;
@@ -116,7 +116,7 @@ void serializer::LoadFromFileJson(const std::string& filePath, const ParsingCall
 		std::string pngBytes = base64::decode(embeddedImageItem);
 		sf::Image pinImage;
 		pinImage.loadFromMemory(&(pngBytes[0]), pngBytes.length());
-		callbacks.OnSetNodeInput(embeddedImageNodes[embeddedImagesLoaded], embeddedImagePins[embeddedImagesLoaded], &pinImage, 1);
+		if (callbacks.OnSetNodeInput != nullptr) callbacks.OnSetNodeInput(embeddedImageNodes[embeddedImagesLoaded], embeddedImagePins[embeddedImagesLoaded], &pinImage, 1);
 
 		embeddedImagesLoaded++;
 	}

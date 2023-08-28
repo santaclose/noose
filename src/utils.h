@@ -11,6 +11,10 @@ namespace utils
 	bool colorFromHexString(const std::string& hexString, sf::Color& outColor);
 	std::string hexStringFromColor(const sf::Color& color);
 
+	bool drawImageToRenderTexture(const sf::Texture& image, sf::RenderTexture& renderTexture);
+	bool drawImageToRenderTexture(const sf::Image& image, sf::RenderTexture& renderTexture);
+	bool drawImageToRenderTexture(const std::string& imageFilePath, sf::RenderTexture& renderTexture);
+
 	bool imageFromClipboard(sf::Image& outImage);
 	bool imageToClipboard(const sf::Image& image);
 	bool textFromClipboard(std::string& outString);

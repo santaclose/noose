@@ -34,9 +34,6 @@ static int editingColorHue;
 static double editingColorSaturation;
 static double editingColorValue;
 
-sf::Shader uiInputField::loadImageShader;
-static bool loadImageShaderLoaded;
-
 uiSelectionBox* uiInputField::selectionBox = nullptr;
 
 void uiInputField::updateTextPositions()
@@ -523,13 +520,6 @@ void uiInputField::create(int theType, void* pinDataPointer, void(onValueChanged
 		texts[0].setString("Open file...");
 		break;
 	}
-
-	if (!loadImageShaderLoaded)
-	{
-		if (!loadImageShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/loadImage.shader", sf::Shader::Fragment))
-			std::cout << "[UI] Failed to load image loading shader\n";
-		loadImageShaderLoaded = true;
-	}
 }
 
 void uiInputField::setPosition(const sf::Vector2f& newPosition, float nodeWidth, float height)
@@ -637,37 +627,20 @@ void uiInputField::setValue(const void* data, int flags)
 	}
 	case NS_TYPE_IMAGE:
 	{
-		sf::Texture tx;
+		sf::RenderTexture* targetPointer = (sf::RenderTexture*)dataPointer;
 		if (flags == 0) // data is a file path
 		{
 			const std::string& filePath = *((const std::string*)data);
-			if (!tx.loadFromFile(filePath))
-			{
-				std::cout << "[UI] Failed to open image file\n";
-				return;
-			}
-			imagePath = std::string(filePath);
 			texts[0].setString(pathUtils::getFileNameFromPath(filePath.c_str()));
 			imageContent = ImageFieldContent::FromFile;
+			utils::drawImageToRenderTexture(filePath, *targetPointer);
 		}
 		else // data is image in memory
 		{
-			tx.loadFromImage(*((sf::Image*)data));
 			texts[0].setString("from memory");
 			imageContent = ImageFieldContent::FromMemory;
+			utils::drawImageToRenderTexture(*((sf::Image*)data), *targetPointer);
 		}
-
-		loadImageShader.setUniform("tx", tx);
-
-		sf::Sprite spr(tx);
-		sf::Vector2u txSize = tx.getSize();
-		sf::RenderTexture* pointer = (sf::RenderTexture*)dataPointer;
-
-		pointer->create(txSize);
-		sf::RenderStates rs;
-		rs.shader = &loadImageShader;
-		rs.blendMode = sf::BlendNone;
-		pointer->draw(spr, rs);
 		break;
 	}
 	case NS_TYPE_FONT:
