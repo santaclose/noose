@@ -1,0 +1,236 @@
+{
+	"nodes": [
+		{
+			"name": "Solid",
+			"posX": 316.40045166015625,
+			"posY": 10.098931312561035,
+			"pinData": [
+				{
+					"value": "2f2f2eff"
+				},
+				{
+					"x": 10,
+					"y": 102
+				}
+			]
+		},
+		{
+			"name": "Solid",
+			"posX": 980.6022338867188,
+			"posY": -52.40118408203125,
+			"pinData": [
+				{
+					"value": "000000ff"
+				},
+				{
+					"x": 500,
+					"y": 500
+				}
+			]
+		},
+		{
+			"name": "Solid",
+			"posX": 755.7643432617188,
+			"posY": -26.501510620117188,
+			"pinData": [
+				{
+					"value": "00000000"
+				},
+				{
+					"x": 500,
+					"y": 500
+				}
+			]
+		},
+		{
+			"name": "Frame",
+			"posX": 530.102294921875,
+			"posY": 128.79876708984375,
+			"pinData": [
+				{
+					"content": "none",
+					"path": "none"
+				},
+				{
+					"value": 10
+				},
+				{
+					"value": "00000000"
+				}
+			]
+		},
+		{
+			"name": "Color",
+			"posX": -118.89341735839844,
+			"posY": 70.99853515625,
+			"pinData": [
+				{
+					"value": "f9f1ff70"
+				}
+			]
+		},
+		{
+			"name": "Break color",
+			"posX": 84.70726013183594,
+			"posY": 153.998779296875,
+			"pinData": [
+				{
+					"value": "ff00ffff"
+				}
+			]
+		},
+		{
+			"name": "Make color",
+			"posX": 276.3088073730469,
+			"posY": 179.59878540039063,
+			"pinData": [
+				{
+					"value": 255
+				},
+				{
+					"value": 0
+				},
+				{
+					"value": 255
+				},
+				{
+					"value": 0
+				}
+			]
+		},
+		{
+			"name": "Rotate",
+			"posX": 750.558837890625,
+			"posY": 171.098876953125,
+			"pinData": [
+				{
+					"content": "none",
+					"path": "none"
+				},
+				{
+					"value": 3.4979970455169678
+				}
+			]
+		},
+		{
+			"name": "Patch",
+			"posX": 980.9580078125,
+			"posY": 156.09877014160156,
+			"pinData": [
+				{
+					"content": "none",
+					"path": "none"
+				},
+				{
+					"content": "none",
+					"path": "none"
+				},
+				{
+					"x": 367,
+					"y": 360
+				}
+			]
+		},
+		{
+			"name": "Blend",
+			"posX": 1201.7584228515625,
+			"posY": 143.2988739013672,
+			"pinData": [
+				{
+					"content": "none",
+					"path": "none"
+				},
+				{
+					"content": "none",
+					"path": "none"
+				},
+				{
+					"value": 0
+				}
+			]
+		}
+	],
+	"connections": [
+		{
+			"nodeA": 0,
+			"nodeB": 3,
+			"pinA": 2,
+			"pinB": 0
+		},
+		{
+			"nodeA": 4,
+			"nodeB": 0,
+			"pinA": 1,
+			"pinB": 0
+		},
+		{
+			"nodeA": 4,
+			"nodeB": 5,
+			"pinA": 1,
+			"pinB": 0
+		},
+		{
+			"nodeA": 5,
+			"nodeB": 6,
+			"pinA": 1,
+			"pinB": 0
+		},
+		{
+			"nodeA": 5,
+			"nodeB": 6,
+			"pinA": 2,
+			"pinB": 1
+		},
+		{
+			"nodeA": 5,
+			"nodeB": 6,
+			"pinA": 3,
+			"pinB": 2
+		},
+		{
+			"nodeA": 6,
+			"nodeB": 3,
+			"pinA": 4,
+			"pinB": 2
+		},
+		{
+			"nodeA": 8,
+			"nodeB": 9,
+			"pinA": 3,
+			"pinB": 0
+		},
+		{
+			"nodeA": 1,
+			"nodeB": 9,
+			"pinA": 2,
+			"pinB": 1
+		},
+		{
+			"nodeA": 3,
+			"nodeB": 7,
+			"pinA": 3,
+			"pinB": 0
+		},
+		{
+			"nodeA": 2,
+			"nodeB": 8,
+			"pinA": 2,
+			"pinB": 0
+		},
+		{
+			"nodeA": 7,
+			"nodeB": 8,
+			"pinA": 2,
+			"pinB": 1
+		}
+	],
+	"selectedNode": 9,
+	"views": {
+		"nodeEditorZoom": 14,
+		"nodeEditorViewPositionX": 758.359130859375,
+		"nodeEditorViewPositionY": 237.09913635253906,
+		"viewportZoom": 15,
+		"viewportViewPositionX": 331.0,
+		"viewportViewPositionY": 245.0
+	}
+}
