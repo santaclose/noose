@@ -631,6 +631,7 @@ void uiInputField::setValue(const void* data, int flags)
 		if (flags == 0) // data is a file path
 		{
 			const std::string& filePath = *((const std::string*)data);
+			imagePath = std::string(filePath);
 			texts[0].setString(pathUtils::getFileNameFromPath(filePath.c_str()));
 			imageContent = ImageFieldContent::FromFile;
 			utils::drawImageToRenderTexture(filePath, *targetPointer);
