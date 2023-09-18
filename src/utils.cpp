@@ -122,6 +122,17 @@ std::string utils::hexStringFromColor(const sf::Color& color)
     return intToHex(colorInt);
 }
 
+bool utils::vector2iFromString(const std::string& string, sf::Vector2i& outVector)
+{
+    int commaIndex = 0;
+    for (; commaIndex < string.length() && string[commaIndex] != ','; commaIndex++);
+    if (commaIndex == string.length())
+        return false;
+    outVector.x = atoi(string.substr(0, commaIndex).c_str());
+    outVector.y = atoi(string.substr(commaIndex + 1).c_str());
+    return true;
+}
+
 static sf::Shader loadImageShader;
 static bool loadImageShaderLoaded = false;
 bool utils::drawImageToRenderTexture(const sf::Texture& image, sf::RenderTexture& renderTexture)

@@ -41,6 +41,7 @@ public:
 
 	void setPosition(sf::Vector2f& newPosition);
 	void setInput(int inputIndex, const void* data, int flags = 0);
+	inline const std::string& getName() const { return m_nodeName; }
 	const sf::Vector2f& getPosition() const;
 	inline sf::Vector2f getCenterPosition() const
 	{
@@ -64,6 +65,7 @@ public:
 	sf::Vector2f getPinPosition(int index);
 	const sf::Color& getPinColor(int index);
 	int getInputPinCount();
+	const void* getInput(int index, int* outFlags = nullptr);
 
 	// needed to disconnect before deleting the node 
 	std::vector<int> getConnectedLines();

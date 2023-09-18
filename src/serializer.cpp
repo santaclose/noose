@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <base64.h>
 #include "types.h"
+#include "utils.h"
 
 enum class LoadState { ReadingNodes = 0, ReadingConnections = 1, ReadingSelectedNode = 2, ReadingViews = 3, ReadingEmbeddedImages = 4 };
 enum class LoadSubState { ReadingIds = 0, ReadingNodeCoordinates = 1, ReadingPinData = 2, ReadingConnectionNodes = 3, ReadingConnectionPins = 4 };
@@ -158,11 +159,7 @@ void serializer::LoadFromFile(const std::string& filePath, const ParsingCallback
 				case NS_TYPE_VECTOR2I:
 				{
 					sf::Vector2i pinVector2i;
-					int commaPos = 0;
-					for (; line[commaPos] != ','; commaPos++) {}
-					pinVector2i.x = std::stoi(line.substr(0, commaPos));
-					commaPos++;
-					pinVector2i.y = std::stoi(line.substr(commaPos, line.length() - commaPos));
+					utils::vector2iFromString(line, pinVector2i);
 					if (callbacks.OnSetNodeInput != nullptr) callbacks.OnSetNodeInput(-1, currentPin, &pinVector2i, 0);
 					break;
 				}
@@ -289,7 +286,7 @@ void serializer::SaveIntoFile(const std::string& filePath)
 				case NS_TYPE_VECTOR2I:
 				{
 					sf::Vector2i* v = (sf::Vector2i*)node->m_inputFields[i].getDataPointer();
-					output << v->x << ',' << v->y << '\n';
+					output << utils::vector2iToString(*v) << '\n';
 					break;
 				}
 			}

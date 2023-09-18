@@ -52,6 +52,9 @@ namespace uiNodeSystem {
 
 	int boundInputFieldNode = -1;
 
+	std::vector<sf::Font> copiedFonts;
+	std::vector<sf::Image> copiedImages;
+
 	void onInputFieldValueChanged();
 	void deleteLine(int lineToDelete);
 	void updateView();
@@ -500,19 +503,23 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 			if (uiInputField::keyboardInput(e.text.unicode)) // input field handling keyboard input
 				break;
 
-			if (e.text.unicode == 22) // ctrl v
+			if (e.text.unicode == 3) // ctrl c
+				copyNode();
+			else if (e.text.unicode == 22) // ctrl v
 			{
-				sf::Image image;
-				if (!utils::imageFromClipboard(image))
+				if (!pasteNode())
 				{
-					std::cout << "[UI] Failed to paste image from clipboard\n";
-					break;
+					sf::Image image;
+					if (!utils::imageFromClipboard(image))
+					{
+						std::cout << "[UI] Failed to paste node or image from clipboard\n";
+						break;
+					}
+					int nodeID = uiNodeSystem::pushNewNode(nodeProvider::getNodeDataByName("Image"));
+					// bind to set pin data
+					setBoundInputFieldNode(nodeID);
+					uiNodeList[nodeID]->setInput(0, &image, 1); // flag to let it know it's not a file path
 				}
-
-				int nodeID = uiNodeSystem::pushNewNode(nodeProvider::getNodeDataByName("Image"));
-				// bind to set pin data
-				setBoundInputFieldNode(nodeID);
-				uiNodeList[nodeID]->setInput(0, &image, 1); // flag to let it know it's not a file path
 			}
 
 			break;
@@ -636,6 +643,154 @@ bool uiNodeSystem::isEmpty()
 	{
 		if (n != nullptr)
 			return false;
+	}
+	return true;
+}
+
+void uiNodeSystem::copyNode()
+{
+	if (selectedNodeIndex < 0 || uiNodeList[selectedNodeIndex] == nullptr)
+	{
+		std::cout << "[UI] Failed to copy node data\n";
+		return;
+	}
+	std::cout << "[UI] Copying node data\n";
+	const std::string& nodeName = uiNodeList[selectedNodeIndex]->getName();
+	const nodeData* nodeDataToUse = nodeProvider::getNodeDataByName(nodeName);
+	copiedFonts.clear();
+	copiedImages.clear();
+	std::string toCopy = "copy node\n" + nodeName + '\n';
+	for (int i = 0; i < nodeDataToUse->inputPinCount; i++)
+	{
+		switch (nodeDataToUse->pinTypes[i])
+		{
+		case NS_TYPE_INT:
+			toCopy += std::to_string(((int*)(uiNodeList[selectedNodeIndex]->getInput(i)))[0]) + "\n";
+			break;
+		case NS_TYPE_VECTOR2I:
+			toCopy += utils::vector2iToString(((sf::Vector2i*)(uiNodeList[selectedNodeIndex]->getInput(i)))[0]) + "\n";
+			break;
+		case NS_TYPE_FLOAT:
+			toCopy += std::to_string(((float*)(uiNodeList[selectedNodeIndex]->getInput(i)))[0]) + "\n";
+			break;
+		case NS_TYPE_COLOR:
+			toCopy += utils::hexStringFromColor(((sf::Color*)(uiNodeList[selectedNodeIndex]->getInput(i)))[0]) + "\n";
+			break;
+		case NS_TYPE_STRING:
+			toCopy += ((std::string*)(uiNodeList[selectedNodeIndex]->getInput(i)))[0] + "\n";
+			break;
+		case NS_TYPE_IMAGE:
+		{
+			int flags;
+			const void* dataPointer = uiNodeList[selectedNodeIndex]->getInput(i, &flags);
+			if (dataPointer == nullptr)
+			{
+				toCopy += '\n';
+				break;
+			}
+			toCopy += std::to_string(flags) + " ";
+			if (flags == 1)
+			{
+				toCopy += std::to_string(copiedImages.size()) + "\n";
+				copiedImages.push_back(((const sf::RenderTexture*)dataPointer)->getTexture().copyToImage());
+			}
+			else
+				toCopy += std::string((char*)dataPointer) + '\n';
+			break;
+		}
+		case NS_TYPE_FONT:
+		{
+			const void* dataPointer = uiNodeList[selectedNodeIndex]->getInput(i);
+			if (dataPointer == nullptr)
+			{
+				toCopy += '\n';
+				break;
+			}
+			toCopy += std::string((char*)dataPointer) + '\n';
+			break;
+		}
+		}
+	}
+	utils::textToClipboard(toCopy);
+}
+
+bool uiNodeSystem::pasteNode()
+{
+	std::string clipText;
+	utils::textFromClipboard(clipText);
+	if (!utils::stringStartsWith(clipText, "copy node\n"))
+		return false;
+	int q = 10, p = 10;
+	for (; clipText[p] != '\n'; p++);
+	std::string nodeName = clipText.substr(q, p - q);
+	const nodeData* nodeDataPointer = nodeProvider::getNodeDataByName(nodeName);
+	if (nodeDataPointer == nullptr)
+	{
+		std::cout << "[UI] Failed to paste node from clipboard, node with name '" + nodeName + "' doesn't exist\n";
+		return false;
+	}
+	int nodeID = uiNodeSystem::pushNewNode(nodeDataPointer);
+	int currentPin = 0;
+	while (p < clipText.length() - 1)
+	{
+		q = p + 1;
+		for (p = q; clipText[p] != '\n'; p++);
+
+		switch (nodeDataPointer->pinTypes[currentPin])
+		{
+		case NS_TYPE_INT:
+		{
+			int value = atoi(clipText.substr(q, p - q).c_str());
+			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+			break;
+		}
+		case NS_TYPE_VECTOR2I:
+		{
+			sf::Vector2i value;
+			utils::vector2iFromString(clipText.substr(q, p - q), value);
+			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+			break;
+		}
+		case NS_TYPE_FLOAT:
+		{
+			float value = atof(clipText.substr(q, p - q).c_str());
+			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+			break;
+		}
+		case NS_TYPE_COLOR:
+		{
+			sf::Color value;
+			utils::colorFromHexString(clipText.substr(q, p - q), value);
+			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+			break;
+		}
+		case NS_TYPE_STRING:
+		{
+			std::string value = clipText.substr(q, p - q);
+			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+			break;
+		}
+		case NS_TYPE_FONT:
+		{
+			if (q == p)
+				break;
+			std::string path = clipText.substr(q, p - q);
+			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &path);
+			break;
+		}
+		case NS_TYPE_IMAGE:
+		{
+			if (q == p)
+				break;
+			std::string value = clipText.substr(q + 2, p - q - 2);
+			if (clipText[q] == '1')
+				onProjectFileLoadingSetNodeInput(nodeID, currentPin, &(copiedImages[atoi(value.c_str())]), 1);
+			else
+				onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+			break;
+		}
+		}
+		currentPin++;
 	}
 	return true;
 }

@@ -347,6 +347,14 @@ int uiNode::getInputPinCount()
 	return m_inputPinCount;
 }
 
+const void* uiNode::getInput(int index, int* outFlags)
+{
+	if (index >= m_inputPinCount)
+		return nullptr;
+
+	return m_inputFields[index].getValue(outFlags);
+}
+
 std::vector<int> uiNode::getConnectedLines()
 {
 	return m_connectedLineIndices;

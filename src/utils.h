@@ -10,6 +10,8 @@ namespace utils
 	void rgb2hsv(const sf::Color& rgbColor, float& h, float& s, float& v);
 	bool colorFromHexString(const std::string& hexString, sf::Color& outColor);
 	std::string hexStringFromColor(const sf::Color& color);
+	inline std::string vector2iToString(const sf::Vector2i& vector) { return std::to_string(vector.x) + ',' + std::to_string(vector.y); }
+	bool vector2iFromString(const std::string& string, sf::Vector2i& outVector);
 
 	bool drawImageToRenderTexture(const sf::Texture& image, sf::RenderTexture& renderTexture);
 	bool drawImageToRenderTexture(const sf::Image& image, sf::RenderTexture& renderTexture);
@@ -28,6 +30,12 @@ namespace utils
 			<< std::setfill ('0') << std::setw(sizeof(T)*2) 
 			<< std::hex << i;
 		return stream.str();
+	}
+	inline bool stringStartsWith(const std::string& string, const char* startsWith)
+	{
+		int i = 0;
+		for (; i < string.length() && startsWith[i] != '\0' && startsWith[i] == string[i]; i++);
+		return startsWith[i] == '\0';
 	}
 
 	// need drawQuads function since SFML removed Quad draw mode

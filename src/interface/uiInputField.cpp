@@ -806,6 +806,21 @@ void* uiInputField::getDataPointer()
 	return dataPointer;
 }
 
+const void* uiInputField::getValue(int* outFlags)
+{
+	if (type == NS_TYPE_IMAGE)
+	{
+		if (imageContent == ImageFieldContent::None)
+			return nullptr;
+		if (outFlags != nullptr)
+			*outFlags = imageContent == ImageFieldContent::FromMemory ? 1 : 0;
+		return imageContent == ImageFieldContent::FromMemory ? dataPointer : (void*)imagePath.c_str();
+	}
+	else if (type == NS_TYPE_FONT)
+		return fontPath.length() == 0 ? nullptr : (void*)fontPath.c_str();
+	return dataPointer;
+}
+
 void uiInputField::disable()
 {
 	enabled = false;

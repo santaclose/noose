@@ -44,6 +44,9 @@ namespace uiNodeSystem
 	void clearNodeSelection();
 	bool isEmpty();
 
+	void copyNode();
+	bool pasteNode();
+
 	// project file loading
 	void onProjectFileLoadingStart();
 	void onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY);

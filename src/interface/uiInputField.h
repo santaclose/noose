@@ -35,6 +35,7 @@ public:
 	void bind(int index, InteractionMode interactionMode = InteractionMode::Default);
 
 	void* getDataPointer(); // so the data pointer of the node can be changed when a connection is created
+	const void* getValue(int* outFlags = nullptr);
 
 	void disable();
 	void enable();
