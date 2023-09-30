@@ -52,9 +52,6 @@ namespace uiNodeSystem {
 
 	int boundInputFieldNode = -1;
 
-	std::vector<sf::Font> copiedFonts;
-	std::vector<sf::Image> copiedImages;
-
 	void onInputFieldValueChanged();
 	void deleteLine(int lineToDelete);
 	void updateView();
@@ -657,8 +654,6 @@ void uiNodeSystem::copyNode()
 	std::cout << "[UI] Copying node data\n";
 	const std::string& nodeName = uiNodeList[selectedNodeIndex]->getName();
 	const nodeData* nodeDataToUse = nodeProvider::getNodeDataByName(nodeName);
-	copiedFonts.clear();
-	copiedImages.clear();
 	std::string toCopy = "copy node\n" + nodeName + '\n';
 	for (int i = 0; i < nodeDataToUse->inputPinCount; i++)
 	{
@@ -688,11 +683,12 @@ void uiNodeSystem::copyNode()
 				toCopy += '\n';
 				break;
 			}
-			toCopy += std::to_string(flags) + " ";
+			toCopy += std::to_string(flags) + ' ';
 			if (flags == 1)
 			{
-				toCopy += std::to_string(copiedImages.size()) + "\n";
-				copiedImages.push_back(((const sf::RenderTexture*)dataPointer)->getTexture().copyToImage());
+				std::string base64Image;
+				utils::base64StringFromImage(((const sf::RenderTexture*)dataPointer)->getTexture().copyToImage(), base64Image);
+				toCopy += base64Image + '\n';
 			}
 			else
 				toCopy += std::string((char*)dataPointer) + '\n';
@@ -784,7 +780,11 @@ bool uiNodeSystem::pasteNode()
 				break;
 			std::string value = clipText.substr(q + 2, p - q - 2);
 			if (clipText[q] == '1')
-				onProjectFileLoadingSetNodeInput(nodeID, currentPin, &(copiedImages[atoi(value.c_str())]), 1);
+			{
+				sf::Image copiedImage;
+				utils::imageFromBase64String(value, copiedImage);
+				onProjectFileLoadingSetNodeInput(nodeID, currentPin, &copiedImage, 1);
+			}
 			else
 				onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
 			break;

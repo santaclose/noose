@@ -6,7 +6,6 @@
 #include <pathUtils.h>
 #include <fstream>
 #include <unordered_map>
-#include <base64.h>
 #include "types.h"
 #include "utils.h"
 
@@ -216,9 +215,9 @@ void serializer::LoadFromFile(const std::string& filePath, const ParsingCallback
 		{
 			if (line.length() > 0)
 			{
-				std::string pngBytes = base64::decode(line);
+
 				sf::Image pinImage;
-				pinImage.loadFromMemory(&(pngBytes[0]), pngBytes.length());
+				utils::imageFromBase64String(line, pinImage);
 				if (callbacks.OnSetNodeInput != nullptr) callbacks.OnSetNodeInput(embeddedImageNodes[embeddedImagesLoaded], embeddedImagePins[embeddedImagesLoaded], &pinImage, 1);
 
 				embeddedImagesLoaded++;
@@ -330,17 +329,11 @@ void serializer::SaveIntoFile(const std::string& filePath)
 		output << "| embedded images\n";
 		for (int i = 0; i < embeddedImages.size(); i++)
 		{
-			std::vector<uint8_t> pngImage;
-			// allocate max we would need for assert not to show up in debug mode
-			// https://stackoverflow.com/questions/35310117/debug-assertion-failed-expression-acrt-first-block-header
-			pngImage.reserve(embeddedImages[i].getSize().x * embeddedImages[i].getSize().y * 4);
-			if (!embeddedImages[i].saveToMemory(pngImage, "png"))
+			std::string base64Image;
+			if (!utils::base64StringFromImage(embeddedImages[i], base64Image))
 				std::cout << "[Serializer] Failed to save embedded image to memory\n";
 			else
-			{
-				std::string base64Encoded = base64::encode(&(pngImage[0]), pngImage.size());
-				output << base64Encoded << '\n';
-			}
+				output << base64Image << '\n';
 		}
 	}
 

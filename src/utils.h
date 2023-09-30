@@ -13,6 +13,9 @@ namespace utils
 	inline std::string vector2iToString(const sf::Vector2i& vector) { return std::to_string(vector.x) + ',' + std::to_string(vector.y); }
 	bool vector2iFromString(const std::string& string, sf::Vector2i& outVector);
 
+	bool imageFromBase64String(const std::string& base64String, sf::Image& out);
+	bool base64StringFromImage(const sf::Image& image, std::string& out);
+
 	bool drawImageToRenderTexture(const sf::Texture& image, sf::RenderTexture& renderTexture);
 	bool drawImageToRenderTexture(const sf::Image& image, sf::RenderTexture& renderTexture);
 	bool drawImageToRenderTexture(const std::string& imageFilePath, sf::RenderTexture& renderTexture);

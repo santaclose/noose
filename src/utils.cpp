@@ -12,6 +12,7 @@
 #include <thread>
 
 #include <clip.h>
+#include <base64.h>
 #include <portable-file-dialogs.h>
 #include <subprocess.hpp>
 
@@ -130,6 +131,24 @@ bool utils::vector2iFromString(const std::string& string, sf::Vector2i& outVecto
         return false;
     outVector.x = atoi(string.substr(0, commaIndex).c_str());
     outVector.y = atoi(string.substr(commaIndex + 1).c_str());
+    return true;
+}
+
+bool utils::imageFromBase64String(const std::string& base64String, sf::Image& out)
+{
+    std::string pngBytes = base64::decode(base64String);
+    return out.loadFromMemory(pngBytes.data(), pngBytes.length());
+}
+
+bool utils::base64StringFromImage(const sf::Image& image, std::string& out)
+{
+    std::vector<uint8_t> pngBytes;
+    // allocate max we would need for assert not to show up in debug mode
+    // https://stackoverflow.com/questions/35310117/debug-assertion-failed-expression-acrt-first-block-header
+    pngBytes.reserve(image.getSize().x * image.getSize().y * 4);
+    if (!image.saveToMemory(pngBytes, "png"))
+        return false;
+    out = base64::encode(pngBytes.data(), pngBytes.size());
     return true;
 }
 
