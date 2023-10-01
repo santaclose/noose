@@ -90,6 +90,7 @@ int main(int argc, char** argv)
 		parsingCallbacks.OnAddNode = nodeSystem::onProjectFileLoadingAddNode;
 		parsingCallbacks.OnSetNodeInput = nodeSystem::onProjectFileLoadingSetNodeInput;
 		parsingCallbacks.OnAddConnection = nodeSystem::onProjectFileLoadingAddConnection;
+		parsingCallbacks.OnFinish = nodeSystem::onProjectFileLoadingFinish;
 		if (utils::endsWith(secondArgument, ".nsj"))
 			serializer::LoadFromFileJson(secondArgument, parsingCallbacks);
 		else if (utils::endsWith(secondArgument, ".ns"))

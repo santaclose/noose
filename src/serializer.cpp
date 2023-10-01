@@ -224,6 +224,7 @@ void serializer::LoadFromFile(const std::string& filePath, const ParsingCallback
 			}
 		}
 	}
+	if (callbacks.OnFinish != nullptr) callbacks.OnFinish();
 }
 
 void serializer::SaveIntoFile(const std::string& filePath)

@@ -47,5 +47,7 @@ public:
 	const int* getPinTypes();
 
 	void* getDataPointer(int pinIndex, bool acceptReceivedPointers=true);
+
+	inline bool isConnectedToTheLeft() { return m_leftSideNodes.size() > 0; }
 };
 

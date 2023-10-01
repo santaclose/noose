@@ -13,6 +13,7 @@ public:
 			float nodeEditorViewPositionX, float nodeEditorViewPositionY) = nullptr;
 		void (*OnSetViewportState)(int viewportZoom,
 			float viewportViewPositionX, float viewportViewPositionY) = nullptr;
+		void (*OnFinish)(void) = nullptr;
 	};
 
 	static void LoadFromFile(const std::string& filePath, const ParsingCallbacks& callbacks);

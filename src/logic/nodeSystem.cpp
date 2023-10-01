@@ -84,12 +84,13 @@ void nodeSystem::onNodeChanged(int n)
 	nodeList[n]->activate();
 }
 
-void nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, int c)
+void nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, int c, bool activate)
 {
 	std::cout << "[Node system] Nodes connected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
 
 	connectionSystem::connect(c, nodeList, nA, nB, pA, pB);
-	nodeList[nB]->activate();
+	if (activate)
+		nodeList[nB]->activate();
 }
 
 void nodeSystem::onNodesDisconnected(int nA, int nB, int pA, int pB, int c)
@@ -217,10 +218,18 @@ void nodeSystem::onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, v
 		break;
 	}
 	}
-	nodeList[targetNodeIndex]->activate();
 }
 void nodeSystem::onProjectFileLoadingAddConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex)
 {
-	onNodesConnected(nodeAIndex, nodeBIndex, pinAIndex, pinBIndex, projectLoadingConnectionCounter);
+	onNodesConnected(nodeAIndex, nodeBIndex, pinAIndex, pinBIndex, projectLoadingConnectionCounter, false);
 	projectLoadingConnectionCounter++;
+}
+
+void nodeSystem::onProjectFileLoadingFinish()
+{
+	for (node* n : nodeList)
+	{
+		if (n != nullptr && !n->isConnectedToTheLeft())
+			n->activate();
+	}
 }

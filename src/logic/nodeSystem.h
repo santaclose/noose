@@ -12,7 +12,7 @@ namespace nodeSystem
 	void onNodeChanged(int n);
 
 	// nA is always the node that has the output pin
-	void onNodesConnected(int nA, int nB, int pA, int pB, int c);
+	void onNodesConnected(int nA, int nB, int pA, int pB, int c, bool activate = true);
 	void onNodesDisconnected(int nA, int nB, int pA, int pB, int c);
 
 	bool isConnectionValid(int nA, int nB, int pinA, int pinB);
@@ -34,4 +34,5 @@ namespace nodeSystem
 	void onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY);
 	void onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, void* data, int flags);
 	void onProjectFileLoadingAddConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex);
+	void onProjectFileLoadingFinish();
 };

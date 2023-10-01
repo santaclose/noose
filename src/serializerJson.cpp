@@ -118,6 +118,7 @@ void serializer::LoadFromFileJson(const std::string& filePath, const ParsingCall
 
 		embeddedImagesLoaded++;
 	}
+	if (callbacks.OnFinish != nullptr) callbacks.OnFinish();
 }
 
 void serializer::SaveIntoFileJson(const std::string& filePath)
