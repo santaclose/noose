@@ -80,27 +80,16 @@ void deletePinData(int type, void* pointer)
 
 node::node(const nodeData* data)
 {
-	// set functionality
-	m_nodeFunctionalityPointer = (void (*)(node* theNode))(data->nodeFunctionality);
-
-	m_inputPinCount = data->inputPinCount;
-	m_outputPinCount = data->outputPinCount;
-
-	// get a copy of the types
-	m_pinTypes = new int[m_inputPinCount + m_outputPinCount];
-	std::memcpy(m_pinTypes, &(data->pinTypes[0]), sizeof(int) * (m_inputPinCount + m_outputPinCount));
-
-	// so it doesn't have to reallocate at each iteration
-	m_pinDataPointers.resize(m_inputPinCount + m_outputPinCount);
+	m_nodeData = data;
+	m_pinDataPointers.resize(m_nodeData->inputPinCount + m_nodeData->outputPinCount);
 
 	// data pointers from other nodes
-	m_receivedDataPointers.resize(m_inputPinCount);
+	m_receivedDataPointers.resize(m_nodeData->inputPinCount);
 
-	for (int i = 0; i < (m_inputPinCount + m_outputPinCount); i++)
+	for (int i = 0; i < (m_nodeData->inputPinCount + m_nodeData->outputPinCount); i++)
 	{
-		// TODO: move data pointers to uiNode
-		m_pinDataPointers[i] = reserveDataForPin(m_pinTypes[i], data->pinDefaultData[i]);
-		if (i < m_inputPinCount)
+		m_pinDataPointers[i] = reserveDataForPin(m_nodeData->pinTypes[i], data->pinDefaultData[i]);
+		if (i < m_nodeData->inputPinCount)
 			m_receivedDataPointers[i] = nullptr;
 	}
 }
@@ -109,9 +98,7 @@ node::~node()
 {
 	//std::cout << "deleting logical node\n";
 	for (int i = 0; i < getPinCount(); i++)
-		deletePinData(m_pinTypes[i], m_pinDataPointers[i]);
-	
-	delete[] m_pinTypes;
+		deletePinData(m_nodeData->pinTypes[i], m_pinDataPointers[i]);
 }
 
 void node::connect(int lineIndex)
@@ -156,7 +143,7 @@ void node::activate()
 void node::run()
 {
 	//std::cout << "running node\n";
-	m_nodeFunctionalityPointer(this);
+	((void (*)(node * theNode))(m_nodeData->nodeFunctionality))(this); // execute function pointer with this node as the argument
 }
 
 const std::vector<std::vector<node*>>& node::getPropagationMatrix()
@@ -195,22 +182,22 @@ void node::rebuildMatrices(int lineIndex)
 
 int node::getPinType(int pinIndex)
 {
-	return m_pinTypes[pinIndex];
+	return m_nodeData->pinTypes[pinIndex];
 }
 
 int node::getInputPinCount()
 {
-	return m_inputPinCount;
+	return m_nodeData->inputPinCount;
 }
 
 int node::getOutputPinCount()
 {
-	return m_outputPinCount;
+	return m_nodeData->outputPinCount;
 }
 
 int node::getPinCount()
 {
-	return m_inputPinCount + m_outputPinCount;
+	return m_nodeData->inputPinCount + m_nodeData->outputPinCount;
 }
 
 
@@ -221,7 +208,7 @@ const std::vector<void*>& node::getDataPointers()
 
 const int* node::getPinTypes()
 {
-	return m_pinTypes;
+	return m_nodeData->pinTypes.data();
 }
 
 void* node::getDataPointer(int pinIndex, bool acceptReceivedPointers)
@@ -229,7 +216,7 @@ void* node::getDataPointer(int pinIndex, bool acceptReceivedPointers)
 	if (!acceptReceivedPointers)
 		return m_pinDataPointers[pinIndex];
 
-	if (pinIndex >= m_inputPinCount) // can't receive pointers from other nodes (is an output)
+	if (pinIndex >= m_nodeData->inputPinCount) // can't receive pointers from other nodes (is an output)
 		return m_pinDataPointers[pinIndex];
 
 	if (m_receivedDataPointers[pinIndex] != nullptr)

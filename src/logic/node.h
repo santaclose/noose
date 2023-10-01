@@ -10,9 +10,7 @@ private:
 public:
 #endif
 	// pins
-	int m_inputPinCount;
-	int m_outputPinCount;
-	int* m_pinTypes = nullptr;
+	const nodeData* m_nodeData;
 
 	std::vector<void*> m_pinDataPointers;
 	std::vector<void*> m_receivedDataPointers;
@@ -20,9 +18,6 @@ public:
 	// graph stuff
 	std::vector<std::vector<node*>> m_propagationMatrix;
 	std::vector<node*> m_leftSideNodes;
-
-	// function pointer with node functionality
-	void (*m_nodeFunctionalityPointer)(node* theNode) = nullptr;
 
 public:
 	node(const nodeData* data);
