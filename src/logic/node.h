@@ -16,8 +16,8 @@ public:
 	std::vector<void*> m_receivedDataPointers;
 
 	// graph stuff
-	std::vector<std::vector<node*>> m_propagationMatrix;
 	std::vector<node*> m_leftSideNodes;
+	std::vector<node*> m_rightSideNodes;
 
 public:
 	node(const nodeData* data);
@@ -26,12 +26,8 @@ public:
 	void connect(int lineIndex);
 	void disconnect(int lineIndex);
 
-	void activate(); // executes node functionality and propagates to right hand side nodes
+	void activate(); // executes node functionality propagating to nodes connected to the right side
 	void run(); // executes node functionality
-	const std::vector<std::vector<node*>>& getPropagationMatrix();
-	void propagateMatrix(std::vector<std::vector<node*>>& m);
-	void clearPropagationMatrix();
-	void rebuildMatrices(int lineIndex);
 
 	int getPinType(int pinIndex);
 	int getInputPinCount();
@@ -43,6 +39,22 @@ public:
 
 	void* getDataPointer(int pinIndex, bool acceptReceivedPointers=true);
 
-	inline bool isConnectedToTheLeft() { return m_leftSideNodes.size() > 0; }
+	bool findNodeToTheRightRecursive(const node* toFind) const;
+	inline bool isConnectedToTheLeft() const { return m_leftSideNodes.size() > 0; }
+
+	template<typename T>
+	static void removeFromList(const T item, std::vector<T>& list)
+	{
+		int j = 0;
+		for (T c : list)
+		{
+			if (c == item)
+			{
+				list.erase(list.begin() + j);
+				return;
+			}
+			j++;
+		}
+	}
 };
 

@@ -1,7 +1,6 @@
 #include "nodeSystem.h"
 #include "connectionSystem.h"
 #include "node.h"
-#include "graphOperations.h"
 #include "../utils.h"
 #include "../nodeData.h"
 #include "../nodeProvider/nodeProvider.h"
@@ -12,7 +11,6 @@ namespace nodeSystem {
 	std::vector<node*> nodeList;
 
 	void insertNode(int slot, nodeData* data);
-	void recalculatePropagationMatrices();
 }
 
 void nodeSystem::insertNode(int slot, nodeData* data)
@@ -21,26 +19,6 @@ void nodeSystem::insertNode(int slot, nodeData* data)
 		nodeList.resize(slot + 1);
 
 	nodeList[slot] = new node(data);
-}
-
-void nodeSystem::recalculatePropagationMatrices()
-{
-	for (node* n : nodeList)
-	{
-		if (n != nullptr)
-			n->clearPropagationMatrix();
-	}
-
-	int i = 0;
-	for (connection& l : connectionSystem::connections)
-	{
-		if (!l.deleted) // not deleted
-		{
-			l.nodeA->rebuildMatrices(i);
-			l.nodeB->rebuildMatrices(i);
-		}
-		i++;
-	}
 }
 
 void nodeSystem::initialize()
@@ -60,13 +38,13 @@ void nodeSystem::terminate()
 
 void nodeSystem::onNodeCreated(int n, const void* data)
 {
-	std::cout << "[Node system] Node created\n\tid: " << n << std::endl;
+	//std::cout << "[Node system] Node created\n\tid: " << n << std::endl;
 	insertNode(n, (nodeData*)data);
 }
 
 void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int* ci, int cc)
 {
-	std::cout << "[Node system] Node deleted\n\tid: " << n << std::endl;
+	//std::cout << "[Node system] Node deleted\n\tid: " << n << std::endl;
 
 	// delete all connections to the node
 	for (int c : connections)
@@ -74,8 +52,6 @@ void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int*
 
 	delete nodeList[n];
 	nodeList[n] = nullptr;
-
-	recalculatePropagationMatrices();
 }
 
 void nodeSystem::onNodeChanged(int n)
@@ -86,8 +62,7 @@ void nodeSystem::onNodeChanged(int n)
 
 void nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, int c, bool activate)
 {
-	std::cout << "[Node system] Nodes connected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
-
+	//std::cout << "[Node system] Nodes connected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
 	connectionSystem::connect(c, nodeList, nA, nB, pA, pB);
 	if (activate)
 		nodeList[nB]->activate();
@@ -95,21 +70,19 @@ void nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, int c, bool ac
 
 void nodeSystem::onNodesDisconnected(int nA, int nB, int pA, int pB, int c)
 {
-	std::cout << "[Node system] Nodes disconnected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
+	//std::cout << "[Node system] Nodes disconnected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
 	connectionSystem::deleteConnection(c);
 
-	recalculatePropagationMatrices();
 	nodeList[nB]->activate();
 }
 
 bool nodeSystem::isConnectionValid(int nA, int nB, int pinA, int pinB)
 {
-	int nodeIndex, nodeSubIndex;
-	go::nodePositionInMatrix(nodeList[nA], nodeList[nB]->getPropagationMatrix(), nodeIndex, nodeSubIndex);
+	bool createsCycle = nodeList[nB]->findNodeToTheRightRecursive(nodeList[nA]);
 	return
 		nA != nB && // can't connect a node to itself
 		nodeList[nA]->getPinType(pinA) == nodeList[nB]->getPinType(pinB) && // both pins must be of the same type
-		nodeIndex == -1; // avoid cycles
+		!createsCycle; // avoid cycles
 		//(pinA < nodeList[nA]->getInputPinCount()) != (pinB < nodeList[nB]->getInputPinCount()) && // can't be both output or input (handled by the ui already)
 }
 

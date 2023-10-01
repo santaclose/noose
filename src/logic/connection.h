@@ -16,4 +16,3 @@ struct connection
 	int nodeIndexA;
 	int nodeIndexB;
 };
-

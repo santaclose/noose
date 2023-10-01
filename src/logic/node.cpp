@@ -1,6 +1,5 @@
 #include "../types.h"
 
-#include "graphOperations.h"
 #include "node.h"
 #include "connectionSystem.h"
 
@@ -77,7 +76,6 @@ void deletePinData(int type, void* pointer)
 	}
 }
 
-
 node::node(const nodeData* data)
 {
 	m_nodeData = data;
@@ -104,11 +102,7 @@ node::~node()
 void node::connect(int lineIndex)
 {
 	if (connectionSystem::connections[lineIndex].nodeA == (void*)this) // we are the left side node, ours is an output pin
-	{
-		go::updatePropagationMatrix(m_propagationMatrix, (node*)connectionSystem::connections[lineIndex].nodeB);
-		for (node* n : m_leftSideNodes)
-			n->propagateMatrix(m_propagationMatrix);
-	}
+		m_rightSideNodes.push_back((node*)(connectionSystem::connections[lineIndex].nodeB));
 	else // we are the right side node
 	{
 		m_receivedDataPointers[connectionSystem::connections[lineIndex].pinB] =
@@ -122,21 +116,26 @@ void node::disconnect(int lineIndex)
 	if (connectionSystem::connections[lineIndex].nodeA != (void*)this) // we are the right side node, ours is an input pin
 	{
 		m_receivedDataPointers[connectionSystem::connections[lineIndex].pinB] = nullptr;
-		go::removeNodeFromList((node*)connectionSystem::connections[lineIndex].nodeA, m_leftSideNodes);
+		removeFromList((node*)connectionSystem::connections[lineIndex].nodeA, m_leftSideNodes);
 	}
+	else
+		removeFromList((node*)connectionSystem::connections[lineIndex].nodeB, m_rightSideNodes);
 }
 
+static std::vector<node*> activationQueue;
 void node::activate()
 {
-	//std::cout << "activating node\n";
-	// execute node functionality
-	run();
-
-	// run every subsequent node
-	for (std::vector<node*>& list : m_propagationMatrix)
+	activationQueue.clear();
+	int currentQueueIndex = 0;
+	node* currentNode;
+	activationQueue.push_back(this);
+	while (currentQueueIndex < activationQueue.size())
 	{
-		for (node* n : list)
-			n->run();
+		currentNode = activationQueue[currentQueueIndex];
+		currentQueueIndex++;
+		currentNode->run();
+		for (node* n : currentNode->m_rightSideNodes)
+			activationQueue.push_back(n);
 	}
 }
 
@@ -144,40 +143,6 @@ void node::run()
 {
 	//std::cout << "running node\n";
 	((void (*)(node * theNode))(m_nodeData->nodeFunctionality))(this); // execute function pointer with this node as the argument
-}
-
-const std::vector<std::vector<node*>>& node::getPropagationMatrix()
-{
-	return m_propagationMatrix;
-}
-
-void node::propagateMatrix(std::vector<std::vector<node*>>& m)
-{
-	//std::cout << "propagating to node " << this->title.getString().toAnsiString() << std::endl;
-
-	// update propagation matrix
-	go::matrixPropagation(m_propagationMatrix, m);
-
-	// propagate back to connected nodes no the left side
-	for (node* n : m_leftSideNodes)
-		n->propagateMatrix(m_propagationMatrix);
-}
-
-void node::clearPropagationMatrix()
-{
-	for (std::vector<node*>& l : m_propagationMatrix)
-		l.clear();
-	m_propagationMatrix.clear();
-}
-
-void node::rebuildMatrices(int lineIndex)
-{
-	if (connectionSystem::connections[lineIndex].nodeA == (void*)this) // we are the left side node, ours is an output pin
-	{
-		go::updatePropagationMatrix(m_propagationMatrix, (node*)connectionSystem::connections[lineIndex].nodeB);
-		for (node* n : m_leftSideNodes)
-			n->propagateMatrix(m_propagationMatrix);
-	}
 }
 
 int node::getPinType(int pinIndex)
@@ -223,4 +188,14 @@ void* node::getDataPointer(int pinIndex, bool acceptReceivedPointers)
 		return m_receivedDataPointers[pinIndex];
 
 	return m_pinDataPointers[pinIndex];
+}
+
+bool node::findNodeToTheRightRecursive(const node* toFind) const
+{
+	for (const node* n : m_rightSideNodes)
+	{
+		if (n == toFind || n->findNodeToTheRightRecursive(toFind))
+			return true;
+	}
+	return false;
 }
