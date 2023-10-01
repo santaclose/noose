@@ -247,13 +247,13 @@ void serializer::SaveIntoFile(const std::string& filePath)
 		}
 
 		// node unique name (works as id)
-		output << node->m_nodeName << '\n';
+		output << node->getName() << '\n';
 		// node position in editor space
 		output << node->getPosition().x << ',' << node->getPosition().y << '\n';
 		// stored data
-		for (int i = 0; i < node->m_inputPinCount; i++)
+		for (int i = 0; i < node->getInputPinCount(); i++)
 		{
-			switch (nodeProvider::getNodeDataByName(node->m_nodeName)->pinTypes[i])
+			switch (nodeProvider::getNodeDataByName(node->getName())->pinTypes[i])
 			{
 				case NS_TYPE_COLOR:
 				{

@@ -145,10 +145,10 @@ void serializer::SaveIntoFileJson(const std::string& filePath)
 		auto jsonPinArray = json::array();
 
 		// stored data
-		for (int i = 0; i < node->m_inputPinCount; i++)
+		for (int i = 0; i < node->getInputPinCount(); i++)
 		{
 			uiInputField::ImageFieldContent imageContentType = node->m_inputFields[i].imageContent;
-			switch (nodeProvider::getNodeDataByName(node->m_nodeName)->pinTypes[i])
+			switch (nodeProvider::getNodeDataByName(node->getName())->pinTypes[i])
 			{
 			case NS_TYPE_COLOR:
 			{
@@ -200,10 +200,10 @@ void serializer::SaveIntoFileJson(const std::string& filePath)
 		}
 
 		jsonObject["nodes"].push_back({
-			{"name", node->m_nodeName }, // node unique name (works as id)
-			{"posX", node->getPosition().x }, // node position in editor space
-			{"posY", node->getPosition().y },
-			{"pinData", jsonPinArray }
+			{ "name", node->getName() }, // node unique name (works as id)
+			{ "posX", node->getPosition().x }, // node position in editor space
+			{ "posY", node->getPosition().y },
+			{ "pinData", jsonPinArray }
 			});
 
 		original2NewId[originalNodeId] = newNodeId;

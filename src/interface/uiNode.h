@@ -11,9 +11,7 @@ class uiNode
 {
 	friend serializer;// this is too hacky
 private:
-	std::string m_nodeName; // node name works as id
-	int m_inputPinCount;
-	int m_outputPinCount;
+	const nodeData* m_nodeData;
 
 	std::vector<sf::Vertex> m_shapes; // top bar, content rect, and pins
 	sf::Text m_title;
@@ -41,7 +39,9 @@ public:
 
 	void setPosition(sf::Vector2f& newPosition);
 	void setInput(int inputIndex, const void* data, int flags = 0);
-	inline const std::string& getName() const { return m_nodeName; }
+	inline const std::string& getName() const { return m_nodeData->nodeName; }
+	inline int getInputPinCount() const { return m_nodeData->inputPinCount; }
+	inline int getOutputPinCount() const { return m_nodeData->outputPinCount; }
 	const sf::Vector2f& getPosition() const;
 	inline sf::Vector2f getCenterPosition() const
 	{
