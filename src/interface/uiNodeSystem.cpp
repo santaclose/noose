@@ -176,6 +176,15 @@ int uiNodeSystem::pushImageNodeFromFile(const std::string& filePath, PushMode mo
 	return nodeID;
 }
 
+int uiNodeSystem::pushFontNodeFromFile(const std::string& filePath, PushMode mode, bool nodeCenterInPosition, sf::Vector2f worldPos)
+{
+	int nodeID = uiNodeSystem::pushNewNode(nodeProvider::getNodeDataByName("Font"), mode, nodeCenterInPosition, worldPos);
+	// bind to set pin data
+	setBoundInputFieldNode(nodeID);
+	uiNodeList[nodeID]->setInput(0, &filePath);
+	return nodeID;
+}
+
 void uiNodeSystem::onPollEvent(const sf::Event& e)
 {
 	renderWindow->setView(theView);
@@ -523,11 +532,23 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 		}
 		case sf::Event::FilesDropped:
 		{
-			std::cout << "[UI] Files dropped:\n";
-			for (const auto& file : e.filesDropped)
+			for (const std::string& file : e.filesDropped)
 			{
-				std::cout << "[UI]     - " << file << std::endl;
-				pushImageNodeFromFile(file, PushMode::AtCursorPosition, true, mouseWorldPos);
+				int type = utils::typeFromExtension(file);
+				switch (type)
+				{
+				case NS_TYPE_IMAGE:
+					std::cout << "[UI] Image file dropped: " << file << std::endl;
+					pushImageNodeFromFile(file, PushMode::AtCursorPosition, true, mouseWorldPos);
+					break;
+				case NS_TYPE_FONT:
+					std::cout << "[UI] Font file dropped: " << file << std::endl;
+					pushFontNodeFromFile(file, PushMode::AtCursorPosition, true, mouseWorldPos);
+					break;
+				default:
+					std::cout << "[UI] Unknown file dropped: " << file << std::endl;
+					break;
+				}
 			}
 			break;
 		}

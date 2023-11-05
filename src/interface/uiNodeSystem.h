@@ -22,6 +22,11 @@ namespace uiNodeSystem
 		PushMode mode = PushMode::AtCursorPosition,
 		bool nodeCenterInPosition = true,
 		sf::Vector2f worldPos = { 0.0, 0.0 });
+	int pushFontNodeFromFile(
+		const std::string& filePath,
+		PushMode mode = PushMode::AtCursorPosition,
+		bool nodeCenterInPosition = true,
+		sf::Vector2f worldPos = { 0.0, 0.0 });
 
 	void onPollEvent(const sf::Event& e);
 	void draw();

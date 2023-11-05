@@ -17,6 +17,7 @@
 #include <subprocess.hpp>
 
 #include "pathUtils.h"
+#include "types.h"
 
 #define min_f(a, b, c)  (std::fminf(a, std::fminf(b, c)))
 #define max_f(a, b, c)  (std::fmaxf(a, std::fmaxf(b, c)))
@@ -388,4 +389,13 @@ void utils::checkForUpdates()
 void utils::checkForUpdatesAsync()
 {
     std::thread* t = new std::thread(checkForUpdates);
+}
+
+int utils::typeFromExtension(const std::string& filePath)
+{
+    if (endsWith(filePath, ".png") || endsWith(filePath, ".jpg") || endsWith(filePath, ".jpeg") || endsWith(filePath, ".bmp") || endsWith(filePath, ".tga") || endsWith(filePath, ".gif") || endsWith(filePath, ".psd") || endsWith(filePath, ".hdr") || endsWith(filePath, ".pic"))
+        return NS_TYPE_IMAGE;
+    if (endsWith(filePath, ".ttf") || endsWith(filePath, ".tte") || endsWith(filePath, ".otf") || endsWith(filePath, ".otc") || endsWith(filePath, ".ttc"))
+        return NS_TYPE_FONT;
+    return -1;
 }

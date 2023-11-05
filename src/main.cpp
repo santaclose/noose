@@ -210,8 +210,22 @@ int main(int argc, char** argv)
 			serializer::LoadFromFileJson(secondArgument, parsingCallbacks);
 		else if (utils::endsWith(secondArgument, ".ns"))
 			serializer::LoadFromFile(secondArgument, parsingCallbacks);
-		else // assume it's an image file
-			uiNodeSystem::pushImageNodeFromFile(secondArgument, uiNodeSystem::PushMode::Centered);
+		else
+		{
+			int type = utils::typeFromExtension(secondArgument);
+			switch (type)
+			{
+			case NS_TYPE_IMAGE:
+				uiNodeSystem::pushImageNodeFromFile(secondArgument, uiNodeSystem::PushMode::Centered);
+				break;
+			case NS_TYPE_FONT:
+				uiNodeSystem::pushFontNodeFromFile(secondArgument, uiNodeSystem::PushMode::Centered);
+				break;
+			default:
+				std::cout << "[UI] Unknown file received as argument: " << secondArgument << std::endl;
+				exit(1);
+			}
+		}
 	}
 
 	// Start the game loop
