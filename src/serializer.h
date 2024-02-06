@@ -5,15 +5,15 @@ class serializer {
 public:
 
 	struct ParsingCallbacks {
-		void (*OnStart)(void) = nullptr;
-		void (*OnAddNode)(const std::string& nodeName, float coordinatesX, float coordinatesY) = nullptr;
-		void (*OnSetNodeInput)(int nodeIndex, int pinIndex, void* data, int flags) = nullptr;
-		void (*OnAddConnection)(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex) = nullptr;
-		void (*OnSetNodeEditorState)(int selectedNode, int nodeEditorZoom,
+		void (*OnParsingStart)(void) = nullptr;
+		void (*OnParseNode)(const std::string& nodeName, float coordinatesX, float coordinatesY) = nullptr;
+		void (*OnParseNodeInput)(int nodeIndex, int pinIndex, void* data, int flags) = nullptr;
+		void (*OnParseConnection)(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex) = nullptr;
+		void (*OnParseNodeEditorState)(int selectedNode, int nodeEditorZoom,
 			float nodeEditorViewPositionX, float nodeEditorViewPositionY) = nullptr;
-		void (*OnSetViewportState)(int viewportZoom,
+		void (*OnParseViewportState)(int viewportZoom,
 			float viewportViewPositionX, float viewportViewPositionY) = nullptr;
-		void (*OnFinish)(void) = nullptr;
+		void (*OnParsingFinish)(void) = nullptr;
 	};
 
 	static void LoadFromFile(const std::string& filePath, const ParsingCallbacks& callbacks);
