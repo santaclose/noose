@@ -9,16 +9,6 @@
 namespace nodeSystem {
 
 	std::vector<node*> nodeList;
-
-	void insertNode(int slot, nodeData* data);
-}
-
-void nodeSystem::insertNode(int slot, nodeData* data)
-{
-	if (slot >= nodeList.size())
-		nodeList.resize(slot + 1);
-
-	nodeList[slot] = new node(data);
 }
 
 void nodeSystem::initialize()
@@ -39,7 +29,10 @@ void nodeSystem::terminate()
 void nodeSystem::onNodeCreated(int n, const void* data)
 {
 	//std::cout << "[Node system] Node created\n\tid: " << n << std::endl;
-	insertNode(n, (nodeData*)data);
+	if (n >= nodeList.size())
+		nodeList.resize(n + 1);
+
+	nodeList[n] = new node((nodeData*)data);
 }
 
 void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int* ci, int cc)
