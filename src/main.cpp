@@ -159,7 +159,9 @@ int main(int argc, char** argv)
 
 	int redrawCounter = REDRAW_COUNT;
 
+#ifdef NOOSE_RELEASE
 	utils::checkForUpdatesAsync();
+#endif
 
 	// Create the main window
 	sf::RenderWindow windowA(sf::VideoMode({ 1200, 800 }), "node editor", 7U, sf::ContextSettings(), true);
