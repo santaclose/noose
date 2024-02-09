@@ -73,10 +73,13 @@ void uiColorPicker::setColor()
 		break;
 	}
 
-	*outputPointer = colorWheelImage.getPixel({
-		(unsigned int)lastColorPos.x, (unsigned int)lastColorPos.y }) *
-		(gradientImage.getPixel({ (unsigned int)0, (unsigned int)lastIntensityPos }).r / 255.0f);
-	outputPointer->a = gradientImage.getPixel({ (unsigned int)0, (unsigned int)lastAlphaPos }).r;
+	unsigned int colorwheelX = utils::clamp(lastColorPos.x, 0, colorWheelImage.getSize().x);
+	unsigned int colorwheelY = utils::clamp(lastColorPos.y, 0, colorWheelImage.getSize().y);
+	unsigned int intensityY = utils::clamp(lastIntensityPos, 0, gradientImage.getSize().y);
+	unsigned int alphaY = utils::clamp(lastAlphaPos, 0, gradientImage.getSize().y);
+	*outputPointer = colorWheelImage.getPixel({ colorwheelX, colorwheelY }) *
+		(gradientImage.getPixel({ 0U, intensityY }).r / 255.0f);
+	outputPointer->a = gradientImage.getPixel({ 0U, alphaY }).r;
 	onColorSelectedCallback(outputPointer);
 }
 

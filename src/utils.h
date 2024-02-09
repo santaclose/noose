@@ -68,4 +68,8 @@ namespace utils
 	{
 		return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
 	}
+	inline int clamp(int value, int minInclusive, int maxExclusive)
+	{
+		return value < minInclusive ? minInclusive : (value >= maxExclusive ? (maxExclusive - 1) : value);
+	}
 }
