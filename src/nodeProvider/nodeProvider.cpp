@@ -124,6 +124,8 @@ void nodeProvider::initialize()
 	for (const std::string& customNodeFilePath : customNodeFilePaths)
 	{
 		currentCustomNode++;
+		insideDataSection = false;
+		inSection = true;
 		std::ifstream customNodeInputStream(customNodeFilePath);
 		while (getline(customNodeInputStream, line) && parseLine(line, insideDataSection, inSection, currentCustomNode));
 		customNodeInputStream.close();
@@ -279,6 +281,7 @@ bool nodeProvider::parseLine(const std::string& line, bool& insideDataSection, b
 				nodeDataList.back().outputPinCount++;
 		}
 	}
+	return true;
 }
 
 void nodeProvider::parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions)
