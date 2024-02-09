@@ -730,6 +730,26 @@ void nodeFunctionality::IntegerDivision(node* theNode)
 		*((int*)theNode->getDataPointer(1));
 }
 
+void nodeFunctionality::IntegerMax(node* theNode)
+{
+	int a = *((int*)theNode->getDataPointer(0));
+	int b = *((int*)theNode->getDataPointer(1));
+	*((int*)theNode->getDataPointer(2)) = a > b ? a : b;
+}
+
+void nodeFunctionality::IntegerMin(node* theNode)
+{
+	int a = *((int*)theNode->getDataPointer(0));
+	int b = *((int*)theNode->getDataPointer(1));
+	*((int*)theNode->getDataPointer(2)) = a < b ? a : b;
+}
+
+void nodeFunctionality::IntegerAbs(node* theNode)
+{
+	int in = *((int*)theNode->getDataPointer(0));
+	*((int*)theNode->getDataPointer(1)) = in < 0 ? -in : in;
+}
+
 void nodeFunctionality::Float(node* theNode)
 {
 	*((float*)theNode->getDataPointer(1)) = *((float*)theNode->getDataPointer(0));
@@ -761,6 +781,26 @@ void nodeFunctionality::FloatDivision(node* theNode)
 	*((float*)theNode->getDataPointer(2)) =
 		*((float*)theNode->getDataPointer(0)) /
 		*((float*)theNode->getDataPointer(1));
+}
+
+void nodeFunctionality::FloatMax(node* theNode)
+{
+	float a = *((float*)theNode->getDataPointer(0));
+	float b = *((float*)theNode->getDataPointer(1));
+	*((float*)theNode->getDataPointer(2)) = a > b ? a : b;
+}
+
+void nodeFunctionality::FloatMin(node* theNode)
+{
+	float a = *((float*)theNode->getDataPointer(0));
+	float b = *((float*)theNode->getDataPointer(1));
+	*((float*)theNode->getDataPointer(2)) = a < b ? a : b;
+}
+
+void nodeFunctionality::FloatAbs(node* theNode)
+{
+	float in = *((float*)theNode->getDataPointer(0));
+	*((float*)theNode->getDataPointer(1)) = in < 0 ? -in : in;
 }
 
 void nodeFunctionality::String(node* theNode)

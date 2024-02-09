@@ -405,6 +405,32 @@ Divide ints
 	out:
 		Integer: out
 ]
+Max int
+[
+	category: Integer operations
+	in:
+		Integer: a
+		Integer: b
+	out:
+		Integer: out
+]
+Min int
+[
+	category: Integer operations
+	in:
+		Integer: a
+		Integer: b
+	out:
+		Integer: out
+]
+Abs int
+[
+	category: Integer operations
+	in:
+		Integer: in
+	out:
+		Integer: out
+]
 Add floats
 [
 	category: Float operations
@@ -438,6 +464,32 @@ Divide floats
 	in:
 		Float: a
 		Float: b
+	out:
+		Float: out
+]
+Max float
+[
+	category: Float operations
+	in:
+		Float: a
+		Float: b
+	out:
+		Float: out
+]
+Min float
+[
+	category: Float operations
+	in:
+		Float: a
+		Float: b
+	out:
+		Float: out
+]
+Abs float
+[
+	category: Float operations
+	in:
+		Float: in
 	out:
 		Float: out
 ]

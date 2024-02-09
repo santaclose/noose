@@ -50,12 +50,18 @@ namespace nodeFunctionality
 	void IntegerSubtraction(node* theNode);
 	void IntegerProduct(node* theNode);
 	void IntegerDivision(node* theNode);
+	void IntegerMax(node* theNode);
+	void IntegerMin(node* theNode);
+	void IntegerAbs(node* theNode);
 	// float operations
 	void Float(node* theNode);
 	void FloatAddition(node* theNode);
 	void FloatSubtraction(node* theNode);
 	void FloatProduct(node* theNode);
 	void FloatDivision(node* theNode);
+	void FloatMax(node* theNode);
+	void FloatMin(node* theNode);
+	void FloatAbs(node* theNode);
 	// font and text
 	void String(node* theNode);
 	void Font(node* theNode);

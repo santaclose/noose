@@ -59,10 +59,16 @@ namespace nodeProvider {
 		{"Subtract ints", (void*)nodeFunctionality::IntegerSubtraction},
 		{"Multiply ints", (void*)nodeFunctionality::IntegerProduct},
 		{"Divide ints", (void*)nodeFunctionality::IntegerDivision},
+		{"Max int", (void*)nodeFunctionality::IntegerMax},
+		{"Min int", (void*)nodeFunctionality::IntegerMin},
+		{"Abs int", (void*)nodeFunctionality::IntegerAbs},
 		{"Add floats", (void*)nodeFunctionality::FloatAddition},
 		{"Subtract floats", (void*)nodeFunctionality::FloatSubtraction},
 		{"Multiply floats", (void*)nodeFunctionality::FloatProduct},
-		{"Divide floats", (void*)nodeFunctionality::FloatDivision}
+		{"Divide floats", (void*)nodeFunctionality::FloatDivision},
+		{"Max float", (void*)nodeFunctionality::FloatMax},
+		{"Min float", (void*)nodeFunctionality::FloatMin},
+		{"Abs float", (void*)nodeFunctionality::FloatAbs}
 	};
 	std::vector<std::string> customNodeFilePaths;
 
