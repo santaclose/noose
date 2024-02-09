@@ -52,6 +52,8 @@ namespace uiNodeSystem
 	void copyNode();
 	bool pasteNode();
 
+	int getLogicalNodeId(int uiNodeId);
+
 	// project file loading
 	void onProjectFileLoadingStart();
 	void onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY);

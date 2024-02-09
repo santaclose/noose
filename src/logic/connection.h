@@ -3,7 +3,6 @@
 
 struct connection
 {
-	bool deleted = false;
 	// left side node
 	node* nodeA;
 	// right side node
@@ -15,4 +14,5 @@ struct connection
 
 	int nodeIndexA;
 	int nodeIndexB;
+	bool deleted = false;
 };

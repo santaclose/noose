@@ -13,7 +13,7 @@
 
 void serializer::LoadFromFileJson(const std::string& filePath, const ParsingCallbacks& callbacks)
 {
-	if (callbacks.OnParsingStart != nullptr) callbacks.OnParsingStart();
+	if (callbacks.OnStartParsing != nullptr) callbacks.OnStartParsing();
 	std::string folderPath = pathUtils::getFolderPath(filePath);
 
 
@@ -118,7 +118,7 @@ void serializer::LoadFromFileJson(const std::string& filePath, const ParsingCall
 
 		embeddedImagesLoaded++;
 	}
-	if (callbacks.OnParsingFinish != nullptr) callbacks.OnParsingFinish();
+	if (callbacks.OnFinishParsing != nullptr) callbacks.OnFinishParsing();
 }
 
 void serializer::SaveIntoFileJson(const std::string& filePath)

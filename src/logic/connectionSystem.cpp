@@ -6,29 +6,36 @@ namespace connectionSystem {
 	std::vector<connection> connections;
 }
 
-void connectionSystem::connect(int connectionIndex, const std::vector<node*>& nodeList, int nodeA, int nodeB, int pinA, int pinB)
+void connectionSystem::initialize()
 {
-	if (connectionIndex >= connections.size())
-		connections.resize(connectionIndex + 1);
-	connections[connectionIndex].nodeA = nodeList[nodeA];
-	connections[connectionIndex].nodeB = nodeList[nodeB];
-	connections[connectionIndex].nodeIndexA = nodeA;
-	connections[connectionIndex].nodeIndexB = nodeB;
-	connections[connectionIndex].pinA = pinA;
-	connections[connectionIndex].pinB = pinB;
-	connections[connectionIndex].deleted = false;
-
-	//connect right side node before
-	nodeList[nodeB]->connect(connectionIndex);
-	nodeList[nodeA]->connect(connectionIndex);
+	connections.reserve(64);
 }
 
-void connectionSystem::deleteConnection(int lineIndex)
+int connectionSystem::connect(const std::vector<node*>& nodeList, int nodeA, int nodeB, int pinA, int pinB)
 {
-	connections[lineIndex].nodeA->disconnect(lineIndex);
-	connections[lineIndex].nodeB->disconnect(lineIndex);
+	int connectionId = connections.size();
+	connections.emplace_back();
+	connections[connectionId].nodeA = nodeList[nodeA];
+	connections[connectionId].nodeB = nodeList[nodeB];
+	connections[connectionId].nodeIndexA = nodeA;
+	connections[connectionId].nodeIndexB = nodeB;
+	connections[connectionId].pinA = pinA;
+	connections[connectionId].pinB = pinB;
+	connections[connectionId].deleted = false;
 
-	connections[lineIndex].deleted = true;
+	//connect right side node before
+	nodeList[nodeB]->connect(connectionId);
+	nodeList[nodeA]->connect(connectionId);
+
+	return connectionId;
+}
+
+void connectionSystem::deleteConnection(int connectionId)
+{
+	connections[connectionId].nodeA->disconnect(connectionId);
+	connections[connectionId].nodeB->disconnect(connectionId);
+
+	connections[connectionId].deleted = true;
 }
 
 void connectionSystem::clearEverything()

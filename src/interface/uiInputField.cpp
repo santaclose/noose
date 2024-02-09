@@ -109,7 +109,7 @@ void uiInputField::setVectorData(const sf::Vector2i& vec)
 		*((sf::Vector2i*)editingInputField->dataPointer) = vec;
 		editingInputField->texts[0].setString(std::to_string(vec.x));
 		editingInputField->texts[1].setString(std::to_string(vec.y));
-		editingInputField->onValueChanged();
+		editingInputField->onValueChanged(editingInputField->pin);
 		editingInputField->updateTextPositions();
 	}
 }
@@ -124,7 +124,7 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 	case NS_TYPE_FLOAT:
 		*((float*)(editingInputField->dataPointer)) += displacement.x * FLOAT_EDITING_SENSITIVITY;
 		editingInputField->texts[0].setString(std::to_string(*((float*)(editingInputField->dataPointer))));
-		editingInputField->onValueChanged();
+		editingInputField->onValueChanged(editingInputField->pin);
 		break;
 	case NS_TYPE_INT:
 		if (editingInputField->enumOptions->size() > 0)
@@ -135,7 +135,7 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 		{
 			*((int*)(editingInputField->dataPointer)) = newValueAux;
 			editingInputField->texts[0].setString(std::to_string((int)editingInputFieldHelper));
-			editingInputField->onValueChanged();
+			editingInputField->onValueChanged(editingInputField->pin);
 		}
 		break;
 	case NS_TYPE_VECTOR2I:
@@ -149,7 +149,7 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 			{
 				((sf::Vector2i*)(editingInputField->dataPointer))->x = (int)editingInputFieldHelper;
 				editingInputField->texts[0].setString(std::to_string((int)editingInputFieldHelper));
-				editingInputField->onValueChanged();
+				editingInputField->onValueChanged(editingInputField->pin);
 			}
 		}
 		else
@@ -159,7 +159,7 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 			{
 				((sf::Vector2i*)(editingInputField->dataPointer))->y = (int)editingInputFieldHelper;
 				editingInputField->texts[1].setString(std::to_string((int)editingInputFieldHelper));
-				editingInputField->onValueChanged();
+				editingInputField->onValueChanged(editingInputField->pin);
 			}
 		}
 		break;
@@ -183,7 +183,7 @@ bool uiInputField::onMouseDown(sf::Vector2f& mousePos)
 			{
 				*((int*)(editingInputField->dataPointer)) = index;
 				editingInputField->texts[0].setString((*(editingInputField->enumOptions))[index]);
-				editingInputField->onValueChanged();
+				editingInputField->onValueChanged(editingInputField->pin);
 			}
 			selectionBox->hide();
 			editingInputField->updateTextPositions();
@@ -234,7 +234,7 @@ bool uiInputField::keyboardInput(std::uint32_t unicode)
 
 	if (unicode == '\t')
 	{
-		editingInputField->onValueChanged();
+		editingInputField->onValueChanged(editingInputField->pin);
 		if (editingInputField->type == NS_TYPE_VECTOR2I)
 		{
 			if (editingVectorComponent == 'x')
@@ -293,7 +293,7 @@ bool uiInputField::keyboardInput(std::uint32_t unicode)
 				}
 			}
 		}
-		editingInputField->onValueChanged();
+		editingInputField->onValueChanged(editingInputField->pin);
 		unbind();
 		return true;
 	}
@@ -452,9 +452,10 @@ bool uiInputField::mouseOver(const sf::Vector2f& mousePosInWorld, int& index)
 }
 
 // TODO: think of a better way for getting the selection box pointer
-void uiInputField::create(int theType, void* pinDataPointer, void(onValueChangedFunc)(), const std::vector<std::string>* theEnumOptions, uiSelectionBox* theSelectionBox)
+void uiInputField::create(int thePin, int theType, void* pinDataPointer, void(onValueChangedFunc)(int), const std::vector<std::string>* theEnumOptions, uiSelectionBox* theSelectionBox)
 {
 	assert(theEnumOptions != nullptr);
+	pin = thePin;
 	selectionBox = theSelectionBox;
 	enumOptions = theEnumOptions;
 	onValueChanged = onValueChangedFunc;
@@ -660,7 +661,7 @@ void uiInputField::setValue(const void* data, int flags)
 	}
 
 	updateTextPositions();
-	onValueChanged();
+	onValueChanged(pin);
 }
 
 // the index tells which of the two components of a vector is gonna change

@@ -33,7 +33,7 @@ public:
 		bool nodeCenterInPosition,
 		sf::Vector2f& initialPosition,
 		const std::vector<void*>& inputFieldPointers,
-		void(onValueChangedFunc)(),
+		void(onValueChangedFunc)(int),
 		uiSelectionBox* selectionBox);
 	~uiNode();
 

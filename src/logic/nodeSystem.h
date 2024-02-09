@@ -7,13 +7,13 @@ namespace nodeSystem
 	void initialize();
 	void terminate();
 
-	void onNodeCreated(int n, const void* data);
+	int onNodeCreated(const void* data);
 	void onNodeDeleted(int n, const std::vector<int>& connections); // connection indices and connection count
-	void onNodeChanged(int n);
+	void onNodeChanged(int n, int p);
 
 	// nA is always the node that has the output pin
-	void onNodesConnected(int nA, int nB, int pA, int pB, int c, bool activate = true);
-	void onNodesDisconnected(int nA, int nB, int pA, int pB, int c);
+	int onNodesConnected(int nA, int nB, int pA, int pB, bool activateNodeB = true);
+	void onNodesDisconnected(int c);
 
 	bool isConnectionValid(int nA, int nB, int pinA, int pinB);
 
@@ -29,10 +29,14 @@ namespace nodeSystem
 
 	const void* getData(int n, int p, int& type);
 
-	// project loading
-	void onProjectFileLoadingStart();
+	// project loading and custom node loading
 	void onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY);
 	void onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, void* data, int flags);
 	void onProjectFileLoadingAddConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex);
 	void onProjectFileLoadingFinish();
+	// custom node loading specific
+	void onReadCustomNodeConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex);
+	void onReadCustomNodeInput(int inPin, int subgraphNode, int subgraphPin);
+	void onReadCustomNodeOutput(int outPin, int subgraphNode, int subgraphPin);
+	void onFinishParsingCustomNode();
 };

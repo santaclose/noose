@@ -50,7 +50,7 @@ uiNode::uiNode(
 	bool nodeCenterInPosition,
 	sf::Vector2f& initialPosition,
 	const std::vector<void*>& inputFieldPointers,
-	void(onValueChangedFunc)(),
+	void(onValueChangedFunc)(int),
 	uiSelectionBox* selectionBox)
 {
 	m_nodeData = data;
@@ -86,7 +86,7 @@ uiNode::uiNode(
 
 		// create input fields
 		if (i < m_nodeData->inputPinCount)
-			m_inputFields[i].create(data->pinTypes[i], inputFieldPointers[i], onValueChangedFunc, &(data->pinEnumOptions[i]), selectionBox);
+			m_inputFields[i].create(i, data->pinTypes[i], inputFieldPointers[i], onValueChangedFunc, &(data->pinEnumOptions[i]), selectionBox);
 	}
 
 	sf::Vector2f nodePosOnScreen;

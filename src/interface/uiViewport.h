@@ -11,8 +11,8 @@ namespace uiViewport
 	void terminate();
 	void hideSelectionBox();
 	void onPollEvent(const sf::Event& e);
-	void onNodeChanged(int theNode);
-	void onNodeDeleted(int theNode);
+	void onNodeChanged(int uiNodeId);
+	void onNodeDeleted(int uiNodeId);
 	void draw();
 
 	void getView(int& zoom, sf::Vector2f& position);

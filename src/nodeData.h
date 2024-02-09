@@ -12,5 +12,6 @@ struct nodeData
 
 	int inputPinCount;
 	int outputPinCount;
-	void* nodeFunctionality;
+	void* nodeFunctionality = nullptr;
+	int customNodeId = -1;
 };

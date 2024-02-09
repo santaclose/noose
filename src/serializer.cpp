@@ -9,18 +9,18 @@
 #include "types.h"
 #include "utils.h"
 
-enum class LoadState { ReadingNodes = 0, ReadingConnections = 1, ReadingSelectedNode = 2, ReadingViews = 3, ReadingEmbeddedImages = 4 };
-enum class LoadSubState { ReadingIds = 0, ReadingNodeCoordinates = 1, ReadingPinData = 2, ReadingConnectionNodes = 3, ReadingConnectionPins = 4 };
+enum class LoadState { Invalid = -1, ReadingNodes = 0, ReadingConnections = 1, ReadingSelectedNode = 2, ReadingViews = 3, ReadingEmbeddedImages = 4, ReadingOutput = 5 };
+enum class LoadSubState { Invalid = -1, ReadingIds = 0, ReadingNodeCoordinates = 1, ReadingPinData = 2, ReadingConnectionNodes = 3, ReadingConnectionPins = 4 };
 
 void serializer::LoadFromFile(const std::string& filePath, const ParsingCallbacks& callbacks)
 {
-	if (callbacks.OnParsingStart != nullptr) callbacks.OnParsingStart();
+	if (callbacks.OnStartParsing != nullptr) callbacks.OnStartParsing();
 	std::string folderPath = pathUtils::getFolderPath(filePath);
 
 	std::ifstream input(filePath);
 
-	LoadState currentState;
-	LoadSubState currentSubState;
+	LoadState currentState = LoadState::Invalid;
+	LoadSubState currentSubState = LoadSubState::Invalid;
 	std::string currentNodeName;
 	int currentPin;
 	int currentNode;
@@ -28,8 +28,6 @@ void serializer::LoadFromFile(const std::string& filePath, const ParsingCallback
 	int currentConnectionLeftNode, currentConnectionRightNode;
 
 	int selectedNode;
-	int nodeEditorZoom, viewportZoom;
-	sf::Vector2f nodeEditorViewPosition, viewportViewPosition;
 
 	std::vector<int> embeddedImageNodes;
 	std::vector<int> embeddedImagePins;
@@ -66,6 +64,11 @@ void serializer::LoadFromFile(const std::string& filePath, const ParsingCallback
 			currentState = LoadState::ReadingEmbeddedImages;
 			continue;
 		}
+		if (line.compare("| output") == 0)
+		{
+			currentState = LoadState::ReadingOutput;
+			continue;
+		}
 		if (line[0] == '=')
 		{
 			if (currentState == LoadState::ReadingNodes)
@@ -98,70 +101,77 @@ void serializer::LoadFromFile(const std::string& filePath, const ParsingCallback
 			}
 			if (currentSubState == LoadSubState::ReadingPinData)
 			{
-				switch (nodeProvider::getNodeDataByName(currentNodeName)->pinTypes[currentPin])
+				if (line[0] == '{')
 				{
-				case NS_TYPE_COLOR:
-				{
-					sf::Color pinColor;
-					int commaPos = 0;
-					for (; line[commaPos] != ','; commaPos++) {}
-					pinColor.r = std::stoi(line.substr(0, commaPos));
-					int afterPrevComma = ++commaPos;
-					for (; line[commaPos] != ','; commaPos++) {}
-					pinColor.g = std::stoi(line.substr(afterPrevComma, commaPos - afterPrevComma));
-					afterPrevComma = ++commaPos;
-					for (; line[commaPos] != ','; commaPos++) {}
-					pinColor.b = std::stoi(line.substr(afterPrevComma, commaPos - afterPrevComma));
-					afterPrevComma = ++commaPos;
-					pinColor.a = std::stoi(line.substr(afterPrevComma, line.length() - afterPrevComma));
-					if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinColor, 0);
-					break;
+					if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseCustomNodeInput(std::stoi(line.substr(1, line.length() - 2)), -1, currentPin);
 				}
-				case NS_TYPE_FLOAT:
+				else
 				{
-					float pinFloat = std::stof(line);
-					if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinFloat, 0);
-					break;
-				}
-				case NS_TYPE_STRING:
-					if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &line, 0);
-					break;
-				case NS_TYPE_IMAGE:
-				{
-					if (line[0] == '1') // file path
+					switch (nodeProvider::getNodeDataByName(currentNodeName)->pinTypes[currentPin])
 					{
-						std::string pinImagePath = folderPath + line.substr(2);
-						if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinImagePath, 0);
-					}
-					else if (line[0] == '2') // memory
+					case NS_TYPE_COLOR:
 					{
-						embeddedImageNodes.push_back(currentNode);
-						embeddedImagePins.push_back(currentPin);
-					}
-					// do nothing for none
-					break;
-				}
-				case NS_TYPE_FONT:
-				{
-					if (line.compare("None") == 0)
+						sf::Color pinColor;
+						int commaPos = 0;
+						for (; line[commaPos] != ','; commaPos++) {}
+						pinColor.r = std::stoi(line.substr(0, commaPos));
+						int afterPrevComma = ++commaPos;
+						for (; line[commaPos] != ','; commaPos++) {}
+						pinColor.g = std::stoi(line.substr(afterPrevComma, commaPos - afterPrevComma));
+						afterPrevComma = ++commaPos;
+						for (; line[commaPos] != ','; commaPos++) {}
+						pinColor.b = std::stoi(line.substr(afterPrevComma, commaPos - afterPrevComma));
+						afterPrevComma = ++commaPos;
+						pinColor.a = std::stoi(line.substr(afterPrevComma, line.length() - afterPrevComma));
+						if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinColor, 0);
 						break;
-					std::string pinFontPath = folderPath + line;
-					if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinFontPath, 0);
-					break;
-				}
-				case NS_TYPE_INT:
-				{
-					int pinInt = std::stoi(line);
-					if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinInt, 0);
-					break;
-				}
-				case NS_TYPE_VECTOR2I:
-				{
-					sf::Vector2i pinVector2i;
-					utils::vector2iFromString(line, pinVector2i);
-					if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinVector2i, 0);
-					break;
-				}
+					}
+					case NS_TYPE_FLOAT:
+					{
+						float pinFloat = std::stof(line);
+						if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinFloat, 0);
+						break;
+					}
+					case NS_TYPE_STRING:
+						if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &line, 0);
+						break;
+					case NS_TYPE_IMAGE:
+					{
+						if (line[0] == '1') // file path
+						{
+							std::string pinImagePath = folderPath + line.substr(2);
+							if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinImagePath, 0);
+						}
+						else if (line[0] == '2') // memory
+						{
+							embeddedImageNodes.push_back(currentNode);
+							embeddedImagePins.push_back(currentPin);
+						}
+						// do nothing for none
+						break;
+					}
+					case NS_TYPE_FONT:
+					{
+						if (line.compare("None") == 0)
+							break;
+						std::string pinFontPath = folderPath + line;
+						if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinFontPath, 0);
+						break;
+					}
+					case NS_TYPE_INT:
+					{
+						int pinInt = std::stoi(line);
+						if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinInt, 0);
+						break;
+					}
+					case NS_TYPE_VECTOR2I:
+					{
+						sf::Vector2i pinVector2i;
+						utils::vector2iFromString(line, pinVector2i);
+						if (callbacks.OnParseNodeInput != nullptr) callbacks.OnParseNodeInput(-1, currentPin, &pinVector2i, 0);
+						break;
+					}
+					}
 				}
 				currentPin++;
 			}
@@ -194,6 +204,9 @@ void serializer::LoadFromFile(const std::string& filePath, const ParsingCallback
 		}
 		else if (currentState == LoadState::ReadingViews)
 		{
+			int nodeEditorZoom, viewportZoom;
+			sf::Vector2f nodeEditorViewPosition, viewportViewPosition;
+
 			int q = 0, p = 0;
 			for (; line[p] != ','; p++) {}
 			nodeEditorZoom = std::stoi(line.substr(q, p - q));
@@ -223,8 +236,21 @@ void serializer::LoadFromFile(const std::string& filePath, const ParsingCallback
 				embeddedImagesLoaded++;
 			}
 		}
+		else if (currentState == LoadState::ReadingOutput)
+		{
+			int outPin, subgraphNode, subgraphPin;
+
+			int q = 0, p = 0;
+			for (; line[p] != ':'; p++) {}
+			outPin = std::stoi(line.substr(q, p - q));
+			q = p = p + 2; for (; line[p] != ' '; p++) {}
+			subgraphNode = std::stoi(line.substr(q, p - q));
+			q = p = p + 1;
+			subgraphPin = std::stoi(line.substr(q, line.length() - q));
+			if (callbacks.OnParseCustomNodeOutput != nullptr) callbacks.OnParseCustomNodeOutput(outPin, subgraphNode, subgraphPin);
+		}
 	}
-	if (callbacks.OnParsingFinish != nullptr) callbacks.OnParsingFinish();
+	if (callbacks.OnFinishParsing != nullptr) callbacks.OnFinishParsing();
 }
 
 void serializer::SaveIntoFile(const std::string& filePath)

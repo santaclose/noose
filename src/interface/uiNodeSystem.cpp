@@ -27,6 +27,8 @@ namespace uiNodeSystem {
 	std::vector<uiNode*> uiNodeList;
 	int selectedNodeIndex = -1;
 	int draggingNodeIndex = -1;
+	std::unordered_map<int, int> uiNodeIdToLogicalNodeId;
+	std::unordered_map<int, int> uiConnectionIdToLogicalConnectionId;
 
 	bool panning = false;
 
@@ -52,15 +54,15 @@ namespace uiNodeSystem {
 
 	int boundInputFieldNode = -1;
 
-	void onInputFieldValueChanged();
+	void onInputFieldValueChanged(int pin);
 	void deleteLine(int lineToDelete);
 	void updateView();
-	int findSlotForNode();
+	//int findSlotForNode();
 }
 
-void uiNodeSystem::onInputFieldValueChanged()
+void uiNodeSystem::onInputFieldValueChanged(int pin)
 {
-	nodeSystem::onNodeChanged(boundInputFieldNode);
+	nodeSystem::onNodeChanged(uiNodeIdToLogicalNodeId[boundInputFieldNode], pin);
 #ifdef TEST
 	std::cout << "onNodeChanged:\n\tbound input field node: " << boundInputFieldNode << std::endl;
 #endif
@@ -95,6 +97,8 @@ void uiNodeSystem::initialize(sf::RenderWindow& theRenderWindow, const sf::Vecto
 	uiNodeSystem::mouseScreenPosPointer = mouseScreenPosPointer;
 	updateView();
 	nodeSelectionBox.initialize();
+	uiNodeList.reserve(64);
+	uiNodeIdToLogicalNodeId.reserve(64);
 }
 
 void uiNodeSystem::terminate()
@@ -106,24 +110,6 @@ void uiNodeSystem::terminate()
 	}
 	nodeSelectionBox.terminate();
 	nodeSystem::terminate();
-}
-
-int uiNodeSystem::findSlotForNode()
-{
-	int i = 0;
-	while (true)
-	{
-		if (i == uiNodeList.size())
-		{
-			uiNodeList.resize(i + 1);
-			// no need to set the slot to nullptr since were adding a node to it
-			break;
-		}
-		if (uiNodeList[i] == nullptr)
-			break;
-		i++;
-	}
-	return i;
 }
 
 int uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCenterInPosition, sf::Vector2f worldPos)
@@ -142,29 +128,29 @@ int uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCen
 		break;
 	}
 
-	int newNodeID = findSlotForNode();
-	nodeSystem::onNodeCreated(newNodeID, nData);
+	int logicalNodeId = nodeSystem::onNodeCreated(nData);
 #ifdef TEST
 	std::cout << "onNodeCreated:\n\tnode id: " << newNodeID << "\n\tnode name: " << nData->nodeName << std::endl;
 #endif
 
-	uiNodeList[newNodeID] =
-		new uiNode(
+	uiNodeList.push_back(new uiNode(
 			nData,
 			nodeCenterInPosition,
 			worldPos,
-			nodeSystem::getDataPointersForNode(newNodeID),
+			nodeSystem::getDataPointersForNode(logicalNodeId),
 			onInputFieldValueChanged,
-			&nodeSelectionBox);
+			&nodeSelectionBox));
+	int uiNodeId = uiNodeList.size() - 1;
+	uiNodeIdToLogicalNodeId.insert({ uiNodeId, logicalNodeId });
 
 	if (selectedNodeIndex == -1)
 	{
-		selectedNodeIndex = newNodeID;
-		uiNodeList[newNodeID]->paintAsSelected();
+		selectedNodeIndex = uiNodeId;
+		uiNodeList[uiNodeId]->paintAsSelected();
 		if (onNodeSelectedCallback != nullptr)
-			onNodeSelectedCallback(newNodeID);
+			onNodeSelectedCallback(uiNodeId);
 	}
-	return newNodeID;
+	return uiNodeId;
 }
 
 int uiNodeSystem::pushImageNodeFromFile(const std::string& filePath, PushMode mode, bool nodeCenterInPosition, sf::Vector2f worldPos)
@@ -354,7 +340,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 							bool canConnect =
 								(leftSidePin < uiNodeList[leftSideNode]->getInputPinCount()) !=
 								(rightSidePin < uiNodeList[rightSideNode]->getInputPinCount());
-							canConnect &= nodeSystem::isConnectionValid(leftSideNode, rightSideNode, leftSidePin, rightSidePin);
+							canConnect &= nodeSystem::isConnectionValid(uiNodeIdToLogicalNodeId[leftSideNode], uiNodeIdToLogicalNodeId[rightSideNode], leftSidePin, rightSidePin);
 
 							if (!canConnect) // failed to connect
 							{
@@ -364,18 +350,19 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 							
 							// update interface lines
 							// node indices are flipped if necessary such that node a is on the left side
-							int connectionIndex = uiConnections::connect(
+							int uiConnectionId = uiConnections::connect(
 								uiNodeList[i]->getPinPosition(index),
 								connectionStartedOnRightSideNode ? leftSideNode : rightSideNode,
 								connectionStartedOnRightSideNode ? leftSidePin : rightSidePin);
 
 							// right side node first
-							uiNodeList[rightSideNode]->attachConnectionPoint(connectionIndex, rightSidePin);
-							uiNodeList[leftSideNode]->attachConnectionPoint(connectionIndex, leftSidePin);
+							uiNodeList[rightSideNode]->attachConnectionPoint(uiConnectionId, rightSidePin);
+							uiNodeList[leftSideNode]->attachConnectionPoint(uiConnectionId, leftSidePin);
 
-							nodeSystem::onNodesConnected(leftSideNode, rightSideNode, leftSidePin, rightSidePin, connectionIndex);
+							int logicalConnectionId = nodeSystem::onNodesConnected(uiNodeIdToLogicalNodeId[leftSideNode], uiNodeIdToLogicalNodeId[rightSideNode], leftSidePin, rightSidePin);
+							uiConnectionIdToLogicalConnectionId[uiConnectionId] = logicalConnectionId;
 #ifdef TEST
-	std::cout << "onNodesConnected:\n\tleft side node: " << leftSideNode << "\n\tright side node: " << rightSideNode << "\n\tleft side pin: " << leftSidePin << "\n\tright side pin: " << rightSidePin << "\n\tconnection index: " << connectionIndex << std::endl;
+	std::cout << "onNodesConnected:\n\tleft side node: " << leftSideNode << "\n\tright side node: " << rightSideNode << "\n\tleft side pin: " << leftSidePin << "\n\tright side pin: " << rightSidePin << "\n\tconnection index: " << uiConnectionId << std::endl;
 #endif
 
 							break;
@@ -416,15 +403,15 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 			}
 			else if (removingConnections)
 			{
-				int lineToRemove = uiConnections::onTryingToRemove(mouseWorldPos);
-				if (lineToRemove > -1) // mouse was over a line and we have to detach it from nodeA and nodeB
+				int connectionToRemove = uiConnections::onTryingToRemove(mouseWorldPos);
+				if (connectionToRemove > -1) // mouse was over a line and we have to detach it from nodeA and nodeB
 				{
-					deleteLine(lineToRemove);
+					deleteLine(connectionToRemove);
 
 					int nA, nB, pA, pB;
-					uiConnections::getNodesForLine(lineToRemove, nA, nB);
-					uiConnections::getPinsForLine(lineToRemove, pA, pB);
-					nodeSystem::onNodesDisconnected(nA, nB, pA, pB, lineToRemove);
+					uiConnections::getNodesForLine(connectionToRemove, nA, nB);
+					uiConnections::getPinsForLine(connectionToRemove, pA, pB);
+					nodeSystem::onNodesDisconnected(uiConnectionIdToLogicalConnectionId[connectionToRemove]);
 #ifdef TEST
 	std::cout << "onNodesDisconnected:\n\tleft side node: " << nA << "\n\tright side node: " << nB << "\n\tleft side pin: " << pA << "\n\tright side pin: " << pB << "\n\tconnection index: " << lineToRemove << std::endl;
 #endif
@@ -460,20 +447,23 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 						return;
 
 					// a copy is needed
-					std::vector<int> nodeLines = uiNodeList[selectedNodeIndex]->getConnectedLines();
+					std::vector<int> connections = uiNodeList[selectedNodeIndex]->getConnectedLines();
 
-					for (int l : nodeLines)
+					for (int& l : connections)
+					{
 						deleteLine(l);
+						l = uiConnectionIdToLogicalConnectionId[l]; // convert to logical id to be used by nodeSystem
+					}
 
 					onNodeDeletedCallback(selectedNodeIndex);
 
 					delete uiNodeList[selectedNodeIndex];
 					uiNodeList[selectedNodeIndex] = nullptr;
 
-					nodeSystem::onNodeDeleted(selectedNodeIndex, nodeLines);//linesToDelete, lineCount);
+					nodeSystem::onNodeDeleted(uiNodeIdToLogicalNodeId[selectedNodeIndex], connections);
 #ifdef TEST
 					std::cout << "onNodeDeleted:\n\tselected node index: " << selectedNodeIndex << "\n\tnode lines: ";
-					for (int l : nodeLines)
+					for (int l : connections)
 						std::cout << l << ", ";
 					std::cout << std::endl;
 #endif
@@ -630,6 +620,8 @@ void uiNodeSystem::clearEverything()
 	nodeSystem::clearEverything();
 	uiNodeList.clear();
 	uiConnections::clearEverything();
+	uiConnectionIdToLogicalConnectionId.clear();
+	uiNodeIdToLogicalNodeId.clear();
 }
 
 void uiNodeSystem::createConnection(int leftNode, int rightNode, int leftPin, int rightPin)
@@ -641,13 +633,14 @@ void uiNodeSystem::createConnection(int leftNode, int rightNode, int leftPin, in
 	rightPinCoords = uiNodeList[rightNode]->getPinPosition(rightPin);
 	connectionColor = uiNodeList[leftNode]->getPinColor(leftPin);
 
-	int connectionIndex = uiConnections::connect(leftPinCoords, rightPinCoords, leftNode, rightNode, leftPin, rightPin, connectionColor);
+	int uiConnectionId = uiConnections::connect(leftPinCoords, rightPinCoords, leftNode, rightNode, leftPin, rightPin, connectionColor);
 
 	// right side node first
-	uiNodeList[rightNode]->attachConnectionPoint(connectionIndex, rightPin);
-	uiNodeList[leftNode]->attachConnectionPoint(connectionIndex, leftPin);
+	uiNodeList[rightNode]->attachConnectionPoint(uiConnectionId, rightPin);
+	uiNodeList[leftNode]->attachConnectionPoint(uiConnectionId, leftPin);
 
-	nodeSystem::onNodesConnected(leftNode, rightNode, leftPin, rightPin, connectionIndex);
+	int logicalConnectionId = nodeSystem::onNodesConnected(uiNodeIdToLogicalNodeId[leftNode], uiNodeIdToLogicalNodeId[rightNode], leftPin, rightPin);
+	uiConnectionIdToLogicalConnectionId[uiConnectionId] = logicalConnectionId;
 }
 
 void uiNodeSystem::clearNodeSelection()
@@ -814,6 +807,11 @@ bool uiNodeSystem::pasteNode()
 		currentPin++;
 	}
 	return true;
+}
+
+int uiNodeSystem::getLogicalNodeId(int uiNodeId)
+{
+	return uiNodeIdToLogicalNodeId[uiNodeId];
 }
 
 // project file loading

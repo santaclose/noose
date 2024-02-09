@@ -15,5 +15,6 @@ namespace nodeProvider
 	const std::vector<std::string>& getNodeNamesSortedByLength();
 	const std::vector<std::string>& getCategories();
 	const std::vector<std::string>* getNodesForCategory(const std::string& name);
+	const std::string& getCustomNodeFilePath(int customNodeId);
 }
 

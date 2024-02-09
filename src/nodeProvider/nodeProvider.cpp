@@ -64,8 +64,10 @@ namespace nodeProvider {
 		{"Multiply floats", (void*)nodeFunctionality::FloatProduct},
 		{"Divide floats", (void*)nodeFunctionality::FloatDivision}
 	};
+	std::vector<std::string> customNodeFilePaths;
 
 	void insertSorted();
+	bool parseLine(const std::string& line, bool& insideDataSection, bool& inSection, int& currentCustomNode);
 	void parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions);
 	inline void* getFunctionalityFromName(const std::string& name)
 	{
@@ -99,98 +101,27 @@ namespace nodeProvider {
 
 void nodeProvider::initialize()
 {
-	using namespace std;
+	std::ifstream builtInNodesInputStream(pathUtils::getAssetsDirectory() + "nodes.dat");
+
+	int currentCustomNode = -1;
 	bool insideDataSection = false;
 	bool inSection = true;
+	std::string line;
+	while (getline(builtInNodesInputStream, line))
+		parseLine(line, insideDataSection, inSection, currentCustomNode);
+	builtInNodesInputStream.close();
 
-	ifstream inputStream(pathUtils::getAssetsDirectory() + "nodes.dat");
-	string line;
+	for (nodeData& nd : nodeDataList)
+		nd.nodeFunctionality = getFunctionalityFromName(nd.nodeName);
 
-	string type, name, defaultData;
-	vector<string> enumOptions;
-
-	while (getline(inputStream, line))
+	pathUtils::getCustomNodeFiles(customNodeFilePaths);
+	for (const std::string& customNodeFilePath : customNodeFilePaths)
 	{
-		if (line[0] == '[')
-		{
-			insideDataSection = true;
-			continue;
-		}
-		else if (line[0] == ']')
-		{
-			insideDataSection = false;
-			continue;
-		}
-		if (!insideDataSection)
-		{
-			nodeDataList.emplace_back();
-			nodeDataList.back().nodeName = line;
-			nodeDataList.back().outputPinCount = nodeDataList.back().inputPinCount = 0;
-			nodeDataList.back().nodeFunctionality = getFunctionalityFromName(line);
-			nodeName2data[line] = nodeDataList.size() - 1;
-
-			insertSorted();
-		}
-		else
-		{
-			if (line.find("\tcategory: ") != string::npos)
-			{
-				std::string parsedCat = line.substr(11);
-				nodesByCategory[parsedCat].push_back(nodeDataList.back().nodeName);
-				bool needToAdd = true;
-				for (const std::string& cat : categories)
-				{
-					if (cat == parsedCat)
-					{
-						needToAdd = false;
-						break;
-					}
-				}
-				if (needToAdd)
-					categories.push_back(parsedCat);
-			}
-			else if (line.find("\tin:") != string::npos)
-				inSection = true;
-			else if (line.find("\tout:") != string::npos)
-				inSection = false;
-			else
-			{
-				parsePinLine(line, type, name, defaultData, enumOptions);
-				nodeDataList.back().pinNames.push_back(name);
-				nodeDataList.back().pinTypes.push_back(typeFromString(type));
-				nodeDataList.back().pinEnumOptions.push_back(enumOptions);
-				nodeDataList.back().pinDefaultData.push_back(nullptr);
-
-				if (defaultData.length() > 0)
-				{
-					switch (nodeDataList.back().pinTypes.back())
-					{
-					case NS_TYPE_FLOAT:
-						nodeDataList.back().pinDefaultData.back() = new float(std::stof(defaultData));
-						break;
-					case NS_TYPE_INT:
-						nodeDataList.back().pinDefaultData.back() = new int(std::stoi(defaultData));
-						break;
-					case NS_TYPE_STRING:
-						nodeDataList.back().pinDefaultData.back() = new std::string(defaultData);
-						break;
-					case NS_TYPE_COLOR:
-						nodeDataList.back().pinDefaultData.back() = new sf::Color();
-						utils::colorFromHexString(defaultData, *((sf::Color*)nodeDataList.back().pinDefaultData.back()));
-						break;
-					}
-				}
-				//nodeDataList.back().pinDefaultData.push_back(defaultDataFromString(defaultData));
-				//std::cout << "default pin data: " << defaultData << std::endl;
-				if (inSection)
-					nodeDataList.back().inputPinCount++;
-				else
-					nodeDataList.back().outputPinCount++;
-			}
-		}
+		currentCustomNode++;
+		std::ifstream customNodeInputStream(customNodeFilePath);
+		while (getline(customNodeInputStream, line) && parseLine(line, insideDataSection, inSection, currentCustomNode));
+		customNodeInputStream.close();
 	}
-
-	inputStream.close();
 
 	// load node shaders and render state
 	nodeFunctionality::initialize();
@@ -239,6 +170,11 @@ const std::vector<std::string>* nodeProvider::getNodesForCategory(const std::str
 	return &nodesByCategory[name];
 }
 
+const std::string& nodeProvider::getCustomNodeFilePath(int customNodeId)
+{
+	return customNodeFilePaths[customNodeId];
+}
+
 void nodeProvider::insertSorted()
 {
 	int i = 0;
@@ -249,6 +185,94 @@ void nodeProvider::insertSorted()
 		i++;
 	}
 	nodeNamesSortedByLength.insert(nodeNamesSortedByLength.begin() + i, nodeDataList.back().nodeName);
+}
+
+bool nodeProvider::parseLine(const std::string& line, bool& insideDataSection, bool& inSection, int& currentCustomNode)
+{
+	static std::string type;
+	static std::string name;
+	static std::string defaultData;
+	static std::vector<std::string> enumOptions;
+
+	if (line[0] == '|') // non parseable region
+		return false;
+
+	if (line[0] == '[')
+	{
+		insideDataSection = true;
+		return true;
+	}
+	else if (line[0] == ']')
+	{
+		insideDataSection = false;
+		return true;
+	}
+	if (!insideDataSection)
+	{
+		nodeDataList.emplace_back();
+		nodeDataList.back().nodeName = line;
+		nodeDataList.back().outputPinCount = nodeDataList.back().inputPinCount = 0;
+		nodeName2data[line] = nodeDataList.size() - 1;
+
+		insertSorted();
+	}
+	else
+	{
+		if (line.find("\tcategory: ") != std::string::npos)
+		{
+			std::string parsedCat = line.substr(11);
+			nodesByCategory[parsedCat].push_back(nodeDataList.back().nodeName);
+			bool needToAdd = true;
+			for (const std::string& cat : categories)
+			{
+				if (cat == parsedCat)
+				{
+					needToAdd = false;
+					break;
+				}
+			}
+			if (needToAdd)
+				categories.push_back(parsedCat);
+		}
+		else if (line.find("\tin:") != std::string::npos)
+			inSection = true;
+		else if (line.find("\tout:") != std::string::npos)
+			inSection = false;
+		else
+		{
+			parsePinLine(line, type, name, defaultData, enumOptions);
+			nodeDataList.back().pinNames.push_back(name);
+			nodeDataList.back().pinTypes.push_back(typeFromString(type));
+			nodeDataList.back().pinEnumOptions.push_back(enumOptions);
+			nodeDataList.back().pinDefaultData.push_back(nullptr);
+			nodeDataList.back().customNodeId = currentCustomNode;
+
+			if (defaultData.length() > 0)
+			{
+				switch (nodeDataList.back().pinTypes.back())
+				{
+				case NS_TYPE_FLOAT:
+					nodeDataList.back().pinDefaultData.back() = new float(std::stof(defaultData));
+					break;
+				case NS_TYPE_INT:
+					nodeDataList.back().pinDefaultData.back() = new int(std::stoi(defaultData));
+					break;
+				case NS_TYPE_STRING:
+					nodeDataList.back().pinDefaultData.back() = new std::string(defaultData);
+					break;
+				case NS_TYPE_COLOR:
+					nodeDataList.back().pinDefaultData.back() = new sf::Color();
+					utils::colorFromHexString(defaultData, *((sf::Color*)nodeDataList.back().pinDefaultData.back()));
+					break;
+				}
+			}
+
+			if (inSection)
+				nodeDataList.back().inputPinCount++;
+			else
+				nodeDataList.back().outputPinCount++;
+		}
+	}
 }
 
 void nodeProvider::parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions)

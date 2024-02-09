@@ -27,7 +27,7 @@ namespace uiViewport {
 	sf::Vector2f mouseWorldPos;
 	::uiSelectionBox saveSelectionBox;
 
-	int selectedNode = -1;
+	int selectedUiNode = -1;
 	const std::vector<void*>* selectedNodeDataPointers = nullptr;
 	const int* selectedNodePinTypes = nullptr;
 	int selectedNodeOutputPinCount;
@@ -75,7 +75,7 @@ void uiViewport::updateView()
 
 int uiViewport::mouseOver(sf::Vector2f& mousePos)
 {
-	if (selectedNode == -1)
+	if (selectedUiNode == -1)
 		return -1;
 
 	sf::Vector2f cursor(0.0f, 0.0f);
@@ -105,7 +105,7 @@ int uiViewport::mouseOver(sf::Vector2f& mousePos)
 
 void uiViewport::updateBottomBarText()
 {
-	if (selectedNode == -1)
+	if (selectedUiNode == -1)
 	{
 		bottomBarText.setString("");
 		return;
@@ -209,7 +209,7 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2
 
 void uiViewport::setNodeData(int theSelectedNode, const std::vector<void*>* pointers, const int* pinTypes, int outputPinCount)
 {
-	selectedNode = theSelectedNode;
+	selectedUiNode = theSelectedNode;
 	selectedNodeDataPointers = pointers;
 	selectedNodePinTypes = pinTypes;
 	selectedNodeOutputPinCount = outputPinCount;
@@ -402,15 +402,15 @@ void uiViewport::onPollEvent(const sf::Event& e)
 }
 
 // executed after all node computations are done in the entire graph
-void uiViewport::onNodeChanged(int theNode)
+void uiViewport::onNodeChanged(int uiNodeId)
 {
 	updateBottomBarText();
 }
 
-void uiViewport::onNodeDeleted(int theNode)
+void uiViewport::onNodeDeleted(int uiNodeId)
 {
-	if (theNode == selectedNode)
-		selectedNode = -1;
+	if (uiNodeId == selectedUiNode)
+		selectedUiNode = -1;
 }
 
 void uiViewport::draw()
@@ -424,7 +424,7 @@ void uiViewport::draw()
 	renderWindow->draw(backgroundRectangle, &checkerShader);
 	
 	renderWindow->setView(theView);
-	if (selectedNode > -1)
+	if (selectedUiNode > -1)
 	{
 		unsigned int currentXOffset = 0;
 		int x1 = -9, y1 = -9;

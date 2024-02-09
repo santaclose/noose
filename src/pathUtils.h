@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace pathUtils
 {
@@ -10,6 +11,7 @@ namespace pathUtils
 
 	std::string getRelativePath(const std::string& fileRelativeTo, const std::string& targetPath);
 	std::string getFolderPath(const std::string& filePath);
+	void getCustomNodeFiles(std::vector<std::string>& fileList);
 
 	inline const char* getFileNameFromPath(const char* path)
 	{

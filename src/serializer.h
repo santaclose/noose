@@ -5,7 +5,7 @@ class serializer {
 public:
 
 	struct ParsingCallbacks {
-		void (*OnParsingStart)(void) = nullptr;
+		void (*OnStartParsing)(void) = nullptr;
 		void (*OnParseNode)(const std::string& nodeName, float coordinatesX, float coordinatesY) = nullptr;
 		void (*OnParseNodeInput)(int nodeIndex, int pinIndex, void* data, int flags) = nullptr;
 		void (*OnParseConnection)(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex) = nullptr;
@@ -13,7 +13,9 @@ public:
 			float nodeEditorViewPositionX, float nodeEditorViewPositionY) = nullptr;
 		void (*OnParseViewportState)(int viewportZoom,
 			float viewportViewPositionX, float viewportViewPositionY) = nullptr;
-		void (*OnParsingFinish)(void) = nullptr;
+		void (*OnParseCustomNodeInput)(int inPin, int subgraphNode, int subgraphPin) = nullptr;
+		void (*OnParseCustomNodeOutput)(int outPin, int subgraphNode, int subgraphPin) = nullptr;
+		void (*OnFinishParsing)(void) = nullptr;
 	};
 
 	static void LoadFromFile(const std::string& filePath, const ParsingCallbacks& callbacks);

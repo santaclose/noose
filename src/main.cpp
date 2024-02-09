@@ -30,31 +30,32 @@ static const sf::Color BACKGROUND_COLOR(0x222222ff);
 #include <atlstr.h>
 #endif
 
-void onNodeSelected(int theNode)
+void onNodeSelected(int uiNodeId)
 {
-	std::cout << "[Main] Node " << theNode << " selected\n";
+	std::cout << "[Main] Node " << uiNodeId << " selected\n";
 	
+	int nodeId = uiNodeSystem::getLogicalNodeId(uiNodeId);
 	uiViewport::hideSelectionBox();
 	uiViewport::setNodeData(
-		theNode,
-		&nodeSystem::getDataPointersForNode(theNode),
-		nodeSystem::getPinTypesForNode(theNode),
-		nodeSystem::getOutputPinCountForNode(theNode)
+		uiNodeId,
+		&nodeSystem::getDataPointersForNode(nodeId),
+		nodeSystem::getPinTypesForNode(nodeId),
+		nodeSystem::getOutputPinCountForNode(nodeId)
 		);
 }
 
 // just before deleting the node
-void onNodeDeleted(int theNode)
+void onNodeDeleted(int uiNodeId)
 {
-	std::cout << "[Main] Node " << theNode << " deleted\n";
+	std::cout << "[Main] Node " << uiNodeId << " deleted\n";
 
 	uiViewport::hideSelectionBox();
-	uiViewport::onNodeDeleted(theNode);
+	uiViewport::onNodeDeleted(uiNodeId);
 }
 
-void onNodeChanged(int theNode)
+void onNodeChanged(int uiNodeId)
 {
-	uiViewport::onNodeChanged(theNode);
+	uiViewport::onNodeChanged(uiNodeId);
 }
 
 #ifdef NOOSE_PLATFORM_WINDOWS
@@ -86,11 +87,10 @@ int main(int argc, char** argv)
 	if (argc > 2) // command line mode
 	{
 		serializer::ParsingCallbacks parsingCallbacks;
-		parsingCallbacks.OnParsingStart = nodeSystem::onProjectFileLoadingStart;
 		parsingCallbacks.OnParseNode = nodeSystem::onProjectFileLoadingAddNode;
 		parsingCallbacks.OnParseNodeInput = nodeSystem::onProjectFileLoadingSetNodeInput;
 		parsingCallbacks.OnParseConnection = nodeSystem::onProjectFileLoadingAddConnection;
-		parsingCallbacks.OnParsingFinish = nodeSystem::onProjectFileLoadingFinish;
+		parsingCallbacks.OnFinishParsing = nodeSystem::onProjectFileLoadingFinish;
 		if (utils::endsWith(secondArgument, ".nsj"))
 			serializer::LoadFromFileJson(secondArgument, parsingCallbacks);
 		else if (utils::endsWith(secondArgument, ".ns"))
@@ -204,7 +204,7 @@ int main(int argc, char** argv)
 		parsingCallbacks.OnParseNode = uiNodeSystem::onProjectFileLoadingAddNode;
 		parsingCallbacks.OnParseNodeInput = uiNodeSystem::onProjectFileLoadingSetNodeInput;
 		parsingCallbacks.OnParseNodeEditorState = uiNodeSystem::onProjectFileLoadingSetEditorState;
-		parsingCallbacks.OnParsingStart = uiNodeSystem::onProjectFileLoadingStart;
+		parsingCallbacks.OnStartParsing = uiNodeSystem::onProjectFileLoadingStart;
 		parsingCallbacks.OnParseViewportState = uiViewport::onProjectFileLoadingSetViewportState;
 		if (utils::endsWith(secondArgument, ".nsj"))
 			serializer::LoadFromFileJson(secondArgument, parsingCallbacks);

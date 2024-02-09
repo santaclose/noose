@@ -89,3 +89,22 @@ std::string pathUtils::getFolderPath(const std::string& filePath)
     for (; i > -1 && filePath[i] != '/' && filePath[i] != '\\'; i--) {};
     return filePath.substr(0, i + 1);
 }
+
+void pathUtils::getCustomNodeFiles(std::vector<std::string>& fileList)
+{
+    static std::string customNodesFolder;
+    if (customNodesFolder.length() == 0)
+#ifdef NOOSE_PLATFORM_WINDOWS
+        customNodesFolder = std::string(getenv("HOMEDRIVE")) + std::string(getenv("HOMEPATH")) + PATH_SEP + "Documents" + PATH_SEP + "noose" + PATH_SEP;
+#else
+        customNodesFolder = std::string(getenv("HOME")) + PATH_SEP + "Documents" + PATH_SEP + "noose" + PATH_SEP;
+#endif
+    if (!std::filesystem::exists(customNodesFolder))
+    {
+        std::cout << "[Path utils] Custom nodes folder not found\n";
+        return;
+    }
+
+    for (auto& i : std::filesystem::directory_iterator(customNodesFolder))
+        fileList.emplace_back(i.path().string());
+}
