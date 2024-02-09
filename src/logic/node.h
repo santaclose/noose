@@ -33,6 +33,7 @@ public:
 	int getInputPinCount();
 	int getOutputPinCount();
 	int getPinCount();
+	void setDefaultValue(int pin, const void* defaultValue);
 
 	const std::vector<void*>& getDataPointers();
 	const int* getPinTypes();

@@ -6,6 +6,34 @@
 #include <iostream>
 #include <cstring>
 
+void deletePinData(int type, void* pointer)
+{
+	switch (type)
+	{
+	case NS_TYPE_INT:
+		delete (int*)pointer;
+		break;
+	case NS_TYPE_FLOAT:
+		delete (float*)pointer;
+		break;
+	case NS_TYPE_VECTOR2I:
+		delete (sf::Vector2i*)pointer;
+		break;
+	case NS_TYPE_COLOR:
+		delete (sf::Color*)pointer;
+		break;
+	case NS_TYPE_STRING:
+		delete (std::string*)pointer;
+		break;
+	case NS_TYPE_IMAGE:
+		delete (sf::RenderTexture*)pointer;
+		break;
+	case NS_TYPE_FONT:
+		delete (sf::Font*)pointer;
+		break;
+	}
+}
+
 void* reserveDataForPin(int type, void* defaultValue)
 {
 	switch (type)
@@ -48,32 +76,32 @@ void* reserveDataForPin(int type, void* defaultValue)
 	return nullptr;
 }
 
-void deletePinData(int type, void* pointer)
+void node::setDefaultValue(int pin, const void* defaultValue)
 {
+	int type = m_nodeData->pinTypes[pin];
 	switch (type)
 	{
 	case NS_TYPE_INT:
-		delete (int*) pointer;
+		*((int*)m_pinDataPointers[pin]) = int(*((int*)defaultValue));
 		break;
 	case NS_TYPE_FLOAT:
-		delete (float*) pointer;
+		*((float*)m_pinDataPointers[pin]) = float(*((float*)defaultValue));
 		break;
 	case NS_TYPE_VECTOR2I:
-		delete (sf::Vector2i*) pointer;
+		*((sf::Vector2i*)m_pinDataPointers[pin]) = sf::Vector2i(*((sf::Vector2i*)defaultValue));
 		break;
 	case NS_TYPE_COLOR:
-		delete (sf::Color*) pointer;
+		*((sf::Color*)m_pinDataPointers[pin]) = sf::Color(*((sf::Color*)defaultValue));
 		break;
 	case NS_TYPE_STRING:
-		delete (std::string*)pointer;
+		*((std::string*)m_pinDataPointers[pin]) = std::string(*((std::string*)defaultValue));
 		break;
 	case NS_TYPE_IMAGE:
-		delete (sf::RenderTexture*) pointer;
-		break;
+		break; // can't set default from nodes.dat
 	case NS_TYPE_FONT:
-		delete (sf::Font*)pointer;
-		break;
+		break; // can't set default from nodes.dat
 	}
+	std::cout << "[Node system] COULD NOT SET DEFAULT DATA FOR PIN\n";
 }
 
 node::node(const nodeData* data)
