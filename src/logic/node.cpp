@@ -83,19 +83,19 @@ void node::setDefaultValue(int pin, const void* defaultValue)
 	{
 	case NS_TYPE_INT:
 		*((int*)m_pinDataPointers[pin]) = int(*((int*)defaultValue));
-		break;
+		return;
 	case NS_TYPE_FLOAT:
 		*((float*)m_pinDataPointers[pin]) = float(*((float*)defaultValue));
-		break;
+		return;
 	case NS_TYPE_VECTOR2I:
 		*((sf::Vector2i*)m_pinDataPointers[pin]) = sf::Vector2i(*((sf::Vector2i*)defaultValue));
-		break;
+		return;
 	case NS_TYPE_COLOR:
 		*((sf::Color*)m_pinDataPointers[pin]) = sf::Color(*((sf::Color*)defaultValue));
-		break;
+		return;
 	case NS_TYPE_STRING:
 		*((std::string*)m_pinDataPointers[pin]) = std::string(*((std::string*)defaultValue));
-		break;
+		return;
 	case NS_TYPE_IMAGE:
 		break; // can't set default from nodes.dat
 	case NS_TYPE_FONT:
