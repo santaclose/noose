@@ -345,6 +345,7 @@ void nodeSystem::onCustomNodeFileFinishParsing()
 		if (customNodes[customNodeBase].nodeInterfaceData->pinDefaultData[i] != nullptr)
 			subgraphNode->setDefaultValue(subgraphPin, customNodes[customNodeBase].nodeInterfaceData->pinDefaultData[i]);
 		customNodes[customNodeBase].dataPointers[i] = subgraphPinDataPointer;
+		subgraphNode->activate();
 	}
 	for (int i = 0; i < outputCount; i++)
 		customNodes[customNodeBase].dataPointers[inputCount + i] =
