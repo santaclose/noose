@@ -224,6 +224,7 @@ void nodeSystem::onProjectFileParseNode(const std::string& nodeName, float coord
 }
 void nodeSystem::onProjectFileParseNodeInput(int nodeIndex, int pinIndex, void* data, int flags)
 {
+	nodeIndex += nodeIndex < 0 ? nodeList.size() : 0;
 	switch (nodeList[nodeIndex]->getPinType(pinIndex))
 	{
 	case NS_TYPE_COLOR:
@@ -277,6 +278,8 @@ void nodeSystem::onProjectFileParseNodeInput(int nodeIndex, int pinIndex, void* 
 }
 void nodeSystem::onProjectFileParseConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex)
 {
+	nodeAIndex += nodeAIndex < 0 ? nodeList.size() : 0;
+	nodeBIndex += nodeBIndex < 0 ? nodeList.size() : 0;
 	int newConnection = onNodesConnected(nodeAIndex, nodeBIndex, pinAIndex, pinBIndex, false);
 }
 
