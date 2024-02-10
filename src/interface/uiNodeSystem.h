@@ -54,11 +54,11 @@ namespace uiNodeSystem
 
 	int getLogicalNodeId(int uiNodeId);
 
-	// project file loading
-	void onProjectFileLoadingStart();
-	void onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY);
-	void onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, void* data, int flags = 0);
-	void onProjectFileLoadingAddConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex);
-	void onProjectFileLoadingSetEditorState(int selectedNode, int nodeEditorZoom,
+	// project loading specific
+	void onProjectFileStartParsing();
+	void onProjectFileParseNode(const std::string& nodeName, float coordinatesX, float coordinatesY);
+	void onProjectFileParseNodeInput(int nodeIndex, int pinIndex, void* data, int flags = 0);
+	void onProjectFileParseConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex);
+	void onProjectFileParseNodeEditorState(int selectedNode, int nodeEditorZoom,
 			float nodeEditorViewPositionX, float nodeEditorViewPositionY);
 }

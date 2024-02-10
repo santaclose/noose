@@ -751,33 +751,33 @@ bool uiNodeSystem::pasteNode()
 		case NS_TYPE_INT:
 		{
 			int value = atoi(clipText.substr(q, p - q).c_str());
-			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+			onProjectFileParseNodeInput(nodeID, currentPin, &value);
 			break;
 		}
 		case NS_TYPE_VECTOR2I:
 		{
 			sf::Vector2i value;
 			utils::vector2iFromString(clipText.substr(q, p - q), value);
-			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+			onProjectFileParseNodeInput(nodeID, currentPin, &value);
 			break;
 		}
 		case NS_TYPE_FLOAT:
 		{
 			float value = atof(clipText.substr(q, p - q).c_str());
-			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+			onProjectFileParseNodeInput(nodeID, currentPin, &value);
 			break;
 		}
 		case NS_TYPE_COLOR:
 		{
 			sf::Color value;
 			utils::colorFromHexString(clipText.substr(q, p - q), value);
-			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+			onProjectFileParseNodeInput(nodeID, currentPin, &value);
 			break;
 		}
 		case NS_TYPE_STRING:
 		{
 			std::string value = clipText.substr(q, p - q);
-			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+			onProjectFileParseNodeInput(nodeID, currentPin, &value);
 			break;
 		}
 		case NS_TYPE_FONT:
@@ -785,7 +785,7 @@ bool uiNodeSystem::pasteNode()
 			if (q == p)
 				break;
 			std::string path = clipText.substr(q, p - q);
-			onProjectFileLoadingSetNodeInput(nodeID, currentPin, &path);
+			onProjectFileParseNodeInput(nodeID, currentPin, &path);
 			break;
 		}
 		case NS_TYPE_IMAGE:
@@ -797,10 +797,10 @@ bool uiNodeSystem::pasteNode()
 			{
 				sf::Image copiedImage;
 				utils::imageFromBase64String(value, copiedImage);
-				onProjectFileLoadingSetNodeInput(nodeID, currentPin, &copiedImage, 1);
+				onProjectFileParseNodeInput(nodeID, currentPin, &copiedImage, 1);
 			}
 			else
-				onProjectFileLoadingSetNodeInput(nodeID, currentPin, &value);
+				onProjectFileParseNodeInput(nodeID, currentPin, &value);
 			break;
 		}
 		}
@@ -814,15 +814,17 @@ int uiNodeSystem::getLogicalNodeId(int uiNodeId)
 	return uiNodeIdToLogicalNodeId[uiNodeId];
 }
 
-// project file loading
+// ---------------
+// project loading
+// ---------------
 
-void uiNodeSystem::onProjectFileLoadingStart()
+void uiNodeSystem::onProjectFileStartParsing()
 {
 	clearNodeSelection(); // unselect if there is a node selected
 	clearEverything(); // remove all nodes and connections
 }
 
-void uiNodeSystem::onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY)
+void uiNodeSystem::onProjectFileParseNode(const std::string& nodeName, float coordinatesX, float coordinatesY)
 {
 	const nodeData* dataForNewNode = nodeProvider::getNodeDataByName(nodeName);
 	if (dataForNewNode == nullptr)
@@ -838,7 +840,7 @@ void uiNodeSystem::onProjectFileLoadingAddNode(const std::string& nodeName, floa
 	);
 }
 
-void uiNodeSystem::onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, void* data, int flags)
+void uiNodeSystem::onProjectFileParseNodeInput(int nodeIndex, int pinIndex, void* data, int flags)
 {
 	std::vector<uiNode*>& nodes = getNodeList();
 	int targetNodeIndex = nodeIndex < 0 ? (nodes.size() + nodeIndex) : nodeIndex;
@@ -847,12 +849,12 @@ void uiNodeSystem::onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex,
 	targetNode->setInput(pinIndex, data, flags);
 }
 
-void uiNodeSystem::onProjectFileLoadingAddConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex)
+void uiNodeSystem::onProjectFileParseConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex)
 {
 	createConnection(nodeAIndex, nodeBIndex, pinAIndex, pinBIndex);
 }
 
-void uiNodeSystem::onProjectFileLoadingSetEditorState(int selectedNode, int nodeEditorZoom,
+void uiNodeSystem::onProjectFileParseNodeEditorState(int selectedNode, int nodeEditorZoom,
 			float nodeEditorViewPositionX, float nodeEditorViewPositionY)
 {
 	uiNodeSystem::setSelectedNode(selectedNode);

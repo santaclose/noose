@@ -29,14 +29,18 @@ namespace nodeSystem
 
 	const void* getData(int n, int p, int& type);
 
-	// project loading and custom node loading
-	void onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY);
-	void onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, void* data, int flags);
-	void onProjectFileLoadingAddConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex);
-	void onProjectFileLoadingFinish();
-	// custom node loading specific
-	void onReadCustomNodeConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex);
-	void onReadCustomNodeInput(int inPin, int subgraphNode, int subgraphPin);
-	void onReadCustomNodeOutput(int outPin, int subgraphNode, int subgraphPin);
-	void onFinishParsingCustomNode();
+	// project loading specific
+	void onProjectFileParseNode(const std::string& nodeName, float coordinatesX, float coordinatesY);
+	void onProjectFileParseNodeInput(int nodeIndex, int pinIndex, void* data, int flags);
+	void onProjectFileParseConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex);
+	void onProjectFileFinishParsing();
+
+	// custom node specific
+	void onCustomNodeFileStartParsing();
+	void onCustomNodeFileParseNode(const std::string& nodeName, float coordinatesX, float coordinatesY);
+	void onCustomNodeFileParseNodeInput(int nodeIndex, int pinIndex, void* data, int flags);
+	void onCustomNodeFileParseConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex);
+	void onCustomNodeFileParseCustomNodeInput(int inPin, int subgraphNode, int subgraphPin);
+	void onCustomNodeFileParseCustomNodeOutput(int outPin, int subgraphNode, int subgraphPin);
+	void onCustomNodeFileFinishParsing();
 };

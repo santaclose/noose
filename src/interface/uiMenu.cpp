@@ -64,12 +64,12 @@ void uiMenu::onPollEvent(const sf::Event& e)
 				}
 
 				serializer::ParsingCallbacks parsingCallbacks;
-				parsingCallbacks.OnParseConnection = uiNodeSystem::onProjectFileLoadingAddConnection;
-				parsingCallbacks.OnParseNode = uiNodeSystem::onProjectFileLoadingAddNode;
-				parsingCallbacks.OnParseNodeInput = uiNodeSystem::onProjectFileLoadingSetNodeInput;
-				parsingCallbacks.OnParseNodeEditorState = uiNodeSystem::onProjectFileLoadingSetEditorState;
-				parsingCallbacks.OnStartParsing = uiNodeSystem::onProjectFileLoadingStart;
-				parsingCallbacks.OnParseViewportState = uiViewport::onProjectFileLoadingSetViewportState;
+				parsingCallbacks.OnStartParsing = uiNodeSystem::onProjectFileStartParsing;
+				parsingCallbacks.OnParseNode = uiNodeSystem::onProjectFileParseNode;
+				parsingCallbacks.OnParseNodeInput = uiNodeSystem::onProjectFileParseNodeInput;
+				parsingCallbacks.OnParseConnection = uiNodeSystem::onProjectFileParseConnection;
+				parsingCallbacks.OnParseNodeEditorState = uiNodeSystem::onProjectFileParseNodeEditorState;
+				parsingCallbacks.OnParseViewportState = uiViewport::onProjectFileParseViewportState;
 				if (utils::endsWith(selection[0], ".nsj"))
 					serializer::LoadFromFileJson(selection[0], parsingCallbacks);
 				else

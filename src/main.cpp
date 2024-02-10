@@ -87,10 +87,10 @@ int main(int argc, char** argv)
 	if (argc > 2) // command line mode
 	{
 		serializer::ParsingCallbacks parsingCallbacks;
-		parsingCallbacks.OnParseNode = nodeSystem::onProjectFileLoadingAddNode;
-		parsingCallbacks.OnParseNodeInput = nodeSystem::onProjectFileLoadingSetNodeInput;
-		parsingCallbacks.OnParseConnection = nodeSystem::onProjectFileLoadingAddConnection;
-		parsingCallbacks.OnFinishParsing = nodeSystem::onProjectFileLoadingFinish;
+		parsingCallbacks.OnParseNode = nodeSystem::onProjectFileParseNode;
+		parsingCallbacks.OnParseNodeInput = nodeSystem::onProjectFileParseNodeInput;
+		parsingCallbacks.OnParseConnection = nodeSystem::onProjectFileParseConnection;
+		parsingCallbacks.OnFinishParsing = nodeSystem::onProjectFileFinishParsing;
 		if (utils::endsWith(secondArgument, ".nsj"))
 			serializer::LoadFromFileJson(secondArgument, parsingCallbacks);
 		else if (utils::endsWith(secondArgument, ".ns"))
@@ -202,12 +202,12 @@ int main(int argc, char** argv)
 	if (argc > 1)
 	{
 		serializer::ParsingCallbacks parsingCallbacks;
-		parsingCallbacks.OnParseConnection = uiNodeSystem::onProjectFileLoadingAddConnection;
-		parsingCallbacks.OnParseNode = uiNodeSystem::onProjectFileLoadingAddNode;
-		parsingCallbacks.OnParseNodeInput = uiNodeSystem::onProjectFileLoadingSetNodeInput;
-		parsingCallbacks.OnParseNodeEditorState = uiNodeSystem::onProjectFileLoadingSetEditorState;
-		parsingCallbacks.OnStartParsing = uiNodeSystem::onProjectFileLoadingStart;
-		parsingCallbacks.OnParseViewportState = uiViewport::onProjectFileLoadingSetViewportState;
+		parsingCallbacks.OnStartParsing = uiNodeSystem::onProjectFileStartParsing;
+		parsingCallbacks.OnParseNode = uiNodeSystem::onProjectFileParseNode;
+		parsingCallbacks.OnParseNodeInput = uiNodeSystem::onProjectFileParseNodeInput;
+		parsingCallbacks.OnParseConnection = uiNodeSystem::onProjectFileParseConnection;
+		parsingCallbacks.OnParseNodeEditorState = uiNodeSystem::onProjectFileParseNodeEditorState;
+		parsingCallbacks.OnParseViewportState = uiViewport::onProjectFileParseViewportState;
 		if (utils::endsWith(secondArgument, ".nsj"))
 			serializer::LoadFromFileJson(secondArgument, parsingCallbacks);
 		else if (utils::endsWith(secondArgument, ".ns"))

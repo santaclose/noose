@@ -18,7 +18,7 @@ namespace nodeSystem {
 		std::vector<void*> dataPointers;
 		void initializeVectors()
 		{
-			bindings.resize(nodeInterfaceData->inputPinCount + nodeInterfaceData->outputPinCount, {-1, -1});
+			bindings.resize(nodeInterfaceData->inputPinCount + nodeInterfaceData->outputPinCount, { -1, -1 });
 			dataPointers.resize(nodeInterfaceData->inputPinCount + nodeInterfaceData->outputPinCount, nullptr);
 		}
 	};
@@ -26,13 +26,14 @@ namespace nodeSystem {
 	std::vector<node*> nodeList;
 
 	std::unordered_map<int, customNodeData> customNodes;
-	int loadCustomNodeBaseIndex = 0;
+	std::vector<int> loadCustomNodeBaseIndexStack;
 }
 
 void nodeSystem::initialize()
 {
 	std::cout << "[Node system] Initializing\n";
 	nodeList.reserve(64);
+	loadCustomNodeBaseIndexStack.reserve(8);
 	connectionSystem::initialize();
 }
 
@@ -58,13 +59,13 @@ int nodeSystem::onNodeCreated(const void* data)
 	else
 	{
 		serializer::ParsingCallbacks parsingCallbacks;
-		parsingCallbacks.OnParseNode = nodeSystem::onProjectFileLoadingAddNode;
-		parsingCallbacks.OnParseNodeInput = nodeSystem::onProjectFileLoadingSetNodeInput;
-		parsingCallbacks.OnParseConnection = nodeSystem::onReadCustomNodeConnection;
-		parsingCallbacks.OnParseCustomNodeInput = nodeSystem::onReadCustomNodeInput;
-		parsingCallbacks.OnParseCustomNodeOutput = nodeSystem::onReadCustomNodeOutput;
-		parsingCallbacks.OnFinishParsing = nodeSystem::onFinishParsingCustomNode;
-		loadCustomNodeBaseIndex = nodeList.size();
+		parsingCallbacks.OnStartParsing = nodeSystem::onCustomNodeFileStartParsing;
+		parsingCallbacks.OnParseNode = nodeSystem::onCustomNodeFileParseNode;
+		parsingCallbacks.OnParseNodeInput = nodeSystem::onCustomNodeFileParseNodeInput;
+		parsingCallbacks.OnParseConnection = nodeSystem::onCustomNodeFileParseConnection;
+		parsingCallbacks.OnParseCustomNodeInput = nodeSystem::onCustomNodeFileParseCustomNodeInput;
+		parsingCallbacks.OnParseCustomNodeOutput = nodeSystem::onCustomNodeFileParseCustomNodeOutput;
+		parsingCallbacks.OnFinishParsing = nodeSystem::onCustomNodeFileFinishParsing;
 		customNodes[newNodeId].nodeInterfaceData = nd;
 		customNodes[newNodeId].initializeVectors();
 		serializer::LoadFromFile(nodeProvider::getCustomNodeFilePath(nd->customNodeId), parsingCallbacks);
@@ -209,7 +210,9 @@ const void* nodeSystem::getData(int n, int p, int& type)
 
 // ---------------
 // project loading
-void nodeSystem::onProjectFileLoadingAddNode(const std::string& nodeName, float coordinatesX, float coordinatesY)
+// ---------------
+
+void nodeSystem::onProjectFileParseNode(const std::string& nodeName, float coordinatesX, float coordinatesY)
 {
 	const nodeData* dataForNewNode = nodeProvider::getNodeDataByName(nodeName);
 	if (dataForNewNode == nullptr)
@@ -219,9 +222,8 @@ void nodeSystem::onProjectFileLoadingAddNode(const std::string& nodeName, float 
 	}
 	onNodeCreated(dataForNewNode);
 }
-void nodeSystem::onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, void* data, int flags)
+void nodeSystem::onProjectFileParseNodeInput(int nodeIndex, int pinIndex, void* data, int flags)
 {
-	nodeIndex += nodeIndex > -1 ? loadCustomNodeBaseIndex : nodeList.size();
 	switch (nodeList[nodeIndex]->getPinType(pinIndex))
 	{
 	case NS_TYPE_COLOR:
@@ -273,14 +275,12 @@ void nodeSystem::onProjectFileLoadingSetNodeInput(int nodeIndex, int pinIndex, v
 	}
 	}
 }
-void nodeSystem::onProjectFileLoadingAddConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex)
+void nodeSystem::onProjectFileParseConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex)
 {
-	nodeAIndex += nodeAIndex > -1 ? loadCustomNodeBaseIndex : nodeList.size();
-	nodeBIndex += nodeBIndex > -1 ? loadCustomNodeBaseIndex : nodeList.size();
 	int newConnection = onNodesConnected(nodeAIndex, nodeBIndex, pinAIndex, pinBIndex, false);
 }
 
-void nodeSystem::onProjectFileLoadingFinish()
+void nodeSystem::onProjectFileFinishParsing()
 {
 	for (node* n : nodeList)
 	{
@@ -289,43 +289,67 @@ void nodeSystem::onProjectFileLoadingFinish()
 	}
 }
 
-void nodeSystem::onReadCustomNodeConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex)
+// ---------------
+// custom nodes
+// ---------------
+
+void nodeSystem::onCustomNodeFileStartParsing()
 {
-	nodeAIndex += nodeAIndex > -1 ? loadCustomNodeBaseIndex : nodeList.size();
-	nodeBIndex += nodeBIndex > -1 ? loadCustomNodeBaseIndex : nodeList.size();
+	loadCustomNodeBaseIndexStack.push_back(nodeList.size());
+}
+
+void nodeSystem::onCustomNodeFileParseNode(const std::string& nodeName, float coordinatesX, float coordinatesY)
+{
+	onProjectFileParseNode(nodeName, coordinatesX, coordinatesY);
+}
+
+void nodeSystem::onCustomNodeFileParseNodeInput(int nodeIndex, int pinIndex, void* data, int flags)
+{
+	onProjectFileParseNodeInput(nodeIndex += nodeIndex > -1 ? loadCustomNodeBaseIndexStack.back() : nodeList.size(), pinIndex, data, flags);
+}
+
+void nodeSystem::onCustomNodeFileParseConnection(int nodeAIndex, int pinAIndex, int nodeBIndex, int pinBIndex)
+{
+	int customNodeBase = loadCustomNodeBaseIndexStack.back();
+	nodeAIndex += nodeAIndex > -1 ? customNodeBase : nodeList.size();
+	nodeBIndex += nodeBIndex > -1 ? customNodeBase : nodeList.size();
 
 	int connectionIndex = connectionSystem::connect(nodeList, nodeAIndex, nodeBIndex, pinAIndex, pinBIndex);
-	customNodes[loadCustomNodeBaseIndex].subgraphConnections.push_back(connectionIndex);
+	customNodes[customNodeBase].subgraphConnections.push_back(connectionIndex);
 }
 
-void nodeSystem::onReadCustomNodeInput(int inPin, int subgraphNode, int subgraphPin)
+void nodeSystem::onCustomNodeFileParseCustomNodeInput(int inPin, int subgraphNode, int subgraphPin)
 {
-	subgraphNode += subgraphNode > -1 ? loadCustomNodeBaseIndex : nodeList.size();
-	customNodes[loadCustomNodeBaseIndex].bindings[inPin] = { subgraphNode, subgraphPin };
+	int customNodeBase = loadCustomNodeBaseIndexStack.back();
+	subgraphNode += subgraphNode > -1 ? customNodeBase : nodeList.size();
+	customNodes[customNodeBase].bindings[inPin] = { subgraphNode, subgraphPin };
 }
 
-void nodeSystem::onReadCustomNodeOutput(int outPin, int subgraphNode, int subgraphPin)
+void nodeSystem::onCustomNodeFileParseCustomNodeOutput(int outPin, int subgraphNode, int subgraphPin)
 {
-	subgraphNode += subgraphNode > -1 ? loadCustomNodeBaseIndex : nodeList.size();
-	customNodes[loadCustomNodeBaseIndex].bindings[outPin] = { subgraphNode, subgraphPin };
+	int customNodeBase = loadCustomNodeBaseIndexStack.back();
+	subgraphNode += subgraphNode > -1 ? customNodeBase : nodeList.size();
+	customNodes[customNodeBase].bindings[outPin] = { subgraphNode, subgraphPin };
 }
 
-void nodeSystem::onFinishParsingCustomNode()
+void nodeSystem::onCustomNodeFileFinishParsing()
 {
-	int inputCount = customNodes[loadCustomNodeBaseIndex].nodeInterfaceData->inputPinCount;
-	int outputCount = customNodes[loadCustomNodeBaseIndex].nodeInterfaceData->outputPinCount;
+	int customNodeBase = loadCustomNodeBaseIndexStack.back();
+	int inputCount = customNodes[customNodeBase].nodeInterfaceData->inputPinCount;
+	int outputCount = customNodes[customNodeBase].nodeInterfaceData->outputPinCount;
 	for (int i = 0; i < inputCount; i++)
 	{
-		node* subgraphNode = nodeList[customNodes[loadCustomNodeBaseIndex].bindings[i].n];
-		int subgraphPin = customNodes[loadCustomNodeBaseIndex].bindings[i].p;
+		node* subgraphNode = nodeList[customNodes[customNodeBase].bindings[i].n];
+		int subgraphPin = customNodes[customNodeBase].bindings[i].p;
 		void* subgraphPinDataPointer = subgraphNode->getDataPointer(subgraphPin, false);
-		if (customNodes[loadCustomNodeBaseIndex].nodeInterfaceData->pinDefaultData[i] != nullptr)
-			subgraphNode->setDefaultValue(subgraphPin, customNodes[loadCustomNodeBaseIndex].nodeInterfaceData->pinDefaultData[i]);
-		customNodes[loadCustomNodeBaseIndex].dataPointers[i] = subgraphPinDataPointer;
+		if (customNodes[customNodeBase].nodeInterfaceData->pinDefaultData[i] != nullptr)
+			subgraphNode->setDefaultValue(subgraphPin, customNodes[customNodeBase].nodeInterfaceData->pinDefaultData[i]);
+		customNodes[customNodeBase].dataPointers[i] = subgraphPinDataPointer;
 	}
 	for (int i = 0; i < outputCount; i++)
-		customNodes[loadCustomNodeBaseIndex].dataPointers[inputCount + i] =
-		nodeList[customNodes[loadCustomNodeBaseIndex].bindings[inputCount + i].n]->getDataPointer(
-			customNodes[loadCustomNodeBaseIndex].bindings[inputCount + i].p, false);
-	customNodes[loadCustomNodeBaseIndex].subgraphNodeCount = nodeList.size() - loadCustomNodeBaseIndex;
+		customNodes[customNodeBase].dataPointers[inputCount + i] =
+		nodeList[customNodes[customNodeBase].bindings[inputCount + i].n]->getDataPointer(
+			customNodes[customNodeBase].bindings[inputCount + i].p, false);
+	customNodes[customNodeBase].subgraphNodeCount = nodeList.size() - customNodeBase;
+	loadCustomNodeBaseIndexStack.pop_back();
 }
