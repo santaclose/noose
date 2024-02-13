@@ -447,23 +447,19 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 						return;
 
 					// a copy is needed
-					std::vector<int> connections = uiNodeList[selectedNodeIndex]->getConnectedLines();
-
-					for (int& l : connections)
-					{
+					std::vector<int> lines = uiNodeList[selectedNodeIndex]->getConnectedLines();
+					for (int l : lines)
 						deleteLine(l);
-						l = uiConnectionIdToLogicalConnectionId[l]; // convert to logical id to be used by nodeSystem
-					}
 
 					onNodeDeletedCallback(selectedNodeIndex);
 
 					delete uiNodeList[selectedNodeIndex];
 					uiNodeList[selectedNodeIndex] = nullptr;
 
-					nodeSystem::deleteNode(uiNodeIdToLogicalNodeId[selectedNodeIndex], connections);
+					nodeSystem::deleteNode(uiNodeIdToLogicalNodeId[selectedNodeIndex]);
 #ifdef TEST
 					std::cout << "deleteNode:\n\tselected node index: " << selectedNodeIndex << "\n\tnode lines: ";
-					for (int l : connections)
+					for (int l : lines)
 						std::cout << l << ", ";
 					std::cout << std::endl;
 #endif

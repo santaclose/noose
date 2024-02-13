@@ -16,15 +16,16 @@ public:
 	std::vector<void*> m_receivedDataPointers;
 
 	// graph stuff
-	std::vector<node*> m_leftSideNodes;
-	std::vector<node*> m_rightSideNodes;
+	std::vector<int> m_leftSideConnections;
+	std::vector<int> m_rightSideConnections;
 
 public:
 	node(const nodeData* data);
 	~node();
 	
-	void connect(int lineIndex);
-	void disconnect(int lineIndex);
+	void connect(int connectionId);
+	void disconnect(int connectionId);
+	void disconnectAll();
 
 	void activate(); // executes node functionality propagating to nodes connected to the right side
 	void run(); // executes node functionality
@@ -41,7 +42,7 @@ public:
 	void* getDataPointer(int pinIndex, bool acceptReceivedPointers=true);
 
 	bool findNodeToTheRightRecursive(const node* toFind) const;
-	inline bool isConnectedToTheLeft() const { return m_leftSideNodes.size() > 0; }
+	inline bool isConnectedToTheLeft() const { return m_leftSideConnections.size() > 0; }
 
 	template<typename T>
 	static void removeFromList(const T item, std::vector<T>& list)

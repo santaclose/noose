@@ -8,7 +8,7 @@ namespace nodeSystem
 	void terminate();
 
 	int createNode(const void* data);
-	void deleteNode(int n, const std::vector<int>& connections); // connection indices and connection count
+	void deleteNode(int n);
 	void onNodeChanged(int n, int p);
 
 	// nA is always the node that has the output pin

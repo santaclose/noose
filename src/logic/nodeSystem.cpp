@@ -74,20 +74,14 @@ int nodeSystem::createNode(const void* data)
 	return newNodeId;
 }
 
-void nodeSystem::deleteNode(int n, const std::vector<int>& connections)//int* ci, int cc)
+void nodeSystem::deleteNode(int n)
 {
 	//std::cout << "[Node system] Node deleted\n\tid: " << n << std::endl;
-
-	// delete all connections to the node
-	for (int c : connections)
-		connectionSystem::deleteConnection(c);
-
 	if (customNodes.find(n) != customNodes.end()) // is custom node
 	{
-		for (int c : customNodes[n].subgraphConnections)
-			connectionSystem::deleteConnection(c);
 		for (int i = n + customNodes[n].subgraphNodeCount - 1; i > n - 1; i--)
 		{
+			nodeList[i]->disconnectAll();
 			delete nodeList[i];
 			nodeList[i] = nullptr;
 		}
@@ -95,6 +89,7 @@ void nodeSystem::deleteNode(int n, const std::vector<int>& connections)//int* ci
 	}
 	else // is normal node
 	{
+		nodeList[n]->disconnectAll();
 		delete nodeList[n];
 		nodeList[n] = nullptr;
 	}
@@ -109,6 +104,7 @@ void nodeSystem::onNodeChanged(int n, int p)
 		nodeList[n]->activate();
 }
 
+// nA is always the node that has the output pin
 int nodeSystem::connect(int nA, int nB, int pA, int pB, bool activateNodeB)
 {
 	//std::cout << "[Node system] Nodes connected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;

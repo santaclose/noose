@@ -118,6 +118,8 @@ node::node(const nodeData* data)
 		if (i < m_nodeData->inputPinCount)
 			m_receivedDataPointers[i] = nullptr;
 	}
+	m_leftSideConnections.reserve(8);
+	m_rightSideConnections.reserve(8);
 }
 
 node::~node()
@@ -127,27 +129,37 @@ node::~node()
 		deletePinData(m_nodeData->pinTypes[i], m_pinDataPointers[i]);
 }
 
-void node::connect(int lineIndex)
+void node::connect(int connectionId)
 {
-	if (connectionSystem::connections[lineIndex].nodeA == (void*)this) // we are the left side node, ours is an output pin
-		m_rightSideNodes.push_back((node*)(connectionSystem::connections[lineIndex].nodeB));
+	if (connectionSystem::connections[connectionId].nodeA == (void*)this) // we are the left side node, ours is an output pin
+		m_rightSideConnections.push_back(connectionId);
 	else // we are the right side node
 	{
-		m_receivedDataPointers[connectionSystem::connections[lineIndex].pinB] =
-			((node*)(connectionSystem::connections[lineIndex].nodeA))->getDataPointer(connectionSystem::connections[lineIndex].pinA, false);
-		m_leftSideNodes.push_back((node*)(connectionSystem::connections[lineIndex].nodeA));
+		m_receivedDataPointers[connectionSystem::connections[connectionId].pinB] =
+			((node*)(connectionSystem::connections[connectionId].nodeA))->getDataPointer(connectionSystem::connections[connectionId].pinA, false);
+		m_leftSideConnections.push_back(connectionId);
 	}
 }
 
-void node::disconnect(int lineIndex)
+void node::disconnect(int connectionId)
 {
-	if (connectionSystem::connections[lineIndex].nodeA != (void*)this) // we are the right side node, ours is an input pin
+	if (connectionSystem::connections[connectionId].nodeA != (void*)this) // we are the right side node, ours is an input pin
 	{
-		m_receivedDataPointers[connectionSystem::connections[lineIndex].pinB] = nullptr;
-		removeFromList((node*)connectionSystem::connections[lineIndex].nodeA, m_leftSideNodes);
+		m_receivedDataPointers[connectionSystem::connections[connectionId].pinB] = nullptr;
+		removeFromList(connectionId, m_leftSideConnections);
 	}
 	else
-		removeFromList((node*)connectionSystem::connections[lineIndex].nodeB, m_rightSideNodes);
+		removeFromList(connectionId, m_rightSideConnections);
+}
+
+void node::disconnectAll()
+{
+	// inverse order because the function will call disconnect
+	// and in turn removeFromList which calls erase on connection vectors
+	for (int i = m_leftSideConnections.size() - 1; i > -1; i--)
+		connectionSystem::deleteConnection(m_leftSideConnections[i]);
+	for (int i = m_rightSideConnections.size() - 1; i > -1; i--)
+		connectionSystem::deleteConnection(m_rightSideConnections[i]);
 }
 
 static std::vector<node*> activationQueue;
@@ -162,8 +174,8 @@ void node::activate()
 		currentNode = activationQueue[currentQueueIndex];
 		currentQueueIndex++;
 		currentNode->run();
-		for (node* n : currentNode->m_rightSideNodes)
-			activationQueue.push_back(n);
+		for (int c : currentNode->m_rightSideConnections)
+			activationQueue.push_back((node*)(connectionSystem::connections[c].nodeB));
 	}
 }
 
@@ -220,8 +232,9 @@ void* node::getDataPointer(int pinIndex, bool acceptReceivedPointers)
 
 bool node::findNodeToTheRightRecursive(const node* toFind) const
 {
-	for (const node* n : m_rightSideNodes)
+	for (int c : m_rightSideConnections)
 	{
+		const node* n = (const node*)(connectionSystem::connections[c].nodeB);
 		if (n == toFind || n->findNodeToTheRightRecursive(toFind))
 			return true;
 	}

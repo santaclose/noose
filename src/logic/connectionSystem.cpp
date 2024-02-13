@@ -11,6 +11,7 @@ void connectionSystem::initialize()
 	connections.reserve(64);
 }
 
+// nodeA is always the node that has the output pin
 int connectionSystem::connect(const std::vector<node*>& nodeList, int nodeA, int nodeB, int pinA, int pinB)
 {
 	int connectionId = connections.size();
