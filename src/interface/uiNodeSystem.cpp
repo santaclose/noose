@@ -128,9 +128,9 @@ int uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCen
 		break;
 	}
 
-	int logicalNodeId = nodeSystem::onNodeCreated(nData);
+	int logicalNodeId = nodeSystem::createNode(nData);
 #ifdef TEST
-	std::cout << "onNodeCreated:\n\tnode id: " << newNodeID << "\n\tnode name: " << nData->nodeName << std::endl;
+	std::cout << "createNode:\n\tnode id: " << newNodeID << "\n\tnode name: " << nData->nodeName << std::endl;
 #endif
 
 	uiNodeList.push_back(new uiNode(
@@ -359,10 +359,10 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 							uiNodeList[rightSideNode]->attachConnectionPoint(uiConnectionId, rightSidePin);
 							uiNodeList[leftSideNode]->attachConnectionPoint(uiConnectionId, leftSidePin);
 
-							int logicalConnectionId = nodeSystem::onNodesConnected(uiNodeIdToLogicalNodeId[leftSideNode], uiNodeIdToLogicalNodeId[rightSideNode], leftSidePin, rightSidePin);
+							int logicalConnectionId = nodeSystem::connect(uiNodeIdToLogicalNodeId[leftSideNode], uiNodeIdToLogicalNodeId[rightSideNode], leftSidePin, rightSidePin);
 							uiConnectionIdToLogicalConnectionId[uiConnectionId] = logicalConnectionId;
 #ifdef TEST
-	std::cout << "onNodesConnected:\n\tleft side node: " << leftSideNode << "\n\tright side node: " << rightSideNode << "\n\tleft side pin: " << leftSidePin << "\n\tright side pin: " << rightSidePin << "\n\tconnection index: " << uiConnectionId << std::endl;
+	std::cout << "connect:\n\tleft side node: " << leftSideNode << "\n\tright side node: " << rightSideNode << "\n\tleft side pin: " << leftSidePin << "\n\tright side pin: " << rightSidePin << "\n\tconnection index: " << uiConnectionId << std::endl;
 #endif
 
 							break;
@@ -411,9 +411,9 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					int nA, nB, pA, pB;
 					uiConnections::getNodesForLine(connectionToRemove, nA, nB);
 					uiConnections::getPinsForLine(connectionToRemove, pA, pB);
-					nodeSystem::onNodesDisconnected(uiConnectionIdToLogicalConnectionId[connectionToRemove]);
+					nodeSystem::disconnect(uiConnectionIdToLogicalConnectionId[connectionToRemove]);
 #ifdef TEST
-	std::cout << "onNodesDisconnected:\n\tleft side node: " << nA << "\n\tright side node: " << nB << "\n\tleft side pin: " << pA << "\n\tright side pin: " << pB << "\n\tconnection index: " << lineToRemove << std::endl;
+	std::cout << "disconnect:\n\tleft side node: " << nA << "\n\tright side node: " << nB << "\n\tleft side pin: " << pA << "\n\tright side pin: " << pB << "\n\tconnection index: " << lineToRemove << std::endl;
 #endif
 				}
 			}
@@ -460,9 +460,9 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					delete uiNodeList[selectedNodeIndex];
 					uiNodeList[selectedNodeIndex] = nullptr;
 
-					nodeSystem::onNodeDeleted(uiNodeIdToLogicalNodeId[selectedNodeIndex], connections);
+					nodeSystem::deleteNode(uiNodeIdToLogicalNodeId[selectedNodeIndex], connections);
 #ifdef TEST
-					std::cout << "onNodeDeleted:\n\tselected node index: " << selectedNodeIndex << "\n\tnode lines: ";
+					std::cout << "deleteNode:\n\tselected node index: " << selectedNodeIndex << "\n\tnode lines: ";
 					for (int l : connections)
 						std::cout << l << ", ";
 					std::cout << std::endl;
@@ -639,7 +639,7 @@ void uiNodeSystem::createConnection(int leftNode, int rightNode, int leftPin, in
 	uiNodeList[rightNode]->attachConnectionPoint(uiConnectionId, rightPin);
 	uiNodeList[leftNode]->attachConnectionPoint(uiConnectionId, leftPin);
 
-	int logicalConnectionId = nodeSystem::onNodesConnected(uiNodeIdToLogicalNodeId[leftNode], uiNodeIdToLogicalNodeId[rightNode], leftPin, rightPin);
+	int logicalConnectionId = nodeSystem::connect(uiNodeIdToLogicalNodeId[leftNode], uiNodeIdToLogicalNodeId[rightNode], leftPin, rightPin);
 	uiConnectionIdToLogicalConnectionId[uiConnectionId] = logicalConnectionId;
 }
 

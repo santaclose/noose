@@ -47,7 +47,7 @@ void nodeSystem::terminate()
 	}
 }
 
-int nodeSystem::onNodeCreated(const void* data)
+int nodeSystem::createNode(const void* data)
 {
 	//std::cout << "[Node system] Node created\n\tid: " << n << std::endl;
 
@@ -74,7 +74,7 @@ int nodeSystem::onNodeCreated(const void* data)
 	return newNodeId;
 }
 
-void nodeSystem::onNodeDeleted(int n, const std::vector<int>& connections)//int* ci, int cc)
+void nodeSystem::deleteNode(int n, const std::vector<int>& connections)//int* ci, int cc)
 {
 	//std::cout << "[Node system] Node deleted\n\tid: " << n << std::endl;
 
@@ -109,7 +109,7 @@ void nodeSystem::onNodeChanged(int n, int p)
 		nodeList[n]->activate();
 }
 
-int nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, bool activateNodeB)
+int nodeSystem::connect(int nA, int nB, int pA, int pB, bool activateNodeB)
 {
 	//std::cout << "[Node system] Nodes connected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
 	if (customNodes.find(nA) != customNodes.end() && customNodes[nA].bindings[pA].n > -1)
@@ -130,7 +130,7 @@ int nodeSystem::onNodesConnected(int nA, int nB, int pA, int pB, bool activateNo
 	return connectionIndex;
 }
 
-void nodeSystem::onNodesDisconnected(int c)
+void nodeSystem::disconnect(int c)
 {
 	//std::cout << "[Node system] Nodes disconnected\n\tnodeA: " << nA << "\n\tnodeB: " << nB << "\n\tpinA: " << pA << "\n\tpinB: " << pB << "\n\tconnection: " << c << std::endl;
 	int nB = connectionSystem::connections[c].nodeIndexB;
@@ -220,7 +220,7 @@ void nodeSystem::onProjectFileParseNode(const std::string& nodeName, float coord
 		std::cout << "[Node system] Node not found for name: " + nodeName + "\n";
 		return;
 	}
-	onNodeCreated(dataForNewNode);
+	createNode(dataForNewNode);
 }
 void nodeSystem::onProjectFileParseNodeInput(int nodeIndex, int pinIndex, void* data, int flags)
 {
@@ -280,7 +280,7 @@ void nodeSystem::onProjectFileParseConnection(int nodeAIndex, int pinAIndex, int
 {
 	nodeAIndex += nodeAIndex < 0 ? nodeList.size() : 0;
 	nodeBIndex += nodeBIndex < 0 ? nodeList.size() : 0;
-	int newConnection = onNodesConnected(nodeAIndex, nodeBIndex, pinAIndex, pinBIndex, false);
+	int newConnection = connect(nodeAIndex, nodeBIndex, pinAIndex, pinBIndex, false);
 }
 
 void nodeSystem::onProjectFileFinishParsing()

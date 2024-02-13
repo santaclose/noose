@@ -7,13 +7,13 @@ namespace nodeSystem
 	void initialize();
 	void terminate();
 
-	int onNodeCreated(const void* data);
-	void onNodeDeleted(int n, const std::vector<int>& connections); // connection indices and connection count
+	int createNode(const void* data);
+	void deleteNode(int n, const std::vector<int>& connections); // connection indices and connection count
 	void onNodeChanged(int n, int p);
 
 	// nA is always the node that has the output pin
-	int onNodesConnected(int nA, int nB, int pA, int pB, bool activateNodeB = true);
-	void onNodesDisconnected(int c);
+	int connect(int nA, int nB, int pA, int pB, bool activateNodeB = true);
+	void disconnect(int c);
 
 	bool isConnectionValid(int nA, int nB, int pinA, int pinB);
 
