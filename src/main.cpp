@@ -22,14 +22,46 @@
 #include "utils.h"
 
 #define REDRAW_COUNT 5
+#define VIEWPORT_MARGIN_ON_OPEN_FILE 120U
 
 static const sf::Color BACKGROUND_COLOR(0x222222ff);
+
+enum class OpenFileMode {
+	None, Project, ProjectJson, Image, Font
+};
 
 #ifdef NOOSE_PLATFORM_WINDOWS
 #include <windows.h>
 #include <atlstr.h>
 #endif
 
+static sf::Image iconImage;
+static bool nodeEditorIsVisible = false;
+static sf::RenderWindow* nodeEditorWindow = nullptr;
+static sf::Vector2i mousePosNodeEditor;
+static sf::RenderWindow* viewportWindow = nullptr;
+static sf::Vector2i mousePosViewport;
+
+OpenFileMode guessOpenFileMode(int argc, const std::string& secondArgument)
+{
+	if (argc < 2)
+		return OpenFileMode::None;
+	if (utils::endsWith(secondArgument, ".nsj"))
+		return OpenFileMode::ProjectJson;
+	if (utils::endsWith(secondArgument, ".ns"))
+		return OpenFileMode::Project;
+	int type = utils::typeFromExtension(secondArgument);
+	switch (type)
+	{
+	case NS_TYPE_IMAGE: return OpenFileMode::Image;
+	case NS_TYPE_FONT: return OpenFileMode::Font;
+	default:
+		std::cout << "[Main] Unknown file received as argument: " << secondArgument << std::endl;
+		return OpenFileMode::None;
+	}
+}
+
+// callbacks
 void onNodeSelected(int uiNodeId)
 {
 	std::cout << "[Main] Node " << uiNodeId << " selected\n";
@@ -44,8 +76,7 @@ void onNodeSelected(int uiNodeId)
 		);
 }
 
-// just before deleting the node
-void onNodeDeleted(int uiNodeId)
+void onNodeDeleted(int uiNodeId) // called just before deleting the node
 {
 	std::cout << "[Main] Node " << uiNodeId << " deleted\n";
 
@@ -56,6 +87,11 @@ void onNodeDeleted(int uiNodeId)
 void onNodeChanged(int uiNodeId)
 {
 	uiViewport::onNodeChanged(uiNodeId);
+}
+
+void onToggleNodeEditorVisibility()
+{
+	nodeEditorWindow->setVisible(nodeEditorIsVisible = !nodeEditorIsVisible);
 }
 
 #ifdef NOOSE_PLATFORM_WINDOWS
@@ -79,6 +115,7 @@ int main(int argc, char** argv)
 	if (argc > 2) thirdArgument = std::string(argv[2]);
 #endif
 
+	OpenFileMode openFileMode = guessOpenFileMode(argc, secondArgument);
 	pathUtils::setProgramDirectory(firstArgument);
 	// load nodes in memory
 	nodeProvider::initialize();
@@ -163,43 +200,38 @@ int main(int argc, char** argv)
 	utils::checkForUpdatesAsync();
 #endif
 
-	// Create the main window
-	sf::RenderWindow windowA(sf::VideoMode({ 1200, 800 }), "node editor", 7U, sf::ContextSettings(), true);
-	// Create the output window
-	sf::RenderWindow windowB(sf::VideoMode({ 500, 500 }), "viewport", sf::Style::Resize);
-	sf::Image iconImage;
-	iconImage.loadFromFile(pathUtils::getAssetsDirectory() + "icon.png");
-	windowA.setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
-	windowB.setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
-
 	// initialize interface components
 	uiData::load();
+	iconImage.loadFromFile(pathUtils::getAssetsDirectory() + "icon.png");
+
+	nodeEditorWindow = new sf::RenderWindow(sf::VideoMode({ 720, 720 }), "node editor", sf::Style::Default, sf::ContextSettings(), true);
+	viewportWindow = new sf::RenderWindow(sf::VideoMode({ 720, 720 }), "viewport", sf::Style::Resize | sf::Style::Close);
+	nodeEditorWindow->setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
+	viewportWindow->setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
+
+	uiViewport::initialize(*viewportWindow, &mousePosViewport);
 	uiColorPicker::initialize(iconImage);
-
-	sf::Vector2i mousePosWindowA;
-	sf::Vector2i mousePosWindowB;
-
-	uiNodeSystem::initialize(windowA, &mousePosWindowA);
-
-	uiSearchBar::initialize(windowA, &mousePosWindowA);
-	uiMenu::initialize(windowA, &mousePosWindowA);
-	uiCategoryPusher::initialize(windowA, &mousePosWindowA);
-
-	uiFloatingButtonLayer::initialize(windowA, &mousePosWindowA);
+	uiNodeSystem::initialize(*nodeEditorWindow, &mousePosNodeEditor);
+	uiSearchBar::initialize(*nodeEditorWindow, &mousePosNodeEditor);
+	uiMenu::initialize(*nodeEditorWindow, &mousePosNodeEditor);
+	uiCategoryPusher::initialize(*nodeEditorWindow, &mousePosNodeEditor);
+	uiFloatingButtonLayer::initialize(*nodeEditorWindow, &mousePosNodeEditor);
 	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::BottomRight, "shaders/addFloatingButton.shader");
 	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::TopLeft, "shaders/menuFloatingButton.shader");
 	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::BottomLeft, '?');
 	uiFloatingButtonLayer::addButton(uiFloatingButtonLayer::ButtonPosition::TopRight, "shaders/showViewportButton.shader");
-
-	uiViewport::initialize(windowB, &mousePosWindowB, uiInputField::setVectorData);
-
-	// node system callbacks
 	uiNodeSystem::setOnNodeSelectedCallback(onNodeSelected);
 	uiNodeSystem::setOnNodeDeletedCallback(onNodeDeleted);
 	uiNodeSystem::setOnNodeChangedCallback(onNodeChanged);
+	uiViewport::setOnSelectedPositionChangeCallback(uiInputField::setVectorData);
+	uiViewport::setOnToggleNodeEditorVisibilityCallback(onToggleNodeEditorVisibility);
 
 	// load file if opening file
-	if (argc > 1)
+	sf::Vector2u imageToOpenSize = { ~0U, ~0U };
+	switch (openFileMode)
+	{
+	case OpenFileMode::Project:
+	case OpenFileMode::ProjectJson:
 	{
 		serializer::ParsingCallbacks parsingCallbacks;
 		parsingCallbacks.OnStartParsing = uiNodeSystem::onProjectFileStartParsing;
@@ -208,68 +240,67 @@ int main(int argc, char** argv)
 		parsingCallbacks.OnParseConnection = uiNodeSystem::onProjectFileParseConnection;
 		parsingCallbacks.OnParseNodeEditorState = uiNodeSystem::onProjectFileParseNodeEditorState;
 		parsingCallbacks.OnParseViewportState = uiViewport::onProjectFileParseViewportState;
-		if (utils::endsWith(secondArgument, ".nsj"))
+		if (openFileMode == OpenFileMode::ProjectJson)
 			serializer::LoadFromFileJson(secondArgument, parsingCallbacks);
-		else if (utils::endsWith(secondArgument, ".ns"))
-			serializer::LoadFromFile(secondArgument, parsingCallbacks);
 		else
-		{
-			int type = utils::typeFromExtension(secondArgument);
-			switch (type)
-			{
-			case NS_TYPE_IMAGE:
-				uiNodeSystem::pushImageNodeFromFile(secondArgument, uiNodeSystem::PushMode::Centered);
-				break;
-			case NS_TYPE_FONT:
-				uiNodeSystem::pushFontNodeFromFile(secondArgument, uiNodeSystem::PushMode::Centered);
-				break;
-			default:
-				std::cout << "[UI] Unknown file received as argument: " << secondArgument << std::endl;
-				exit(1);
-			}
-		}
+			serializer::LoadFromFile(secondArgument, parsingCallbacks);
+		break;
+	}
+	case OpenFileMode::Image:
+		uiNodeSystem::pushImageNodeFromFile(secondArgument, uiNodeSystem::PushMode::Centered, true, { 0.0f, 0.0f }, &imageToOpenSize);
+		break;
+	case OpenFileMode::Font:
+		uiNodeSystem::pushFontNodeFromFile(secondArgument, uiNodeSystem::PushMode::Centered);
+		break;
+	}
+
+	if (imageToOpenSize.x != ~0U)
+	{
+		viewportWindow->setSize(imageToOpenSize + sf::Vector2u(VIEWPORT_MARGIN_ON_OPEN_FILE, VIEWPORT_MARGIN_ON_OPEN_FILE));
+		nodeEditorWindow->setVisible(nodeEditorIsVisible = false);
+		uiViewport::centerView();
 	}
 
 	// Start the game loop
-	while (windowA.isOpen() || windowB.isOpen())
+	while (nodeEditorWindow->isOpen() || viewportWindow->isOpen())
 	{
 		// Process events
-		sf::Event eventWindowA, eventWindowB;
-		while (windowA.pollEvent(eventWindowA))
+		sf::Event nodeEditorEvent, viewportEvent;
+		while (nodeEditorWindow->pollEvent(nodeEditorEvent))
 		{
-			mousePosWindowA = sf::Mouse::getPosition(windowA);
-			switch (eventWindowA.type)
+			mousePosNodeEditor = sf::Mouse::getPosition(*nodeEditorWindow);
+			switch (nodeEditorEvent.type)
 			{
 				case sf::Event::Closed:
 				{
-					windowA.close();
-					windowB.close();
+					nodeEditorWindow->close();
+					viewportWindow->close();
 					break;
 				}
 			}
 
-			if (eventWindowA.type == sf::Event::Resized)
+			if (nodeEditorEvent.type == sf::Event::Resized)
 			{
-				uiNodeSystem::onPollEvent(eventWindowA);
-				uiSearchBar::onPollEvent(eventWindowA);
-				uiFloatingButtonLayer::onPollEvent(eventWindowA);
+				uiNodeSystem::onPollEvent(nodeEditorEvent);
+				uiSearchBar::onPollEvent(nodeEditorEvent);
+				uiFloatingButtonLayer::onPollEvent(nodeEditorEvent);
 				uiCategoryPusher::updateButtonCenterCoordinates(uiFloatingButtonLayer::getButtonCenterCoords(uiFloatingButtonLayer::ButtonPosition::BottomRight));
-				uiCategoryPusher::onPollEvent(eventWindowA);
-				uiMenu::onPollEvent(eventWindowA);
+				uiCategoryPusher::onPollEvent(nodeEditorEvent);
+				uiMenu::onPollEvent(nodeEditorEvent);
 			}
 			else
 			{
 				if (uiSearchBar::isActive())
-					uiSearchBar::onPollEvent(eventWindowA);
+					uiSearchBar::onPollEvent(nodeEditorEvent);
 				else if (uiMenu::isActive())
-					uiMenu::onPollEvent(eventWindowA);
+					uiMenu::onPollEvent(nodeEditorEvent);
 				else if (uiCategoryPusher::isActive())
-					uiCategoryPusher::onPollEvent(eventWindowA);
+					uiCategoryPusher::onPollEvent(nodeEditorEvent);
 				else
 				{
-					if (eventWindowA.type == sf::Event::KeyPressed && !uiInputField::typingInteractionOngoing())
+					if (nodeEditorEvent.type == sf::Event::KeyPressed && !uiInputField::typingInteractionOngoing())
 					{
-						switch (eventWindowA.key.code)
+						switch (nodeEditorEvent.key.code)
 						{
 						case sf::Keyboard::Space:
 							uiSearchBar::onSpacebarPressed();
@@ -280,9 +311,9 @@ int main(int argc, char** argv)
 						}
 					}
 
-					uiFloatingButtonLayer::ButtonPosition bp = uiFloatingButtonLayer::onPollEvent(eventWindowA);
+					uiFloatingButtonLayer::ButtonPosition bp = uiFloatingButtonLayer::onPollEvent(nodeEditorEvent);
 					if (bp == uiFloatingButtonLayer::ButtonPosition::None)
-						uiNodeSystem::onPollEvent(eventWindowA);
+						uiNodeSystem::onPollEvent(nodeEditorEvent);
 					else
 					{
 						switch (bp)
@@ -291,7 +322,7 @@ int main(int argc, char** argv)
 							uiHelp::displayHelp();
 							break;
 						case uiFloatingButtonLayer::ButtonPosition::TopRight:
-							windowB.requestFocus();
+							viewportWindow->requestFocus();
 							break;
 						case uiFloatingButtonLayer::ButtonPosition::BottomRight:
 							uiCategoryPusher::onClickFloatingButton(uiFloatingButtonLayer::getButtonCenterCoords(uiFloatingButtonLayer::ButtonPosition::BottomRight));
@@ -304,23 +335,23 @@ int main(int argc, char** argv)
 				}
 			}
 		}
-		while (windowB.pollEvent(eventWindowB))
+		while (viewportWindow->pollEvent(viewportEvent))
 		{
-			mousePosWindowB = sf::Mouse::getPosition(windowB);
-			switch (eventWindowB.type)
+			mousePosViewport = sf::Mouse::getPosition(*viewportWindow);
+			switch (viewportEvent.type)
 			{
 				case sf::Event::Closed:
 				{
-					windowA.close();
-					windowB.close();
+					nodeEditorWindow->close();
+					viewportWindow->close();
 					break;
 				}
 			}
-			uiViewport::onPollEvent(eventWindowB);
+			uiViewport::onPollEvent(viewportEvent);
 		}
 		// Clear screen
-		windowA.clear(BACKGROUND_COLOR);
-		windowB.clear(BACKGROUND_COLOR);
+		nodeEditorWindow->clear(BACKGROUND_COLOR);
+		viewportWindow->clear(BACKGROUND_COLOR);
 
 		uiNodeSystem::draw();
 		uiFloatingButtonLayer::draw();
@@ -331,8 +362,8 @@ int main(int argc, char** argv)
 		uiViewport::draw();
 
 		// Update the window
-		windowA.display();
-		windowB.display();
+		nodeEditorWindow->display();
+		viewportWindow->display();
 
 		uiColorPicker::tick();
 
@@ -351,6 +382,11 @@ int main(int argc, char** argv)
 	uiNodeSystem::terminate();
 	uiColorPicker::terminate();
 	nodeProvider::terminate();
+
+	if (viewportWindow != nullptr)
+		delete viewportWindow;
+	if (nodeEditorWindow != nullptr)
+		delete nodeEditorWindow;
 
 	return EXIT_SUCCESS;
 }

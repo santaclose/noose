@@ -37,7 +37,9 @@ namespace uiViewport {
 	float currentZoom = 1.0f;
 	sf::RenderWindow* renderWindow;
 	const sf::Vector2i* mouseScreenPosPointer;
-	void (*updateSelectedPositionFunction)(const sf::Vector2i& vec) = nullptr;
+
+	void (*onSelectedPositionChange)(const sf::Vector2i& vec) = nullptr;
+	void (*onToggleNodeEditorVisibility)() = nullptr;
 
 	bool panning = false;
 	sf::Vector2f lastMouseScreenPos;
@@ -79,7 +81,7 @@ int uiViewport::mouseOver(sf::Vector2f& mousePos)
 		return -1;
 
 	sf::Vector2f cursor(0.0f, 0.0f);
-	
+
 	// iterate through all output pins
 	int c = selectedNodeDataPointers->size();
 	for (int i = c - selectedNodeOutputPinCount; i < c; i++)
@@ -89,7 +91,7 @@ int uiViewport::mouseOver(sf::Vector2f& mousePos)
 		case NS_TYPE_IMAGE:
 		{
 			const sf::Vector2u& imageSize = ((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getSize();
-			if (nooseMath::isPointInsideRect(mousePos, cursor, cursor + (sf::Vector2f) imageSize))
+			if (nooseMath::isPointInsideRect(mousePos, cursor, cursor + (sf::Vector2f)imageSize))
 				return i;
 
 			cursor.x += imageSize.x;
@@ -137,7 +139,7 @@ void uiViewport::updateBottomBarText()
 		}
 		case NS_TYPE_VECTOR2I:
 		{
-			sf::Vector2i* data = (sf::Vector2i*) (*selectedNodeDataPointers)[i];
+			sf::Vector2i* data = (sf::Vector2i*)(*selectedNodeDataPointers)[i];
 			newBottomBarText << data->x << "," << data->y;
 			break;
 		}
@@ -145,7 +147,7 @@ void uiViewport::updateBottomBarText()
 			break;
 		case NS_TYPE_COLOR:
 		{
-			newBottomBarText << "#" << utils::hexStringFromColor(*((sf::Color*) (*selectedNodeDataPointers)[i]));
+			newBottomBarText << "#" << utils::hexStringFromColor(*((sf::Color*)(*selectedNodeDataPointers)[i]));
 			break;
 		}
 		case NS_TYPE_FONT:
@@ -165,9 +167,8 @@ void uiViewport::updateBottomBarText()
 	bottomBarText.setString(newBottomBarText.str());
 }
 
-void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer, void (*updateSelectedPositionFunction)(const sf::Vector2i& vec))
+void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2i* mouseScreenPosPointer)
 {
-	uiViewport::updateSelectedPositionFunction = updateSelectedPositionFunction;
 	uiViewport::mouseScreenPosPointer = mouseScreenPosPointer;
 	renderWindow = &theRenderWindow;
 	updateView();
@@ -176,10 +177,10 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2
 	zoomPercentageText.setPosition(sf::Vector2f(
 		-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
 		PERCENTAGE_TEXT_MARGIN
-		));
+	));
 
 	bottomBarText = sf::Text("", uiData::monospaceFont, FONT_SIZE);
-	backgroundRectangle.setSize((sf::Vector2f) renderWindow->getSize());
+	backgroundRectangle.setSize((sf::Vector2f)renderWindow->getSize());
 
 	bottomBarRectangle.setSize(sf::Vector2f(
 		renderWindow->getSize().x,
@@ -234,170 +235,146 @@ void uiViewport::onPollEvent(const sf::Event& e)
 	mouseWorldPos = renderWindow->mapPixelToCoords(*mouseScreenPosPointer);
 	switch (e.type)
 	{
-		case sf::Event::Resized:
+	case sf::Event::Resized:
+	{
+		// update the view to the new size of the window
+		updateView();
+		backgroundRectangle.setSize((sf::Vector2f)renderWindow->getSize());
+		bottomBarRectangle.setSize(sf::Vector2f(
+			renderWindow->getSize().x,
+			BOTTOM_BAR_HEIGHT));
+		bottomBarRectangle.setPosition(sf::Vector2f(
+			0.0,
+			renderWindow->getSize().y - BOTTOM_BAR_HEIGHT));
+		bottomBarText.setPosition(sf::Vector2f(
+			BOTTOM_BAR_TEXT_MARGIN,
+			renderWindow->getSize().y - BOTTOM_BAR_HEIGHT + BOTTOM_BAR_TEXT_MARGIN
+		));
+		zoomPercentageText.setPosition(sf::Vector2f(
+			-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
+			PERCENTAGE_TEXT_MARGIN
+		));
+		break;
+	}
+	case sf::Event::MouseButtonPressed:
+	{
+		if (e.mouseButton.button == sf::Mouse::Middle)
 		{
-			// update the view to the new size of the window
-			updateView();
-			backgroundRectangle.setSize((sf::Vector2f) renderWindow->getSize());
-			bottomBarRectangle.setSize(sf::Vector2f(
-				renderWindow->getSize().x,
-				BOTTOM_BAR_HEIGHT));
-			bottomBarRectangle.setPosition(sf::Vector2f(
-				0.0,
-				renderWindow->getSize().y - BOTTOM_BAR_HEIGHT));
-			bottomBarText.setPosition(sf::Vector2f(
-				BOTTOM_BAR_TEXT_MARGIN,
-				renderWindow->getSize().y - BOTTOM_BAR_HEIGHT + BOTTOM_BAR_TEXT_MARGIN
-				));
-			zoomPercentageText.setPosition(sf::Vector2f(
-				-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
-				PERCENTAGE_TEXT_MARGIN
-			));
-			break;
+			panning = true;
+			lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
 		}
-		case sf::Event::MouseButtonPressed:
+		else if (e.mouseButton.button == sf::Mouse::Right)
 		{
-			if (e.mouseButton.button == sf::Mouse::Middle)
+			rightClickedImageIndex = mouseOver(mouseWorldPos);
+			if (rightClickedImageIndex > -1)
+				saveSelectionBox.display((sf::Vector2f)(*mouseScreenPosPointer), SAVE_CONTEXT_MENU_OPTIONS);
+		}
+		else if (e.mouseButton.button == sf::Mouse::Left)
+		{
+			int index = saveSelectionBox.mouseOver((sf::Vector2f)(*mouseScreenPosPointer));
+			if (saveSelectionBox.isVisible())
 			{
-				panning = true;
-				lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
-			}
-			else if (e.mouseButton.button == sf::Mouse::Right)
-			{
-				rightClickedImageIndex = mouseOver(mouseWorldPos);
-				if (rightClickedImageIndex > -1)
-					saveSelectionBox.display((sf::Vector2f)(*mouseScreenPosPointer), SAVE_CONTEXT_MENU_OPTIONS);
-			}
-			else if (e.mouseButton.button == sf::Mouse::Left)
-			{
-				int index = saveSelectionBox.mouseOver((sf::Vector2f)(*mouseScreenPosPointer));
-				if (saveSelectionBox.isVisible())
+				if (index == 4)
 				{
-					if (index == 4)
-					{
-						sf::Image imageToCopy = ((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage();
-						if (!utils::imageToClipboard(imageToCopy))
-							std::cout << "[UI] Failed to copy image to clipboard\n";
-						else
-							utils::osShowNotification("Image copied to clipboard");
-					}
-					else if (index > -1)
-					{
-						std::string fileExtension;
-						switch (index)
-						{
-						default:
-						case 0:
-							fileExtension = "png";
-							break;
-						case 1:
-							fileExtension = "jpg";
-							break;
-						case 2:
-							fileExtension = "bmp";
-							break;
-						case 3:
-							fileExtension = "tga";
-							break;
-						}
-
-						std::string destination = utils::osSaveFileDialog("Save file", fileExtension, "*." + fileExtension);
-						if (destination.length() == 0)
-						{
-							std::cout << "[UI] Image not saved\n";
-							break;
-						}
-						destination = destination + (pathUtils::fileHasExtension(destination.c_str(), fileExtension.c_str()) ? "" : '.' + fileExtension);
-						if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(destination))
-							std::cout << "[UI] Image saved\n";
-						else
-							std::cout << "[UI] Could not save image\n";
-					}
-					saveSelectionBox.hide();
+					sf::Image imageToCopy = ((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage();
+					if (!utils::imageToClipboard(imageToCopy))
+						std::cout << "[UI] Failed to copy image to clipboard\n";
+					else
+						utils::osShowNotification("Image copied to clipboard");
 				}
-				else
+				else if (index > -1)
 				{
-					pickingPosition = true;
-					updateSelectedPositionFunction((sf::Vector2i)mouseWorldPos);
-				}
-			}
-			break;
-		}
-		case sf::Event::MouseButtonReleased:
-		{
-
-			if (e.mouseButton.button == sf::Mouse::Middle)
-			{
-				panning = false;
-			}
-			else if (e.mouseButton.button == sf::Mouse::Left)
-			{
-				pickingPosition = false;
-			}
-			break;
-		}
-		case sf::Event::MouseMoved:
-		{
-			sf::Vector2f currentMouseScreenPos = sf::Vector2f(e.mouseMove.x, e.mouseMove.y);
-			sf::Vector2f displacement = -lastMouseScreenPos + currentMouseScreenPos;
-			if (panning)
-			{
-				viewPosition -= displacement * currentZoom;
-				updateView();
-			}
-
-			if (pickingPosition)
-			{
-				updateSelectedPositionFunction((sf::Vector2i)mouseWorldPos);
-			}
-
-			lastMouseScreenPos = currentMouseScreenPos;
-			break;
-		}
-		case sf::Event::MouseWheelScrolled:
-		{
-			zoomInt -= e.mouseWheelScroll.delta;
-
-			//clamp from min to max zoom
-			if (zoomInt < MAX_ZOOM) zoomInt = MAX_ZOOM; else if (zoomInt > MIN_ZOOM) zoomInt = MIN_ZOOM;
-			updateView();
-			break;
-		}
-		case sf::Event::KeyPressed:
-		{
-			if (e.key.code == sf::Keyboard::F)
-			{
-				sf::Vector2f boundingBoxMax = { 0.0f , 0.0f };
-				int imageCount = 0;
-
-				// iterate through all output pins
-				int c = selectedNodeDataPointers->size();
-				for (int i = c - selectedNodeOutputPinCount; i < c; i++)
-				{
-					switch (selectedNodePinTypes[i])
+					std::string fileExtension;
+					switch (index)
 					{
-					case NS_TYPE_IMAGE:
-					{
-						const sf::Vector2u& imageSize = ((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getSize();
-						boundingBoxMax.x += imageSize.x;
-						boundingBoxMax.y = imageSize.y > boundingBoxMax.y ? imageSize.y : boundingBoxMax.y;
-						imageCount++;
-						break;
-					}
 					default:
+					case 0:
+						fileExtension = "png";
+						break;
+					case 1:
+						fileExtension = "jpg";
+						break;
+					case 2:
+						fileExtension = "bmp";
+						break;
+					case 3:
+						fileExtension = "tga";
 						break;
 					}
-				}
 
-				if (imageCount > 0)
-				{
-					boundingBoxMax.x += (imageCount - 1) * IMAGE_MARGIN;
-					viewPosition = boundingBoxMax / 2.0f;
-					updateView();
+					std::string destination = utils::osSaveFileDialog("Save file", fileExtension, "*." + fileExtension);
+					if (destination.length() == 0)
+					{
+						std::cout << "[UI] Image not saved\n";
+						break;
+					}
+					destination = destination + (pathUtils::fileHasExtension(destination.c_str(), fileExtension.c_str()) ? "" : '.' + fileExtension);
+					if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(destination))
+						std::cout << "[UI] Image saved\n";
+					else
+						std::cout << "[UI] Could not save image\n";
 				}
+				saveSelectionBox.hide();
 			}
-			break;
+			else
+			{
+				pickingPosition = true;
+				if (onSelectedPositionChange != nullptr)
+					onSelectedPositionChange((sf::Vector2i)mouseWorldPos);
+			}
 		}
+		break;
+	}
+	case sf::Event::MouseButtonReleased:
+	{
+		if (e.mouseButton.button == sf::Mouse::Middle)
+		{
+			panning = false;
+		}
+		else if (e.mouseButton.button == sf::Mouse::Left)
+		{
+			pickingPosition = false;
+		}
+		break;
+	}
+	case sf::Event::MouseMoved:
+	{
+		sf::Vector2f currentMouseScreenPos = sf::Vector2f(e.mouseMove.x, e.mouseMove.y);
+		sf::Vector2f displacement = -lastMouseScreenPos + currentMouseScreenPos;
+		if (panning)
+		{
+			viewPosition -= displacement * currentZoom;
+			updateView();
+		}
+
+		if (pickingPosition)
+			if (onSelectedPositionChange != nullptr)
+				onSelectedPositionChange((sf::Vector2i)mouseWorldPos);
+
+		lastMouseScreenPos = currentMouseScreenPos;
+		break;
+	}
+	case sf::Event::MouseWheelScrolled:
+	{
+		zoomInt -= e.mouseWheelScroll.delta;
+
+		// clamp from min to max zoom
+		if (zoomInt < MAX_ZOOM)
+			zoomInt = MAX_ZOOM;
+		else if (zoomInt > MIN_ZOOM)
+			zoomInt = MIN_ZOOM;
+		updateView();
+		break;
+	}
+	case sf::Event::KeyPressed:
+	{
+		if (e.key.code == sf::Keyboard::F)
+			centerView();
+		else if (e.key.code == sf::Keyboard::H)
+			if (onToggleNodeEditorVisibility != nullptr)
+				onToggleNodeEditorVisibility();
+		break;
+	}
 	}
 }
 
@@ -413,6 +390,38 @@ void uiViewport::onNodeDeleted(int uiNodeId)
 		selectedUiNode = -1;
 }
 
+void uiViewport::centerView()
+{
+	sf::Vector2f boundingBoxMax = { 0.0f , 0.0f };
+	int imageCount = 0;
+
+	// iterate through all output pins
+	int c = selectedNodeDataPointers->size();
+	for (int i = c - selectedNodeOutputPinCount; i < c; i++)
+	{
+		switch (selectedNodePinTypes[i])
+		{
+		case NS_TYPE_IMAGE:
+		{
+			const sf::Vector2u& imageSize = ((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getSize();
+			boundingBoxMax.x += imageSize.x;
+			boundingBoxMax.y = imageSize.y > boundingBoxMax.y ? imageSize.y : boundingBoxMax.y;
+			imageCount++;
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	if (imageCount > 0)
+	{
+		boundingBoxMax.x += (imageCount - 1) * IMAGE_MARGIN;
+		viewPosition = boundingBoxMax / 2.0f;
+		updateView();
+	}
+}
+
 void uiViewport::draw()
 {
 	const sf::Vector2u& windowSize = renderWindow->getSize();
@@ -422,7 +431,7 @@ void uiViewport::draw()
 
 	renderWindow->setView(staticView);
 	renderWindow->draw(backgroundRectangle, &checkerShader);
-	
+
 	renderWindow->setView(theView);
 	if (selectedUiNode > -1)
 	{
@@ -469,6 +478,16 @@ void uiViewport::draw()
 	}
 	renderWindow->setView(staticView);
 	saveSelectionBox.draw(*renderWindow, (sf::Vector2f)(*mouseScreenPosPointer));
+}
+
+void uiViewport::setOnSelectedPositionChangeCallback(void(*onSelectedPositionChange)(const sf::Vector2i& vec))
+{
+	uiViewport::onSelectedPositionChange = onSelectedPositionChange;
+}
+
+void uiViewport::setOnToggleNodeEditorVisibilityCallback(void(*onToggleNodeEditorVisibility)())
+{
+	uiViewport::onToggleNodeEditorVisibility = onToggleNodeEditorVisibility;
 }
 
 void uiViewport::getView(int& zoom, sf::Vector2f& position)

@@ -153,12 +153,17 @@ int uiNodeSystem::pushNewNode(const nodeData* nData, PushMode mode, bool nodeCen
 	return uiNodeId;
 }
 
-int uiNodeSystem::pushImageNodeFromFile(const std::string& filePath, PushMode mode, bool nodeCenterInPosition, sf::Vector2f worldPos)
+int uiNodeSystem::pushImageNodeFromFile(const std::string& filePath, PushMode mode, bool nodeCenterInPosition, sf::Vector2f worldPos, sf::Vector2u* outSize)
 {
 	int nodeID = uiNodeSystem::pushNewNode(nodeProvider::getNodeDataByName("Image"), mode, nodeCenterInPosition, worldPos);
 	// bind to set pin data
 	setBoundInputFieldNode(nodeID);
 	uiNodeList[nodeID]->setInput(0, &filePath);
+	if (outSize != nullptr)
+	{
+		const sf::RenderTexture* tempPointer = (const sf::RenderTexture*) uiNodeList[nodeID]->getDataPointer(0);
+		*outSize = tempPointer->getSize();
+	}
 	return nodeID;
 }
 

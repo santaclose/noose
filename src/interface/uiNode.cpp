@@ -340,11 +340,6 @@ const sf::Color& uiNode::getPinColor(int index)
 	return m_shapes[8 + index * 4].color;
 }
 
-int uiNode::getInputPinCount()
-{
-	return m_nodeData->inputPinCount;
-}
-
 const void* uiNode::getInput(int index, int* outFlags)
 {
 	if (index >= m_nodeData->inputPinCount)

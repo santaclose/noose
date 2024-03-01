@@ -37,16 +37,20 @@ public:
 		uiSelectionBox* selectionBox);
 	~uiNode();
 
-	void setPosition(sf::Vector2f& newPosition);
 	void setInput(int inputIndex, const void* data, int flags = 0);
+	const void* getInput(int index, int* outFlags = nullptr);
+	inline const void* getDataPointer(int index) { return m_inputFields[index].getDataPointer(); }
+
 	inline const std::string& getName() const { return m_nodeData->nodeName; }
+
 	inline int getInputPinCount() const { return m_nodeData->inputPinCount; }
 	inline int getOutputPinCount() const { return m_nodeData->outputPinCount; }
+
+	void setPosition(sf::Vector2f& newPosition);
 	const sf::Vector2f& getPosition() const;
-	inline sf::Vector2f getCenterPosition() const
-	{
-		return (m_shapes[3].position + m_shapes[5].position) / 2.0f;
-	}
+	inline sf::Vector2f getCenterPosition() const { return (m_shapes[3].position + m_shapes[5].position) / 2.0f; }
+	sf::Vector2f getPinPosition(int index);
+	const sf::Color& getPinColor(int index);
 	void draw(sf::RenderWindow& window);
 
 	MousePos mouseOver(const sf::Vector2f& mousePos, int& index, int& subIndex);
@@ -61,11 +65,6 @@ public:
 	bool canConnectToPin(int pin);
 
 	void bindInputField(int index, int subIndex, uiInputField::InteractionMode interactionMode = uiInputField::InteractionMode::Default);
-
-	sf::Vector2f getPinPosition(int index);
-	const sf::Color& getPinColor(int index);
-	int getInputPinCount();
-	const void* getInput(int index, int* outFlags = nullptr);
 
 	// needed to disconnect before deleting the node 
 	std::vector<int> getConnectedLines();
