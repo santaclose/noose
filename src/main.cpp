@@ -208,6 +208,11 @@ int main(int argc, char** argv)
 	viewportWindow = new sf::RenderWindow(sf::VideoMode({ 720, 720 }), "viewport", sf::Style::Resize | sf::Style::Close);
 	nodeEditorWindow->setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
 	viewportWindow->setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
+	if (openFileMode != OpenFileMode::Image)
+	{
+		nodeEditorWindow->setPosition(nodeEditorWindow->getPosition() - sf::Vector2i(720 / 2, 0));
+		viewportWindow->setPosition(viewportWindow->getPosition() + sf::Vector2i(720 / 2, 0));
+	}
 
 	uiViewport::initialize(*viewportWindow, &mousePosViewport);
 	uiColorPicker::initialize(iconImage);
@@ -257,6 +262,8 @@ int main(int argc, char** argv)
 	if (imageToOpenSize.x != ~0U)
 	{
 		viewportWindow->setSize(imageToOpenSize + sf::Vector2u(VIEWPORT_MARGIN_ON_OPEN_FILE, VIEWPORT_MARGIN_ON_OPEN_FILE));
+		auto desktop = sf::VideoMode::getDesktopMode();
+		viewportWindow->setPosition({ (int)(desktop.size.x / 2 - viewportWindow->getSize().x / 2), (int)(desktop.size.y / 2 - viewportWindow->getSize().y / 2) });
 		nodeEditorWindow->setVisible(nodeEditorIsVisible = false);
 		uiViewport::centerView();
 	}
