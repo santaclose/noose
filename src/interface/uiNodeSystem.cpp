@@ -190,7 +190,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 		}
 		case sf::Event::MouseButtonPressed:
 		{
-			if (e.mouseButton.button == sf::Mouse::Left)
+			if (e.mouseButton.button == sf::Mouse::Button::Left)
 			{
 				if (uiInputField::onMouseDown(mouseWorldPos))
 					return;
@@ -250,7 +250,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					break; // don't allow to click through nodes
 				}
 			}
-			else if (e.mouseButton.button == sf::Mouse::Right)
+			else if (e.mouseButton.button == sf::Mouse::Button::Right)
 			{
 				int i = uiNodeList.size() - 1;
 				// collision from top to bottom
@@ -301,7 +301,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 				removingConnections = true;
 				lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
 			}
-			else if (e.mouseButton.button == sf::Mouse::Middle)
+			else if (e.mouseButton.button == sf::Mouse::Button::Middle)
 			{
 				panning = true;
 				lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
@@ -310,11 +310,11 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 		}
 		case sf::Event::MouseButtonReleased:
 		{
-			if (e.mouseButton.button == sf::Mouse::Middle)
+			if (e.mouseButton.button == sf::Mouse::Button::Middle)
 			{
 				panning = false;
 			}
-			else if (e.mouseButton.button == sf::Mouse::Left)
+			else if (e.mouseButton.button == sf::Mouse::Button::Left)
 			{
 				// collision from top to bottom
 				if (creatingConnection)
@@ -383,7 +383,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 				creatingConnection = false;
 				uiInputField::onMouseUp();
 			}
-			else if (e.mouseButton.button == sf::Mouse::Right)
+			else if (e.mouseButton.button == sf::Mouse::Button::Right)
 			{
 				removingConnections = false;
 			}
@@ -444,8 +444,8 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 				return;
 			switch (e.key.code)
 			{
-				case sf::Keyboard::Backspace:
-				case sf::Keyboard::Delete:
+				case sf::Keyboard::Key::Backspace:
+				case sf::Keyboard::Key::Delete:
 				{
 					// can't delete if node is not selected or any node being moved
 					if (selectedNodeIndex < 0 || draggingNodeIndex > -1)
@@ -472,7 +472,7 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					selectedNodeIndex = -1;
 					break;
 				}
-				case sf::Keyboard::F:
+				case sf::Keyboard::Key::F:
 				{
 					sf::Vector2f boundingBoxMax = { -INFINITY , -INFINITY };
 					sf::Vector2f boundingBoxMin = {  INFINITY ,  INFINITY };

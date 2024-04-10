@@ -94,7 +94,7 @@ void uiConnections::printArray()
 
 void uiConnections::initialize(float zoom)
 {
-	if (!shader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/connection.shader", sf::Shader::Fragment))
+	if (!shader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/connection.shader", sf::Shader::Type::Fragment))
 		std::cout << "[UI] Failed to load line shader\n";
 	//shader.setUniform("ratio", 0.6f);//shaderFadeRatio);
 	shader.setUniform("zoom", zoom);

@@ -15,11 +15,11 @@
 
 void uiSelectionBox::initialize()
 {
-	m_box.resize(4, sf::Vertex(sf::Vector2f(0.0f, 0.0f), sf::Color(COLOR)));
+	m_box.resize(4, sf::Vertex{sf::Vector2f(0.0f, 0.0f), sf::Color(COLOR), sf::Vector2f(0.0f, 0.0f)});
 	m_box[0].texCoords.x = m_box[0].texCoords.y = m_box[1].texCoords.x = m_box[3].texCoords.y = 0.0;
 	m_box[2].texCoords.x = m_box[2].texCoords.y = m_box[1].texCoords.y = m_box[3].texCoords.x = 1.0;
 
-	if (!m_mouseOverShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/selectionBox.shader", sf::Shader::Fragment))
+	if (!m_mouseOverShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/selectionBox.shader", sf::Shader::Type::Fragment))
 		std::cout << "[UI] Failed to load selection box shader\n";
 }
 
@@ -56,7 +56,7 @@ void uiSelectionBox::display(const sf::Vector2f& position, const std::vector<std
 	for (int i = 0; i < m_currentOptionCount; i++)
 	{
 		if (m_optionTexts[i] == nullptr)
-			m_optionTexts[i] = new sf::Text(options[i], uiData::font, OPTION_FONT_SIZE);
+			m_optionTexts[i] = new sf::Text(uiData::font, options[i], OPTION_FONT_SIZE);
 		else
 			m_optionTexts[i]->setString(options[i]);
 

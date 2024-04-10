@@ -68,7 +68,7 @@ void uiCategoryPusher::onPollEvent(const sf::Event& e)
 			break;
 		case sf::Event::MouseButtonPressed:
 		{
-			if (e.mouseButton.button != sf::Mouse::Left)
+			if (e.mouseButton.button != sf::Mouse::Button::Left)
 				break;
 
 			int mouseOverIndex = categorySelectionBox.mouseOver((sf::Vector2f) * mouseScreenPosPointer);

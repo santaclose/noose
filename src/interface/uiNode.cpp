@@ -70,10 +70,10 @@ uiNode::uiNode(
 	m_shapes[0].color = m_shapes[1].color = m_shapes[2].color = m_shapes[3].color = sf::Color(BAR_COLOR);
 	m_shapes[4].color = m_shapes[5].color = m_shapes[6].color = m_shapes[7].color = sf::Color(CONTENT_RECT_COLOR);
 
-	m_title = sf::Text(data->nodeName, uiData::font, NODE_TITLE_FONT_SIZE);
-	m_title.setFillColor(sf::Color(TEXT_COLOR));
+	m_title = new sf::Text(uiData::font, data->nodeName, NODE_TITLE_FONT_SIZE);
+	m_title->setFillColor(sf::Color(TEXT_COLOR));
 
-	m_pinNameTexts = new sf::Text[m_nodeData->inputPinCount + m_nodeData->outputPinCount];
+	m_pinNameTexts.reserve(m_nodeData->inputPinCount + m_nodeData->outputPinCount);
 	m_inputFields = new uiInputField[m_nodeData->inputPinCount];
 
 	for (int i = 0; i < m_nodeData->inputPinCount + m_nodeData->outputPinCount; i++)
@@ -82,7 +82,7 @@ uiNode::uiNode(
 		setPinColor(&m_shapes[8 + i * 4], data->pinTypes[i]);
 
 		// create pin texts
-		m_pinNameTexts[i] = sf::Text(data->pinNames[i], uiData::font, PIN_TEXT_FONT_SIZE);
+		m_pinNameTexts.emplace_back(uiData::font, data->pinNames[i], PIN_TEXT_FONT_SIZE);
 
 		// create input fields
 		if (i < m_nodeData->inputPinCount)
@@ -101,7 +101,7 @@ uiNode::uiNode(
 
 uiNode::~uiNode()
 {
-	delete[] m_pinNameTexts;
+	delete m_title;
 	delete[] m_inputFields;
 	//std::cout << "node deleted\n";
 }
@@ -149,7 +149,7 @@ void uiNode::setPosition(sf::Vector2f& newPosition)
 		m_pinNameTexts[m_nodeData->inputPinCount + i].setPosition(pinCenter - sf::Vector2f(PIN_TEXT_MARGIN_X + m_pinNameTexts[m_nodeData->inputPinCount + i].getLocalBounds().width, -PIN_TEXT_MARGIN_Y));
 	}
 
-	m_title.setPosition(newPosition + sf::Vector2f(TEXT_MARGIN_LEFT, TEXT_MARGIN_TOP));
+	m_title->setPosition(newPosition + sf::Vector2f(TEXT_MARGIN_LEFT, TEXT_MARGIN_TOP));
 }
 
 void uiNode::setInput(int inputIndex, const void* data, int flags)
@@ -164,10 +164,10 @@ const sf::Vector2f& uiNode::getPosition() const
 
 void uiNode::draw(sf::RenderWindow& window)
 {
-	//std::cout << "drawing node " << m_title.getString().toAnsiString() << std::endl;
+	//std::cout << "drawing node " << m_title->getString().toAnsiString() << std::endl;
 
 	utils::drawQuads(window, &m_shapes[0], m_shapes.size());
-	window.draw(m_title);
+	window.draw(*m_title);
 	for (int i = 0; i < m_nodeData->inputPinCount + m_nodeData->outputPinCount; i++)
 	{
 		if (i < m_nodeData->inputPinCount)

@@ -29,7 +29,7 @@ namespace uiColorPicker {
 	sf::Image gradientImage;
 
 	sf::Texture marker;
-	sf::Sprite markerSprite;
+	sf::Sprite* markerSprite;
 
 	sf::Vector2i lastColorPos;
 	int lastIntensityPos;
@@ -89,11 +89,11 @@ void uiColorPicker::initialize(const sf::Image& iconImage)
 	rsOverwrite.blendMode = sf::BlendNone;
 
 	marker.loadFromFile(pathUtils::getAssetsDirectory() + "images/imageLimit.png");
-	markerSprite = sf::Sprite(marker);
+	markerSprite = new sf::Sprite(marker);
 
-	if (!colorWheelShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/colorwheel.shader", sf::Shader::Fragment))
+	if (!colorWheelShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/colorwheel.shader", sf::Shader::Type::Fragment))
 		std::cout << "[UI] Failed to load colorwheel shader\n";
-	if (!gradientShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/gradient.shader", sf::Shader::Fragment))
+	if (!gradientShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/gradient.shader", sf::Shader::Type::Fragment))
 		std::cout << "[UI] Failed to load gradient shader\n";
 
 	// get colorwheel image in ram
@@ -212,7 +212,7 @@ void uiColorPicker::tick()
 			}
 			case sf::Event::MouseButtonPressed:
 			{
-				if (e.mouseButton.button == sf::Mouse::Left)
+				if (e.mouseButton.button == sf::Mouse::Button::Left)
 				{
 					if (e.mouseButton.x > INTENSITY_AND_ALPHA_WIDTH + MARGIN_WIDTH * 1.5 + COLOR_WHEEL_SIZE)
 						selectionState = SelectionState::Alpha;
@@ -254,16 +254,16 @@ void uiColorPicker::tick()
 		theWindow->draw(sprt);
 
 		// colorwheel marker
-		markerSprite.setPosition({ (float)(lastColorPos.x - 8), (float)(lastColorPos.y - 8) });
-		theWindow->draw(markerSprite);
+		markerSprite->setPosition({ (float)(lastColorPos.x - 8), (float)(lastColorPos.y - 8) });
+		theWindow->draw(*markerSprite);
 
 		// intensity marker
-		markerSprite.setPosition({ (float)(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 0.5f - 8), (float)(lastIntensityPos - 8) });
-		theWindow->draw(markerSprite);
+		markerSprite->setPosition({ (float)(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 0.5f - 8), (float)(lastIntensityPos - 8) });
+		theWindow->draw(*markerSprite);
 
 		// alpha marker
-		markerSprite.setPosition({ (float)(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 1.5f + MARGIN_WIDTH - 8), (float)(lastAlphaPos - 8) });
-		theWindow->draw(markerSprite);
+		markerSprite->setPosition({ (float)(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 1.5f + MARGIN_WIDTH - 8), (float)(lastAlphaPos - 8) });
+		theWindow->draw(*markerSprite);
 
 		theWindow->display();
 	}
@@ -271,6 +271,7 @@ void uiColorPicker::tick()
 
 void uiColorPicker::terminate()
 {
+	delete markerSprite;
 	if (theWindow != nullptr)
 	{
 		theWindow->close();

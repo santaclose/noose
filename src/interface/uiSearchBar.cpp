@@ -27,13 +27,13 @@ namespace uiSearchBar {
 
 	bool searching = false;
 	sf::RectangleShape searchRectangle;
-	sf::Text searchText;
+	sf::Text searchText(uiData::font, "");
 	char searchBuffer[SEARCH_BAR_BUFFER_SIZE];
 	int searchBufferCurrentChar = 0;
 
 	int selectedSearchResult = 0;
 	sf::VertexArray resultsVA;
-	sf::Text resultsTexts[MAX_RESULTS_NUMBER];
+	std::vector<sf::Text> resultsTexts;
 	sf::Shader resultBoxShader;
 
 	int currentResultCount = 0;
@@ -80,7 +80,7 @@ void uiSearchBar::pushSelectedNode(uiNodeSystem::PushMode mode)
 
 void uiSearchBar::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer)
 {
-	if (!resultBoxShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/searchResults.shader", sf::Shader::Fragment))
+	if (!resultBoxShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/searchResults.shader", sf::Shader::Type::Fragment))
 		std::cout << "[UI] Failed to load search results shader\n";
 
 	searchRectangle = sf::RectangleShape(sf::Vector2f(SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT));
@@ -105,14 +105,14 @@ void uiSearchBar::initialize(sf::RenderWindow& window, const sf::Vector2i* mouse
 	searchBuffer[0] = '\0';
 
 	// set result texts positions
+	resultsTexts.reserve(MAX_RESULTS_NUMBER);
 	for (int i = 0; i < MAX_RESULTS_NUMBER; i++)
 	{
+		resultsTexts.push_back(sf::Text(uiData::font, "", RESULT_FONT_SIZE));
 		resultsTexts[i].setFillColor(sf::Color::White);
-		resultsTexts[i].setFont(uiData::font);
 		resultsTexts[i].setPosition({
 			(float)(window.getSize().x / 2.0f - SEARCH_BAR_WIDTH / 2.0f + SEARCH_BAR_TEXT_MARGIN),
 			(float)(SEARCH_BAR_HEIGHT + SEARCH_BAR_TEXT_MARGIN + RESULT_HEIGHT * i) });
-		resultsTexts[i].setCharacterSize(RESULT_FONT_SIZE);
 	}
 
 	renderWindow = &window;
@@ -129,16 +129,16 @@ void uiSearchBar::onPollEvent(const sf::Event& e)
 {
 	if (e.type == sf::Event::KeyPressed)
 	{
-		if (e.key.code == sf::Keyboard::Escape)
+		if (e.key.code == sf::Keyboard::Key::Escape)
 		{
 			clearSearch();
 		}
-		else if (e.key.code == sf::Keyboard::Enter)
+		else if (e.key.code == sf::Keyboard::Key::Enter)
 		{
 			if (searcher::searchResults.size() > 0)
 				pushSelectedNode();
 		}
-		else if (e.key.code == sf::Keyboard::Down)
+		else if (e.key.code == sf::Keyboard::Key::Down)
 		{
 			if (selectedSearchResult < currentResultCount - 1)
 			{
@@ -146,7 +146,7 @@ void uiSearchBar::onPollEvent(const sf::Event& e)
 				resultBoxShader.setUniform("sel", (float) selectedSearchResult);
 			}
 		}
-		else if (e.key.code == sf::Keyboard::Up)
+		else if (e.key.code == sf::Keyboard::Key::Up)
 		{
 			if (selectedSearchResult > 0)
 			{
@@ -225,7 +225,7 @@ void uiSearchBar::onPollEvent(const sf::Event& e)
 	}
 	else if (e.type == sf::Event::MouseButtonPressed)
 	{
-		if (e.mouseButton.button != sf::Mouse::Left || !searching)
+		if (e.mouseButton.button != sf::Mouse::Button::Left || !searching)
 			return;
 
 		if (nooseMath::isPointInsideRect((sf::Vector2f) * mouseScreenPosPointer, resultsVA[0].position, resultsVA[2].position))

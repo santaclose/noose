@@ -46,7 +46,7 @@ private:
 	bool enabled = true;
 	int type;
 	sf::Vertex* shapes = nullptr;
-	sf::Text* texts = nullptr;
+	std::vector<sf::Text> texts;
 	std::string imagePath = "";
 	ImageFieldContent imageContent = ImageFieldContent::None;
 	std::string fontPath = "";

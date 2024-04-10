@@ -32,7 +32,7 @@ namespace uiViewport {
 	const int* selectedNodePinTypes = nullptr;
 	int selectedNodeOutputPinCount;
 
-	sf::Text zoomPercentageText;
+	sf::Text zoomPercentageText(uiData::monospaceFont, "");
 	int zoomInt = 10;
 	float currentZoom = 1.0f;
 	sf::RenderWindow* renderWindow;
@@ -46,10 +46,10 @@ namespace uiViewport {
 	sf::View theView;
 	sf::Vector2f viewPosition = sf::Vector2f(INITIAL_VIEWPORT_SIZE / 2.0 - IMAGE_MARGIN, INITIAL_VIEWPORT_SIZE / 2.0 - IMAGE_MARGIN);
 	sf::Texture imageLimitTexture;
-	sf::Sprite imageLimitSprite;
+	sf::Sprite* imageLimitSprite;
 	sf::RectangleShape backgroundRectangle;
 	sf::Shader checkerShader;
-	sf::Text bottomBarText;
+	sf::Text bottomBarText(uiData::monospaceFont);
 	sf::RectangleShape bottomBarRectangle;
 	sf::Shader invertShader;
 
@@ -173,13 +173,13 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2
 	renderWindow = &theRenderWindow;
 	updateView();
 
-	zoomPercentageText = sf::Text("100%", uiData::monospaceFont, FONT_SIZE);
+	zoomPercentageText = sf::Text(uiData::monospaceFont, "100%", FONT_SIZE);
 	zoomPercentageText.setPosition(sf::Vector2f(
 		-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
 		PERCENTAGE_TEXT_MARGIN
 	));
 
-	bottomBarText = sf::Text("", uiData::monospaceFont, FONT_SIZE);
+	bottomBarText = sf::Text(uiData::monospaceFont, "", FONT_SIZE);
 	backgroundRectangle.setSize((sf::Vector2f)renderWindow->getSize());
 
 	bottomBarRectangle.setSize(sf::Vector2f(
@@ -195,14 +195,14 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2
 	bottomBarRectangle.setFillColor(sf::Color(BOTTOM_BAR_COLOR));
 
 	imageLimitTexture.loadFromFile(pathUtils::getAssetsDirectory() + "images/imageLimit.png");
-	imageLimitSprite = sf::Sprite(imageLimitTexture);
+	imageLimitSprite = new sf::Sprite(imageLimitTexture);
 
 	// checker background
-	if (!checkerShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/checker.shader", sf::Shader::Fragment))
+	if (!checkerShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/checker.shader", sf::Shader::Type::Fragment))
 		std::cout << "[UI] Failed to load alpha background shader\n";
 
 	// dark mode
-	if (!invertShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/invert.shader", sf::Shader::Fragment))
+	if (!invertShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/invert.shader", sf::Shader::Type::Fragment))
 		std::cout << "[UI] Failed to load dark mode shader\n";
 
 	saveSelectionBox.initialize();
@@ -258,18 +258,18 @@ void uiViewport::onPollEvent(const sf::Event& e)
 	}
 	case sf::Event::MouseButtonPressed:
 	{
-		if (e.mouseButton.button == sf::Mouse::Middle)
+		if (e.mouseButton.button == sf::Mouse::Button::Middle)
 		{
 			panning = true;
 			lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
 		}
-		else if (e.mouseButton.button == sf::Mouse::Right)
+		else if (e.mouseButton.button == sf::Mouse::Button::Right)
 		{
 			rightClickedImageIndex = mouseOver(mouseWorldPos);
 			if (rightClickedImageIndex > -1)
 				saveSelectionBox.display((sf::Vector2f)(*mouseScreenPosPointer), SAVE_CONTEXT_MENU_OPTIONS);
 		}
-		else if (e.mouseButton.button == sf::Mouse::Left)
+		else if (e.mouseButton.button == sf::Mouse::Button::Left)
 		{
 			int index = saveSelectionBox.mouseOver((sf::Vector2f)(*mouseScreenPosPointer));
 			if (saveSelectionBox.isVisible())
@@ -327,11 +327,11 @@ void uiViewport::onPollEvent(const sf::Event& e)
 	}
 	case sf::Event::MouseButtonReleased:
 	{
-		if (e.mouseButton.button == sf::Mouse::Middle)
+		if (e.mouseButton.button == sf::Mouse::Button::Middle)
 		{
 			panning = false;
 		}
-		else if (e.mouseButton.button == sf::Mouse::Left)
+		else if (e.mouseButton.button == sf::Mouse::Button::Left)
 		{
 			pickingPosition = false;
 		}
@@ -368,9 +368,9 @@ void uiViewport::onPollEvent(const sf::Event& e)
 	}
 	case sf::Event::KeyPressed:
 	{
-		if (e.key.code == sf::Keyboard::F)
+		if (e.key.code == sf::Keyboard::Key::F)
 			centerView();
-		else if (e.key.code == sf::Keyboard::H)
+		else if (e.key.code == sf::Keyboard::Key::H)
 			if (onToggleNodeEditorVisibility != nullptr)
 				onToggleNodeEditorVisibility();
 		break;
@@ -453,14 +453,14 @@ void uiViewport::draw()
 				x1 = currentXOffset - 9;
 				x2 = currentXOffset + imageSize.x - 8;
 				y2 = imageSize.y - 8;
-				imageLimitSprite.setPosition({ (float)x1, (float)y1 });
-				renderWindow->draw(imageLimitSprite, &invertShader);
-				imageLimitSprite.setPosition({ (float)x1, (float)y2 });
-				renderWindow->draw(imageLimitSprite, &invertShader);
-				imageLimitSprite.setPosition({ (float)x2, (float)y1 });
-				renderWindow->draw(imageLimitSprite, &invertShader);
-				imageLimitSprite.setPosition({ (float)x2, (float)y2 });
-				renderWindow->draw(imageLimitSprite, &invertShader);
+				imageLimitSprite->setPosition({ (float)x1, (float)y1 });
+				renderWindow->draw(*imageLimitSprite, &invertShader);
+				imageLimitSprite->setPosition({ (float)x1, (float)y2 });
+				renderWindow->draw(*imageLimitSprite, &invertShader);
+				imageLimitSprite->setPosition({ (float)x2, (float)y1 });
+				renderWindow->draw(*imageLimitSprite, &invertShader);
+				imageLimitSprite->setPosition({ (float)x2, (float)y2 });
+				renderWindow->draw(*imageLimitSprite, &invertShader);
 
 				currentXOffset += imageSize.x;
 				currentXOffset += IMAGE_MARGIN;

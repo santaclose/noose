@@ -143,13 +143,14 @@ bool utils::imageFromBase64String(const std::string& base64String, sf::Image& ou
 
 bool utils::base64StringFromImage(const sf::Image& image, std::string& out)
 {
-    std::vector<uint8_t> pngBytes;
+    std::optional<std::vector<uint8_t>> pngBytes;
     // allocate max we would need for assert not to show up in debug mode
     // https://stackoverflow.com/questions/35310117/debug-assertion-failed-expression-acrt-first-block-header
-    pngBytes.reserve(image.getSize().x * image.getSize().y * 4);
-    if (!image.saveToMemory(pngBytes, "png"))
+    //pngBytes.reserve(image.getSize().x * image.getSize().y * 4);
+    pngBytes = image.saveToMemory("png");
+    if (!pngBytes.has_value())
         return false;
-    out = base64::encode(pngBytes.data(), pngBytes.size());
+    out = base64::encode(pngBytes.value().data(), pngBytes.value().size());
     return true;
 }
 
@@ -159,7 +160,7 @@ bool utils::drawImageToRenderTexture(const sf::Texture& image, sf::RenderTexture
 {
     if (!loadImageShaderLoaded)
     {
-        if (!loadImageShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/loadImage.shader", sf::Shader::Fragment))
+        if (!loadImageShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/loadImage.shader", sf::Shader::Type::Fragment))
             std::cout << "[Utils] Failed to load image loading shader\n";
         loadImageShaderLoaded = true;
     }

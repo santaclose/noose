@@ -14,10 +14,10 @@ private:
 	const nodeData* m_nodeData;
 
 	std::vector<sf::Vertex> m_shapes; // top bar, content rect, and pins
-	sf::Text m_title;
+	sf::Text* m_title;
 	float m_contentHeight;
 
-	sf::Text* m_pinNameTexts;
+	std::vector<sf::Text> m_pinNameTexts;
 	uiInputField* m_inputFields;
 	
 	std::vector<int> m_connectedLineIndices;

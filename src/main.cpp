@@ -204,8 +204,8 @@ int main(int argc, char** argv)
 	uiData::load();
 	iconImage.loadFromFile(pathUtils::getAssetsDirectory() + "icon.png");
 
-	nodeEditorWindow = new sf::RenderWindow(sf::VideoMode({ 720, 720 }), "node editor", sf::Style::Default, sf::ContextSettings(), true);
-	viewportWindow = new sf::RenderWindow(sf::VideoMode({ 720, 720 }), "viewport", sf::Style::Resize | sf::Style::Close);
+	nodeEditorWindow = new sf::RenderWindow(sf::VideoMode({ 720, 720 }), "node editor", sf::Style::Default, sf::State::Windowed, sf::ContextSettings(), true);
+	viewportWindow = new sf::RenderWindow(sf::VideoMode({ 720, 720 }), "viewport", sf::Style::Resize | sf::Style::Close, sf::State::Windowed);
 	nodeEditorWindow->setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
 	viewportWindow->setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
 	if (openFileMode != OpenFileMode::Image)
@@ -309,10 +309,10 @@ int main(int argc, char** argv)
 					{
 						switch (nodeEditorEvent.key.code)
 						{
-						case sf::Keyboard::Space:
+						case sf::Keyboard::Key::Space:
 							uiSearchBar::onSpacebarPressed();
 							break;
-						case sf::Keyboard::H:
+						case sf::Keyboard::Key::H:
 							uiFloatingButtonLayer::active = !uiFloatingButtonLayer::active;
 							break;
 						}

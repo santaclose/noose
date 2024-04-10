@@ -412,8 +412,6 @@ uiInputField::~uiInputField()
 {
 	if (editingInputField == this)
 		editingInputField = nullptr;
-	if (texts != nullptr)
-		delete[] texts;
 	if (shapes != nullptr)
 		delete[] shapes;
 }
@@ -465,10 +463,8 @@ void uiInputField::create(int thePin, int theType, void* pinDataPointer, void(on
 	{
 	case NS_TYPE_INT:
 		shapes = new sf::Vertex[4];
-		texts = new sf::Text[1];
+		texts.push_back(sf::Text(uiData::font, "", FONT_SIZE));
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = INPUT_FIELD_COLOR;
-		texts[0].setFont(uiData::font);
-		texts[0].setCharacterSize(FONT_SIZE);
 		if (enumOptions->size() == 0)
 			texts[0].setString(std::to_string(*((int*)pinDataPointer)));
 		else
@@ -477,32 +473,19 @@ void uiInputField::create(int thePin, int theType, void* pinDataPointer, void(on
 		break;
 	case NS_TYPE_FLOAT:
 		shapes = new sf::Vertex[4];
-		texts = new sf::Text[1];
+		texts.push_back(sf::Text(uiData::font, std::to_string(*((float*)pinDataPointer)), FONT_SIZE));
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = INPUT_FIELD_COLOR;
-		texts[0].setFont(uiData::font);
-		texts[0].setCharacterSize(FONT_SIZE);
-		texts[0].setString(std::to_string(*((float*)pinDataPointer)));
 		break;
 	case NS_TYPE_STRING:
 		shapes = new sf::Vertex[4];
-		texts = new sf::Text[1];
+		texts.push_back(sf::Text(uiData::font, *((std::string*)pinDataPointer), FONT_SIZE));
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = INPUT_FIELD_COLOR;
-		texts[0].setFont(uiData::font);
-		texts[0].setCharacterSize(FONT_SIZE);
-		texts[0].setString(*((std::string*)pinDataPointer));
 		break;
 	case NS_TYPE_VECTOR2I:
 		shapes = new sf::Vertex[12];
-		texts = new sf::Text[3];
-		texts[0].setFont(uiData::font);
-		texts[1].setFont(uiData::font);
-		texts[2].setFont(uiData::font);
-		texts[0].setCharacterSize(FONT_SIZE);
-		texts[1].setCharacterSize(FONT_SIZE);
-		texts[2].setCharacterSize(FONT_SIZE);
-		texts[0].setString(std::to_string(((sf::Vector2i*)pinDataPointer)->x));
-		texts[1].setString(std::to_string(((sf::Vector2i*)pinDataPointer)->y));
-		texts[2].setString("×");
+		texts.push_back(sf::Text(uiData::font, std::to_string(((sf::Vector2i*)pinDataPointer)->x), FONT_SIZE));
+		texts.push_back(sf::Text(uiData::font, std::to_string(((sf::Vector2i*)pinDataPointer)->y), FONT_SIZE));
+		texts.push_back(sf::Text(uiData::font, "×", FONT_SIZE));
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color =
 			shapes[4].color = shapes[5].color = shapes[6].color = shapes[7].color =
 			shapes[8].color = shapes[9].color = shapes[10].color = shapes[11].color = INPUT_FIELD_COLOR;
@@ -514,11 +497,8 @@ void uiInputField::create(int thePin, int theType, void* pinDataPointer, void(on
 	case NS_TYPE_FONT:
 	case NS_TYPE_IMAGE:
 		shapes = new sf::Vertex[4];
-		texts = new sf::Text[1];
+		texts.push_back(sf::Text(uiData::font, "Open file...", FONT_SIZE));
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = INPUT_FIELD_COLOR;
-		texts[0].setFont(uiData::font);
-		texts[0].setCharacterSize(FONT_SIZE);
-		texts[0].setString("Open file...");
 		break;
 	}
 }

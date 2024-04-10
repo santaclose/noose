@@ -41,7 +41,7 @@ void uiMenu::onPollEvent(const sf::Event& e)
 	switch (e.type)
 	{
 	case sf::Event::MouseButtonPressed:
-		if (e.mouseButton.button != sf::Mouse::Left)
+		if (e.mouseButton.button != sf::Mouse::Button::Left)
 			break;
 		int mouseOverIndex = selectionBox.mouseOver((sf::Vector2f)*mouseScreenPosPointer);
 		if (mouseOverIndex > -1)

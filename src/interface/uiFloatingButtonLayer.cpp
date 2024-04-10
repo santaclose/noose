@@ -56,7 +56,7 @@ void uiFloatingButtonLayer::initialize(sf::RenderWindow& window, const sf::Vecto
 {
 	renderWindow = &window;
 	uiFloatingButtonLayer::mouseScreenPosPointer = mouseScreenPosPointer;
-	if (!genericShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/floatingButton.shader", sf::Shader::Fragment))
+	if (!genericShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/floatingButton.shader", sf::Shader::Type::Fragment))
 		std::cout << "[UI] Failed to load floating button shader\n";
 	genericShader.setUniform("radius", BUTTON_RADIUS);
 }
@@ -73,13 +73,13 @@ void uiFloatingButtonLayer::addButton(ButtonPosition position, char symbol, cons
 	if (customShaderPath == nullptr)
 	{
 		buttons.back().customShader = nullptr;
-		buttons.back().text = new sf::Text(sf::String(symbol), uiData::font, 30);
+		buttons.back().text = new sf::Text(uiData::font, sf::String(symbol), 30);
 	}
 	else
 	{
 		buttons.back().text = nullptr;
 		buttons.back().customShader = new sf::Shader();
-		if (!buttons.back().customShader->loadFromFile(pathUtils::getAssetsDirectory() + *customShaderPath, sf::Shader::Fragment))
+		if (!buttons.back().customShader->loadFromFile(pathUtils::getAssetsDirectory() + *customShaderPath, sf::Shader::Type::Fragment))
 			std::cout << "[UI] Failed to load floating button shader\n";
 		buttons.back().customShader->setUniform("radius", BUTTON_RADIUS);
 	}
@@ -151,7 +151,7 @@ uiFloatingButtonLayer::ButtonPosition uiFloatingButtonLayer::onPollEvent(const s
 			break;
 		case sf::Event::MouseButtonPressed:
 		{
-			if (e.mouseButton.button != sf::Mouse::Left || !active)
+			if (e.mouseButton.button != sf::Mouse::Button::Left || !active)
 				break;
 
 			for (const FloatingButton& fb : buttons)
