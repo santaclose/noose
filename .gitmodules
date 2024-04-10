@@ -1,6 +1,6 @@
 [submodule "vendor/SFML"]
 	path = vendor/SFML
-	url = https://github.com/SFML/SFML.git
+	url = https://github.com/santaclose/SFML.git
 [submodule "vendor/clip"]
 	path = vendor/clip
 	url = https://github.com/dacap/clip.git
