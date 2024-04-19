@@ -37,8 +37,8 @@ project "noose"
 
 	defines
 	{
-		"_CRT_SECURE_NO_WARNINGS"
-		--"SFML_STATIC"
+		"_CRT_SECURE_NO_WARNINGS",
+		"SFML_STATIC"
 	}
 
 	includedirs
@@ -98,14 +98,19 @@ project "noose"
 
 		libdirs
 		{
-			"vendor/SFML/lib/Debug"
+			"vendor/SFML/lib/Debug",
+			"vendor/SFML/extlibs/libs-msvc-universal/x64/"
 		}
 		links
 		{
-			"sfml-graphics-d",
-			"sfml-window-d",
-			"sfml-system-d",
-			"shlwapi"
+			"sfml-graphics-s-d",
+			"sfml-window-s-d",
+			"sfml-system-s-d",
+			"sfml-main-s-d",
+			"freetype",
+			"shlwapi",
+			"opengl32",
+			"winmm"
 		}
 
 	filter "configurations:Release"
@@ -115,12 +120,17 @@ project "noose"
 
 		libdirs
 		{
-			"vendor/SFML/lib/Release"
+			"vendor/SFML/lib/Release",
+			"vendor/SFML/extlibs/libs-msvc-universal/x64/"
 		}
 		links
 		{
-			"sfml-graphics",
-			"sfml-window",
-			"sfml-system",
-			"shlwapi"
+			"sfml-graphics-s",
+			"sfml-window-s",
+			"sfml-system-s",
+			"sfml-main-s",
+			"freetype",
+			"shlwapi",
+			"opengl32",
+			"winmm"
 		}
