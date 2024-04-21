@@ -23,6 +23,8 @@
 
 #define REDRAW_COUNT 5
 #define VIEWPORT_MARGIN_ON_OPEN_FILE 120U
+#define VIEWPORT_MIN_SIZE_ON_OPEN_FILE 340U
+#define VIEWPORT_MAX_SIZE_ON_OPEN_FILE 1200U
 
 static const sf::Color BACKGROUND_COLOR(0x222222ff);
 
@@ -261,7 +263,9 @@ int main(int argc, char** argv)
 
 	if (imageToOpenSize.x != ~0U)
 	{
-		viewportWindow->setSize(imageToOpenSize + sf::Vector2u(VIEWPORT_MARGIN_ON_OPEN_FILE, VIEWPORT_MARGIN_ON_OPEN_FILE));
+		viewportWindow->setSize(sf::Vector2u(
+			utils::clamp(imageToOpenSize.x + VIEWPORT_MARGIN_ON_OPEN_FILE, VIEWPORT_MIN_SIZE_ON_OPEN_FILE, VIEWPORT_MAX_SIZE_ON_OPEN_FILE),
+			utils::clamp(imageToOpenSize.y + VIEWPORT_MARGIN_ON_OPEN_FILE, VIEWPORT_MIN_SIZE_ON_OPEN_FILE, VIEWPORT_MAX_SIZE_ON_OPEN_FILE) ));
 		auto desktop = sf::VideoMode::getDesktopMode();
 		viewportWindow->setPosition({ (int)(desktop.size.x / 2 - viewportWindow->getSize().x / 2), (int)(desktop.size.y / 2 - viewportWindow->getSize().y / 2) });
 		nodeEditorWindow->setVisible(nodeEditorIsVisible = false);
