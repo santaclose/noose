@@ -6,6 +6,7 @@
 #include "../serializer.h"
 #include "../nodeProvider/nodeProvider.h"
 #include <iostream>
+#include <unordered_set>
 
 namespace nodeSystem {
 	struct nodePinPair { int n, p; };
@@ -292,8 +293,10 @@ void nodeSystem::onProjectFileFinishParsing()
 // custom nodes
 // ---------------
 
+static std::unordered_set<int> dependentSubgraphNodes;
 void nodeSystem::onCustomNodeFileStartParsing()
 {
+	dependentSubgraphNodes.clear();
 	loadCustomNodeBaseIndexStack.push_back(nodeList.size());
 }
 
@@ -315,6 +318,8 @@ void nodeSystem::onCustomNodeFileParseConnection(int nodeAIndex, int pinAIndex, 
 
 	int connectionIndex = connectionSystem::connect(nodeList, nodeAIndex, nodeBIndex, pinAIndex, pinBIndex);
 	customNodes[customNodeBase].subgraphConnections.push_back(connectionIndex);
+
+	dependentSubgraphNodes.insert(nodeBIndex);
 }
 
 void nodeSystem::onCustomNodeFileParseCustomNodeInput(int inPin, int subgraphNode, int subgraphPin)
@@ -344,7 +349,6 @@ void nodeSystem::onCustomNodeFileFinishParsing()
 		if (customNodes[customNodeBase].nodeInterfaceData->pinDefaultData[i] != nullptr)
 			subgraphNode->setDefaultValue(subgraphPin, customNodes[customNodeBase].nodeInterfaceData->pinDefaultData[i]);
 		customNodes[customNodeBase].dataPointers[i] = subgraphPinDataPointer;
-		subgraphNode->activate();
 	}
 	for (int i = 0; i < outputCount; i++)
 		customNodes[customNodeBase].dataPointers[inputCount + i] =
@@ -352,4 +356,9 @@ void nodeSystem::onCustomNodeFileFinishParsing()
 			customNodes[customNodeBase].bindings[inputCount + i].p, false);
 	customNodes[customNodeBase].subgraphNodeCount = nodeList.size() - customNodeBase;
 	loadCustomNodeBaseIndexStack.pop_back();
+
+	// activate all independent subgraph nodes (nothing connected to their left)
+	for (int i = customNodeBase; i < nodeList.size(); i++)
+		if (dependentSubgraphNodes.find(i) == dependentSubgraphNodes.end())
+			nodeList[i]->activate();
 }
