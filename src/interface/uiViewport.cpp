@@ -422,6 +422,8 @@ void uiViewport::centerView()
 	}
 }
 
+#define FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES 0.01f
+
 void uiViewport::draw()
 {
 	const sf::Vector2u& windowSize = renderWindow->getSize();
@@ -447,19 +449,19 @@ void uiViewport::draw()
 			{
 				const sf::Vector2u& imageSize = ((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getSize();
 				sf::Sprite spr(((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getTexture());
-				spr.setPosition({ (float)currentXOffset, spr.getPosition().y });
+				spr.setPosition({ (float)currentXOffset + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES, spr.getPosition().y + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES });
 				renderWindow->draw(spr);
 
 				x1 = currentXOffset - 9;
 				x2 = currentXOffset + imageSize.x - 8;
 				y2 = imageSize.y - 8;
-				imageLimitSprite->setPosition({ (float)x1, (float)y1 });
+				imageLimitSprite->setPosition({ (float)x1 + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES, (float)y1 + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES });
 				renderWindow->draw(*imageLimitSprite, &invertShader);
-				imageLimitSprite->setPosition({ (float)x1, (float)y2 });
+				imageLimitSprite->setPosition({ (float)x1 + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES, (float)y2 + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES });
 				renderWindow->draw(*imageLimitSprite, &invertShader);
-				imageLimitSprite->setPosition({ (float)x2, (float)y1 });
+				imageLimitSprite->setPosition({ (float)x2 + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES, (float)y1 + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES });
 				renderWindow->draw(*imageLimitSprite, &invertShader);
-				imageLimitSprite->setPosition({ (float)x2, (float)y2 });
+				imageLimitSprite->setPosition({ (float)x2 + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES, (float)y2 + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES });
 				renderWindow->draw(*imageLimitSprite, &invertShader);
 
 				currentXOffset += imageSize.x;
