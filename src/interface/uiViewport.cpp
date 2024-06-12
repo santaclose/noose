@@ -447,8 +447,10 @@ void uiViewport::draw()
 			{
 			case NS_TYPE_IMAGE:
 			{
-				const sf::Vector2u& imageSize = ((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getSize();
-				sf::Sprite spr(((sf::RenderTexture*)((*selectedNodeDataPointers)[i]))->getTexture());
+				sf::RenderTexture* imageRenderTexture = (sf::RenderTexture*)((*selectedNodeDataPointers)[i]);
+				imageRenderTexture->display();
+				const sf::Vector2u& imageSize = imageRenderTexture->getSize();
+				sf::Sprite spr(imageRenderTexture->getTexture());
 				spr.setPosition({ (float)currentXOffset + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES, spr.getPosition().y + FIXES_RENDERING_ISSUE_WITH_ODD_WINDOW_SIZES });
 				renderWindow->draw(spr);
 
