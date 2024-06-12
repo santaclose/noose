@@ -271,6 +271,7 @@ Scale
 	in:
 		Image: image
 		Float: factor[1.0]
+		Integer: sampling{Linear, Nearest}
 	out:
 		Image: out
 		Vector2i: new size

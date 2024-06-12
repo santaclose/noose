@@ -539,10 +539,11 @@ void nodeFunctionality::Rotate90(node* theNode)
 
 void nodeFunctionality::Scale(node* theNode)
 {
-	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointer(3));
-	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(2));
+	sf::Vector2i* outputSize = ((sf::Vector2i*) theNode->getDataPointer(4));
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(3));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 	float* factor = ((float*)theNode->getDataPointer(1));
+	bool linearSamplingIfTrueOtherwiseNearest = nooseMath::mod(*((int*)theNode->getDataPointer(2)), 2) == 0;
 
 	a->generateMipmap(); // generate mipmap for better minification
 
@@ -551,7 +552,7 @@ void nodeFunctionality::Scale(node* theNode)
 
 	outputPointer->create({ (unsigned int)outputSize->x, (unsigned int)outputSize->y});
 
-	a->setSmooth(true);
+	a->setSmooth(linearSamplingIfTrueOtherwiseNearest);
 	imageShader.setUniform("tx", a->getTexture());
 	imageShader.setUniform("flip", 0);
 
