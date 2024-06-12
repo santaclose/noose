@@ -314,6 +314,7 @@ int main(int argc, char** argv)
 						switch (nodeEditorEvent.key.code)
 						{
 						case sf::Keyboard::Key::Space:
+							uiNodeSystem::unbindInputField();
 							uiSearchBar::onSpacebarPressed();
 							break;
 						case sf::Keyboard::Key::H:

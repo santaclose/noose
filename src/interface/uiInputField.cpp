@@ -76,6 +76,9 @@ void onColorPickerSetColor(sf::Color* newColor)
 
 void uiInputField::unbind()
 {
+	if (editingInputField == nullptr)
+		return;
+
 	if (editingInputField->type == NS_TYPE_VECTOR2I)
 	{
 		editingInputField->paintQuad(false, 0);

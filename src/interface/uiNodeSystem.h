@@ -42,6 +42,7 @@ namespace uiNodeSystem
 	void setView(int zoom, const sf::Vector2f& position);
 
 	void setBoundInputFieldNode(int node);
+	void unbindInputField();
 
 	void clearEverything();
 	void createConnection(int leftNode, int rightNode, int leftPin, int rightPin);

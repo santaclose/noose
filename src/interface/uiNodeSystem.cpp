@@ -615,6 +615,11 @@ void uiNodeSystem::setBoundInputFieldNode(int node)
 	boundInputFieldNode = node;
 }
 
+void uiNodeSystem::unbindInputField()
+{
+	uiInputField::unbind();
+}
+
 // called before loading a file
 void uiNodeSystem::clearEverything()
 {
