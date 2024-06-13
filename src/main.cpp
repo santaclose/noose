@@ -38,7 +38,7 @@ enum class OpenFileMode {
 #endif
 
 static sf::Image iconImage;
-static bool nodeEditorIsVisible = false;
+static bool nodeEditorIsVisible = true;
 static sf::RenderWindow* nodeEditorWindow = nullptr;
 static sf::Vector2i mousePosNodeEditor;
 static sf::RenderWindow* viewportWindow = nullptr;
