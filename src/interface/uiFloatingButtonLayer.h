@@ -12,7 +12,7 @@ namespace uiFloatingButtonLayer {
 		sf::VertexArray va;
 	};
 
-	void updatButtonElementPositions(FloatingButton& fb);
+	void updateButtonElementPositions(FloatingButton& fb);
 
 	void initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer);
 	void addButton(ButtonPosition position, const std::string& customShaderPath);

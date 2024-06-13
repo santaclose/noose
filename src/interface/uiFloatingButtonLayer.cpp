@@ -22,7 +22,7 @@ namespace uiFloatingButtonLayer {
 	std::vector<FloatingButton> buttons;
 }
 
-void uiFloatingButtonLayer::updatButtonElementPositions(FloatingButton& fb)
+void uiFloatingButtonLayer::updateButtonElementPositions(FloatingButton& fb)
 {
 	if (fb.pos == ButtonPosition::BottomLeft || fb.pos == ButtonPosition::TopLeft)
 	{
@@ -92,7 +92,7 @@ void uiFloatingButtonLayer::addButton(ButtonPosition position, char symbol, cons
 	buttons.back().va[0].texCoords.x = buttons.back().va[1].texCoords.x = buttons.back().va[0].texCoords.y = buttons.back().va[3].texCoords.y = 0.0;
 	buttons.back().va[2].texCoords.x = buttons.back().va[3].texCoords.x = buttons.back().va[1].texCoords.y = buttons.back().va[2].texCoords.y = 1.0;
 
-	updatButtonElementPositions(buttons.back());
+	updateButtonElementPositions(buttons.back());
 }
 
 void uiFloatingButtonLayer::draw()
@@ -147,7 +147,7 @@ uiFloatingButtonLayer::ButtonPosition uiFloatingButtonLayer::onPollEvent(const s
 	{
 		case sf::Event::Resized:
 			for (FloatingButton& fb : buttons)
-				updatButtonElementPositions(fb);
+				updateButtonElementPositions(fb);
 			break;
 		case sf::Event::MouseButtonPressed:
 		{
