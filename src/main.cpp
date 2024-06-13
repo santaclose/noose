@@ -94,6 +94,7 @@ void onNodeChanged(int uiNodeId)
 void onToggleNodeEditorVisibility()
 {
 	nodeEditorWindow->setVisible(nodeEditorIsVisible = !nodeEditorIsVisible);
+	viewportWindow->requestFocus();
 }
 
 #ifdef NOOSE_PLATFORM_WINDOWS
@@ -335,6 +336,7 @@ int main(int argc, char** argv)
 							break;
 						case uiFloatingButtonLayer::ButtonPosition::TopRight:
 							viewportWindow->requestFocus();
+							nodeEditorWindow->requestFocus();
 							break;
 						case uiFloatingButtonLayer::ButtonPosition::BottomRight:
 							uiCategoryPusher::onClickFloatingButton(uiFloatingButtonLayer::getButtonCenterCoords(uiFloatingButtonLayer::ButtonPosition::BottomRight));
