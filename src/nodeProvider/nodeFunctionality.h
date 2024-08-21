@@ -31,6 +31,7 @@ namespace nodeFunctionality
 	void Scale(node* theNode);
 	void SelectByColor(node* theNode);
 	void FlatBlur(node* theNode);
+	void Diff(node* theNode);
 	// color operations
 	void Color(node* theNode);
 	void ColorFromRGBAInts(node* theNode);
@@ -68,3 +69,7 @@ namespace nodeFunctionality
 	void ImageFromText(node* theNode);
 };
 
+
+#define LOAD_NODE_SHADER(shader_name) \
+	if (!shader_name##Shader.loadFromFile(pathUtils::getAssetsDirectory() + "nodeShaders/" #shader_name ".shader", sf::Shader::Type::Fragment)) \
+		std::cout << "[Node provider] Failed to load " #shader_name " shader\n";

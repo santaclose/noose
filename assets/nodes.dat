@@ -276,6 +276,15 @@ Scale
 		Image: out
 		Vector2i: new size
 ]
+Diff
+[
+	category: Image processing
+	in:
+		Image: a
+		Image: b
+	out:
+		Image: out
+]
 Select by color
 [
 	category: Image processing

@@ -46,6 +46,7 @@ namespace nodeProvider {
 		{"Scale", (void*)nodeFunctionality::Scale},
 		{"Select by color", (void*)nodeFunctionality::SelectByColor},
 		{"Flat Blur", (void*)nodeFunctionality::FlatBlur},
+		{"Diff", (void*)nodeFunctionality::Diff},
 		{"Make color", (void*)nodeFunctionality::ColorFromRGBAInts},
 		{"Break color", (void*)nodeFunctionality::RGBAIntsFromColor},
 		{"Color from image", (void*)nodeFunctionality::ColorFromImage},
