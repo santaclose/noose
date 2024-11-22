@@ -68,6 +68,7 @@ void onNodeSelected(int uiNodeId)
 {
 	std::cout << "[Main] Node " << uiNodeId << " selected\n";
 	
+	uiInputField::unbind();
 	int nodeId = uiNodeSystem::getLogicalNodeId(uiNodeId);
 	uiViewport::hideSelectionBox();
 	uiViewport::setNodeData(
