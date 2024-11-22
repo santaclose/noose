@@ -32,6 +32,10 @@ namespace nodeFunctionality
 	void SelectByColor(node* theNode);
 	void FlatBlur(node* theNode);
 	void Diff(node* theNode);
+	void Find(node* theNode);
+	void Threshold(node* theNode);
+	void Delta(node* theNode);
+	void HeightmapToNormalmap(node* theNode);
 	// color operations
 	void Color(node* theNode);
 	void ColorFromRGBAInts(node* theNode);

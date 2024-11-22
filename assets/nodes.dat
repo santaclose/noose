@@ -295,6 +295,42 @@ Select by color
 	out:
 		Image: out
 ]
+Find
+[
+	category: Image processing
+	in:
+		Image: image
+		Image: kernel
+	out:
+		Image: out
+]
+Threshold
+[
+	category: Image processing
+	in:
+		Image: image
+		Float: threshold
+	out:
+		Image: out
+]
+Delta
+[
+	category: Image processing
+	in:
+		Image: image
+	out:
+		Image: out
+]
+Heightmap to normalmap
+[
+	category: Image processing
+	in:
+		Image: image
+		Float: height in pixels[30]
+		Integer: mode{OpenGL, DirectX}
+	out:
+		Image: out
+]
 Make color
 [
 	category: Color operations

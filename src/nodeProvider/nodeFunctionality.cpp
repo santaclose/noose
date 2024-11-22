@@ -31,6 +31,10 @@ namespace nodeFunctionality {
 	sf::Shader patchShader;
 	sf::Shader selectByColorShader;
 	sf::Shader diffShader;
+	sf::Shader findShader;
+	sf::Shader thresholdShader;
+	sf::Shader deltaShader;
+	sf::Shader heightmapToNormalmapShader;
 
 	sf::RenderStates rs;
 }
@@ -63,6 +67,10 @@ void nodeFunctionality::initialize()
 	LOAD_NODE_SHADER(patch);
 	LOAD_NODE_SHADER(selectByColor);
 	LOAD_NODE_SHADER(diff);
+	LOAD_NODE_SHADER(find);
+	LOAD_NODE_SHADER(threshold);
+	LOAD_NODE_SHADER(delta);
+	LOAD_NODE_SHADER(heightmapToNormalmap);
 }
 
 void nodeFunctionality::ImageFromFile(node* theNode)
@@ -594,6 +602,79 @@ void nodeFunctionality::Diff(node* theNode)
 
 	sf::Sprite spr(outputPointer->getTexture());
 	rs.shader = &diffShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::Find(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*)theNode->getDataPointer(2));
+	sf::RenderTexture* a = ((sf::RenderTexture*)theNode->getDataPointer(0));
+	sf::RenderTexture* b = ((sf::RenderTexture*)theNode->getDataPointer(1));
+
+	sf::Vector2u aSize = a->getSize();
+	sf::Vector2u bSize = b->getSize();
+	outputPointer->create({ aSize.x, aSize.y });
+
+	findShader.setUniform("image", a->getTexture());
+	findShader.setUniform("kernel", b->getTexture());
+	findShader.setUniform("imageSize", sf::Glsl::Vec2(aSize.x, aSize.y));
+	findShader.setUniform("kernelSize", sf::Glsl::Vec2(bSize.x, bSize.y));
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &findShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::Threshold(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*)theNode->getDataPointer(2));
+	sf::RenderTexture* inImage = ((sf::RenderTexture*)theNode->getDataPointer(0));
+	float* inThreshold = ((float*)theNode->getDataPointer(1));
+
+	sf::Vector2u size = inImage->getSize();
+	outputPointer->create({ size.x, size.y });
+
+	thresholdShader.setUniform("tx", inImage->getTexture());
+	thresholdShader.setUniform("threshold", *inThreshold);
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &thresholdShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::Delta(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*)theNode->getDataPointer(1));
+	sf::RenderTexture* inImage = ((sf::RenderTexture*)theNode->getDataPointer(0));
+
+	sf::Vector2u size = inImage->getSize();
+	outputPointer->create({ size.x, size.y });
+
+	deltaShader.setUniform("tx", inImage->getTexture());
+	deltaShader.setUniform("size", sf::Glsl::Vec2(size.x, size.y));
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &deltaShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::HeightmapToNormalmap(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*)theNode->getDataPointer(3));
+	sf::RenderTexture* inImage = ((sf::RenderTexture*)theNode->getDataPointer(0));
+	float* inMaxHeight = ((float*)theNode->getDataPointer(1));
+	int* inMode= ((int*)theNode->getDataPointer(2));
+
+	sf::Vector2u size = inImage->getSize();
+	outputPointer->create({ size.x, size.y });
+
+	heightmapToNormalmapShader.setUniform("tx", inImage->getTexture());
+	heightmapToNormalmapShader.setUniform("size", sf::Glsl::Vec2(size.x, size.y));
+	heightmapToNormalmapShader.setUniform("maxHeight", *inMaxHeight);
+	heightmapToNormalmapShader.setUniform("mode", *inMode);
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &heightmapToNormalmapShader;
 	outputPointer->draw(spr, rs);
 }
 
