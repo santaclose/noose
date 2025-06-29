@@ -36,88 +36,86 @@ void uiMenu::terminate()
 	selectionBox.terminate();
 }
 
-void uiMenu::onPollEvent(const sf::Event& e)
+void uiMenu::onPollEvent(const std::optional<sf::Event>& e)
 {
-	switch (e.type)
+	if (!e->is<sf::Event::MouseButtonPressed>() || e->getIf<sf::Event::MouseButtonPressed>()->button != sf::Mouse::Button::Left)
+		return;
+
+	int mouseOverIndex = selectionBox.mouseOver((sf::Vector2f)*mouseScreenPosPointer);
+	if (mouseOverIndex > -1)
 	{
-	case sf::Event::MouseButtonPressed:
-		if (e.mouseButton.button != sf::Mouse::Button::Left)
-			break;
-		int mouseOverIndex = selectionBox.mouseOver((sf::Vector2f)*mouseScreenPosPointer);
-		if (mouseOverIndex > -1)
+		switch (mouseOverIndex)
 		{
-			switch (mouseOverIndex)
+		case 0: // load
+		{
+			if (!uiNodeSystem::isEmpty())
 			{
-			case 0: // load
-			{
-				if (!uiNodeSystem::isEmpty())
-				{
-					utils::osChoice choice = utils::osYesNoMessageBox(continueMessageBoxTitle, continueMessageBoxMessage);
-					if (choice == utils::osChoice::No)
-						break;
-				}
-				std::vector<std::string> selection = utils::osOpenFileDialog("Open file", "Noose file (.ns .nsj)", "*.ns *.nsj");
-				if (selection.size() == 0)
-				{
-					std::cout << "[UI] File not loaded\n";
+				utils::osChoice choice = utils::osYesNoMessageBox(continueMessageBoxTitle, continueMessageBoxMessage);
+				if (choice == utils::osChoice::No)
 					break;
-				}
+			}
+			std::vector<std::string> selection = utils::osOpenFileDialog("Open file", "Noose file (.ns .nsj)", "*.ns *.nsj");
+			if (selection.size() == 0)
+			{
+				std::cout << "[UI] File not loaded\n";
+				break;
+			}
 
-				serializer::ParsingCallbacks parsingCallbacks;
-				parsingCallbacks.OnStartParsing = uiNodeSystem::onProjectFileStartParsing;
-				parsingCallbacks.OnParseNode = uiNodeSystem::onProjectFileParseNode;
-				parsingCallbacks.OnParseNodeInput = uiNodeSystem::onProjectFileParseNodeInput;
-				parsingCallbacks.OnParseConnection = uiNodeSystem::onProjectFileParseConnection;
-				parsingCallbacks.OnParseNodeEditorState = uiNodeSystem::onProjectFileParseNodeEditorState;
-				parsingCallbacks.OnParseViewportState = uiViewport::onProjectFileParseViewportState;
-				if (utils::endsWith(selection[0], ".nsj"))
-					serializer::LoadFromFileJson(selection[0], parsingCallbacks);
-				else
-					serializer::LoadFromFile(selection[0], parsingCallbacks);
-				break;
-			}
-			case 1: // save
-			{
-				std::string destination = utils::osSaveFileDialog("Save file", "Noose file (.ns)", "*.ns");
-				if (destination.length() == 0)
-				{
-					std::cout << "[UI] File not saved\n";
-					break;
-				}
-				destination = destination + (pathUtils::fileHasExtension(destination.c_str(), "ns") ? "" : ".ns");
-				serializer::SaveIntoFile(destination);
-				break;
-			}
-			case 2: // save json
-			{
-				std::string destination = utils::osSaveFileDialog("Save file", "Noose json file (.nsj)", "*.nsj");
-				if (destination.length() == 0)
-				{
-					std::cout << "[UI] File not saved\n";
-					break;
-				}
-				destination = destination + (pathUtils::fileHasExtension(destination.c_str(), "nsj") ? "" : ".nsj");
-				serializer::SaveIntoFileJson(destination);
-				break;
-			}
-			case 3: // clear
-			{
-				if (!uiNodeSystem::isEmpty())
-				{
-					utils::osChoice choice = utils::osYesNoMessageBox(continueMessageBoxTitle, continueMessageBoxMessage);
-					if (choice == utils::osChoice::No)
-						break;
-				}
-
-				uiNodeSystem::clearNodeSelection();
-				uiNodeSystem::clearEverything();
-				break;
-			}
-			}
+			serializer::ParsingCallbacks parsingCallbacks;
+			parsingCallbacks.OnStartParsing = uiNodeSystem::onProjectFileStartParsing;
+			parsingCallbacks.OnParseNode = uiNodeSystem::onProjectFileParseNode;
+			parsingCallbacks.OnParseNodeInput = uiNodeSystem::onProjectFileParseNodeInput;
+			parsingCallbacks.OnParseConnection = uiNodeSystem::onProjectFileParseConnection;
+			parsingCallbacks.OnParseNodeEditorState = uiNodeSystem::onProjectFileParseNodeEditorState;
+			parsingCallbacks.OnParseViewportState = uiViewport::onProjectFileParseViewportState;
+			if (utils::endsWith(selection[0], ".nsj"))
+				serializer::LoadFromFileJson(selection[0], parsingCallbacks);
+			else
+				serializer::LoadFromFile(selection[0], parsingCallbacks);
+			break;
 		}
-		selectionBox.hide();
+		case 1: // save
+		{
+			std::string destination = utils::osSaveFileDialog("Save file", "Noose file (.ns)", "*.ns");
+			if (destination.length() == 0)
+			{
+				std::cout << "[UI] File not saved\n";
+				break;
+			}
+			destination = destination + (pathUtils::fileHasExtension(destination.c_str(), "ns") ? "" : ".ns");
+			serializer::SaveIntoFile(destination);
+			break;
+		}
+		case 2: // save json
+		{
+			std::string destination = utils::osSaveFileDialog("Save file", "Noose json file (.nsj)", "*.nsj");
+			if (destination.length() == 0)
+			{
+				std::cout << "[UI] File not saved\n";
+				break;
+			}
+			destination = destination + (pathUtils::fileHasExtension(destination.c_str(), "nsj") ? "" : ".nsj");
+			serializer::SaveIntoFileJson(destination);
+			break;
+		}
+		case 3: // clear
+		{
+			if (!uiNodeSystem::isEmpty())
+			{
+				utils::osChoice choice = utils::osYesNoMessageBox(continueMessageBoxTitle, continueMessageBoxMessage);
+				if (choice == utils::osChoice::No)
+					break;
+			}
+
+			uiNodeSystem::clearNodeSelection();
+			uiNodeSystem::clearEverything();
+			break;
+		}
+		}
 	}
+	selectionBox.hide();
 }
+
 void uiMenu::onClickFloatingButton(const sf::Vector2f& buttonPos)
 {
 	buttonCenterPos = buttonPos;

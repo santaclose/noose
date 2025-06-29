@@ -88,7 +88,8 @@ void uiColorPicker::initialize(const sf::Image& iconImage)
 	uiColorPicker::iconImage = &iconImage;
 	rsOverwrite.blendMode = sf::BlendNone;
 
-	marker.loadFromFile(pathUtils::getAssetsDirectory() + "images/imageLimit.png");
+	if (!marker.loadFromFile(pathUtils::getAssetsDirectory() + "images/imageLimit.png"))
+		std::cout << "[UI] Failed to load image limit image\n";
 	markerSprite = new sf::Sprite(marker);
 
 	if (!colorWheelShader.loadFromFile(pathUtils::getAssetsDirectory() + "shaders/colorwheel.shader", sf::Shader::Type::Fragment))
@@ -103,7 +104,7 @@ void uiColorPicker::initialize(const sf::Image& iconImage)
 	cva[0].texCoords.x = cva[0].texCoords.y = cva[1].texCoords.x = cva[3].texCoords.y = 0.0;
 	cva[2].texCoords.x = cva[1].texCoords.y = cva[3].texCoords.x = cva[2].texCoords.y = 1.0;
 
-	renderTexture.create({ (unsigned int)COLOR_WHEEL_SIZE, (unsigned int)COLOR_WHEEL_SIZE });
+	renderTexture = sf::RenderTexture({ (unsigned int)COLOR_WHEEL_SIZE, (unsigned int)COLOR_WHEEL_SIZE });
 	colorWheelShader.setUniform("circleRadius", (float)COLOR_WHEEL_RADIUS);
 	colorWheelShader.setUniform("limit", 0.0f);
 	rsOverwrite.shader = &colorWheelShader;
@@ -118,13 +119,13 @@ void uiColorPicker::initialize(const sf::Image& iconImage)
 	gva[0].texCoords.y = gva[3].texCoords.y = 0.0;
 	gva[1].texCoords.y = gva[2].texCoords.y = 1.0;
 
-	renderTexture.create({ (unsigned int)1, (unsigned int)COLOR_WHEEL_SIZE });
+	renderTexture = sf::RenderTexture({ (unsigned int)1, (unsigned int)COLOR_WHEEL_SIZE });
 	rsOverwrite.shader = &gradientShader;
 	renderTexture.draw(gva, rsOverwrite);
 	gradientImage = renderTexture.getTexture().copyToImage();
 
 	// get final render texture to display
-	renderTexture.create({ (unsigned int)(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 2 + MARGIN_WIDTH * 2), (unsigned int)COLOR_WHEEL_SIZE });
+	renderTexture = sf::RenderTexture({ (unsigned int)(COLOR_WHEEL_SIZE + INTENSITY_AND_ALPHA_WIDTH * 2 + MARGIN_WIDTH * 2), (unsigned int)COLOR_WHEEL_SIZE });
 	renderTexture.clear(sf::Color::Black); // margin color
 
 	// draw colorwheel
@@ -199,46 +200,36 @@ void uiColorPicker::tick()
 	if (theWindow == nullptr)
 		return;
 
-	sf::Event e;
-	while (theWindow->pollEvent(e))
+	while (const std::optional e = theWindow->pollEvent())
 	{
-		switch (e.type)
+		if (e->is<sf::Event::Closed>())
 		{
-			case sf::Event::Closed:
-			{
-				theWindow->close();
-				onCloseWindowCallback();
-				break;
-			}
-			case sf::Event::MouseButtonPressed:
-			{
-				if (e.mouseButton.button == sf::Mouse::Button::Left)
-				{
-					if (e.mouseButton.x > INTENSITY_AND_ALPHA_WIDTH + MARGIN_WIDTH * 1.5 + COLOR_WHEEL_SIZE)
-						selectionState = SelectionState::Alpha;
-					else if (e.mouseButton.x < MARGIN_WIDTH * 0.5 + COLOR_WHEEL_SIZE)
-						selectionState = SelectionState::Color;
-					else
-						selectionState = SelectionState::Intensity;
+			theWindow->close();
+			onCloseWindowCallback();
+		}
+		else if (e->is<sf::Event::MouseButtonPressed>() && e->getIf<sf::Event::MouseButtonPressed>()->button == sf::Mouse::Button::Left)
+		{
+			mousePos = e->getIf<sf::Event::MouseButtonPressed>()->position;
 
-					mousePos = sf::Vector2i(e.mouseButton.x, e.mouseButton.y);
-					setColor();
-				}
-				break;
-			}
-			case sf::Event::MouseButtonReleased:
-			{
-				selectionState = SelectionState::None;
-				break;
-			}
-			case sf::Event::MouseMoved:
-			{
-				if (selectionState == SelectionState::None)
-					return;
-				mousePos = sf::Vector2i(e.mouseMove.x, e.mouseMove.y);
-				setColor();
-				break;
-			}
+			if (mousePos.x > INTENSITY_AND_ALPHA_WIDTH + MARGIN_WIDTH * 1.5 + COLOR_WHEEL_SIZE)
+				selectionState = SelectionState::Alpha;
+			else if (mousePos.x < MARGIN_WIDTH * 0.5 + COLOR_WHEEL_SIZE)
+				selectionState = SelectionState::Color;
+			else
+				selectionState = SelectionState::Intensity;
+
+			setColor();
+		}
+		else if (e->is<sf::Event::MouseButtonReleased>())
+		{
+			selectionState = SelectionState::None;
+		}
+		else if (e->is<sf::Event::MouseMoved>())
+		{
+			if (selectionState == SelectionState::None)
+				return;
+			mousePos = e->getIf<sf::Event::MouseMoved>()->position;
+			setColor();
 		}
 	}
 

@@ -67,7 +67,7 @@ void uiViewport::updateView()
 	percentageStream << (1.0f / currentZoom) * 100.0f << '%';
 	zoomPercentageText.setString(percentageStream.str());
 	zoomPercentageText.setPosition(sf::Vector2f(
-		-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
+		-zoomPercentageText.getLocalBounds().size.x + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
 		PERCENTAGE_TEXT_MARGIN
 	));
 
@@ -175,7 +175,7 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2
 
 	zoomPercentageText = sf::Text(uiData::monospaceFont, "100%", FONT_SIZE);
 	zoomPercentageText.setPosition(sf::Vector2f(
-		-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
+		-zoomPercentageText.getLocalBounds().size.x + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
 		PERCENTAGE_TEXT_MARGIN
 	));
 
@@ -194,7 +194,8 @@ void uiViewport::initialize(sf::RenderWindow& theRenderWindow, const sf::Vector2
 
 	bottomBarRectangle.setFillColor(sf::Color(BOTTOM_BAR_COLOR));
 
-	imageLimitTexture.loadFromFile(pathUtils::getAssetsDirectory() + "images/imageLimit.png");
+	if (!imageLimitTexture.loadFromFile(pathUtils::getAssetsDirectory() + "images/imageLimit.png"))
+		std::cout << "[UI] Failed to load image limit image\n";
 	imageLimitSprite = new sf::Sprite(imageLimitTexture);
 
 	// checker background
@@ -229,13 +230,13 @@ void uiViewport::hideSelectionBox()
 }
 
 
-void uiViewport::onPollEvent(const sf::Event& e)
+void uiViewport::onPollEvent(const std::optional<sf::Event>& e)
 {
 	renderWindow->setView(theView);
 	mouseWorldPos = renderWindow->mapPixelToCoords(*mouseScreenPosPointer);
-	switch (e.type)
-	{
-	case sf::Event::Resized:
+
+
+	if (e->is<sf::Event::Resized>())
 	{
 		// update the view to the new size of the window
 		updateView();
@@ -251,25 +252,26 @@ void uiViewport::onPollEvent(const sf::Event& e)
 			renderWindow->getSize().y - BOTTOM_BAR_HEIGHT + BOTTOM_BAR_TEXT_MARGIN
 		));
 		zoomPercentageText.setPosition(sf::Vector2f(
-			-zoomPercentageText.getLocalBounds().width + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
+			-zoomPercentageText.getLocalBounds().size.x + renderWindow->getSize().x - PERCENTAGE_TEXT_MARGIN,
 			PERCENTAGE_TEXT_MARGIN
 		));
-		break;
 	}
-	case sf::Event::MouseButtonPressed:
+	else if (e->is<sf::Event::MouseButtonPressed>())
 	{
-		if (e.mouseButton.button == sf::Mouse::Button::Middle)
+		sf::Mouse::Button button = e->getIf<sf::Event::MouseButtonPressed>()->button;
+		sf::Vector2i eventMousePos = e->getIf<sf::Event::MouseButtonPressed>()->position;
+		if (button == sf::Mouse::Button::Middle)
 		{
 			panning = true;
-			lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
+			lastMouseScreenPos = sf::Vector2f(eventMousePos.x, eventMousePos.y);
 		}
-		else if (e.mouseButton.button == sf::Mouse::Button::Right)
+		else if (button == sf::Mouse::Button::Right)
 		{
 			rightClickedImageIndex = mouseOver(mouseWorldPos);
 			if (rightClickedImageIndex > -1)
 				saveSelectionBox.display((sf::Vector2f)(*mouseScreenPosPointer), SAVE_CONTEXT_MENU_OPTIONS);
 		}
-		else if (e.mouseButton.button == sf::Mouse::Button::Left)
+		else if (button == sf::Mouse::Button::Left)
 		{
 			int index = saveSelectionBox.mouseOver((sf::Vector2f)(*mouseScreenPosPointer));
 			if (saveSelectionBox.isVisible())
@@ -306,13 +308,15 @@ void uiViewport::onPollEvent(const sf::Event& e)
 					if (destination.length() == 0)
 					{
 						std::cout << "[UI] Image not saved\n";
-						break;
 					}
-					destination = destination + (pathUtils::fileHasExtension(destination.c_str(), fileExtension.c_str()) ? "" : '.' + fileExtension);
-					if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(destination))
-						std::cout << "[UI] Image saved\n";
 					else
-						std::cout << "[UI] Could not save image\n";
+					{
+						destination = destination + (pathUtils::fileHasExtension(destination.c_str(), fileExtension.c_str()) ? "" : '.' + fileExtension);
+						if (((sf::RenderTexture*)(*uiViewport::selectedNodeDataPointers)[rightClickedImageIndex])->getTexture().copyToImage().saveToFile(destination))
+							std::cout << "[UI] Image saved\n";
+						else
+							std::cout << "[UI] Could not save image\n";
+					}
 				}
 				saveSelectionBox.hide();
 			}
@@ -323,23 +327,23 @@ void uiViewport::onPollEvent(const sf::Event& e)
 					onSelectedPositionChange((sf::Vector2i)mouseWorldPos);
 			}
 		}
-		break;
 	}
-	case sf::Event::MouseButtonReleased:
+	else if (e->is<sf::Event::MouseButtonReleased>())
 	{
-		if (e.mouseButton.button == sf::Mouse::Button::Middle)
+		sf::Mouse::Button button = e->getIf<sf::Event::MouseButtonReleased>()->button;
+		if (button == sf::Mouse::Button::Middle)
 		{
 			panning = false;
 		}
-		else if (e.mouseButton.button == sf::Mouse::Button::Left)
+		else if (button == sf::Mouse::Button::Left)
 		{
 			pickingPosition = false;
 		}
-		break;
 	}
-	case sf::Event::MouseMoved:
+	else if (e->is<sf::Event::MouseMoved>())
 	{
-		sf::Vector2f currentMouseScreenPos = sf::Vector2f(e.mouseMove.x, e.mouseMove.y);
+		sf::Vector2i eventMousePos = e->getIf<sf::Event::MouseMoved>()->position;
+		sf::Vector2f currentMouseScreenPos = sf::Vector2f(eventMousePos.x, eventMousePos.y);
 		sf::Vector2f displacement = -lastMouseScreenPos + currentMouseScreenPos;
 		if (panning)
 		{
@@ -352,11 +356,10 @@ void uiViewport::onPollEvent(const sf::Event& e)
 				onSelectedPositionChange((sf::Vector2i)mouseWorldPos);
 
 		lastMouseScreenPos = currentMouseScreenPos;
-		break;
 	}
-	case sf::Event::MouseWheelScrolled:
+	else if (e->is<sf::Event::MouseWheelScrolled>())
 	{
-		zoomInt -= e.mouseWheelScroll.delta;
+		zoomInt -= e->getIf<sf::Event::MouseWheelScrolled>()->delta;
 
 		// clamp from min to max zoom
 		if (zoomInt < MAX_ZOOM)
@@ -364,17 +367,15 @@ void uiViewport::onPollEvent(const sf::Event& e)
 		else if (zoomInt > MIN_ZOOM)
 			zoomInt = MIN_ZOOM;
 		updateView();
-		break;
 	}
-	case sf::Event::KeyPressed:
+	else if (e->is<sf::Event::KeyPressed>())
 	{
-		if (e.key.code == sf::Keyboard::Key::F)
+		sf::Keyboard::Key keyCode = e->getIf<sf::Event::KeyPressed>()->code;
+		if (keyCode == sf::Keyboard::Key::F)
 			centerView();
-		else if (e.key.code == sf::Keyboard::Key::H)
+		else if (keyCode == sf::Keyboard::Key::H)
 			if (onToggleNodeEditorVisibility != nullptr)
 				onToggleNodeEditorVisibility();
-		break;
-	}
 	}
 }
 

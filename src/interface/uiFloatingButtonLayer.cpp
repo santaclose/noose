@@ -48,8 +48,8 @@ void uiFloatingButtonLayer::updateButtonElementPositions(FloatingButton& fb)
 
 	if (fb.text != nullptr)
 		fb.text->setPosition({
-			(float)(MARGIN + BUTTON_SIZE / 2.0 - fb.text->getLocalBounds().width / 2.0),
-			(float)(renderWindow->getSize().y - MARGIN - BUTTON_SIZE / 2.0 - fb.text->getLocalBounds().height / 1.2 )});
+			(float)(MARGIN + BUTTON_SIZE / 2.0 - fb.text->getLocalBounds().size.x / 2.0),
+			(float)(renderWindow->getSize().y - MARGIN - BUTTON_SIZE / 2.0 - fb.text->getLocalBounds().size.y / 1.2 )});
 }
 
 void uiFloatingButtonLayer::initialize(sf::RenderWindow& window, const sf::Vector2i* mouseScreenPosPointer)
@@ -141,28 +141,25 @@ void uiFloatingButtonLayer::terminate()
 	}
 }
 
-uiFloatingButtonLayer::ButtonPosition uiFloatingButtonLayer::onPollEvent(const sf::Event& e)
+uiFloatingButtonLayer::ButtonPosition uiFloatingButtonLayer::onPollEvent(const std::optional<sf::Event>& e)
 {
-	switch (e.type)
+	if (e->is<sf::Event::Resized>())
 	{
-		case sf::Event::Resized:
-			for (FloatingButton& fb : buttons)
-				updateButtonElementPositions(fb);
-			break;
-		case sf::Event::MouseButtonPressed:
+		for (FloatingButton& fb : buttons)
+			updateButtonElementPositions(fb);
+	}
+	else if (
+		e->is<sf::Event::MouseButtonPressed>() &&
+		e->getIf<sf::Event::MouseButtonPressed>()->button == sf::Mouse::Button::Left &&
+		active)
+	{
+		for (const FloatingButton& fb : buttons)
 		{
-			if (e.mouseButton.button != sf::Mouse::Button::Left || !active)
-				break;
-
-			for (const FloatingButton& fb : buttons)
-			{
-				sf::Vector2f mousePosInUVSpace =
-					(sf::Vector2f(mouseScreenPosPointer->x, mouseScreenPosPointer->y) - fb.va[0].position) /
-					BUTTON_SIZE;
-				if (nooseMath::distance(sf::Vector2f(0.5, 0.5), mousePosInUVSpace) < BUTTON_RADIUS)
-					return fb.pos;
-			}
-			break;
+			sf::Vector2f mousePosInUVSpace =
+				(sf::Vector2f(mouseScreenPosPointer->x, mouseScreenPosPointer->y) - fb.va[0].position) /
+				BUTTON_SIZE;
+			if (nooseMath::distance(sf::Vector2f(0.5, 0.5), mousePosInUVSpace) < BUTTON_RADIUS)
+				return fb.pos;
 		}
 	}
 	return ButtonPosition::None;

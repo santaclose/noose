@@ -30,7 +30,6 @@ project "noose"
 		"src/**.cpp",
 		"vendor/clip/**.h",
 		"vendor/clip/clip.cpp",
-		"vendor/clip/clip_win.cpp",
 		"vendor/clip/image.cpp",
 		"vendor/base64/base64.cpp"
 	}
@@ -38,7 +37,8 @@ project "noose"
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"SFML_STATIC"
+		"SFML_STATIC",
+		"CLIP_ENABLE_IMAGE"
 	}
 
 	includedirs
@@ -58,6 +58,7 @@ project "noose"
 
 		files
 		{
+			"vendor/clip/clip_win.cpp",
 		}
 
 		defines
@@ -65,17 +66,35 @@ project "noose"
 			"NOOSE_PLATFORM_WINDOWS"
 		}
 
-	filter "system:Unix"
+		links
+		{
+			"shlwapi",
+			"opengl32",
+			"winmm"
+		}
+
+	filter "system:linux"
 		system "linux"
 		systemversion "latest"
 
 		files
 		{
+			"vendor/clip/clip_x11.cpp",
 		}
 
 		defines
 		{
 			"NOOSE_PLATFORM_LINUX"
+		}
+
+		links
+		{
+			"udev",
+			"X11",
+			"xcb",
+			"Xcursor",
+			"Xrandr",
+			"Xi"
 		}
 
 	filter "system:Mac"
@@ -98,19 +117,15 @@ project "noose"
 
 		libdirs
 		{
-			"vendor/SFML/lib/Debug",
+			"vendor/SFML/build/lib",
 			"vendor/SFML/extlibs/libs-msvc-universal/x64/"
 		}
 		links
 		{
-			"sfml-graphics-s-d",
-			"sfml-window-s-d",
-			"sfml-system-s-d",
-			"sfml-main-s-d",
-			"freetype",
-			"shlwapi",
-			"opengl32",
-			"winmm"
+			"sfml-graphics-s",
+			"sfml-window-s",
+			"sfml-system-s",
+			"freetype"
 		}
 
 	filter "configurations:Release"
@@ -120,7 +135,7 @@ project "noose"
 
 		libdirs
 		{
-			"vendor/SFML/lib/Release",
+			"vendor/SFML/build/lib",
 			"vendor/SFML/extlibs/libs-msvc-universal/x64/"
 		}
 		links
@@ -128,9 +143,5 @@ project "noose"
 			"sfml-graphics-s",
 			"sfml-window-s",
 			"sfml-system-s",
-			"sfml-main-s",
-			"freetype",
-			"shlwapi",
-			"opengl32",
-			"winmm"
+			"freetype"
 		}

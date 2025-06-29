@@ -56,43 +56,38 @@ void uiCategoryPusher::terminate()
 	nodeSelectionBox.terminate();
 }
 
-void uiCategoryPusher::onPollEvent(const sf::Event& e)
+void uiCategoryPusher::onPollEvent(const std::optional<sf::Event>& e)
 {
-	switch (e.type)
+	if (e->is<sf::Event::Resized>())
 	{
-		case sf::Event::Resized:
-			if (categorySelectionBox.isVisible())
-				showCategorySelectionBox();
-			if (nodeSelectionBox.isVisible())
-				showNodeSelectionBox(selectedCategory);
-			break;
-		case sf::Event::MouseButtonPressed:
+		if (categorySelectionBox.isVisible())
+			showCategorySelectionBox();
+		if (nodeSelectionBox.isVisible())
+			showNodeSelectionBox(selectedCategory);
+	}
+	else if (e->is<sf::Event::MouseButtonPressed>() && e->getIf<sf::Event::MouseButtonPressed>()->button == sf::Mouse::Button::Left)
+	{
+		int mouseOverIndex = categorySelectionBox.mouseOver((sf::Vector2f) * mouseScreenPosPointer);
+		if (mouseOverIndex < 0)
 		{
-			if (e.mouseButton.button != sf::Mouse::Button::Left)
-				break;
-
-			int mouseOverIndex = categorySelectionBox.mouseOver((sf::Vector2f) * mouseScreenPosPointer);
-			if (mouseOverIndex < 0)
+			if (nodeSelectionBox.isVisible())
 			{
-				if (nodeSelectionBox.isVisible())
+				int mouseOverIndexSub = nodeSelectionBox.mouseOver((sf::Vector2f) * mouseScreenPosPointer);
+				if (mouseOverIndexSub > -1)
 				{
-					int mouseOverIndexSub = nodeSelectionBox.mouseOver((sf::Vector2f) * mouseScreenPosPointer);
-					if (mouseOverIndexSub > -1)
-					{
-						const nodeData* nodeToAdd = nodeProvider::getNodeDataByName((*nodeProvider::getNodesForCategory(nodeProvider::getCategories()[selectedCategory]))[mouseOverIndexSub]);
-						uiNodeSystem::pushNewNode(
-							nodeToAdd,
-							uiNodeSystem::PushMode::Centered);
-					}
+					const nodeData* nodeToAdd = nodeProvider::getNodeDataByName((*nodeProvider::getNodesForCategory(nodeProvider::getCategories()[selectedCategory]))[mouseOverIndexSub]);
+					uiNodeSystem::pushNewNode(
+						nodeToAdd,
+						uiNodeSystem::PushMode::Centered);
 				}
-				nodeSelectionBox.hide();
-				categorySelectionBox.hide();
 			}
-			else
-			{
-				selectedCategory = mouseOverIndex;
-				showNodeSelectionBox(selectedCategory);
-			}
+			nodeSelectionBox.hide();
+			categorySelectionBox.hide();
+		}
+		else
+		{
+			selectedCategory = mouseOverIndex;
+			showNodeSelectionBox(selectedCategory);
 		}
 	}
 }

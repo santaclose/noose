@@ -45,12 +45,12 @@ void uiInputField::updateTextPositions()
 	case NS_TYPE_FLOAT:
 	case NS_TYPE_IMAGE:
 	case NS_TYPE_INT:
-		texts[0].setPosition((shapes[0].position + shapes[2].position) / 2.0f - sf::Vector2f(texts[0].getLocalBounds().width, texts[0].getLocalBounds().height) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y));
+		texts[0].setPosition((shapes[0].position + shapes[2].position) / 2.0f - sf::Vector2f(texts[0].getLocalBounds().size.x, texts[0].getLocalBounds().size.y) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y));
 		break;
 	case NS_TYPE_VECTOR2I:
-		texts[0].setPosition((shapes[0].position + shapes[2].position) / 2.0f - sf::Vector2f(texts[0].getLocalBounds().width, texts[0].getLocalBounds().height) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y));
-		texts[1].setPosition((shapes[4].position + shapes[6].position) / 2.0f - sf::Vector2f(texts[1].getLocalBounds().width, texts[1].getLocalBounds().height) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y));
-		texts[2].setPosition((shapes[8].position + shapes[10].position) / 2.0f - sf::Vector2f(texts[2].getLocalBounds().width, texts[2].getLocalBounds().height) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y-1));
+		texts[0].setPosition((shapes[0].position + shapes[2].position) / 2.0f - sf::Vector2f(texts[0].getLocalBounds().size.x, texts[0].getLocalBounds().size.y) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y));
+		texts[1].setPosition((shapes[4].position + shapes[6].position) / 2.0f - sf::Vector2f(texts[1].getLocalBounds().size.x, texts[1].getLocalBounds().size.y) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y));
+		texts[2].setPosition((shapes[8].position + shapes[10].position) / 2.0f - sf::Vector2f(texts[2].getLocalBounds().size.x, texts[2].getLocalBounds().size.y) / 2.0f + sf::Vector2f(0.0, -TEXT_OFFSET_Y-1));
 		break;
 	case NS_TYPE_COLOR:
 		break;
@@ -234,6 +234,8 @@ bool uiInputField::keyboardInput(std::uint32_t unicode)
 {
 	if (editingInputField == nullptr || currentInteractionMode == Default)
 		return false;
+	if (unicode == 127) // ignore delete key
+		return true;
 
 	if (unicode == '\t')
 	{
@@ -310,7 +312,7 @@ bool uiInputField::keyboardInput(std::uint32_t unicode)
 			else
 				return true;
 		}
-		else if (unicode == 127) // ctrl backspace
+		else if (unicode == ~0) // ctrl backspace
 		{
 			if (keyboardInputString.length() > 0)
 			{
@@ -632,7 +634,7 @@ void uiInputField::setValue(const void* data, int flags)
 	{
 		sf::Font* pointer = (sf::Font*)dataPointer;
 		const std::string& filePath = *((const std::string*)data);
-		if (!pointer->loadFromFile(filePath))
+		if (!pointer->openFromFile(filePath))
 		{
 			std::cout << "[UI] Failed to open font file\n";
 			return;

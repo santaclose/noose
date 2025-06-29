@@ -10,7 +10,7 @@ namespace uiViewport
 	void setNodeData(int theSelectedNode, const std::vector<void*>* pointers, const int* pinTypes, int outputPinCount);
 	void terminate();
 	void hideSelectionBox();
-	void onPollEvent(const sf::Event& e);
+	void onPollEvent(const std::optional<sf::Event>& e);
 	void onNodeChanged(int uiNodeId);
 	void onNodeDeleted(int uiNodeId);
 	void centerView();

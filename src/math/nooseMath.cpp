@@ -14,7 +14,7 @@ int nooseMath::mod(int a, int b)
 
 bool nooseMath::isPointInsideRect(const sf::Vector2f& point, const sf::Rect<float>& rect)
 {
-	return point.x > rect.left && point.y > rect.top && point.x < rect.left + rect.width && point.y < rect.top + rect.height;
+	return point.x > rect.position.x && point.y > rect.position.y && point.x < rect.position.x + rect.size.x && point.y < rect.position.y + rect.size.y;
 }
 bool nooseMath::isPointInsideRect(const sf::Vector2f& point, float top, float bottom, float left, float right)
 {

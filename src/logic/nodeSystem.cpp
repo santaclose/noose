@@ -240,7 +240,7 @@ void nodeSystem::onProjectFileParseNodeInput(int nodeIndex, int pinIndex, void* 
 	{
 		sf::Font* targetPointer = (sf::Font*)nodeList[nodeIndex]->getDataPointer(pinIndex, false);
 		const std::string& filePath = *((const std::string*)data);
-		if (!targetPointer->loadFromFile(filePath))
+		if (!targetPointer->openFromFile(filePath))
 			std::cout << "[Node system] Failed to open font file\n";
 		break;
 	}

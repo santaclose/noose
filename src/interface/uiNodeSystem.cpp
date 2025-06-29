@@ -176,333 +176,334 @@ int uiNodeSystem::pushFontNodeFromFile(const std::string& filePath, PushMode mod
 	return nodeID;
 }
 
-void uiNodeSystem::onPollEvent(const sf::Event& e)
+void uiNodeSystem::onPollEvent(const std::optional<sf::Event>& e)
 {
 	renderWindow->setView(theView);
 	mouseWorldPos = renderWindow->mapPixelToCoords(*mouseScreenPosPointer);
 
-	switch (e.type)
+	if (e->is<sf::Event::Resized>())
 	{
-		case sf::Event::Resized:
+		updateView();
+	}
+	else if (e->is<sf::Event::MouseButtonPressed>())
+	{
+		sf::Mouse::Button button = e->getIf<sf::Event::MouseButtonPressed>()->button;
+		sf::Vector2i eventMousePos = e->getIf<sf::Event::MouseButtonPressed>()->position;
+		if (button == sf::Mouse::Button::Left)
 		{
-			updateView();
-			break;
-		}
-		case sf::Event::MouseButtonPressed:
-		{
-			if (e.mouseButton.button == sf::Mouse::Button::Left)
+			if (uiInputField::onMouseDown(mouseWorldPos))
+				return;
+
+			// collision from top to bottom
+			for (int i = uiNodeList.size() - 1; i > -1; i--)
 			{
-				if (uiInputField::onMouseDown(mouseWorldPos))
-					return;
+				if (uiNodeList[i] == nullptr)
+					continue;
 
-				// collision from top to bottom
-				for (int i = uiNodeList.size() - 1; i > -1; i--)
+				// index stores pin or inputfield index
+				// subindex stores subinputfield index
+				int index, subIndex;
+				uiNode::MousePos mp = uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
+
+				if (mp == uiNode::MousePos::Outside)
+					continue;
+
+				switch (mp)
 				{
-					if (uiNodeList[i] == nullptr)
-						continue;
-
-					// index stores pin or inputfield index
-					// subindex stores subinputfield index
-					int index, subIndex;
-					uiNode::MousePos mp = uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
-
-					if (mp == uiNode::MousePos::Outside)
-						continue;
-
-					switch (mp)
+				case uiNode::MousePos::TopBar: // drag node
+				{
+					draggingNodeIndex = i;
+					lastMouseScreenPos = sf::Vector2f(eventMousePos.x, eventMousePos.y);
+					break;
+				}
+				case uiNode::MousePos::Pin: // mouse is over a pin
+				{
+					if (uiNodeList[i]->canConnectToPin(index))
 					{
-					case uiNode::MousePos::TopBar: // drag node
-					{
-						draggingNodeIndex = i;
-						lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
-						break;
+						// global state
+						creatingConnection = true;
+						connectionTempNode = i;
+						connectionTempPin = index;
+
+						connectionStartedOnRightSideNode = index < uiNodeList[i]->getInputPinCount();
+
+						// temporary line
+						uiConnections::createTemporary(
+							uiNodeList[i]->getPinPosition(index),
+							mouseWorldPos,
+							uiNodeList[i]->getPinColor(index),
+							connectionTempNode,
+							connectionTempPin,
+							connectionStartedOnRightSideNode
+						);
 					}
-					case uiNode::MousePos::Pin: // mouse is over a pin
-					{
-						if (uiNodeList[i]->canConnectToPin(index))
-						{
-							// global state
-							creatingConnection = true;
-							connectionTempNode = i;
-							connectionTempPin = index;
+					break;
+				}
+				case uiNode::MousePos::InputField: // mouse is over an input field
+				{
+					boundInputFieldNode = i;
+					uiNodeList[i]->bindInputField(index, subIndex, subIndex == 2 ? uiInputField::PickPosition : uiInputField::Default);
+					return;
+				}
+				}
+				break; // don't allow to click through nodes
+			}
+		}
+		else if (button == sf::Mouse::Button::Right)
+		{
+			int i = uiNodeList.size() - 1;
+			// collision from top to bottom
+			for (; i > -1; i--)
+			{
+				if (uiNodeList[i] == nullptr)
+					continue;
 
-							connectionStartedOnRightSideNode = index < uiNodeList[i]->getInputPinCount();
+				// index stores pin or inputfield index
+				// subindex stores subinputfield index
+				int index, subIndex;
+				uiNode::MousePos mp = uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
 
-							// temporary line
-							uiConnections::createTemporary(
-								uiNodeList[i]->getPinPosition(index),
-								mouseWorldPos,
-								uiNodeList[i]->getPinColor(index),
-								connectionTempNode,
-								connectionTempPin,
-								connectionStartedOnRightSideNode
-							);
-						}
-						break;
-					}
-					case uiNode::MousePos::InputField: // mouse is over an input field
+				if (mp == uiNode::MousePos::Outside)
+					continue;
+
+				switch (mp)
+				{
+				case uiNode::MousePos::InputField: // mouse is over an input field
+				{
+					boundInputFieldNode = i;
+					uiNodeList[i]->bindInputField(index, subIndex, uiInputField::InteractionMode::Typing);
+					return;
+				}
+				case uiNode::MousePos::TopBar:
+				{
+					// node selection
+					if (i == selectedNodeIndex)
 					{
-						boundInputFieldNode = i;
-						uiNodeList[i]->bindInputField(index, subIndex, subIndex == 2 ? uiInputField::PickPosition : uiInputField::Default);
+						uiNodeList[i]->paintAsUnselected();
+						selectedNodeIndex = -1;
 						return;
 					}
-					}
-					break; // don't allow to click through nodes
+
+					if (selectedNodeIndex > -1)
+						uiNodeList[selectedNodeIndex]->paintAsUnselected();
+
+					uiNodeList[i]->paintAsSelected();
+					selectedNodeIndex = i;
+
+					if (onNodeSelectedCallback != nullptr)
+						onNodeSelectedCallback(selectedNodeIndex);
+					return;
 				}
+				}
+				break;
 			}
-			else if (e.mouseButton.button == sf::Mouse::Button::Right)
+			removingConnections = true;
+			lastMouseScreenPos = sf::Vector2f(eventMousePos.x, eventMousePos.y);
+		}
+		else if (button == sf::Mouse::Button::Middle)
+		{
+			panning = true;
+			lastMouseScreenPos = sf::Vector2f(eventMousePos.x, eventMousePos.y);
+		}
+	}
+	else if (e->is<sf::Event::MouseButtonReleased>())
+	{
+		sf::Mouse::Button button = e->getIf<sf::Event::MouseButtonReleased>()->button;
+		if (button == sf::Mouse::Button::Middle)
+		{
+			panning = false;
+		}
+		else if (button == sf::Mouse::Button::Left)
+		{
+			// collision from top to bottom
+			if (creatingConnection)
 			{
 				int i = uiNodeList.size() - 1;
-				// collision from top to bottom
+
 				for (; i > -1; i--)
 				{
 					if (uiNodeList[i] == nullptr)
 						continue;
 
-					// index stores pin or inputfield index
-					// subindex stores subinputfield index
 					int index, subIndex;
-					uiNode::MousePos mp = uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
-
-					if (mp == uiNode::MousePos::Outside)
-						continue;
-
-					switch (mp)
+					uiNode::MousePos mouseOverValue = uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
+					if (mouseOverValue == uiNode::MousePos::Pin)
 					{
-					case uiNode::MousePos::InputField: // mouse is over an input field
-					{
-						boundInputFieldNode = i;
-						uiNodeList[i]->bindInputField(index, subIndex, uiInputField::InteractionMode::Typing);
-						return;
-					}
-					case uiNode::MousePos::TopBar:
-					{
-						// node selection
-						if (i == selectedNodeIndex)
+						if (!uiNodeList[i]->canConnectToPin(index))
 						{
-							uiNodeList[i]->paintAsUnselected();
-							selectedNodeIndex = -1;
-							return;
-						}
-
-						if (selectedNodeIndex > -1)
-							uiNodeList[selectedNodeIndex]->paintAsUnselected();
-
-						uiNodeList[i]->paintAsSelected();
-						selectedNodeIndex = i;
-
-						if (onNodeSelectedCallback != nullptr)
-							onNodeSelectedCallback(selectedNodeIndex);
-						return;
-					}
-					}
-					break;
-				}
-				removingConnections = true;
-				lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
-			}
-			else if (e.mouseButton.button == sf::Mouse::Button::Middle)
-			{
-				panning = true;
-				lastMouseScreenPos = sf::Vector2f(e.mouseButton.x, e.mouseButton.y);
-			}
-			break;
-		}
-		case sf::Event::MouseButtonReleased:
-		{
-			if (e.mouseButton.button == sf::Mouse::Button::Middle)
-			{
-				panning = false;
-			}
-			else if (e.mouseButton.button == sf::Mouse::Button::Left)
-			{
-				// collision from top to bottom
-				if (creatingConnection)
-				{
-					int i = uiNodeList.size() - 1;
-
-					for (; i > -1; i--)
-					{
-						if (uiNodeList[i] == nullptr)
-							continue;
-
-						int index, subIndex;
-						uiNode::MousePos mouseOverValue = uiNodeList[i]->mouseOver(mouseWorldPos, index, subIndex);
-						if (mouseOverValue == uiNode::MousePos::Pin)
-						{
-							if (!uiNodeList[i]->canConnectToPin(index))
-							{
-								uiConnections::hideTemporary();
-								break;
-							}
-
-							int leftSideNode = connectionStartedOnRightSideNode ? i : connectionTempNode;
-							int rightSideNode = connectionStartedOnRightSideNode ? connectionTempNode : i;
-							int leftSidePin = connectionStartedOnRightSideNode ? index : connectionTempPin;
-							int rightSidePin = connectionStartedOnRightSideNode ? connectionTempPin : index;
-
-							// can't be both output or input
-							bool canConnect =
-								(leftSidePin < uiNodeList[leftSideNode]->getInputPinCount()) !=
-								(rightSidePin < uiNodeList[rightSideNode]->getInputPinCount());
-							canConnect &= nodeSystem::isConnectionValid(uiNodeIdToLogicalNodeId[leftSideNode], uiNodeIdToLogicalNodeId[rightSideNode], leftSidePin, rightSidePin);
-
-							if (!canConnect) // failed to connect
-							{
-								uiConnections::hideTemporary();
-								break;
-							}
-							
-							// update interface lines
-							// node indices are flipped if necessary such that node a is on the left side
-							int uiConnectionId = uiConnections::connect(
-								uiNodeList[i]->getPinPosition(index),
-								connectionStartedOnRightSideNode ? leftSideNode : rightSideNode,
-								connectionStartedOnRightSideNode ? leftSidePin : rightSidePin);
-
-							// right side node first
-							uiNodeList[rightSideNode]->attachConnectionPoint(uiConnectionId, rightSidePin);
-							uiNodeList[leftSideNode]->attachConnectionPoint(uiConnectionId, leftSidePin);
-
-							int logicalConnectionId = nodeSystem::connect(uiNodeIdToLogicalNodeId[leftSideNode], uiNodeIdToLogicalNodeId[rightSideNode], leftSidePin, rightSidePin);
-							uiConnectionIdToLogicalConnectionId[uiConnectionId] = logicalConnectionId;
-#ifdef TEST
-	std::cout << "connect:\n\tleft side node: " << leftSideNode << "\n\tright side node: " << rightSideNode << "\n\tleft side pin: " << leftSidePin << "\n\tright side pin: " << rightSidePin << "\n\tconnection index: " << uiConnectionId << std::endl;
-#endif
-
+							uiConnections::hideTemporary();
 							break;
 						}
-					}
 
-					// i is equal to -1 when the for loop ends and we know the mouse was not over any pin cuz we break
-					if (i < 0) // mouse was not over any pin
-						uiConnections::hideTemporary();
-				}
+						int leftSideNode = connectionStartedOnRightSideNode ? i : connectionTempNode;
+						int rightSideNode = connectionStartedOnRightSideNode ? connectionTempNode : i;
+						int leftSidePin = connectionStartedOnRightSideNode ? index : connectionTempPin;
+						int rightSidePin = connectionStartedOnRightSideNode ? connectionTempPin : index;
 
-				draggingNodeIndex = -1;
-				creatingConnection = false;
-				uiInputField::onMouseUp();
-			}
-			else if (e.mouseButton.button == sf::Mouse::Button::Right)
-			{
-				removingConnections = false;
-			}
-			break;
-		}
-		case sf::Event::MouseMoved:
-		{
-			currentMouseScreenPos = sf::Vector2f(e.mouseMove.x, e.mouseMove.y);
-			sf::Vector2f displacement = -lastMouseScreenPos + currentMouseScreenPos;
-			if (panning)
-			{
-				viewPosition -= displacement * currentZoom;
-				updateView();
-			}
-			else if (draggingNodeIndex > -1) // dragging a node
-			{
-				uiNodeList[draggingNodeIndex]->displace(displacement * currentZoom); // pass node index so it can move the lines
-			}
-			else if (creatingConnection)
-			{
-				uiConnections::displaceTemporary(displacement * currentZoom);
-			}
-			else if (removingConnections)
-			{
-				int connectionToRemove = uiConnections::onTryingToRemove(mouseWorldPos);
-				if (connectionToRemove > -1) // mouse was over a line and we have to detach it from nodeA and nodeB
-				{
-					deleteLine(connectionToRemove);
+						// can't be both output or input
+						bool canConnect =
+							(leftSidePin < uiNodeList[leftSideNode]->getInputPinCount()) !=
+							(rightSidePin < uiNodeList[rightSideNode]->getInputPinCount());
+						canConnect &= nodeSystem::isConnectionValid(uiNodeIdToLogicalNodeId[leftSideNode], uiNodeIdToLogicalNodeId[rightSideNode], leftSidePin, rightSidePin);
 
-					int nA, nB, pA, pB;
-					uiConnections::getNodesForLine(connectionToRemove, nA, nB);
-					uiConnections::getPinsForLine(connectionToRemove, pA, pB);
-					nodeSystem::disconnect(uiConnectionIdToLogicalConnectionId[connectionToRemove]);
+						if (!canConnect) // failed to connect
+						{
+							uiConnections::hideTemporary();
+							break;
+						}
+
+						// update interface lines
+						// node indices are flipped if necessary such that node a is on the left side
+						int uiConnectionId = uiConnections::connect(
+							uiNodeList[i]->getPinPosition(index),
+							connectionStartedOnRightSideNode ? leftSideNode : rightSideNode,
+							connectionStartedOnRightSideNode ? leftSidePin : rightSidePin);
+
+						// right side node first
+						uiNodeList[rightSideNode]->attachConnectionPoint(uiConnectionId, rightSidePin);
+						uiNodeList[leftSideNode]->attachConnectionPoint(uiConnectionId, leftSidePin);
+
+						int logicalConnectionId = nodeSystem::connect(uiNodeIdToLogicalNodeId[leftSideNode], uiNodeIdToLogicalNodeId[rightSideNode], leftSidePin, rightSidePin);
+						uiConnectionIdToLogicalConnectionId[uiConnectionId] = logicalConnectionId;
 #ifdef TEST
-	std::cout << "disconnect:\n\tleft side node: " << nA << "\n\tright side node: " << nB << "\n\tleft side pin: " << pA << "\n\tright side pin: " << pB << "\n\tconnection index: " << lineToRemove << std::endl;
+						std::cout << "connect:\n\tleft side node: " << leftSideNode << "\n\tright side node: " << rightSideNode << "\n\tleft side pin: " << leftSidePin << "\n\tright side pin: " << rightSidePin << "\n\tconnection index: " << uiConnectionId << std::endl;
 #endif
+						break;
+					}
 				}
-			}
-		
-			lastMouseScreenPos = currentMouseScreenPos;
-			uiInputField::onMouseMoved(displacement);
-			break;
-		}
-		case sf::Event::MouseWheelScrolled:
-		{
-			zoomInt -= e.mouseWheelScroll.delta;
 
-			//clamp from min to max zoom
-			if (zoomInt < MAX_ZOOM) zoomInt = MAX_ZOOM; else if (zoomInt > MIN_ZOOM) zoomInt = MIN_ZOOM;
+				// i is equal to -1 when the for loop ends and we know the mouse was not over any pin cuz we break
+				if (i < 0) // mouse was not over any pin
+					uiConnections::hideTemporary();
+			}
+
+			draggingNodeIndex = -1;
+			creatingConnection = false;
+			uiInputField::onMouseUp();
+		}
+		else if (button == sf::Mouse::Button::Right)
+		{
+			removingConnections = false;
+		}
+	}
+	else if (e->is<sf::Event::MouseMoved>())
+	{
+		sf::Vector2i eventMousePos = e->getIf<sf::Event::MouseMoved>()->position;
+		currentMouseScreenPos = sf::Vector2f(eventMousePos.x, eventMousePos.y);
+
+		sf::Vector2f displacement = -lastMouseScreenPos + currentMouseScreenPos;
+		if (panning)
+		{
+			viewPosition -= displacement * currentZoom;
 			updateView();
-
-			uiConnections::updateShaderUniform(currentZoom);
-			break;
 		}
-		case sf::Event::KeyPressed:
+		else if (draggingNodeIndex > -1) // dragging a node
 		{
-			if (uiInputField::typingInteractionOngoing())
-				return;
-			switch (e.key.code)
+			uiNodeList[draggingNodeIndex]->displace(displacement * currentZoom); // pass node index so it can move the lines
+		}
+		else if (creatingConnection)
+		{
+			uiConnections::displaceTemporary(displacement * currentZoom);
+		}
+		else if (removingConnections)
+		{
+			int connectionToRemove = uiConnections::onTryingToRemove(mouseWorldPos);
+			if (connectionToRemove > -1) // mouse was over a line and we have to detach it from nodeA and nodeB
 			{
-				case sf::Keyboard::Key::Backspace:
-				case sf::Keyboard::Key::Delete:
-				{
-					// can't delete if node is not selected or any node being moved
-					if (selectedNodeIndex < 0 || draggingNodeIndex > -1)
-						return;
+				deleteLine(connectionToRemove);
 
-					// a copy is needed
-					std::vector<int> lines = uiNodeList[selectedNodeIndex]->getConnectedLines();
-					for (int l : lines)
-						deleteLine(l);
-
-					onNodeDeletedCallback(selectedNodeIndex);
-
-					delete uiNodeList[selectedNodeIndex];
-					uiNodeList[selectedNodeIndex] = nullptr;
-
-					nodeSystem::deleteNode(uiNodeIdToLogicalNodeId[selectedNodeIndex]);
+				int nA, nB, pA, pB;
+				uiConnections::getNodesForLine(connectionToRemove, nA, nB);
+				uiConnections::getPinsForLine(connectionToRemove, pA, pB);
+				nodeSystem::disconnect(uiConnectionIdToLogicalConnectionId[connectionToRemove]);
 #ifdef TEST
-					std::cout << "deleteNode:\n\tselected node index: " << selectedNodeIndex << "\n\tnode lines: ";
-					for (int l : lines)
-						std::cout << l << ", ";
-					std::cout << std::endl;
+				std::cout << "disconnect:\n\tleft side node: " << nA << "\n\tright side node: " << nB << "\n\tleft side pin: " << pA << "\n\tright side pin: " << pB << "\n\tconnection index: " << lineToRemove << std::endl;
+#endif
+			}
+		}
+
+		lastMouseScreenPos = currentMouseScreenPos;
+		uiInputField::onMouseMoved(displacement);
+	}
+	else if (e->is<sf::Event::MouseWheelScrolled>())
+	{
+		zoomInt -= e->getIf<sf::Event::MouseWheelScrolled>()->delta;
+
+		// clamp from min to max zoom
+		if (zoomInt < MAX_ZOOM) zoomInt = MAX_ZOOM; else if (zoomInt > MIN_ZOOM) zoomInt = MIN_ZOOM;
+		updateView();
+
+		uiConnections::updateShaderUniform(currentZoom);
+	}
+	else if (e->is<sf::Event::KeyPressed>())
+	{
+		sf::Keyboard::Key keyCode = e->getIf<sf::Event::KeyPressed>()->code;
+		if (uiInputField::typingInteractionOngoing())
+		{
+			if (keyCode == sf::Keyboard::Key::Backspace && e->getIf<sf::Event::KeyPressed>()->control)
+				uiInputField::keyboardInput(~0); // arbitrary for ctrl backspace
+			return;
+		}
+		switch (keyCode)
+		{
+			case sf::Keyboard::Key::Backspace:
+			case sf::Keyboard::Key::Delete:
+			{
+				// can't delete if node is not selected or any node being moved
+				if (selectedNodeIndex < 0 || draggingNodeIndex > -1)
+					return;
+
+				// a copy is needed
+				std::vector<int> lines = uiNodeList[selectedNodeIndex]->getConnectedLines();
+				for (int l : lines)
+					deleteLine(l);
+
+				onNodeDeletedCallback(selectedNodeIndex);
+
+				delete uiNodeList[selectedNodeIndex];
+				uiNodeList[selectedNodeIndex] = nullptr;
+
+				nodeSystem::deleteNode(uiNodeIdToLogicalNodeId[selectedNodeIndex]);
+#ifdef TEST
+				std::cout << "deleteNode:\n\tselected node index: " << selectedNodeIndex << "\n\tnode lines: ";
+				for (int l : lines)
+					std::cout << l << ", ";
+				std::cout << std::endl;
 #endif
 
-					selectedNodeIndex = -1;
-					break;
-				}
-				case sf::Keyboard::Key::F:
-				{
-					sf::Vector2f boundingBoxMax = { -INFINITY , -INFINITY };
-					sf::Vector2f boundingBoxMin = {  INFINITY ,  INFINITY };
-					int numberOfNodes = 0;
-					for (const uiNode* node : uiNodeList)
-					{
-						if (node == nullptr)
-							continue;
-						sf::Vector2f nodeCenter = node->getCenterPosition();
-						boundingBoxMax.x = boundingBoxMax.x < nodeCenter.x ? nodeCenter.x : boundingBoxMax.x;
-						boundingBoxMax.y = boundingBoxMax.y < nodeCenter.y ? nodeCenter.y : boundingBoxMax.y;
-						boundingBoxMin.x = boundingBoxMin.x > nodeCenter.x ? nodeCenter.x : boundingBoxMin.x;
-						boundingBoxMin.y = boundingBoxMin.y > nodeCenter.y ? nodeCenter.y : boundingBoxMin.y;
-						numberOfNodes++;
-					}
-					viewPosition = (boundingBoxMax + boundingBoxMin) / 2.0f;
-					updateView();
-					break;
-				}
-			}
-			break;
-		}
-		case sf::Event::TextEntered:
-		{
-			if (uiInputField::keyboardInput(e.text.unicode)) // input field handling keyboard input
+				selectedNodeIndex = -1;
 				break;
-
-			if (e.text.unicode == 3) // ctrl c
+			}
+			case sf::Keyboard::Key::F:
+			{
+				sf::Vector2f boundingBoxMax = { -INFINITY , -INFINITY };
+				sf::Vector2f boundingBoxMin = {  INFINITY ,  INFINITY };
+				int numberOfNodes = 0;
+				for (const uiNode* node : uiNodeList)
+				{
+					if (node == nullptr)
+						continue;
+					sf::Vector2f nodeCenter = node->getCenterPosition();
+					boundingBoxMax.x = boundingBoxMax.x < nodeCenter.x ? nodeCenter.x : boundingBoxMax.x;
+					boundingBoxMax.y = boundingBoxMax.y < nodeCenter.y ? nodeCenter.y : boundingBoxMax.y;
+					boundingBoxMin.x = boundingBoxMin.x > nodeCenter.x ? nodeCenter.x : boundingBoxMin.x;
+					boundingBoxMin.y = boundingBoxMin.y > nodeCenter.y ? nodeCenter.y : boundingBoxMin.y;
+					numberOfNodes++;
+				}
+				viewPosition = (boundingBoxMax + boundingBoxMin) / 2.0f;
+				updateView();
+				break;
+			}
+		}
+	}
+	else if (e->is<sf::Event::TextEntered>())
+	{
+		char32_t unicode = e->getIf<sf::Event::TextEntered>()->unicode;
+		if (!uiInputField::keyboardInput(unicode)) // input field handling keyboard input
+		{
+			if (unicode == 3) // ctrl c
 				copyNode();
-			else if (e.text.unicode == 22) // ctrl v
+			else if (unicode == 22) // ctrl v
 			{
 				if (!pasteNode())
 				{
@@ -510,38 +511,38 @@ void uiNodeSystem::onPollEvent(const sf::Event& e)
 					if (!utils::imageFromClipboard(image))
 					{
 						std::cout << "[UI] Failed to paste node or image from clipboard\n";
-						break;
 					}
-					int nodeID = uiNodeSystem::pushNewNode(nodeProvider::getNodeDataByName("Image"));
-					// bind to set pin data
-					setBoundInputFieldNode(nodeID);
-					uiNodeList[nodeID]->setInput(0, &image, 1); // flag to let it know it's not a file path
+					else
+					{
+						int nodeID = uiNodeSystem::pushNewNode(nodeProvider::getNodeDataByName("Image"));
+						// bind to set pin data
+						setBoundInputFieldNode(nodeID);
+						uiNodeList[nodeID]->setInput(0, &image, 1); // flag to let it know it's not a file path
+					}
 				}
 			}
-
-			break;
 		}
-		case sf::Event::FilesDropped:
+	}
+	else if (e->is<sf::Event::FilesDropped>())
+	{
+		const std::vector<std::string>& filesDropped = e->getIf<sf::Event::FilesDropped>()->filesDropped;
+		for (const std::string& file : filesDropped)
 		{
-			for (const std::string& file : e.filesDropped)
+			int type = utils::typeFromExtension(file);
+			switch (type)
 			{
-				int type = utils::typeFromExtension(file);
-				switch (type)
-				{
-				case NS_TYPE_IMAGE:
-					std::cout << "[UI] Image file dropped: " << file << std::endl;
-					pushImageNodeFromFile(file, PushMode::AtCursorPosition, true, mouseWorldPos);
-					break;
-				case NS_TYPE_FONT:
-					std::cout << "[UI] Font file dropped: " << file << std::endl;
-					pushFontNodeFromFile(file, PushMode::AtCursorPosition, true, mouseWorldPos);
-					break;
-				default:
-					std::cout << "[UI] Unknown file dropped: " << file << std::endl;
-					break;
-				}
+			case NS_TYPE_IMAGE:
+				std::cout << "[UI] Image file dropped: " << file << std::endl;
+				pushImageNodeFromFile(file, PushMode::AtCursorPosition, true, mouseWorldPos);
+				break;
+			case NS_TYPE_FONT:
+				std::cout << "[UI] Font file dropped: " << file << std::endl;
+				pushFontNodeFromFile(file, PushMode::AtCursorPosition, true, mouseWorldPos);
+				break;
+			default:
+				std::cout << "[UI] Unknown file dropped: " << file << std::endl;
+				break;
 			}
-			break;
 		}
 	}
 }

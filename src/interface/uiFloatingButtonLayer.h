@@ -21,5 +21,5 @@ namespace uiFloatingButtonLayer {
 	sf::Vector2f getButtonCenterCoords(ButtonPosition pos);
 	void terminate();
 
-	ButtonPosition onPollEvent(const sf::Event& e);
+	ButtonPosition onPollEvent(const std::optional<sf::Event>& e);
 }

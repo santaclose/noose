@@ -1,5 +1,6 @@
 #include "type2color.h"
 #include "types.h"
+#include <iostream>
 
 const int type2color::get(int type)
 {
@@ -19,5 +20,8 @@ const int type2color::get(int type)
 		return 0xbc007aff;
 	case NS_TYPE_FONT:
 		return 0x7d7d7dff;
+	default:
+		std::cout << "[type2color] Unrecognized type\n";
 	}
+	return 0xff00ff;
 }

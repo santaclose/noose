@@ -43,6 +43,7 @@ static sf::RenderWindow* nodeEditorWindow = nullptr;
 static sf::Vector2i mousePosNodeEditor;
 static sf::RenderWindow* viewportWindow = nullptr;
 static sf::Vector2i mousePosViewport;
+static std::vector<sf::Window*> windowList;
 
 OpenFileMode guessOpenFileMode(int argc, const std::string& secondArgument)
 {
@@ -206,10 +207,13 @@ int main(int argc, char** argv)
 
 	// initialize interface components
 	uiData::load();
-	iconImage.loadFromFile(pathUtils::getAssetsDirectory() + "icon.png");
+	if (!iconImage.loadFromFile(pathUtils::getAssetsDirectory() + "icon.png"))
+		std::cout << "[Main] Failed to load icon image\n";
 
 	nodeEditorWindow = new sf::RenderWindow(sf::VideoMode({ 720, 720 }), "node editor", sf::Style::Default, sf::State::Windowed, sf::ContextSettings(), true);
 	viewportWindow = new sf::RenderWindow(sf::VideoMode({ 720, 720 }), "viewport", sf::Style::Resize | sf::Style::Close, sf::State::Windowed);
+	windowList.push_back(nodeEditorWindow);
+	windowList.push_back(viewportWindow);
 	nodeEditorWindow->setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
 	viewportWindow->setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
 	if (openFileMode != OpenFileMode::Image)
@@ -278,21 +282,18 @@ int main(int argc, char** argv)
 	while (nodeEditorWindow->isOpen() || viewportWindow->isOpen())
 	{
 		// Process events
-		sf::Event nodeEditorEvent, viewportEvent;
-		while (nodeEditorWindow->pollEvent(nodeEditorEvent))
+		// sf::Event nodeEditorEvent, viewportEvent;
+		while (const std::optional nodeEditorEvent = nodeEditorWindow->pollEvent())
 		{
 			mousePosNodeEditor = sf::Mouse::getPosition(*nodeEditorWindow);
-			switch (nodeEditorEvent.type)
+
+			if (nodeEditorEvent->is<sf::Event::Closed>())
 			{
-				case sf::Event::Closed:
-				{
-					nodeEditorWindow->close();
-					viewportWindow->close();
-					break;
-				}
+				nodeEditorWindow->close();
+				viewportWindow->close();
 			}
 
-			if (nodeEditorEvent.type == sf::Event::Resized)
+			if (nodeEditorEvent->is<sf::Event::Resized>())
 			{
 				uiNodeSystem::onPollEvent(nodeEditorEvent);
 				uiSearchBar::onPollEvent(nodeEditorEvent);
@@ -311,9 +312,9 @@ int main(int argc, char** argv)
 					uiCategoryPusher::onPollEvent(nodeEditorEvent);
 				else
 				{
-					if (nodeEditorEvent.type == sf::Event::KeyPressed && !uiInputField::typingInteractionOngoing())
+					if (nodeEditorEvent->is<sf::Event::KeyPressed>() && !uiInputField::typingInteractionOngoing())
 					{
-						switch (nodeEditorEvent.key.code)
+						switch (nodeEditorEvent->getIf<sf::Event::KeyPressed>()->code)
 						{
 						case sf::Keyboard::Key::Space:
 							uiNodeSystem::unbindInputField();
@@ -350,17 +351,13 @@ int main(int argc, char** argv)
 				}
 			}
 		}
-		while (viewportWindow->pollEvent(viewportEvent))
+		while (const std::optional viewportEvent = viewportWindow->pollEvent())
 		{
 			mousePosViewport = sf::Mouse::getPosition(*viewportWindow);
-			switch (viewportEvent.type)
+			if (viewportEvent->is<sf::Event::Closed>())
 			{
-				case sf::Event::Closed:
-				{
-					nodeEditorWindow->close();
-					viewportWindow->close();
-					break;
-				}
+				nodeEditorWindow->close();
+				viewportWindow->close();
 			}
 			uiViewport::onPollEvent(viewportEvent);
 		}
@@ -384,7 +381,7 @@ int main(int argc, char** argv)
 
 		if (redrawCounter == 0)
 		{
-			sf::sleepUntilEvent();
+			sf::Window::waitEventMultiWindow(windowList);
 			redrawCounter = REDRAW_COUNT;
 		}
 		else

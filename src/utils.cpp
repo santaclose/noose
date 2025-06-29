@@ -14,7 +14,7 @@
 #include <clip.h>
 #include <base64.h>
 #include <portable-file-dialogs.h>
-#include <subprocess.hpp>
+#include <cpp-subprocess/subprocess.hpp>
 
 #include "pathUtils.h"
 #include "types.h"
@@ -167,11 +167,12 @@ bool utils::drawImageToRenderTexture(const sf::Texture& image, sf::RenderTexture
     loadImageShader.setUniform("tx", image);
     sf::Sprite spr(image);
     sf::Vector2u txSize = image.getSize();
-    if (!renderTexture.create(txSize))
+    if (txSize.x < 1 || txSize.y < 1)
     {
-        std::cout << "[Utils] Failed to create render texture\n";
+        std::cout << "[Utils] Can't create render texture of size 0\n";
         return false;
     }
+    renderTexture = sf::RenderTexture(txSize);
     sf::RenderStates rs;
     rs.shader = &loadImageShader;
     rs.blendMode = sf::BlendNone;
@@ -203,31 +204,43 @@ bool utils::drawImageToRenderTexture(const std::string& imageFilePath, sf::Rende
 
 bool utils::imageFromClipboard(sf::Image& outImage)
 {
-    clip::image clipboardImage;
-    if (!clip::get_image(clipboardImage) || !clipboardImage.is_valid())
-        return false;
-    clip::image_spec spec = clipboardImage.spec();
-    outImage.create({ spec.width, spec.height }, sf::Color(255u, 255u, 255u, 255u));
-    for (unsigned long y = 0; y < spec.height; ++y)
+// workaround until clip supports wayland
+#if NOOSE_PLATFORM_LINUX
+    if (strcmp(getenv("XDG_SESSION_TYPE"), "wayland") == 0)
     {
-        char* p = clipboardImage.data() + spec.bytes_per_row * y;
-        for (unsigned long x = 0; x < spec.width; ++x)
+        system("rm -f /tmp/noose_image.png");
+        system("wl-paste --type image/png > /tmp/noose_image.png");
+        return outImage.loadFromFile("/tmp/noose_image.png");
+    }
+    else
+#endif
+    {
+        clip::image clipboardImage;
+        if (!clip::get_image(clipboardImage) || !clipboardImage.is_valid())
+            return false;
+        clip::image_spec spec = clipboardImage.spec();
+        outImage = sf::Image({ (unsigned int)spec.width, (unsigned int)spec.height }, sf::Color(255u, 255u, 255u, 255u));
+        for (unsigned long y = 0; y < spec.height; ++y)
         {
-            sf::Color pixelColor;
-            pixelColor.a = 255;
-            for (unsigned long byte = 0; byte < spec.bits_per_pixel / 8; ++byte, ++p)
+            char* p = clipboardImage.data() + spec.bytes_per_row * y;
+            for (unsigned long x = 0; x < spec.width; ++x)
             {
-                uint8_t* pixelPointer = (uint8_t*)p;
-                if (byte == spec.red_shift / 8)
-                    pixelColor.r = *pixelPointer;
-                else if (byte == spec.green_shift / 8)
-                    pixelColor.g = *pixelPointer;
-                else if (byte == spec.blue_shift / 8)
-                    pixelColor.b = *pixelPointer;
-                else if (byte == spec.alpha_shift / 8)
-                    pixelColor.a = *pixelPointer;
+                sf::Color pixelColor;
+                pixelColor.a = 255;
+                for (unsigned long byte = 0; byte < spec.bits_per_pixel / 8; ++byte, ++p)
+                {
+                    uint8_t* pixelPointer = (uint8_t*)p;
+                    if (byte == spec.red_shift / 8)
+                        pixelColor.r = *pixelPointer;
+                    else if (byte == spec.green_shift / 8)
+                        pixelColor.g = *pixelPointer;
+                    else if (byte == spec.blue_shift / 8)
+                        pixelColor.b = *pixelPointer;
+                    else if (byte == spec.alpha_shift / 8)
+                        pixelColor.a = *pixelPointer;
+                }
+                outImage.setPixel(sf::Vector2u(x, y), pixelColor);
             }
-            outImage.setPixel(sf::Vector2u(x, y), pixelColor);
         }
     }
     return true;
@@ -235,44 +248,57 @@ bool utils::imageFromClipboard(sf::Image& outImage)
 
 bool utils::imageToClipboard(const sf::Image& image)
 {
-    clip::image_spec spec;
-    spec.width = image.getSize().x;
-    spec.height = image.getSize().y;
-    spec.bits_per_pixel = 32;
-    spec.bytes_per_row = 4 * image.getSize().x;
-    spec.red_mask = 0xff;
-    spec.green_mask = 0xff00;
-    spec.blue_mask = 0xff0000;
-    spec.alpha_mask = 0xff000000;
-    spec.red_shift = 0;
-    spec.green_shift = 8;
-    spec.blue_shift = 16;
-    spec.alpha_shift = 24;
-    char* clipboardImageBuffer = (char*)malloc(sizeof(char) * image.getSize().x * image.getSize().y * 4); // RGBA
-    for (unsigned long y = 0; y < spec.height; ++y)
+    bool returnValue = true;
+// workaround until clip supports wayland
+#if NOOSE_PLATFORM_LINUX
+    if (strcmp(getenv("XDG_SESSION_TYPE"), "wayland") == 0)
     {
-        char* p = clipboardImageBuffer + spec.bytes_per_row * y;
-        for (unsigned long x = 0; x < spec.width; ++x)
+        if (!image.saveToFile("/tmp/noose_image.png"))
+            std::cout << "[Utils] Failed to save temporary image\n";
+        system("wl-copy < /tmp/noose_image.png");
+    }
+    else
+#endif
+    {
+        clip::image_spec spec;
+        spec.width = image.getSize().x;
+        spec.height = image.getSize().y;
+        spec.bits_per_pixel = 32;
+        spec.bytes_per_row = 4 * image.getSize().x;
+        spec.red_mask = 0xff;
+        spec.green_mask = 0xff00;
+        spec.blue_mask = 0xff0000;
+        spec.alpha_mask = 0xff000000;
+        spec.red_shift = 0;
+        spec.green_shift = 8;
+        spec.blue_shift = 16;
+        spec.alpha_shift = 24;
+        char* clipboardImageBuffer = (char*)malloc(sizeof(char) * image.getSize().x * image.getSize().y * 4); // RGBA
+        for (unsigned long y = 0; y < spec.height; ++y)
         {
-            sf::Color pixelColor = image.getPixel({ x, y });
-            for (unsigned long byte = 0; byte < spec.bits_per_pixel / 8; ++byte, ++p)
+            char* p = clipboardImageBuffer + spec.bytes_per_row * y;
+            for (unsigned long x = 0; x < spec.width; ++x)
             {
-                char* pixelPointer = (char*)p;
-                if (byte == spec.red_shift / 8)
-                    *pixelPointer = pixelColor.r;
-                else if (byte == spec.green_shift / 8)
-                    *pixelPointer = pixelColor.g;
-                else if (byte == spec.blue_shift / 8)
-                    *pixelPointer = pixelColor.b;
-                else if (byte == spec.alpha_shift / 8)
-                    *pixelPointer = pixelColor.a;
+                sf::Color pixelColor = image.getPixel({ (unsigned int)x, (unsigned int)y });
+                for (unsigned long byte = 0; byte < spec.bits_per_pixel / 8; ++byte, ++p)
+                {
+                    char* pixelPointer = (char*)p;
+                    if (byte == spec.red_shift / 8)
+                        *pixelPointer = pixelColor.r;
+                    else if (byte == spec.green_shift / 8)
+                        *pixelPointer = pixelColor.g;
+                    else if (byte == spec.blue_shift / 8)
+                        *pixelPointer = pixelColor.b;
+                    else if (byte == spec.alpha_shift / 8)
+                        *pixelPointer = pixelColor.a;
+                }
             }
         }
-    }
 
-    clip::image clipboardImage = clip::image(clipboardImageBuffer, spec);
-    bool returnValue = clip::set_image(clipboardImage);
-    free(clipboardImageBuffer);
+        clip::image clipboardImage = clip::image(clipboardImageBuffer, spec);
+        returnValue = clip::set_image(clipboardImage);
+        free(clipboardImageBuffer);
+    }
     return returnValue;
 }
 

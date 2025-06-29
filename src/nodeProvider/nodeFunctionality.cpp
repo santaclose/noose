@@ -80,8 +80,10 @@ void nodeFunctionality::ImageFromFile(node* theNode)
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 
 	sf::Vector2u size = a->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
-	outputPointer->create({ size.x, size.y });
+	*outputPointer = sf::RenderTexture({ size.x, size.y });
 
 	imageShader.setUniform("tx", a->getTexture());
 	imageShader.setUniform("flip", 0);
@@ -100,7 +102,7 @@ void nodeFunctionality::Solid(node* theNode)
 	if (imageSize->x < 1 || imageSize->y < 1)
 		return;
 
-	outputPointer->create({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
+	*outputPointer = sf::RenderTexture({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
 
 	sf::Glsl::Vec4 inColor(*((sf::Color*)(theNode->getDataPointer(0))));
 	solidShader.setUniform("color", inColor);
@@ -118,7 +120,7 @@ void nodeFunctionality::Checker(node* theNode)
 	if (imageSize->x < 1 || imageSize->y < 1)
 		return;
 
-	outputPointer->create({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
+	*outputPointer = sf::RenderTexture({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
 
 	checkerShader.setUniform("squareSize", (float)(*((int*)theNode->getDataPointer(0))));
 
@@ -136,7 +138,7 @@ void nodeFunctionality::LinearGradient(node* theNode)
 	if (imageSize->x < 1 || imageSize->y < 1)
 		return;
 
-	outputPointer->create({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
+	*outputPointer = sf::RenderTexture({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
 
 	linearGradientShader.setUniform("vertical", (float) vertical);
 
@@ -154,7 +156,7 @@ void nodeFunctionality::UniformNoise(node* theNode)
 	if (imageSize->x < 1 || imageSize->y < 1)
 		return;
 
-	outputPointer->create({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
+	*outputPointer = sf::RenderTexture({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
 
 	uniformNoiseShader.setUniform("seed", seed);
 
@@ -172,11 +174,13 @@ void nodeFunctionality::SeparateChannels(node* theNode)
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0)); //inputPins[0]->getData());
 
 	sf::Vector2u size = a->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
-	outputPointerR->create({ size.x, size.y });
-	outputPointerG->create({ size.x, size.y });
-	outputPointerB->create({ size.x, size.y });
-	outputPointerA->create({ size.x, size.y });
+	*outputPointerR = sf::RenderTexture({ size.x, size.y });
+	*outputPointerG = sf::RenderTexture({ size.x, size.y });
+	*outputPointerB = sf::RenderTexture({ size.x, size.y });
+	*outputPointerA = sf::RenderTexture({ size.x, size.y });
 
 	rs.shader = &separateShader;
 	separateShader.setUniform("tx", a->getTexture());
@@ -202,8 +206,10 @@ void nodeFunctionality::CombineChannels(node* theNode)
 	sf::RenderTexture* alpha = ((sf::RenderTexture*) theNode->getDataPointer(3));
 
 	sf::Vector2u size = red->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
-	outputPointer->create({size.x, size.y});
+	*outputPointer = sf::RenderTexture({size.x, size.y});
 
 	combineShader.setUniform("r", red->getTexture());
 	combineShader.setUniform("g", green->getTexture());
@@ -223,8 +229,10 @@ void nodeFunctionality::Blend(node* theNode)
 	int mode = *((int*)theNode->getDataPointer(2));
 
 	sf::Vector2u size = a->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
-	outputPointer->create({size.x, size.y});
+	*outputPointer = sf::RenderTexture({size.x, size.y});
 
 	blendShader.setUniform("tex0", a->getTexture());
 	blendShader.setUniform("tex1", b->getTexture());
@@ -243,8 +251,10 @@ void nodeFunctionality::BrightnessContrast(node* theNode)
 	float* contrast = ((float*)theNode->getDataPointer(2));
 
 	sf::Vector2u size = a->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
-	outputPointer->create({size.x, size.y});
+	*outputPointer = sf::RenderTexture({size.x, size.y});
 
 	rs.shader = &brightnessContrastShader;
 	brightnessContrastShader.setUniform("tex", a->getTexture());
@@ -266,8 +276,10 @@ void nodeFunctionality::Crop(node* theNode)
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 
 	sf::Vector2u size = a->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
-	outputPointer->create({ (unsigned int)outputSize->x, (unsigned int)outputSize->y});
+	*outputPointer = sf::RenderTexture({ (unsigned int)outputSize->x, (unsigned int)outputSize->y});
 	float top = topleft->y / ((float)size.y);
 	float left = topleft->x / ((float)size.x);
 
@@ -291,16 +303,18 @@ void nodeFunctionality::Extend(node* theNode)
 	sf::Color color = *((sf::Color*)theNode->getDataPointer(3));
 
 	sf::Vector2u size = a->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
 	float ratio;
 	if (side == 1 || side == 3)
 	{
-		outputPointer->create({size.x + pixels, size.y});
+		*outputPointer = sf::RenderTexture({size.x + pixels, size.y});
 		ratio = (float)pixels / (float)size.x;
 	}
 	else
 	{
-		outputPointer->create({size.x, size.y + pixels});
+		*outputPointer = sf::RenderTexture({size.x, size.y + pixels});
 		ratio = (float)pixels / (float)size.y;
 	}
 
@@ -323,8 +337,10 @@ void nodeFunctionality::Patch(node* theNode)
 
 	sf::Vector2u imageSize = image->getSize();
 	sf::Vector2u patchSize = patch->getSize();
+	if (imageSize.x < 1 || imageSize.y < 1)
+		return;
 
-	outputPointer->create({imageSize.x, imageSize.y});
+	*outputPointer = sf::RenderTexture({imageSize.x, imageSize.y});
 
 	float top = (float) position->y / (float) imageSize.y;
 	float left = (float) position->x / (float) imageSize.x;
@@ -349,8 +365,10 @@ void nodeFunctionality::Flip(node* theNode)
 	int vertically = *((int*)theNode->getDataPointer(1));
 
 	sf::Vector2u size = a->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
-	outputPointer->create({size.x, size.y});
+	*outputPointer = sf::RenderTexture({size.x, size.y});
 
 	flipShader.setUniform("tx", a->getTexture());
 	flipShader.setUniform("vertically", (float) vertically);
@@ -371,13 +389,17 @@ void nodeFunctionality::Frame(node* theNode)
 	sf::Vector2f fFrame;
 	if (*frame < 0)
 	{
-		outputPointer->create({size.x - *frame * 2, size.y - *frame * 2});
+		if (size.x - *frame * 2 < 1 || size.y - *frame * 2 < 1)
+			return;
+		*outputPointer = sf::RenderTexture({size.x - *frame * 2, size.y - *frame * 2});
 		fFrame.x = (float)*frame / (float)size.x * -1.0f;
 		fFrame.y = (float)*frame / (float)size.y * -1.0f;
 	}
 	else if (*frame > 0)
 	{
-		outputPointer->create({size.x + *frame * 2, size.y + *frame * 2});
+		if (size.x + *frame * 2 < 1 || size.y + *frame * 2 < 1)
+			return;
+		*outputPointer = sf::RenderTexture({size.x + *frame * 2, size.y + *frame * 2});
 		fFrame.x = (float)*frame / (float)size.x;
 		fFrame.y = (float)*frame / (float)size.y;
 	}
@@ -399,8 +421,10 @@ void nodeFunctionality::Grayscale(node* theNode)
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 
 	sf::Vector2u size = a->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
-	outputPointer->create({size.x, size.y});
+	*outputPointer = sf::RenderTexture({size.x, size.y});
 
 	grayscaleShader.setUniform("tex", a->getTexture());
 
@@ -415,8 +439,10 @@ void nodeFunctionality::GammaCorrection(node* theNode)
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 
 	sf::Vector2u size = a->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
-	outputPointer->create({size.x, size.y});
+	*outputPointer = sf::RenderTexture({size.x, size.y});
 
 	gammaCorrectionShader.setUniform("tex", a->getTexture());
 	gammaCorrectionShader.setUniform("gamma", *((float*) theNode->getDataPointer(1)));
@@ -432,7 +458,10 @@ void nodeFunctionality::Invert(node* theNode)
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 
 	sf::Vector2u size = a->getSize();
-	outputPointer->create({size.x, size.y});
+	if (size.x < 1 || size.y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({size.x, size.y});
 
 	invertShader.setUniform("tex", a->getTexture());
 
@@ -448,8 +477,10 @@ void nodeFunctionality::Mask(node* theNode)
 	sf::RenderTexture* fac = ((sf::RenderTexture*) theNode->getDataPointer(1));
 
 	sf::Vector2u size = a->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
-	outputPointer->create({size.x, size.y});
+	*outputPointer = sf::RenderTexture({size.x, size.y});
 
 	maskShader.setUniform("tex0", a->getTexture());
 	maskShader.setUniform("fac", fac->getTexture());
@@ -467,7 +498,10 @@ void nodeFunctionality::Repeat(node* theNode)
 
 	sf::Vector2u aSize = a->getSize();
 	sf::Vector2f originalSize(aSize.x, aSize.y);
-	outputPointer->create({ (unsigned int)newSize->x, (unsigned int)newSize->y});
+	if ((unsigned int)newSize->x < 1 || (unsigned int)newSize->y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({ (unsigned int)newSize->x, (unsigned int)newSize->y});
 
 	repeatShader.setUniform("tex", a->getTexture());
 	repeatShader.setUniform("originalSize", sf::Glsl::Vec2(originalSize));
@@ -488,7 +522,10 @@ void nodeFunctionality::Rotate(node* theNode)
 	sf::Vector2f originalSize(aSize.x, aSize.y);
 	float diagonal = std::ceilf(nooseMath::length(originalSize));
 	sf::Vector2f newSize(diagonal, diagonal);
-	outputPointer->create({ (unsigned int)newSize.x, (unsigned int)newSize.y});
+	if ((unsigned int)newSize.x < 1 || (unsigned int)newSize.y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({ (unsigned int)newSize.x, (unsigned int)newSize.y});
 
 	a->setSmooth(true);
 	rotateShader.setUniform("tex", a->getTexture());
@@ -510,11 +547,13 @@ void nodeFunctionality::Rotate90(node* theNode)
 	int fixed = *times < 0 ? *times * -1 + 2 : *times;
 
 	sf::Vector2u size = a->getSize();
+	if (size.x < 1 || size.y < 1)
+		return;
 
 	if (fixed % 2 == 1)
-		outputPointer->create({size.y, size.x});
+		*outputPointer = sf::RenderTexture({size.y, size.x});
 	else
-		outputPointer->create({size.x, size.y});
+		*outputPointer = sf::RenderTexture({size.x, size.y});
 
 	rotate90Shader.setUniform("tx", a->getTexture());
 	rotate90Shader.setUniform("times", (float)fixed);
@@ -532,12 +571,15 @@ void nodeFunctionality::Scale(node* theNode)
 	float* factor = ((float*)theNode->getDataPointer(1));
 	bool linearSamplingIfTrueOtherwiseNearest = nooseMath::mod(*((int*)theNode->getDataPointer(2)), 2) == 0;
 
-	a->generateMipmap(); // generate mipmap for better minification
+	if (!a->generateMipmap()) // generate mipmap for better minification
+		std::cout << "[Node provider] Scale node failed to generate mipmap\n";
 
 	outputSize->x = a->getSize().x * *factor;
 	outputSize->y = a->getSize().y * *factor;
+	if ((unsigned int)outputSize->x < 1 || (unsigned int)outputSize->y < 1)
+		return;
 
-	outputPointer->create({ (unsigned int)outputSize->x, (unsigned int)outputSize->y});
+	*outputPointer = sf::RenderTexture({ (unsigned int)outputSize->x, (unsigned int)outputSize->y});
 
 	a->setSmooth(linearSamplingIfTrueOtherwiseNearest);
 	imageShader.setUniform("tx", a->getTexture());
@@ -557,7 +599,10 @@ void nodeFunctionality::SelectByColor(node* theNode)
 	float* inTolerance = ((float*) theNode->getDataPointer(2));
 
 	sf::Vector2u size = inImage->getSize();
-	outputPointer->create({size.x, size.y});
+	if (size.x < 1 || size.y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({size.x, size.y});
 
 	selectByColorShader.setUniform("tx", inImage->getTexture());
 	selectByColorShader.setUniform("color", inColor);
@@ -576,7 +621,10 @@ void nodeFunctionality::FlatBlur(node* theNode)
 	int inSamples = *((int*) theNode->getDataPointer(2));
 
 	sf::Vector2u size = inImage->getSize();
-	outputPointer->create({size.x, size.y});
+	if (size.x < 1 || size.y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({size.x, size.y});
 
 	flatBlurShader.setUniform("tx", inImage->getTexture());
 	flatBlurShader.setUniform("radius", inRadius);
@@ -595,7 +643,10 @@ void nodeFunctionality::Diff(node* theNode)
 	sf::RenderTexture* b = ((sf::RenderTexture*)theNode->getDataPointer(1));
 
 	sf::Vector2u size = a->getSize();
-	outputPointer->create({ size.x, size.y });
+	if (size.x < 1 || size.y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({ size.x, size.y });
 
 	diffShader.setUniform("tex0", a->getTexture());
 	diffShader.setUniform("tex1", b->getTexture());
@@ -613,7 +664,9 @@ void nodeFunctionality::Find(node* theNode)
 
 	sf::Vector2u aSize = a->getSize();
 	sf::Vector2u bSize = b->getSize();
-	outputPointer->create({ aSize.x, aSize.y });
+	if (aSize.x < 1 || aSize.y < 1 || bSize.x < 1 || bSize.y < 1)
+		return;
+	*outputPointer = sf::RenderTexture({ aSize.x, aSize.y });
 
 	findShader.setUniform("image", a->getTexture());
 	findShader.setUniform("kernel", b->getTexture());
@@ -632,7 +685,10 @@ void nodeFunctionality::Threshold(node* theNode)
 	float* inThreshold = ((float*)theNode->getDataPointer(1));
 
 	sf::Vector2u size = inImage->getSize();
-	outputPointer->create({ size.x, size.y });
+	if (size.x < 1 || size.y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({ size.x, size.y });
 
 	thresholdShader.setUniform("tx", inImage->getTexture());
 	thresholdShader.setUniform("threshold", *inThreshold);
@@ -648,7 +704,10 @@ void nodeFunctionality::Delta(node* theNode)
 	sf::RenderTexture* inImage = ((sf::RenderTexture*)theNode->getDataPointer(0));
 
 	sf::Vector2u size = inImage->getSize();
-	outputPointer->create({ size.x, size.y });
+	if (size.x < 1 || size.y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({ size.x, size.y });
 
 	deltaShader.setUniform("tx", inImage->getTexture());
 	deltaShader.setUniform("size", sf::Glsl::Vec2(size.x, size.y));
@@ -666,7 +725,10 @@ void nodeFunctionality::HeightmapToNormalmap(node* theNode)
 	int* inMode= ((int*)theNode->getDataPointer(2));
 
 	sf::Vector2u size = inImage->getSize();
-	outputPointer->create({ size.x, size.y });
+	if (size.x < 1 || size.y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({ size.x, size.y });
 
 	heightmapToNormalmapShader.setUniform("tx", inImage->getTexture());
 	heightmapToNormalmapShader.setUniform("size", sf::Glsl::Vec2(size.x, size.y));
@@ -904,12 +966,14 @@ void nodeFunctionality::ImageFromText(node* theNode)
 	tempText.setFillColor(*inColorPointer);
 
 	sf::FloatRect bounds = tempText.getGlobalBounds();
-	int outputWidth = ((int)(bounds.width + bounds.left)) + 1;
-	int outputHeight = ((int)(bounds.height + bounds.top)) + 1;
+	int outputWidth = ((int)(bounds.size.x + bounds.position.x)) + 1;
+	int outputHeight = ((int)(bounds.size.y + bounds.position.y)) + 1;
+	if (outputWidth < 1 || outputHeight < 1)
+		return;
 
 	sf::RenderTexture tempTexture;
-	outputPointer->create({ (unsigned int)outputWidth, (unsigned int)outputHeight});
-	tempTexture.create({ (unsigned int)outputWidth, (unsigned int)outputHeight });
+	*outputPointer = sf::RenderTexture({ (unsigned int)outputWidth, (unsigned int)outputHeight});
+	tempTexture = sf::RenderTexture({ (unsigned int)outputWidth, (unsigned int)outputHeight });
 	sf::Color clearColor = sf::Color::Transparent;
 	clearColor.r = inColorPointer->r;
 	clearColor.g = inColorPointer->g;

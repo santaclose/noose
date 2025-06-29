@@ -10,16 +10,14 @@ namespace uiHelp
 	inline void displayHelp()
 	{
 		std::cout << "[UI] Opening help url\n";
-		std::string command;
 #ifdef NOOSE_PLATFORM_LINUX
-		command = "xdg-open ";
+		utils::pcall({ "xdg-open", helpUrl });
 #endif
 #ifdef NOOSE_PLATFORM_MACOS
-		command = "open ";
+		utils::pcall({ "open", helpUrl });
 #endif
 #ifdef NOOSE_PLATFORM_WINDOWS
-		command = "explorer ";
+		utils::pcall({ "explorer", helpUrl });
 #endif
-		utils::pcall({ command, helpUrl });
 	}
 }

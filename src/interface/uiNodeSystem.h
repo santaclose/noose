@@ -28,7 +28,7 @@ namespace uiNodeSystem
 		bool nodeCenterInPosition = true,
 		sf::Vector2f worldPos = { 0.0, 0.0 });
 
-	void onPollEvent(const sf::Event& e);
+	void onPollEvent(const std::optional<sf::Event>& e);
 	void draw();
 
 	void setOnNodeSelectedCallback(void (*functionPointer)(int));

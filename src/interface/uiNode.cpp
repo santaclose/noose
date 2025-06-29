@@ -146,7 +146,7 @@ void uiNode::setPosition(sf::Vector2f& newPosition)
 		m_shapes[8 + m_nodeData->inputPinCount * 4 + i * 4 + 2].position = pinCenter + sf::Vector2f(PIN_RECT_SIZE / 2.0f, 0.0f);
 		m_shapes[8 + m_nodeData->inputPinCount * 4 + i * 4 + 3].position = pinCenter + sf::Vector2f(0.0f, -PIN_RECT_SIZE / 2.0f);
 
-		m_pinNameTexts[m_nodeData->inputPinCount + i].setPosition(pinCenter - sf::Vector2f(PIN_TEXT_MARGIN_X + m_pinNameTexts[m_nodeData->inputPinCount + i].getLocalBounds().width, -PIN_TEXT_MARGIN_Y));
+		m_pinNameTexts[m_nodeData->inputPinCount + i].setPosition(pinCenter - sf::Vector2f(PIN_TEXT_MARGIN_X + m_pinNameTexts[m_nodeData->inputPinCount + i].getLocalBounds().size.x, -PIN_TEXT_MARGIN_Y));
 	}
 
 	m_title->setPosition(newPosition + sf::Vector2f(TEXT_MARGIN_LEFT, TEXT_MARGIN_TOP));
@@ -190,7 +190,7 @@ uiNode::MousePos uiNode::mouseOver(const sf::Vector2f& mousePos, int& index, int
 		return MousePos::Outside;
 
 	// top bar check
-	r.height = BAR_HEIGHT;
+	r.size.y = BAR_HEIGHT;
 	if (nooseMath::isPointInsideRect(mousePos, r))
 		return MousePos::TopBar;
 
