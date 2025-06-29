@@ -323,6 +323,15 @@ int main(int argc, char** argv)
 						case sf::Keyboard::Key::H:
 							uiFloatingButtonLayer::active = !uiFloatingButtonLayer::active;
 							break;
+#if NOOSE_PLATFORM_LINUX
+						case sf::Keyboard::Key::Q:
+							if (nodeEditorEvent->getIf<sf::Event::KeyPressed>()->control)
+							{
+								nodeEditorWindow->close();
+								viewportWindow->close();
+							}
+							break;
+#endif
 						}
 					}
 
@@ -354,7 +363,13 @@ int main(int argc, char** argv)
 		while (const std::optional viewportEvent = viewportWindow->pollEvent())
 		{
 			mousePosViewport = sf::Mouse::getPosition(*viewportWindow);
-			if (viewportEvent->is<sf::Event::Closed>())
+			if (viewportEvent->is<sf::Event::Closed>()
+#if NOOSE_PLATFORM_LINUX
+				|| viewportEvent->is<sf::Event::KeyPressed>() &&
+				viewportEvent->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Q &&
+				viewportEvent->getIf<sf::Event::KeyPressed>()->control
+#endif
+				)
 			{
 				nodeEditorWindow->close();
 				viewportWindow->close();
