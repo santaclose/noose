@@ -705,8 +705,8 @@ void uiInputField::bind(int index, InteractionMode interactionMode)
 	{
 		if (currentInteractionMode == InteractionMode::Default)
 		{
-			uiColorPicker::setOnColorSelectCallback(onColorPickerSetColor);
-			uiColorPicker::show((sf::Color*) editingInputField->dataPointer, unbind);
+			uiColorPicker::setonColorSelectedCallback(onColorPickerSetColor);
+			uiColorPicker::show((sf::Color*) editingInputField->dataPointer);
 			uiColorPicker::updatePositionsFromColor();
 		}
 		return;

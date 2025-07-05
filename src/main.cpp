@@ -43,7 +43,7 @@ static sf::RenderWindow* nodeEditorWindow = nullptr;
 static sf::Vector2i mousePosNodeEditor;
 static sf::RenderWindow* viewportWindow = nullptr;
 static sf::Vector2i mousePosViewport;
-static std::vector<sf::Window*> windowList;
+static sf::Window* windowList[3];
 
 OpenFileMode guessOpenFileMode(int argc, const std::string& secondArgument)
 {
@@ -97,6 +97,17 @@ void onToggleNodeEditorVisibility()
 {
 	nodeEditorWindow->setVisible(nodeEditorIsVisible = !nodeEditorIsVisible);
 	viewportWindow->requestFocus();
+}
+
+void onColorPickerWindowCreated(sf::RenderWindow* window)
+{
+	windowList[2] = window;
+}
+
+void onColorPickerWindowDestroyed()
+{
+	uiInputField::unbind();
+	windowList[2] = nullptr;
 }
 
 #ifdef NOOSE_PLATFORM_WINDOWS
@@ -212,8 +223,9 @@ int main(int argc, char** argv)
 
 	nodeEditorWindow = new sf::RenderWindow(sf::VideoMode({ 720, 720 }), "node editor", sf::Style::Default, sf::State::Windowed, sf::ContextSettings(), true);
 	viewportWindow = new sf::RenderWindow(sf::VideoMode({ 720, 720 }), "viewport", sf::Style::Resize | sf::Style::Close, sf::State::Windowed);
-	windowList.push_back(nodeEditorWindow);
-	windowList.push_back(viewportWindow);
+	windowList[0] = nodeEditorWindow;
+	windowList[1] = viewportWindow;
+	windowList[2] = nullptr;
 	nodeEditorWindow->setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
 	viewportWindow->setIcon({ iconImage.getSize().x, iconImage.getSize().y }, iconImage.getPixelsPtr());
 	if (openFileMode != OpenFileMode::Image)
@@ -223,7 +235,7 @@ int main(int argc, char** argv)
 	}
 
 	uiViewport::initialize(*viewportWindow, &mousePosViewport);
-	uiColorPicker::initialize(iconImage);
+	uiColorPicker::initialize(iconImage, onColorPickerWindowCreated, onColorPickerWindowDestroyed);
 	uiNodeSystem::initialize(*nodeEditorWindow, &mousePosNodeEditor);
 	uiSearchBar::initialize(*nodeEditorWindow, &mousePosNodeEditor);
 	uiMenu::initialize(*nodeEditorWindow, &mousePosNodeEditor);
@@ -396,7 +408,7 @@ int main(int argc, char** argv)
 
 		if (redrawCounter == 0)
 		{
-			sf::Window::waitEventMultiWindow(windowList);
+			sf::Window::waitEventMultiWindow(windowList, windowList[2] == nullptr ? 2 : 3);
 			redrawCounter = REDRAW_COUNT;
 		}
 		else

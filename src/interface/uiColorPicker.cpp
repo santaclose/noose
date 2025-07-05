@@ -13,8 +13,11 @@
 
 namespace uiColorPicker {
 
-	void (*onColorSelectedCallback)(sf::Color*);
+	void (*onColorSelectedCallback)(sf::Color*) = nullptr;
 	sf::Color* outputPointer = nullptr;
+
+	void (*onWindowCreatedCallback)(sf::RenderWindow*) = nullptr;
+	void (*onWindowDestroyedCallback)() = nullptr;
 
 	sf::RenderStates rsOverwrite;
 
@@ -34,8 +37,6 @@ namespace uiColorPicker {
 	sf::Vector2i lastColorPos;
 	int lastIntensityPos;
 	int lastAlphaPos;
-
-	void (*onCloseWindowCallback)() = nullptr;
 
 	uiColorPicker::SelectionState selectionState = uiColorPicker::SelectionState::None;
 	sf::Vector2i mousePos;
@@ -83,8 +84,11 @@ void uiColorPicker::setColor()
 	onColorSelectedCallback(outputPointer);
 }
 
-void uiColorPicker::initialize(const sf::Image& iconImage)
+void uiColorPicker::initialize(const sf::Image& iconImage, void (*onWindowCreated)(sf::RenderWindow*), void (*onWindowDestroyed)())
 {
+	onWindowCreatedCallback = onWindowCreated;
+	onWindowDestroyedCallback = onWindowDestroyed;
+
 	uiColorPicker::iconImage = &iconImage;
 	rsOverwrite.blendMode = sf::BlendNone;
 
@@ -150,14 +154,8 @@ void uiColorPicker::initialize(const sf::Image& iconImage)
 	renderTexture.draw(gva, rsOverwrite);
 }
 
-void uiColorPicker::setOnColorSelectCallback(void (*onSetColor)(sf::Color*))
+void uiColorPicker::show(sf::Color* newPointer)
 {
-	onColorSelectedCallback = onSetColor;
-}
-
-void uiColorPicker::show(sf::Color* newPointer, void (*onCloseWindow)())
-{
-	onCloseWindowCallback = onCloseWindow;
 	if (theWindow != nullptr)
 	{
 		theWindow->requestFocus();
@@ -170,6 +168,8 @@ void uiColorPicker::show(sf::Color* newPointer, void (*onCloseWindow)())
 			"color picker",
 			sf::Style::Close);
 		theWindow->setIcon({ iconImage->getSize().x, iconImage->getSize().y }, iconImage->getPixelsPtr());
+		if (onWindowCreatedCallback != nullptr)
+			onWindowCreatedCallback(theWindow);
 	}
 	outputPointer = newPointer;
 }
@@ -193,6 +193,8 @@ void uiColorPicker::hide()
 	theWindow->close();
 	delete theWindow;
 	theWindow = nullptr;
+	if (onWindowDestroyedCallback != nullptr)
+		onWindowDestroyedCallback();
 }
 
 void uiColorPicker::tick()
@@ -205,7 +207,6 @@ void uiColorPicker::tick()
 		if (e->is<sf::Event::Closed>())
 		{
 			theWindow->close();
-			onCloseWindowCallback();
 		}
 		else if (e->is<sf::Event::MouseButtonPressed>() && e->getIf<sf::Event::MouseButtonPressed>()->button == sf::Mouse::Button::Left)
 		{
@@ -237,6 +238,8 @@ void uiColorPicker::tick()
 	{
 		delete theWindow;
 		theWindow = nullptr;
+		if (onWindowDestroyedCallback != nullptr)
+			onWindowDestroyedCallback();
 	}
 	else
 	{
@@ -268,4 +271,9 @@ void uiColorPicker::terminate()
 		theWindow->close();
 		delete theWindow;
 	}
+}
+
+void uiColorPicker::setonColorSelectedCallback(void (*onColorSelected)(sf::Color*))
+{
+	onColorSelectedCallback = onColorSelected;
 }
