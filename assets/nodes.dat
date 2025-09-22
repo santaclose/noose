@@ -242,7 +242,7 @@ Rotate
 	category: Image processing
 	in:
 		Image: image
-		Float: radians
+		Float: degrees<0.1>
 	out:
 		Image: result
 ]

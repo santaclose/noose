@@ -79,7 +79,7 @@ namespace nodeProvider {
 
 	void insertSorted();
 	bool parseLine(const std::string& line, bool& insideDataSection, bool& inSection, int& currentCustomNode);
-	void parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions);
+	void parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions, float& sensitivity);
 	inline void* getFunctionalityFromName(const std::string& name)
 	{
 		if (name2func.find(name) == name2func.end())
@@ -253,9 +253,11 @@ bool nodeProvider::parseLine(const std::string& line, bool& insideDataSection, b
 			inSection = false;
 		else
 		{
-			parsePinLine(line, type, name, defaultData, enumOptions);
+			float sensitivity = -1.0f;
+			parsePinLine(line, type, name, defaultData, enumOptions, sensitivity);
 			nodeDataList.back().pinNames.push_back(name);
 			nodeDataList.back().pinTypes.push_back(typeFromString(type));
+			nodeDataList.back().pinSensitivities.push_back(sensitivity);
 			nodeDataList.back().pinEnumOptions.push_back(enumOptions);
 			nodeDataList.back().pinDefaultData.push_back(nullptr);
 			nodeDataList.back().customNodeId = currentCustomNode;
@@ -289,7 +291,7 @@ bool nodeProvider::parseLine(const std::string& line, bool& insideDataSection, b
 	return true;
 }
 
-void nodeProvider::parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions)
+void nodeProvider::parsePinLine(const std::string& line, std::string& type, std::string& name, std::string& defaultData, std::vector<std::string>& enumOptions, float& sensitivity)
 {
 	int i = 2;
 	for (; line[i] != ':'; i++);
@@ -297,7 +299,7 @@ void nodeProvider::parsePinLine(const std::string& line, std::string& type, std:
 	i += 2;
 
 	int j = i;
-	for (; j < line.length() && line[j] != '[' && line[j] != '{'; j++);
+	for (; j < line.length() && line[j] != '[' && line[j] != '{' && line[j] != '<'; j++);
 	name = line.substr(i, j - i);
 
 	i = j;
@@ -329,6 +331,7 @@ void nodeProvider::parsePinLine(const std::string& line, std::string& type, std:
 			else if (line[i] == '}')
 			{
 				enumOptions.push_back(line.substr(j, i - j));
+				j = i + 1;
 				break;
 			}
 			else
@@ -336,5 +339,12 @@ void nodeProvider::parsePinLine(const std::string& line, std::string& type, std:
 				i++;
 			}
 		}
+	}
+
+	if (j < line.length() && line[j] == '<') // there is a sensitivity value
+	{
+		j++;
+		for (i = j; line[i] != '>'; i++);
+		sensitivity = std::stof(line.substr(j, i - j));
 	}
 }

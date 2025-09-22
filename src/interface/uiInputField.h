@@ -26,7 +26,7 @@ public:
 
 	~uiInputField();
 	bool mouseOver(const sf::Vector2f& mousePosInWorld, int& index);
-	void create(int thePin, int theType, void* pinDataPointer, void(onValueChangedFunc)(int), const std::vector<std::string>* theEnumOptions, uiSelectionBox* theSelectionBox);
+	void create(int thePin, int theType, void* pinDataPointer, void(onValueChangedFunc)(int), const std::vector<std::string>* theEnumOptions, uiSelectionBox* theSelectionBox, float theSensitivity = -1.0f);
 	void setPosition(const sf::Vector2f& newPosition, float nodeWidth, float height); // top left corner position
 	void draw(sf::RenderWindow& window);
 	void setValue(const void* data, int flags = 0);
@@ -45,6 +45,7 @@ private:
 	int pin;
 	bool enabled = true;
 	int type;
+	float sensitivity;
 	sf::Vertex* shapes = nullptr;
 	std::vector<sf::Text> texts;
 	std::string imagePath = "";

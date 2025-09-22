@@ -12,8 +12,8 @@
 
 
 #define COLOR_EDITING_SENSITIVITY 0.01
-#define INT_EDITING_SENSITIVITY 0.1
-#define FLOAT_EDITING_SENSITIVITY 0.001
+#define DEFAULT_INT_EDITING_SENSITIVITY 0.1
+#define DEFAULT_FLOAT_EDITING_SENSITIVITY 0.001
 #define FONT_SIZE 12
 #define TEXT_OFFSET_Y 3
 
@@ -125,14 +125,14 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 	switch (editingInputField->type)
 	{
 	case NS_TYPE_FLOAT:
-		*((float*)(editingInputField->dataPointer)) += displacement.x * FLOAT_EDITING_SENSITIVITY;
+		*((float*)(editingInputField->dataPointer)) += displacement.x * editingInputField->sensitivity;
 		editingInputField->texts[0].setString(std::to_string(*((float*)(editingInputField->dataPointer))));
 		editingInputField->onValueChanged(editingInputField->pin);
 		break;
 	case NS_TYPE_INT:
 		if (editingInputField->enumOptions->size() > 0)
 			break;
-		editingInputFieldHelper += displacement.x * INT_EDITING_SENSITIVITY;
+		editingInputFieldHelper += displacement.x * editingInputField->sensitivity;
 		newValueAux = (int)editingInputFieldHelper;
 		if (newValueAux != *((int*)(editingInputField->dataPointer)))
 		{
@@ -144,7 +144,7 @@ void uiInputField::onMouseMoved(sf::Vector2f& displacement)
 	case NS_TYPE_VECTOR2I:
 		if (currentInteractionMode != Default)
 			break;
-		editingInputFieldHelper += displacement.x * INT_EDITING_SENSITIVITY;
+		editingInputFieldHelper += displacement.x * editingInputField->sensitivity;
 		if (editingVectorComponent == 'x')
 		{
 			newValueAux = (int)editingInputFieldHelper;
@@ -455,7 +455,7 @@ bool uiInputField::mouseOver(const sf::Vector2f& mousePosInWorld, int& index)
 }
 
 // TODO: think of a better way for getting the selection box pointer
-void uiInputField::create(int thePin, int theType, void* pinDataPointer, void(onValueChangedFunc)(int), const std::vector<std::string>* theEnumOptions, uiSelectionBox* theSelectionBox)
+void uiInputField::create(int thePin, int theType, void* pinDataPointer, void(onValueChangedFunc)(int), const std::vector<std::string>* theEnumOptions, uiSelectionBox* theSelectionBox, float theSensitivity)
 {
 	assert(theEnumOptions != nullptr);
 	pin = thePin;
@@ -463,6 +463,7 @@ void uiInputField::create(int thePin, int theType, void* pinDataPointer, void(on
 	enumOptions = theEnumOptions;
 	onValueChanged = onValueChangedFunc;
 	type = theType;
+	sensitivity = theSensitivity;
 	dataPointer = pinDataPointer;
 	switch (type)
 	{
@@ -474,12 +475,15 @@ void uiInputField::create(int thePin, int theType, void* pinDataPointer, void(on
 			texts[0].setString(std::to_string(*((int*)pinDataPointer)));
 		else
 			texts[0].setString((*enumOptions)[(*((int*)pinDataPointer)) % enumOptions->size()]);
-
+		if (sensitivity == -1.0f)
+			sensitivity = DEFAULT_INT_EDITING_SENSITIVITY;
 		break;
 	case NS_TYPE_FLOAT:
 		shapes = new sf::Vertex[4];
 		texts.push_back(sf::Text(uiData::font, std::to_string(*((float*)pinDataPointer)), FONT_SIZE));
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color = INPUT_FIELD_COLOR;
+		if (sensitivity == -1.0f)
+			sensitivity = DEFAULT_FLOAT_EDITING_SENSITIVITY;
 		break;
 	case NS_TYPE_STRING:
 		shapes = new sf::Vertex[4];
@@ -494,6 +498,8 @@ void uiInputField::create(int thePin, int theType, void* pinDataPointer, void(on
 		shapes[0].color = shapes[1].color = shapes[2].color = shapes[3].color =
 			shapes[4].color = shapes[5].color = shapes[6].color = shapes[7].color =
 			shapes[8].color = shapes[9].color = shapes[10].color = shapes[11].color = INPUT_FIELD_COLOR;
+		if (sensitivity == -1.0f)
+			sensitivity = DEFAULT_INT_EDITING_SENSITIVITY;
 		break;
 	case NS_TYPE_COLOR:
 		shapes = new sf::Vertex[4];

@@ -6,6 +6,7 @@ struct nodeData
 {
 	std::string nodeName;
 	std::vector<int> pinTypes;
+	std::vector<float> pinSensitivities;
 	std::vector<std::string> pinNames;
 	std::vector<void*> pinDefaultData;
 	std::vector<std::vector<std::string>> pinEnumOptions;

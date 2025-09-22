@@ -55,7 +55,7 @@ uiNode::uiNode(
 {
 	m_nodeData = data;
 
-	//std::cout << "creating node " << data->nodeName << std::endl;
+	//std::cout << "creating node " << m_nodeData->nodeName << std::endl;
 
 	m_contentHeight = (PROPERTY_HEIGHT + INPUT_FIELD_HEIGHT) * m_nodeData->inputPinCount
 				     +(PROPERTY_HEIGHT) * m_nodeData->outputPinCount;
@@ -70,7 +70,7 @@ uiNode::uiNode(
 	m_shapes[0].color = m_shapes[1].color = m_shapes[2].color = m_shapes[3].color = sf::Color(BAR_COLOR);
 	m_shapes[4].color = m_shapes[5].color = m_shapes[6].color = m_shapes[7].color = sf::Color(CONTENT_RECT_COLOR);
 
-	m_title = new sf::Text(uiData::font, data->nodeName, NODE_TITLE_FONT_SIZE);
+	m_title = new sf::Text(uiData::font, m_nodeData->nodeName, NODE_TITLE_FONT_SIZE);
 	m_title->setFillColor(sf::Color(TEXT_COLOR));
 
 	m_pinNameTexts.reserve(m_nodeData->inputPinCount + m_nodeData->outputPinCount);
@@ -79,14 +79,14 @@ uiNode::uiNode(
 	for (int i = 0; i < m_nodeData->inputPinCount + m_nodeData->outputPinCount; i++)
 	{
 		// assign color to pin vertices
-		setPinColor(&m_shapes[8 + i * 4], data->pinTypes[i]);
+		setPinColor(&m_shapes[8 + i * 4], m_nodeData->pinTypes[i]);
 
 		// create pin texts
-		m_pinNameTexts.emplace_back(uiData::font, data->pinNames[i], PIN_TEXT_FONT_SIZE);
+		m_pinNameTexts.emplace_back(uiData::font, m_nodeData->pinNames[i], PIN_TEXT_FONT_SIZE);
 
 		// create input fields
 		if (i < m_nodeData->inputPinCount)
-			m_inputFields[i].create(i, data->pinTypes[i], inputFieldPointers[i], onValueChangedFunc, &(data->pinEnumOptions[i]), selectionBox);
+			m_inputFields[i].create(i, m_nodeData->pinTypes[i], inputFieldPointers[i], onValueChangedFunc, &(m_nodeData->pinEnumOptions[i]), selectionBox, m_nodeData->pinSensitivities[i]);
 	}
 
 	sf::Vector2f nodePosOnScreen;
