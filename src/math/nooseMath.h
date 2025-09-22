@@ -4,7 +4,8 @@
 
 namespace nooseMath
 {
-	extern const float DEG2RAD;
+	static constexpr float PI = 3.14159265358979323846264f;
+	static constexpr float DEG2RAD = PI / 180.0f;
 
 	int mod(int a, int b);
 

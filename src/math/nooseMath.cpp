@@ -2,8 +2,6 @@
 #include <cmath>
 #include "vectorOperators.h"
 
-const float nooseMath::DEG2RAD = 0.0174532925;
-
 int nooseMath::mod(int a, int b)
 {
 	int ret = a % b;

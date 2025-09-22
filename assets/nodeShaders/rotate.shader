@@ -3,11 +3,8 @@ uniform vec2 originalSize;
 uniform vec2 newSize;
 uniform float angle;
 
-//#define DEG2RAD 0.0174533
-
 void main()
 {
-	//float angle = DEG2RAD * degrees;
 	float ratioX = newSize.x / originalSize.x;
 	float ratioY = newSize.y / originalSize.y;
 	float borderX = ratioX - 1.0;

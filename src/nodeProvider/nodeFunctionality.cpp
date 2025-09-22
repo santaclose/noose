@@ -516,7 +516,7 @@ void nodeFunctionality::Rotate(node* theNode)
 {
 	sf::RenderTexture* outputPointer = ((sf::RenderTexture*) theNode->getDataPointer(2));
 	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
-	float radians = *((float*) theNode->getDataPointer(1));
+	float degrees = *((float*) theNode->getDataPointer(1));
 
 	sf::Vector2u aSize = a->getSize();
 	sf::Vector2f originalSize(aSize.x, aSize.y);
@@ -529,7 +529,7 @@ void nodeFunctionality::Rotate(node* theNode)
 
 	a->setSmooth(true);
 	rotateShader.setUniform("tex", a->getTexture());
-	rotateShader.setUniform("angle", radians);
+	rotateShader.setUniform("angle", degrees * nooseMath::DEG2RAD);
 	rotateShader.setUniform("originalSize", sf::Glsl::Vec2(originalSize));
 	rotateShader.setUniform("newSize", sf::Glsl::Vec2(newSize.x, newSize.y));
 
