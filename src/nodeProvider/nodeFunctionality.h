@@ -11,6 +11,9 @@ namespace nodeFunctionality
 	void Checker(node* theNode);
 	void LinearGradient(node* theNode);
 	void UniformNoise(node* theNode);
+	void PerlinNoise(node* theNode);
+	void SimplexNoise(node* theNode);
+	void WorleyNoise(node* theNode);
 	// image processing
 	void SeparateChannels(node* theNode);
 	void CombineChannels(node* theNode);

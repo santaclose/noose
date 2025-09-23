@@ -16,6 +16,9 @@ namespace nodeFunctionality {
 	sf::Shader invertShader;
 	sf::Shader linearGradientShader;
 	sf::Shader uniformNoiseShader;
+	sf::Shader perlinNoiseShader;
+	sf::Shader simplexNoiseShader;
+	sf::Shader worleyNoiseShader;
 	sf::Shader repeatShader;
 	sf::Shader rotateShader;
 	sf::Shader rotate90Shader;
@@ -52,6 +55,9 @@ void nodeFunctionality::initialize()
 	LOAD_NODE_SHADER(invert);
 	LOAD_NODE_SHADER(linearGradient);
 	LOAD_NODE_SHADER(uniformNoise);
+	LOAD_NODE_SHADER(perlinNoise);
+	LOAD_NODE_SHADER(simplexNoise);
+	LOAD_NODE_SHADER(worleyNoise);
 	LOAD_NODE_SHADER(repeat);
 	LOAD_NODE_SHADER(rotate);
 	LOAD_NODE_SHADER(rotate90);
@@ -165,13 +171,103 @@ void nodeFunctionality::UniformNoise(node* theNode)
 	outputPointer->draw(spr, rs);
 }
 
+void nodeFunctionality::PerlinNoise(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*)theNode->getDataPointer(7));
+	sf::Vector2i* imageSize = ((sf::Vector2i*)theNode->getDataPointer(0));
+	int seed = *((int*)theNode->getDataPointer(1));
+	int octaves = *((int*)theNode->getDataPointer(2));
+	float frequency = *((float*)theNode->getDataPointer(3));
+	float amplitude = *((float*)theNode->getDataPointer(4));
+	float persistence = *((float*)theNode->getDataPointer(5));
+	float lacunarity = *((float*)theNode->getDataPointer(6));
+
+	if (imageSize->x < 1 || imageSize->y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
+
+	float aspectRatio = (float) imageSize->x / (float) imageSize->y;
+	perlinNoiseShader.setUniform("seed", seed);
+	perlinNoiseShader.setUniform("octaves", octaves);
+	perlinNoiseShader.setUniform("frequency", frequency);
+	perlinNoiseShader.setUniform("amplitude", amplitude);
+	perlinNoiseShader.setUniform("persistence", persistence);
+	perlinNoiseShader.setUniform("lacunarity", lacunarity);
+	perlinNoiseShader.setUniform("aspectRatio", aspectRatio);
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &perlinNoiseShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::SimplexNoise(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*)theNode->getDataPointer(7));
+	sf::Vector2i* imageSize = ((sf::Vector2i*)theNode->getDataPointer(0));
+	int seed = *((int*)theNode->getDataPointer(1));
+	int octaves = *((int*)theNode->getDataPointer(2));
+	float frequency = *((float*)theNode->getDataPointer(3));
+	float amplitude = *((float*)theNode->getDataPointer(4));
+	float persistence = *((float*)theNode->getDataPointer(5));
+	float lacunarity = *((float*)theNode->getDataPointer(6));
+
+	if (imageSize->x < 1 || imageSize->y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
+
+	float aspectRatio = (float) imageSize->x / (float) imageSize->y;
+	simplexNoiseShader.setUniform("seed", seed);
+	simplexNoiseShader.setUniform("octaves", octaves);
+	simplexNoiseShader.setUniform("frequency", frequency);
+	simplexNoiseShader.setUniform("amplitude", amplitude);
+	simplexNoiseShader.setUniform("persistence", persistence);
+	simplexNoiseShader.setUniform("lacunarity", lacunarity);
+	simplexNoiseShader.setUniform("aspectRatio", aspectRatio);
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &simplexNoiseShader;
+	outputPointer->draw(spr, rs);
+}
+
+void nodeFunctionality::WorleyNoise(node* theNode)
+{
+	sf::RenderTexture* outputPointer = ((sf::RenderTexture*)theNode->getDataPointer(7));
+	sf::Vector2i* imageSize = ((sf::Vector2i*)theNode->getDataPointer(0));
+	int seed = *((int*)theNode->getDataPointer(1));
+	int octaves = *((int*)theNode->getDataPointer(2));
+	float frequency = *((float*)theNode->getDataPointer(3));
+	float amplitude = *((float*)theNode->getDataPointer(4));
+	float persistence = *((float*)theNode->getDataPointer(5));
+	float lacunarity = *((float*)theNode->getDataPointer(6));
+
+	if (imageSize->x < 1 || imageSize->y < 1)
+		return;
+
+	*outputPointer = sf::RenderTexture({ (unsigned int)imageSize->x, (unsigned int)imageSize->y});
+
+	float aspectRatio = (float) imageSize->x / (float) imageSize->y;
+	worleyNoiseShader.setUniform("seed", seed);
+	worleyNoiseShader.setUniform("octaves", octaves);
+	worleyNoiseShader.setUniform("frequency", frequency);
+	worleyNoiseShader.setUniform("amplitude", amplitude);
+	worleyNoiseShader.setUniform("persistence", persistence);
+	worleyNoiseShader.setUniform("lacunarity", lacunarity);
+	worleyNoiseShader.setUniform("aspectRatio", aspectRatio);
+
+	sf::Sprite spr(outputPointer->getTexture());
+	rs.shader = &worleyNoiseShader;
+	outputPointer->draw(spr, rs);
+}
+
 void nodeFunctionality::SeparateChannels(node* theNode)
 {
 	sf::RenderTexture* outputPointerR = ((sf::RenderTexture*) theNode->getDataPointer(1));
 	sf::RenderTexture* outputPointerG = ((sf::RenderTexture*) theNode->getDataPointer(2));
 	sf::RenderTexture* outputPointerB = ((sf::RenderTexture*) theNode->getDataPointer(3));
 	sf::RenderTexture* outputPointerA = ((sf::RenderTexture*) theNode->getDataPointer(4));
-	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0)); //inputPins[0]->getData());
+	sf::RenderTexture* a = ((sf::RenderTexture*) theNode->getDataPointer(0));
 
 	sf::Vector2u size = a->getSize();
 	if (size.x < 1 || size.y < 1)

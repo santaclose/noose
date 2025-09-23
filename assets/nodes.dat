@@ -91,6 +91,48 @@ Uniform Noise
 	out:
 		Image: result
 ]
+Perlin Noise
+[
+	category: Procedural
+	in:
+		Vector2i: image size
+		Integer: seed
+		Integer: octaves[8]
+		Float: frequency[7.0]<0.1>
+		Float: amplitude[0.7]
+		Float: persistence[0.5]
+		Float: lacunarity[2.0]
+	out:
+		Image: result
+]
+Simplex Noise
+[
+	category: Procedural
+	in:
+		Vector2i: image size
+		Integer: seed
+		Integer: octaves[8]
+		Float: frequency[7.0]<0.1>
+		Float: amplitude[0.7]
+		Float: persistence[0.5]
+		Float: lacunarity[2.0]
+	out:
+		Image: result
+]
+Worley Noise
+[
+	category: Procedural
+	in:
+		Vector2i: image size
+		Integer: seed
+		Integer: octaves[8]
+		Float: frequency[7.0]<0.1>
+		Float: amplitude[0.7]
+		Float: persistence[0.5]
+		Float: lacunarity[2.0]
+	out:
+		Image: result
+]
 Image from text
 [
 	category: Procedural
