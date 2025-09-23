@@ -368,7 +368,7 @@ Heightmap to normalmap
 	category: Image processing
 	in:
 		Image: image
-		Float: height in pixels[30]
+		Float: height in pixels[30]<0.05>
 		Integer: mode{OpenGL, DirectX}
 	out:
 		Image: out
