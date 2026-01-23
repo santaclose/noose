@@ -616,7 +616,7 @@ void nodeFunctionality::Rotate(node* theNode)
 
 	sf::Vector2u aSize = a->getSize();
 	sf::Vector2f originalSize(aSize.x, aSize.y);
-	float diagonal = std::ceilf(nooseMath::length(originalSize));
+	float diagonal = ceil(nooseMath::length(originalSize));
 	sf::Vector2f newSize(diagonal, diagonal);
 	if ((unsigned int)newSize.x < 1 || (unsigned int)newSize.y < 1)
 		return;

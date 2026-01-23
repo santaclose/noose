@@ -6,4 +6,4 @@
 	url = https://github.com/dacap/clip.git
 [submodule "vendor/cpp-subprocess"]
 	path = vendor/cpp-subprocess
-	url = git@github.com:santaclose/cpp-subprocess.git
+	url = https://github.com/santaclose/cpp-subprocess.git
